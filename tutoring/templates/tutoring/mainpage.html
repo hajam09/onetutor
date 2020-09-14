@@ -1,0 +1,26 @@
+{% extends "accounts/account_base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/searchBox.css' %}" />
+<div class="container">
+	<div class="s01">
+		<form method="post">
+			{% csrf_token %}
+			<fieldset>
+				<legend style="color: black;">Shall we find a tutor for you?</legend>
+			</fieldset>
+			<div class="inner-form">
+				<div class="input-field first-wrap">
+					<input id="search" type="text" name="search" placeholder="Try 'GCSE Maths'" />
+				</div>
+				<div class="input-field second-wrap">
+					<input id="location" type="text" name="location" placeholder="Try 'London'" />
+				</div>
+				<div class="input-field third-wrap">
+					<button class="btn-search" type="submit">Search</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+{% endblock %}
