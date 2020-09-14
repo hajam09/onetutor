@@ -1,0 +1,435 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+{% block content %}
+<script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'css/tutoringTutorProfile.css' %}"/>
+<br>
+<div class="container-fluid" style="margin: auto;overflow-x: hidden; max-width: 1500px; color: black;">
+	<br>
+	<div id="span-id-questionAnswer-instance-container"></div>
+	<br>
+	<div id="div-id-questionAnswerComment-container">
+	</div>
+	
+	{% if questionAnswerComment.has_other_pages %}
+	<nav aria-label="Page navigation example">
+		<ul class="pagination justify-content-center">
+			{% if questionAnswerComment.has_previous %}
+			<li class="page-item">
+				<a class="page-link" href="?page={{ questionAnswerComment.previous_page_number }}" aria-label="Previous">
+					<span aria-hidden="true">&laquo;</span>
+					<span class="sr-only">Previous</span>
+				</a>
+			</li>
+			{% else %}
+			<li class="page-item disabled">
+				<a class="page-link" aria-label="Previous">
+					<span aria-hidden="true">&laquo;</span>
+					<span class="sr-only">Previous</span>
+				</a>
+			</li>
+			{% endif %}
+
+			{% for i in questionAnswerComment.paginator.page_range %}
+			{% if questionAnswerComment.number == i %}
+			<li class="page-item active"><span class="page-link"> {{ i }} <span class="sr-only">(current)</span></span></li>
+			{% else %}
+			<li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+			{% endif %}
+			{% endfor %}
+
+			{% if questionAnswerComment.has_next %}
+			<li class="page-item">
+				<a class="page-link" href="?page={{ questionAnswerComment.next_page_number }}" aria-label="Next">
+					<span aria-hidden="true">&raquo;</span>
+					<span class="sr-only">Next</span>
+				</a>
+			</li>
+			{% else %}
+			<li class="page-item disabled">
+				<a class="page-link" aria-label="Next">
+					<span aria-hidden="true">&raquo;</span>
+					<span class="sr-only">Next</span>
+				</a>
+			</li>
+			{% endif %}
+		</ul>
+	</nav>
+	{% endif %}
+</div>
+
+<script type="text/babel">
+
+function verifyLogin()
+{
+	{% if not user.is_authenticated %}
+		window.location.href = "{% url 'accounts:login-view' %}";
+	{% endif %}
+}
+
+
+class DropDownComponent extends React.Component
+{
+	constructor(props)
+	{
+		super(props);
+	}
+
+	deleteQuestionAnswerCommentComponent = (event) =>
+	{
+		verifyLogin();
+
+		$.ajax(
+		{
+			data:
+			{
+				'functionality': 'deleteQuestionAnswerComment',
+				'commentId': this.props.questionAnswerCommentId,
+			},
+			dataType: 'json',
+			success: function (response)
+			{
+				if (response.statusCode == 200)
+				{
+					// removeQuestionAnswerCommentFromGlobalReviewList(componentId);
+				}
+			}
+		});
+		this.props.hideQuestionAnswerCommentComponent();
+	}
+
+	convertTextToEditArea = (event) =>
+	{
+		console.log("a");
+	}
+
+	render()
+	{
+
+		const divDropdownStyle = {
+			display: "inlineBlock"
+		}
+
+		const cursorPointer = {
+			cursor: "pointer"
+		}
+
+		if (this.props.canEdit)
+		{
+			return(
+				<div className="dropdown pull-right" style={divDropdownStyle}>
+					<button type="button" className="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+					<div className="dropdown-menu dropdown-primary">
+					<span className="dropdown-item" style={cursorPointer} onClick={(event) => this.deleteQuestionAnswerCommentComponent(event)}>
+						<i className="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete
+					</span>
+					<span className="dropdown-item" style={cursorPointer} onClick={(event) => this.convertTextToEditArea(event)}>
+						<i className="fa fa-edit"></i>&nbsp;&nbsp;Edit
+					</span>
+					</div>
+				</div>
+			)
+		}
+		else
+		{
+			return(
+				<div className="dropdown pull-right" style={divDropdownStyle}>
+				<button type="button" className="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+					<div className="dropdown-menu dropdown-primary">
+						<span className="dropdown-item"><i className="fa fa-warning"></i>&nbsp;&nbsp;Report</span>
+					</div>
+				</div>
+			)
+		}		
+	}
+}
+
+function likeOrDislikeQuestionAnswerCommentDjango(componentId, isLike)
+{
+	// placing ajax outside the component because the state value is updated before a response is received from the django.
+	$.ajax(
+	{
+		data:
+		{
+			'functionality': isLike ? 'likeQuestionAnswerComment' : 'dislikeQuestionAnswerComment',
+			'commentId': componentId,
+		},
+		dataType: 'json',
+		success: function (response)
+		{
+			if (response.statusCode == 200)
+			{
+				$("#likeCount-"+componentId).text( response.likeCount );
+				$("#dislikeCount-"+componentId).text( response.dislikeCount );
+			}
+		}
+	});
+}
+
+class CommentEditedComponent extends React.Component
+{
+	constructor(props)
+	{
+		super(props);
+	}
+
+	render()
+	{
+		if(this.props.edited)
+		{
+			return(
+				<span className="text-secondary" > (edited)</span>
+			)
+		}
+		else
+		{
+			return(
+				<span></span>
+			)
+		}
+	}
+}
+
+class QuestionAnswerCommentComponent extends React.Component
+{
+	constructor(props)
+	{
+		super(props);
+
+		this.state = {
+			showComponent: this.props.show,
+			likeCount: this.props.likeCount,
+			dislikeCount: this.props.dislikeCount,
+		}
+
+		this.hideQuestionAnswerCommentComponent = this.hideQuestionAnswerCommentComponent.bind(this);
+	}
+
+	likeOrDislikeQuestionAnswerComment = (event, isLike) =>
+	{
+		verifyLogin();
+
+		likeOrDislikeQuestionAnswerCommentDjango(this.props.commentId, isLike);
+	}
+
+	hideQuestionAnswerCommentComponent()
+	{
+		this.setState({
+			showComponent: !this.state.showComponent
+		});
+	}
+
+	render()
+	{
+		const buttonStyle = {
+			borderRadius: "35px",
+		}
+
+		let likeCountId = "likeCount-" + this.props.commentId;
+		let dislikeCountId = "dislikeCount-" + this.props.commentId;
+
+		if(this.state.showComponent)
+		{
+			return(
+				<div className="reviews-members pt-4 pb-4">
+					<div className="media">
+						<a href="#">
+							<img alt="Generic placeholder image" src="http://bootdey.com/img/Content/avatar/avatar1.png" className="mr-3 rounded-pill"></img>
+						</a>
+						<div className="media-body">
+							<div className="reviews-members-header">
+								<DropDownComponent canEdit={this.props.canEdit} questionAnswerCommentId={this.props.commentId} hideQuestionAnswerCommentComponent={this.hideQuestionAnswerCommentComponent} />
+								<h6 className="mb-1"><b>{this.props.creatorFullName}</b></h6>
+								<p className="text-gray">{this.props.date}<CommentEditedComponent edited={this.props.edited} /></p>
+							</div>
+							<div className="reviews-members-body">
+								<p>{this.props.comment}</p>
+							</div>
+							<div className="reviews-members-footer">
+								<button type="button" className="btn btn-outline-primary" style={buttonStyle} onClick={(event) => this.likeOrDislikeQuestionAnswerComment(event, true)}>
+									<i className="fa fa-thumbs-o-up"></i><span id={likeCountId}>{this.state.likeCount}</span>
+								</button>
+								&nbsp;&nbsp;
+								<button type="button" className="btn btn-outline-primary" style={buttonStyle} onClick={(event) => this.likeOrDislikeQuestionAnswerComment(event, false)}>
+									<i className="fa fa-thumbs-o-down"></i><span id={dislikeCountId}>{this.state.dislikeCount}</span>
+								</button>
+							</div>
+						</div>
+					</div>
+					<hr></hr>
+				</div>
+			);
+		}
+		else
+		{
+			return(
+				<div>
+				</div>
+			);
+		}
+	}
+}
+
+class Comment extends React.Component
+{
+	constructor(props)
+	{
+		super(props);
+	}
+
+	render()
+	{
+		const comments = {{questionAnswerCommentJson|safe}}
+
+		 return (
+		 	<ul>
+		 		{comments.map((c) => <QuestionAnswerCommentComponent key={c.commentId}
+		 															commentId={c.commentId}
+		 															creatorFullName={c.creatorFullName}
+		 															comment={c.comment}
+		 															date={c.date}
+		 															likeCount={c.likeCount}
+		 															dislikeCount={c.dislikeCount}
+		 															canEdit={c.canEdit}
+		 															edited={c.edited}
+		 															show={c.show} />)}
+		 	</ul>
+		 );
+	}
+}
+
+console.log({{questionAnswerCommentJson|safe}});
+
+ReactDOM.render( <Comment/>, document.getElementById('div-id-questionAnswerComment-container') );
+
+class QuestionAnswerComponent extends React.Component
+{
+	constructor(props)
+	{
+		super(props);
+		this.state = {
+			text: '',
+		}		
+	}
+
+	createQuestionAnswerComment = (event) =>
+	{
+		// verifyLogin();
+
+		let comment = this.state.text;
+
+		if(comment == null)
+		{
+			alert("Enter a comment!");
+			return;
+		}
+		
+		if (comment && !comment.trim() || comment.length==0)
+		{
+			alert("Enter a comment!");
+			return;
+		}
+
+		this.setState({
+			text: ''
+		});
+
+		$.ajax(
+		{
+			data:
+			{
+				'functionality': 'createQuestionAnswerComment',
+				'comment': comment
+			},
+			dataType: 'json',
+			success: function (response)
+			{
+				if(response.statusCode == 200)
+				{
+					// listOfReviews = [response.newComment].concat(listOfReviews);
+					// renderQuestionAnswerCommentComponents(listOfReviews);
+				}
+			}
+		});
+	}
+
+	handleChange = (event) =>
+	{
+		this.setState({
+			text: event.target.value,
+		});
+	}
+
+	render()
+	{
+		const containerStyle = {
+			marginTop: "30px",
+			marginBottom: "30px",
+		}
+
+		const anchorStyle = {
+			display: "inlineBlock",
+		}
+
+		const answerStyle = {
+			width: "970px",
+		}
+
+		const thumbsStyle = {
+			fontSize: "15px",
+		}
+
+		const subjectBadgeStyle = {
+			fontSize: "12px",
+			padding: "3px 8px",
+			borderRadius: "4px",
+			textAlign: "center",
+			color: "#fff",
+			backgroundColor: "#000",
+			opacity: ".64"
+		}
+		return(
+			<div className="card">
+				<div className="container" style={containerStyle}>
+					<a href="#" style={anchorStyle, subjectBadgeStyle}>{{ questionAnswer.subject }}</a>&nbsp;
+
+					{{ questionAnswer.questioner.get_full_name }} asked a question at {{ questionAnswer.date }}
+
+					<br></br>
+					<br></br>
+
+					<strong>{{ questionAnswer.question|linebreaksbr }}</strong>
+
+					<br></br>
+					<br></br>
+
+					<div style={answerStyle}>{{ questionAnswer.answer|linebreaksbr }}</div>
+
+					<br></br>
+					<i className='far fa-thumbs-up' style={thumbsStyle}></i> ({{questionAnswer.likes.count}}) &nbsp;&nbsp;
+					<i className='far fa-thumbs-down' style={thumbsStyle}></i> ({{questionAnswer.dislikes.count}})
+
+					<br></br>
+					<br></br>
+					<hr></hr>
+
+					<div className="container">
+						<textarea className="form-control border p-4" onChange={event => this.handleChange(event)} value={this.state.text} placeholder="write a comment..." rows="3" required></textarea>
+						<br></br>
+						<div className="pull-right">
+							<button type="button" className="btn btn-outline-primary btn-sm" onClick={(event) => this.createQuestionAnswerComment(event)}>Post Comment</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		);
+	}
+}
+
+ReactDOM.render( <QuestionAnswerComponent/>, document.getElementById('span-id-questionAnswer-instance-container') );
+
+
+</script>
+{% endblock %}

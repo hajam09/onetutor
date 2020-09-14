@@ -1,0 +1,144 @@
+<!--{% extends "accounts/base.html" %}-->
+<!--{% load static %}-->
+<!--{% block content %}-->
+<!--<style type="text/css">-->
+<!--	.mtgtlDwEfX{-->
+<!--        font-size:12px;-->
+<!--        padding:3px 8px;-->
+<!--        border-radius:4px;-->
+<!--        text-align:center;-->
+<!--        color:#fff;-->
+<!--        background-color:#000;-->
+<!--        opacity:.64;-->
+<!--    }-->
+<!--</style>-->
+<!--<div class="container-fluid" style="margin: auto;overflow-x: hidden; max-width: 1500px;">-->
+<!--    <br>-->
+<!--    <div class="row gutters-sm">-->
+<!--        <div class="col-lg-12">-->
+<!--            <div class="card">-->
+<!--                <div class="card-body tab-content" style="color: black;">-->
+<!--                    <a class="btn btn-primary float-right" href="{% url 'accounts:tutorprofileedit' %}" role="button">Edit my Profile</a>-->
+<!--                    <div>-->
+<!--                        <h3>About</h3>-->
+<!--                        <p>{{ tutorProfile.about|linebreaksbr }}</p>-->
+<!--                    </div>-->
+<!--                    <hr>-->
+<!--                    <br>-->
+<!--                    <div>-->
+<!--                        <h3>Education</h3>-->
+<!--                        <div>-->
+<!--                            {% for key,value in tutorProfile.education.items %}-->
+<!--                            <div style="display: flex; flex-direction: row; align-items: flex-start; justify-content: flex-start; margin-bottom: 15px;">-->
+<!--                                <img src='{% static "img/university.png" %}'-->
+<!--                                    style="width: 50px; height: 50px; margin-right: 13px; -o-object-fit: contain; object-fit: contain; border-radius: 4px;">-->
+<!--                                <div style="flex: 1 1; flex-direction: column;">-->
+<!--                                    <b style="margin-bottom: 5px;">{{value.school_name}}</b>-->
+<!--                                    <p style="margin-bottom: 0;">{{value.qualification}} ({{value.year}})</p>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                            {% endfor %}-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <hr>-->
+<!--                    <br>-->
+<!--                    <div>-->
+<!--                        <div class="row">-->
+<!--                            <div class="col-sm-6">-->
+<!--                                <h3 for="availability">Availability</h3>-->
+<!--                                <table class="table" id="availabilitySchedule" style="width: auto; margin-left: -10px;">-->
+<!--                                    <thead>-->
+<!--                                        <tr>-->
+<!--                                            <th scope="col"></th>-->
+<!--                                            <th scope="col" style="padding-left:0px">Morning</th>-->
+<!--                                            <th scope="col" style="padding-left:0px">Afternoon</th>-->
+<!--                                            <th scope="col" style="padding-left:0px">Evening</th>-->
+<!--                                        </tr>-->
+<!--                                    </thead>-->
+<!--                                    <tbody>-->
+<!--                                        {% for key,value in tutorProfile.availability.items %}-->
+<!--                                        <tr>-->
+<!--                                            <th style="vertical-align: middle; padding-left:0px" scope="row">{{key|title}}</th>-->
+<!--                                            <td style="text-align: center; padding-left:0px">-->
+<!--                                                {% if value.morning %}-->
+<!--                                                <div class="btn-group" data-toggle="buttons">-->
+<!--                                                    <label class="btn btn-success" disabled> <i class="fas fa-check"></i>-->
+<!--                                                    </label>-->
+<!--                                                </div>-->
+<!--                                                {% else %}-->
+<!--                                                <div class="btn-group" data-toggle="buttons">-->
+<!--                                                    <label class="btn btn-danger" disabled> <i class="fas fa-times"></i>-->
+<!--                                                    </label>-->
+<!--                                                </div>-->
+<!--                                                {% endif %}-->
+<!--                                            </td>-->
+<!--                                            <td style="text-align: center; padding-left:0px">-->
+<!--                                                {% if value.afternoon %}-->
+<!--                                                <div class="btn-group" data-toggle="buttons">-->
+<!--                                                    <label class="btn btn-success" disabled> <i class="fas fa-check"></i>-->
+<!--                                                    </label>-->
+<!--                                                </div>-->
+<!--                                                {% else %}-->
+<!--                                                <div class="btn-group" data-toggle="buttons">-->
+<!--                                                    <label class="btn btn-danger" disabled> <i class="fas fa-times"></i>-->
+<!--                                                    </label>-->
+<!--                                                </div>-->
+<!--                                                {% endif %}-->
+<!--                                            </td>-->
+<!--                                            <td style="text-align: center; padding-left:0px">-->
+<!--                                                {% if value.evening %}-->
+<!--                                                <div class="btn-group" data-toggle="buttons">-->
+<!--                                                    <label class="btn btn-success" disabled> <i class="fas fa-check"></i>-->
+<!--                                                    </label>-->
+<!--                                                </div>-->
+<!--                                                {% else %}-->
+<!--                                                <div class="btn-group" data-toggle="buttons">-->
+<!--                                                    <label class="btn btn-danger" disabled> <i class="fas fa-times"></i>-->
+<!--                                                    </label>-->
+<!--                                                </div>-->
+<!--                                                {% endif %}-->
+<!--                                            </td>-->
+<!--                                        </tr>-->
+<!--                                        {% endfor %}-->
+<!--                                    </tbody>-->
+<!--                                </table>-->
+<!--                            </div>-->
+<!--                            <div class="col-sm-6">-->
+<!--                                <h3>Subjects</h3>-->
+<!--                                <div style="display: flex; flex-flow: row wrap;" id="list_of_subjects">-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <hr>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--    <br>-->
+<!--</div>-->
+<!--<script type="text/javascript">-->
+
+<!--	$(document).ready(function ()-->
+<!--        {-->
+<!--            renderSubjects();-->
+<!--        }-->
+<!--    );-->
+
+<!--	function renderSubjects()-->
+<!--    {-->
+<!--        // TODO: Ensure the link points to the correct url with arguments.-->
+<!--		{% for subject in tutorProfile.subjects %}-->
+<!--			var subject_name = "{{subject}}".replace(/\s+/g, '-');-->
+<!--			var subject_item = `-->
+<!--				<a href="/subject_tag/`+subject_name+`" style="margin: 0 10px 10px 0;">-->
+<!--					<dir class="mtgtlDwEfX">-->
+<!--						{{ subject }}-->
+<!--					</dir>-->
+<!--				</a>`;-->
+<!--			$( "#list_of_subjects" ).append( subject_item );-->
+<!--		{% endfor %}-->
+<!--	}-->
+
+<!--</script>-->
+<!--{% endblock %}-->

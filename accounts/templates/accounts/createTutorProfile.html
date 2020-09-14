@@ -1,0 +1,193 @@
+{% extends "accounts/base.html" %}
+{% load baseTags %}
+{% load static %}
+{% block content %}
+
+    <br>
+    <div class="container">
+        <div class="row form-control" id="form-container">
+        </div>
+    </div>
+
+    <script type="text/babel">
+
+        function generateId(length) {
+            let result = '';
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            const charactersLength = characters.length;
+            let counter = 0;
+            while (counter < length) {
+                result += characters.charAt(Math.floor(Math.random() * charactersLength));
+                counter += 1;
+            }
+            return result;
+        }
+
+        class Education {
+            constructor(schoolName, qualificationAndGrades, startDate, endDate) {
+                this.id = generateId(5);
+                this.schoolName = schoolName;
+                this.qualificationAndGrades = qualificationAndGrades;
+                this.startDate = startDate;
+                this.endDate = endDate;
+            }
+        }
+
+        class EducationComponent extends React.Component {
+            constructor(props) {
+                super(props);
+            }
+
+            render() {
+                return (
+                    <div className="row">
+                        <div className="col-md-3 panel-pad-10">
+                            <div className="card">
+                                <input type="text" name="schoolName" className="form-control" placeholder="School Name"
+                                       defaultValue={this.props.education.schoolName}
+                                       data-toggle="tooltip" data-placement="top" title="School Name" required/>
+                            </div>
+                        </div>
+                        <div className="col-md-3 panel-pad-10">
+                            <div className="card">
+                                <input type="text" name="qualification" className="form-control"
+                                       placeholder="Qualification &amp; Grade(s)"
+                                       defaultValue={this.props.education.qualificationAndGrades}
+                                       data-toggle="tooltip" data-placement="top" title="Qualification &amp; Grade(s)"
+                                       required/>
+                            </div>
+                        </div>
+                        <div className="col-md-3 panel-pad-10">
+                            <div className="card">
+                                <input type="date" name="startDate" className="form-control" placeholder="Attended From"
+                                       defaultValue={this.props.education.startDate}
+                                       data-toggle="tooltip" data-placement="top" title="Attended from" required/>
+                            </div>
+                        </div>
+                        <div className="col-md-3 panel-pad-10">
+                            <div className="card">
+                                <input type="date" name="endDate" className="form-control" placeholder="Attended To"
+                                       defaultValue={this.props.education.endDate}
+                                       data-toggle="tooltip" data-placement="top" title="Attended To" required/>
+                            </div>
+                        </div>
+                        <br></br>
+                        <br></br>
+                    </div>
+                )
+            }
+        }
+
+        class Feature {
+            constructor(id, value, internalKey) {
+                this.id = id;
+                this.value = value;
+                this.internalKey = internalKey;
+            }
+        }
+
+        class FormComponent extends React.Component {
+            constructor(props) {
+                super(props);
+                let featureOptions = [
+                    new Feature(1, "inPersonLessons", "In Person Lessons"),
+                    new Feature(2, "onlineLessons", "Online lessons"),
+                ];
+
+                let educations = [
+                    new Education("", "", "", ""),
+                ]
+
+                this.state = {
+                    educations: educations,
+                    featureOptions: featureOptions,
+                    csrf_token: "{{ csrf_token }}",
+                }
+            }
+
+            addEducation = () => {
+                let educations = this.state.educations;
+                educations.push(
+                    new Education("", "", "", "")
+                )
+                this.setState({
+                    educations: educations,
+                })
+            }
+
+            removeEducation = () => {
+                let educations = this.state.educations;
+                educations.pop();
+                this.setState({
+                    educations: educations,
+                })
+            }
+
+            render() {
+                return (
+                    <form method="post">
+                        <input type="hidden" name="csrfmiddlewaretoken" value={this.state.csrf_token}/>
+                        <div className="form-group">
+                            <b>Summary</b>
+                            <input type="text" className="form-control" id="summary" name="summary" maxLength={256}
+                                   required/>
+                        </div>
+                        <div className="form-group">
+                            <b>About</b>
+                            <textarea className="form-control" id="about" name="about" rows="5" required></textarea>
+                        </div>
+                        <div className="form-group">
+                            <b>Rate (£)</b>
+                            <input className="form-control" type="number" name="rate" min="0" defaultValue={0}
+                                   required/>
+                        </div>
+                        <div className="form-group">
+                            <b>Features</b>
+                            <select className="form-control" name="features" multiple={true}>
+                                {this.state.featureOptions.map((item) => <option key={item.id}
+                                                                                 value={item.value}>{item.internalKey}</option>)}
+                            </select>
+                        </div>
+                        <div className="form-group">
+                            <b>Education</b>
+                            {this.state.educations.map((item) => <EducationComponent key={item.id}
+                                                                                     education={item}/>)}
+                            <button type="button" className="btn btn-primary btn-sm float-right"
+                                    onClick={this.addEducation}>Add
+                            </button>
+                            {
+                                this.state.educations.length > 1 ?
+                                    <button type="button" className="btn btn-danger btn-sm float-right"
+                                            onClick={this.removeEducation}>Remove </button> : <span></span>
+                            }
+                        </div>
+                        <br></br>
+                        <hr></hr>
+                        <div className="form-group">
+                            <button type="submit" className="btn btn-success btn-lg btn-block">Create Profile
+                            </button>
+                        </div>
+                    </form>
+                )
+            }
+        }
+
+        ReactDOM.render(<FormComponent/>, document.getElementById('form-container'));
+    </script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("[name='features']").select2();
+        });
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"
+            integrity="sha512-8Q6Y9XnTbOE+JNvjBQwJ2H8S+UV4uA6hiRykhdtIyDYZ2TprdNmWOUaKdGzOhyr4dCyk287OejbPvwl7lrfqrQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"
+            integrity="sha512-MOCpqoRoisCTwJ8vQQiciZv0qcpROCidek3GTFS6KTk2+y7munJIlKCVkFCYY+p3ErYFXCjmFjnfTTRSC1OHWQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"
+            integrity="sha512-kp7YHLxuJDJcOzStgd6vtpxr4ZU9kjn77e6dBsivSz+pUuAuMlE2UTdKB7jjsWT84qbS8kdCWHPETnP/ctrFsA=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+{% endblock %}

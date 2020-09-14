@@ -1,0 +1,34 @@
+{% extends 'accounts/base.html' %}
+{% load crispy_forms_filters %}
+{% load static %}
+{% block content %}
+    <div class='container'>
+        <div class='w-100 p-5'></div>
+        <div class='row'>
+            <div class='col-12 d-flex justify-content-center align-items-center'>
+                <div class='card w-50'>
+                    <form method='post'>
+                        {% csrf_token %}
+                        <div class='card-body'>
+                            <h5 class='card-title text-center'>Register</h5>
+                            <hr>
+                            {{ form | crispy }}
+                            <input type='submit' class='btn btn-primary btn-block' value='Register Now'>
+                            <br>
+
+                            <p class='small text-center text-muted'>
+                                By clicking the Register Now button, you agree to our <br>
+                                <a href='#' target='_blank'>Terms &amp; Conditions</a>, and
+                                <a href='#' target='_blank'>Privacy Policy</a>
+                            </p>
+                            <p class='text-center text-muted' style='font-size: 14px'>
+                                Already have an account?
+                                <a href='{% url 'accounts:login-view' %}'>Sign in</a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

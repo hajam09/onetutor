@@ -1,0 +1,269 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.js"></script>
+<link rel="stylesheet" href="{% static 'css/messages.css' %}">
+
+{% if user.is_authenticated %}
+<input type="hidden" id="logged-in-user" value="{{ user.id }}">
+{% endif %}
+        
+<div class="container-fluid h-100">
+    <div class="row justify-content-center h-100 ">
+        <div class="col-md-4 col-xl-3 chat h-100 mt-4">
+            <div class="card mb-sm-3 mb-md-0 contacts_card">
+                <div class="card-header">
+                    <div class="input-group">
+                        <input type="text" placeholder="Search..." name="" class="form-control search">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text search_btn"><i class="fas fa-search"></i></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body contacts_body">
+                    <ui class="contacts">
+                        {% for thread in messenger %}
+                        <li class="{% if forloop.first %}active{% endif %} contact-li" chat-id="chat_{{ thread.id }}" style="cursor: pointer;">
+                            <div class="d-flex bd-highlight">
+                                <div class="img_cont">
+                                    <img src="{{thread.picture}}" class="rounded-circle user_img">
+                                    {% if thread.isOnline %}
+                                    <span class="online_icon"></span>
+                                    {% endif %}
+                                </div>
+                                <div class="user_info">
+                                    <span>{{ thread.name }}</span>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ui>
+                </div>
+                <div class="card-footer"></div>
+            </div>
+        </div>
+        <div class="col-md-8 col-xl-6 chat h-100 mt-4">
+            <div class="card">
+                {% for thread in messenger %}
+                <div class="messages-wrapper  {% if forloop.first %}hide is_active{% else %}hide{% endif %}" chat-id="chat_{{ thread.id }}" other-user-id="{{ thread.participantId }}">
+                    <div class="card-header msg_head" style="color:black;">
+                        <div class="py-2 px-4 border-bottom d-none d-lg-block">
+                            <div class="d-flex align-items-center py-1">
+                                <div class="position-relative">
+                                    <img src="{{thread.picture}}" class="rounded-circle mr-1" alt="Sharon Lessman" width="40" height="40">
+
+                                </div>
+                                <div class="flex-grow-1 pl-3">
+                                    <strong>{{ thread.name }}</strong>
+                                    {% if thread.isOnline %}
+                                    <div class="text-muted small"><em>Online</em></div>
+                                    {% else %}
+                                    <div class="text-muted small"><em>Offline</em></div>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <button class="btn btn-primary btn-lg mr-1 px-3"><i class="fas fa-phone"></i></button>
+                                    <button class="btn btn-info btn-lg mr-1 px-3 d-none d-md-inline-block"><i class="fas fa-video"></i></button>
+                                    <button class="btn btn-light border btn-lg px-3"><i class="fas fa-ellipsis-h"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body msg_card_body">
+                        <!------- messages ------->
+                        {% for chat in thread.chat %}
+                        <p class="small text-secondary text-center" style="color: black;">{{chat.date}}</p>
+                        {% for m in chat.messages %}
+
+                        {% if m.isSender %}
+                        <div class="d-flex mb-4 replied">
+                            <div class="msg_cotainer_send">
+                                {{ m.message }}
+                                <span class="msg_time_send">{{ m.time }}</span>
+                            </div>
+                            <div class="img_cont_msg">
+                                <img src="{{ m.picture }}" class="rounded-circle user_img_msg">
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="d-flex mb-4 received">
+                            <div class="img_cont_msg">
+                                <img src="{{ m.picture }}" class="rounded-circle user_img_msg">
+                            </div>
+                            <div class="msg_cotainer">
+                                {{ m.message }}
+                                <span class="msg_time">{{ m.time }}</span>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                        {% endfor %}
+                        <!------- messages ------->
+                    </div>
+                </div>
+                {% endfor %}
+                <div class="card-footer">
+                    <form id="send-message-form" style="color: black;">
+                        <div class="input-group">
+                            <div class="input-group-append">
+                                <span class="input-group-text attach_btn"><i class="fas fa-paperclip"></i></span>
+                            </div>
+                            <input type="text" name="" id="input-message" class="form-control type_msg" placeholder="Type your message...">
+                            <div class="input-group-append">
+                                <button class="btn btn-secondary" type="submit">
+                                <span class="input-group-text send_btn">
+                                <i class="fas fa-location-arrow"></i>
+                                </span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    let userProfilePicture = {};
+    {% for thread in messenger %}
+    {% for chat in thread.chat %}
+    {% for m in chat.messages %}
+    userProfilePicture["{{m.userId}}"] = "{{m.picture}}";
+    {% endfor %}
+    {% endfor %}
+    {% endfor %}
+
+let input_message = $('#input-message')
+let message_body = $('.msg_card_body')
+let send_message_form = $('#send-message-form')
+const USER_ID = $('#logged-in-user').val()
+
+let loc = window.location
+let wsStart = 'ws://'
+
+if(loc.protocol === 'https') {
+    wsStart = 'wss://'
+}
+let endpoint = wsStart + loc.host + loc.pathname
+
+var socket = new WebSocket(endpoint)
+
+socket.onopen = async function(e){
+    console.log('open', e)
+    send_message_form.on('submit', function (e){
+        e.preventDefault()
+        let message = input_message.val()
+        let send_to = get_active_other_user_id()
+        let thread_id = get_active_thread_id()
+
+        let data = {
+            'message': message,
+            'sent_by': USER_ID,
+            'send_to': send_to,
+            'thread_id': thread_id
+        }
+        data = JSON.stringify(data)
+        socket.send(data)
+        $(this)[0].reset()
+    })
+}
+
+socket.onmessage = async function(e){
+    console.log('message', e)
+    let data = JSON.parse(e.data)
+    let message = data['message']
+    let sent_by_id = data['sent_by']
+    let thread_id = data['thread_id']
+    newMessage(message, sent_by_id, thread_id)
+}
+
+socket.onerror = async function(e){
+    console.log('error', e)
+}
+
+socket.onclose = async function(e){
+    console.log('close', e)
+}
+
+
+function newMessage(message, sent_by_id, thread_id) {
+    if ($.trim(message) === '') {
+        return false;
+    }
+    let message_element;
+    let chat_id = 'chat_' + thread_id;
+
+    var profilePicture = null;
+
+    for (var key in userProfilePicture)
+    {
+        if (key == sent_by_id)
+        {
+            profilePicture = userProfilePicture[key];
+            break;
+        }
+    }
+    if(sent_by_id == USER_ID){
+        message_element = `
+            <div class="d-flex mb-4 replied">
+                <div class="msg_cotainer_send">
+                    ${message}
+                    <span class="msg_time_send">8:55 AM, Today</span>
+                </div>
+                <div class="img_cont_msg">
+                    <img src="${profilePicture}" class="rounded-circle user_img_msg">
+                </div>
+            </div>
+        `
+    }
+    else{
+        message_element = `
+           <div class="d-flex mb-4 received">
+              <div class="img_cont_msg">
+                 <img src="${profilePicture}" class="rounded-circle user_img_msg">
+              </div>
+              <div class="msg_cotainer">
+                 ${message}
+              <span class="msg_time">8:40 AM, Today</span>
+              </div>
+           </div>
+        `
+
+    }
+
+    let message_body = $('.messages-wrapper[chat-id="' + chat_id + '"] .msg_card_body')
+    message_body.append($(message_element))
+    message_body.animate({
+        scrollTop: $(document).height()
+    }, 100);
+    input_message.val(null);
+}
+
+
+$('.contact-li').on('click', function (){
+    $('.contacts .actiive').removeClass('active')
+    $(this).addClass('active')
+
+    // message wrappers
+    let chat_id = $(this).attr('chat-id')
+    $('.messages-wrapper.is_active').removeClass('is_active')
+    $('.messages-wrapper[chat-id="' + chat_id +'"]').addClass('is_active')
+
+})
+
+function get_active_other_user_id(){
+    let other_user_id = $('.messages-wrapper.is_active').attr('other-user-id')
+    other_user_id = $.trim(other_user_id)
+    return other_user_id
+}
+
+function get_active_thread_id(){
+    let chat_id = $('.messages-wrapper.is_active').attr('chat-id')
+    let thread_id = chat_id.replace('chat_', '')
+    return thread_id
+}
+</script>
+{% endblock %}

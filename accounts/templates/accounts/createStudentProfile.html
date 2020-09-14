@@ -1,0 +1,93 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+{% block content %}
+
+    <br>
+    <div class="container">
+        <div class="row form-control" id="form-container">
+        </div>
+    </div>
+
+    <script type="text/babel">
+        class FormComponent extends React.Component {
+            constructor(props) {
+                super(props);
+                this.state = {
+                    csrf_token: "{{ csrf_token }}",
+                    showParentCodeInput: false,
+                }
+            }
+
+            getAge = (DOB) => {
+                const today = new Date();
+                const birthDate = new Date(DOB);
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const m = today.getMonth() - birthDate.getMonth();
+                if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+                return age;
+            }
+
+            handlerDateOfBirthChange = () => {
+                const birthDate = Date.parse(this.refs.dateOfBirthRef.value);
+                const age = this.getAge(birthDate);
+                this.setState({
+                    showParentCodeInput: (age < 18),
+                })
+            }
+
+            render() {
+                return (
+                    <form method="post">
+                        <input type="hidden" name="csrfmiddlewaretoken" value={this.state.csrf_token}/>
+                        <div className="form-group">
+                            <b>About</b>
+                            <textarea className="form-control" id="about" name="about" rows="5" required></textarea>
+                        </div>
+                        <div className="form-group">
+                            <b>Subjects</b>
+                            <select className="multiple-subjects form-control" name="subjects" multiple="multiple"
+                                    required></select>
+                        </div>
+                        <div className="form-group">
+                            <b>Date-of-birth</b>
+                            <input type="date" className="form-control" id="dateOfBirth" name="dateOfBirth"
+                                   ref="dateOfBirthRef" onChange={this.handlerDateOfBirthChange}
+                                   required></input>
+                            <br></br>
+                            <div id="parentIdentifierInput" hidden={!this.state.showParentCodeInput}>
+                                <b>Parent code</b>
+                                <input type="text" className="form-control" id="parentIdentifier"
+                                       name="parentIdentifier" required={this.state.showParentCodeInput}/>
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <button type="submit" className="btn btn-success btn-lg btn-block">Create Profile
+                            </button>
+                        </div>
+                    </form>
+                )
+            }
+        }
+
+        ReactDOM.render(<FormComponent/>, document.getElementById('form-container'));
+    </script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+                $("select").select2({tags: true,});
+            }
+        );
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"
+            integrity="sha512-8Q6Y9XnTbOE+JNvjBQwJ2H8S+UV4uA6hiRykhdtIyDYZ2TprdNmWOUaKdGzOhyr4dCyk287OejbPvwl7lrfqrQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"
+            integrity="sha512-MOCpqoRoisCTwJ8vQQiciZv0qcpROCidek3GTFS6KTk2+y7munJIlKCVkFCYY+p3ErYFXCjmFjnfTTRSC1OHWQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"
+            integrity="sha512-kp7YHLxuJDJcOzStgd6vtpxr4ZU9kjn77e6dBsivSz+pUuAuMlE2UTdKB7jjsWT84qbS8kdCWHPETnP/ctrFsA=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+{% endblock %}

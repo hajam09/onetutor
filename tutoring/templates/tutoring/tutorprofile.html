@@ -1,0 +1,1304 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/tutoringTutorProfile.css' %}"/>
+<div class="profile-userbuttons">
+    <div class="modal fade" id="questionModal" tabindex="-1" role="dialog" aria-labelledby="questionModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="color: black;">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="exampleModalLabel" style="display: inline-block;">Enter your Question below.</h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="display: inline-block;">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="subject-related" class="col-form-label pull-left"><b>Select a subject</b></label>
+                        <select class="form-control" id="subject" name="subject">
+                            {% for subject in subjects %}
+                            <option value="{{subject.name}}">{{subject.name}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="question" class="col-form-label pull-left"><b>Question:</b></label>
+                        <textarea class="form-control" id="question" name="question" required></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success" onclick="postQuestionAnswer();">Post my Question</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="tutorReview" tabindex="-1" role="dialog" aria-labelledby="tutorReviewLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="color: black;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="exampleModalLabel" style="display: inline-block;">Enter your review below.</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="display: inline-block;">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="rating_value-related" class="col-form-label pull-left"><b>Rating:</b></label>
+                    <select class="form-control" id="ratingValue" name="ratingValue">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="reviewComment" class="col-form-label pull-left"><b>Comment:</b></label>
+                    <textarea class="form-control" id="reviewComment" name="reviewComment" rows="5" required></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success" onclick="createTutorReview();">Post my review</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid" style="margin: auto;overflow-x: hidden; max-width: 1500px;">
+    <br>
+    <div class="row gutters-sm">
+        <div class="col-lg-3 d-md-block">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex flex-column align-items-center text-center">
+                        {% if tutorProfile.picture %}
+                        <img src="{{ tutorProfile.picture.url }}" class="rounded-circle" width="150" height="150" alt="Error" />
+                        {% else %}
+                        <img src="https://icon-library.com/images/default-user-icon/default-user-icon-13.jpg" class="rounded-circle" width="150" height="150" alt="Error" />
+                        {% endif %}
+                        <div class="mt-3">
+                            <h4 style="color: black;">{{ tutorProfile.user.first_name }} {{ tutorProfile.user.last_name }}</h4>
+                            <p class="text-secondary mb-1">{{ tutorProfile.summary }}</p>
+                            {% if user.pk != tutorProfile.user.pk %}
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#questionModal">Ask a Question</button>
+                            <button type="button" class="btn btn-outline-primary" onclick="StartMessage();">Message</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="card" style="color: black;">
+                <nav class="nav flex-column nav-pills nav-gap-y-1">
+                    <a href="#tutor_profile" data-toggle="tab" class="nav-item nav-link has-icon nav-link-faded active">
+                    <i class='fa fa-user' style='font-size:20px'></i>
+                    &nbsp;&nbsp;
+                    <label class="side-bar-text">Profile</label>
+                    </a>
+                    <a href="#q_and_a" data-toggle="tab" class="nav-item nav-link has-icon nav-link-faded">
+                    <i class='fas fa-question' style='font-size:20px'></i>
+                    &nbsp;&nbsp;
+                    <label class="side-bar-text">Q and A</label>
+                    </a>
+                    <a href="#tutor_reviews" data-toggle="tab" class="nav-item nav-link has-icon nav-link-faded">
+                    <i class='fa fa-star' style='font-size:20px'></i>
+                    &nbsp;&nbsp;
+                    <label class="side-bar-text">Reviews</label>
+                    </a>
+                </nav>
+            </div>
+        </div>
+        <div class="col-lg-9">
+            <div class="card">
+                <div class="card-body tab-content" style="color: black;">
+                    <div class="tab-pane active" id="tutor_profile">
+                        <div>
+                            <h3>About</h3>
+                            <p>{{ tutorProfile.about|linebreaksbr }}</p>
+                        </div>
+                        <hr>
+                        <br>
+                        <div>
+                            <h3>Education</h3>
+                            <div>
+                                {% for e in tutorProfile.user.education.all %}
+                                <div style="display: flex; flex-direction: row; align-items: flex-start; justify-content: flex-start; margin-bottom: 15px;">
+                                    <img src='{% static "img/university.png" %}'
+                                        style="width: 50px; height: 50px; margin-right: 13px; -o-object-fit: contain; object-fit: contain; border-radius: 4px;">
+                                    <div style="flex: 1 1; flex-direction: column;">
+                                        <b style="margin-bottom: 5px;">{{e.schoolName}}</b>
+                                        <p style="margin-bottom: 0;">{{e.qualification}} ({{e.startDate}} - {{e.endDate}})</p>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <hr>
+                        <br>
+                        <div>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <h3 for="availability">Availability</h3>
+                                    <table class="table" id="availabilitySchedule" style="width: auto;">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col"></th>
+                                                <th scope="col">Morning</th>
+                                                <th scope="col">Afternoon</th>
+                                                <th scope="col">Evening</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for key, value in tutorProfile.user.availability.getAvailability.items %}
+                                            <tr>
+                                                <th style="vertical-align: middle;" scope="row">{{key|title}}</th>
+                                                <td style="text-align: center">
+                                                    <div class="btn-group" data-toggle="buttons">
+                                                        {% if value.morning %}
+                                                        <label class="btn btn-success" disabled><i class="fas fa-check"></i></label>
+                                                        {% else %}
+                                                        <label class="btn btn-danger" disabled><i class="fas fa-times"></i></label>
+                                                        {% endif %}
+                                                    </div>
+                                                </td>
+                                                <td style="text-align: center">
+                                                    <div class="btn-group" data-toggle="buttons">
+                                                        {% if value.afternoon %}
+                                                        <label class="btn btn-success" disabled> <i class="fas fa-check"></i></label>
+                                                        {% else %}
+                                                        <label class="btn btn-danger" disabled> <i class="fas fa-times"></i></label>
+                                                        {% endif %}
+                                                    </div>
+                                                </td>
+                                                <td style="text-align: center">
+                                                    <div class="btn-group" data-toggle="buttons">
+                                                        {% if value.evening %}
+                                                        <label class="btn btn-success" disabled><i class="fas fa-check"></i></label>
+                                                        {% else %}
+                                                        <label class="btn btn-danger" disabled><i class="fas fa-times"></i></label>
+                                                        {% endif %}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-sm-6">
+                                    <h3>Subjects</h3>
+                                    <div style="display: flex; flex-flow: row wrap;" id="list_of_subjects">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="q_and_a">
+                        <div class="modal fade" id="answerModal" tabindex="-1" role="dialog" aria-labelledby="answerModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content" style="color: black;">
+                                    <div class="modal-header">
+                                        <h3 class="modal-title" id="exampleModalLabel" style="display: inline-block;">Answer the Question below.</h3>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="display: inline-block;">
+                                        <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="form-group">
+                                            <label for="question_text" class="col-form-label pull-left">Question</label>
+                                            <textarea class="form-control" id="question_text" name="question_text" rows="5" readonly></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="answer_text" class="col-form-label pull-left">Answer</label>
+                                            <textarea class="form-control" id="answer_text" name="answer_text" rows="5" required></textarea>
+                                        </div>
+                                        <input type="text" name="question_id" id="question_id" hidden/>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-success" onclick="answerQuestionAnswer();">Post my Answer</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- TOEDIT -->
+                        <div class="modal fade" id="editQuestionModal" tabindex="-1" role="dialog" aria-labelledby="editQuestionModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content" style="color: black;">
+                                    <div class="modal-header">
+                                        <h3 class="modal-title" id="exampleModalLabel" style="display: inline-block;">Edit your question below.</h3>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="display: inline-block;">
+                                        <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="form-group">
+                                            <label for="subject-related" class="col-form-label pull-left"><b>Select a subject</b></label>
+                                            <select class="form-control" id="editQuestionSubject" name="subject">
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="question" class="col-form-label pull-left"><b>Question:</b></label>
+                                            <textarea class="form-control" id="new_question" name="new_question" rows="5" required></textarea>
+                                        </div>
+                                        <input type="text" name="question_id_to_update" id="question_id_to_update" hidden/>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-primary" onclick="updateQuestion();">Update my Question</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="overflow-y: scroll; overflow-x: hidden; height:866px;" id="div-id-tutor-QuestionAnswer">
+                            {% if questionAndAnswers %} {% for qa in questionAndAnswers %}
+                            <div class="container question_answer_container_{{qa.id}}" style="width: auto;">
+                                <div id="question_answer_id_{{qa.id}}">
+                                    <a href="/result/{{qa.subject}}" class="mtgtlDwEfX" style="display:inline-block;" id="qa_subject_{{qa.id}}">{{ qa.subject }}</a>
+                                    {{ qa.questioner.first_name }} {{ qa.questioner.last_name }} asked a question at
+                                    <p style="display:inline-block;" id="tool_tip_date_{{qa.id}}" data-toggle="tooltip" data-placement="top">{{ qa.date }}</p>
+                                    <div class="dropdown pull-right" style="display:inline-block;">
+                                        <!--Trigger-->
+                                        <a class="btn-floating btn-lg black dropdown-toggle"type="button" id="dropdownMenu3" data-toggle="dropdown"
+                                            aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
+                                        <br>
+                                        <!--Menu-->
+                                        <div class="dropdown-menu dropdown-primary">
+                                            {% if qa.questioner.pk == user.pk %}
+                                            <span class="dropdown-item" style="cursor: pointer;" onclick="deleteQuestionAnswer('{{qa.id}}');"><i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete question</span>
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editQuestionModal" onclick="updateEditQuestionModal('{{ qa.id }}');"><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit question</a>
+                                            {% endif %}
+                                            <a class="dropdown-item" href="{{ qa.questionAnswerThreadUrl }}" target="_blank"><i class="fab fa-discourse"></i>&nbsp;&nbsp;View thread</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div><strong id="qa_question_{{qa.id}}">{{ qa.question|linebreaksbr }}</strong></div>
+                                <br>
+                                <div style="width: 970px;" id="qa_answer_{{qa.id}}">{{ qa.answer|linebreaksbr }}</div>
+                                <br>
+                                <button id="comment_like_id_{{qa.id}}" type="button" class="btn btn-default btn-sm" onclick="likeQuestionAnswer('{{qa.id}}')">
+                                <i class='far fa-thumbs-up' style='font-size:15px'></i> ({{qa.likes.count}})
+                                </button>
+                                <button id="comment_dislike_id_{{qa.id}}" type="button" class="btn btn-default btn-sm" onclick="dislikeQuestionAnswer('{{qa.id}}')">
+                                <i class='far fa-thumbs-down' style='font-size:15px'></i> ({{qa.dislikes.count}})
+                                </button><br><br>
+                                {% if request.user == tutorProfile.user %}
+                                <span class="badge badge-info" data-toggle="modal" data-target="#answerModal" style="cursor: pointer;" onclick="updateAnswerModal('{{ qa.id }}');">Answer this question</span>
+                                {% endif %}
+                                <hr>
+                            </div>
+                            {% endfor %} {% else %} <div class="alert alert-info" role="alert" style="text-align: center;"> No questions has been asked to this tutor yet. </div> {% endif %}
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="tutor_reviews">
+                        <div class="bg-white rounded shadow-sm p-4 mb-4 clearfix graph-star-rating">
+                            <h5 class="mb-0 mb-4">Ratings and Reviews</h5>
+                            <div class="graph-star-rating-header">
+                                <div class="star-rating">
+                                    <a href="#"><i class="icofont-ui-rating active"></i></a>
+                                    <a href="#"><i class="icofont-ui-rating active"></i></a>
+                                    <a href="#"><i class="icofont-ui-rating active"></i></a>
+                                    <a href="#"><i class="icofont-ui-rating active"></i></a>
+                                    <a href="#"><i class="icofont-ui-rating"></i></a> <b class="text-black ml-2" id="b-id-tutor-reviews-count">{{ tutorReviews.count }} total reviews</b>
+                                </div>
+                                <p class="text-black mb-4 mt-2">Rated 0 out of 5</p>
+                            </div>
+                            <div class="graph-star-rating-body">
+                                <div class="rating-list">
+                                    <div class="rating-list-left text-black">
+                                        5 Star
+                                    </div>
+                                    <div class="rating-list-center">
+                                        <div class="progress">
+                                            <div id="star-5-bar" style="width: 0%" aria-valuemax="5" aria-valuemin="0" aria-valuenow="5" role="progressbar" class="progress-bar bg-primary">
+                                                <span class="sr-only">80% Complete (danger)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="star-5-value" class="rating-list-right text-black">0%</div>
+                                </div>
+                                <div class="rating-list">
+                                    <div class="rating-list-left text-black">
+                                        4 Star
+                                    </div>
+                                    <div class="rating-list-center">
+                                        <div class="progress">
+                                            <div id="star-4-bar" style="width: 0%" aria-valuemax="5" aria-valuemin="0" aria-valuenow="5" role="progressbar" class="progress-bar bg-primary">
+                                                <span class="sr-only">80% Complete (danger)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="star-4-value" class="rating-list-right text-black">0%</div>
+                                </div>
+                                <div class="rating-list">
+                                    <div class="rating-list-left text-black">
+                                        3 Star
+                                    </div>
+                                    <div class="rating-list-center">
+                                        <div class="progress">
+                                            <div id="star-3-bar" style="width: 0%" aria-valuemax="5" aria-valuemin="0" aria-valuenow="5" role="progressbar" class="progress-bar bg-primary">
+                                                <span class="sr-only">80% Complete (danger)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="star-3-value" class="rating-list-right text-black">0%</div>
+                                </div>
+                                <div class="rating-list">
+                                    <div class="rating-list-left text-black">
+                                        2 Star
+                                    </div>
+                                    <div class="rating-list-center">
+                                        <div class="progress">
+                                            <div id="star-2-bar" style="width: 0%" aria-valuemax="5" aria-valuemin="0" aria-valuenow="5" role="progressbar" class="progress-bar bg-primary">
+                                                <span class="sr-only">80% Complete (danger)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="star-2-value" class="rating-list-right text-black">0%</div>
+                                </div>
+                                <div class="rating-list">
+                                    <div class="rating-list-left text-black">
+                                        1 Star
+                                    </div>
+                                    <div class="rating-list-center">
+                                        <div class="progress">
+                                            <div id="star-1-bar" style="width: 0%" aria-valuemax="5" aria-valuemin="0" aria-valuenow="5" role="progressbar" class="progress-bar bg-primary">
+                                                <span class="sr-only">80% Complete (danger)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="star-1-value" class="rating-list-right text-black">0%</div>
+                                </div>
+                                <div class="rating-list">
+                                    <div class="rating-list-left text-black">
+                                        0 Star
+                                    </div>
+                                    <div class="rating-list-center">
+                                        <div class="progress">
+                                            <div id="star-0-bar" style="width: 0%" aria-valuemax="5" aria-valuemin="0" aria-valuenow="5" role="progressbar" class="progress-bar bg-primary">
+                                                <span class="sr-only">80% Complete (danger)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="star-0-value" class="rating-list-right text-black">0%</div>
+                                </div>
+                            </div>
+                            <div class="graph-star-rating-footer text-center mt-3 mb-3">
+                                <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#tutorReview">Rate and Review</button>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded shadow-sm p-4 mb-4 restaurant-detailed-ratings-and-reviews">
+                            <select class="form-control pull-right" id="filterOption" name="filterOption" style="width:15%;" onchange="UpdateRatingOrder();">
+                                <option value="Recent Date">Recent Date</option>
+                                <option value="Likes">Likes</option>
+                                <option value="Dislikes">Dislikes</option>
+                                <option value="Rating">Rating</option>
+                            </select>
+                            <h5 class="mb-1">All Ratings and Reviews</h5>
+                            <div id="div-id-tutor-reviews-container">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    // TODO: When new tutor review is created, dynamically update the review bars components
+
+	window.onload = function()
+	{
+		renderSubjects();
+		CollectTutorReviewsHandler();
+	}
+
+	var listOfReviews = [];
+
+	function CollectTutorReviewsHandler()
+	{
+		var ratingValueMap = [0, 0, 0, 0, 0, 0];
+		var ratingValuePercentage = [];
+
+		{% for r in tutorReviews %}
+
+			listOfReviews.push(
+			{
+				'pk': '{{r.id}}',
+				'date': '{{r.date}}',
+				'reviewerFullName': '{{r.reviewer.get_full_name}}',
+				'rating': eval('{{r.rating}}'),
+				'comment': '{{r.comment|linebreaksbr}}',
+				'likeCount': eval('{{r.likes.count}}'),
+				'dislikeCount': eval('{{r.dislikes.count}}'),
+				'edited': '{{r.edited}}' == "True" ? true : false,
+				'canEdit': '{{ user.id }}' == '{{ r.reviewer.id }}' ? true : false,
+			});
+
+			ratingValueMap[eval('{{r.rating}}')] += 1;
+
+		{% endfor %}
+
+		var totalCount = ratingValueMap.reduce((a, b) => a + b, 0);
+		if (totalCount > 0)
+		{
+			for(var i = 0; i <ratingValueMap.length; i++)
+			{
+				ratingValuePercentage.push(Math.round(ratingValueMap[i]/totalCount * 100));
+			}
+			DisplayReviewStatistics(ratingValuePercentage);
+		}
+
+		ParseTutorReviewToDisplay(listOfReviews);
+	}
+
+	function DisplayReviewStatistics(statistics)
+	{
+
+		for (var i = 0; i < statistics.length; i++)
+		{
+			$('#star-'+i+'-bar').css("width", statistics[i]+"%");
+			$('#star-'+i+'-value').text(statistics[i]+"%");
+		}
+
+        $('#b-id-tutor-reviews-count').text(listOfReviews.length + " total reviews");
+	}
+
+	function UpdateRatingOrder()
+	{
+		var filterOption = $('#filterOption').val();
+
+		switch(filterOption)
+		{
+			case "Recent Date":
+				updateByRecentDate();
+				break;
+			case "Likes":
+				updateByLikes();
+				break;
+			case "Dislikes":
+				updateByDislikes();
+				break;
+			case "Rating":
+				updateByRating();
+				break;
+			default:
+				return;
+
+		}
+	}
+
+	function updateByRecentDate()
+	{
+		ParseTutorReviewToDisplay(listOfReviews);
+	}
+
+	function updateByLikes()
+	{
+		var newArray = listOfReviews.slice();
+		newArray.sort(SorByLikesInDescendingOrder);
+		ParseTutorReviewToDisplay(newArray);
+	}
+
+	function updateByDislikes()
+	{
+		var newArray = listOfReviews.slice();
+		newArray.sort(SorByDislikesInDescendingOrder);
+		ParseTutorReviewToDisplay(newArray);
+	}
+
+	function updateByRating()
+	{
+		var newArray = listOfReviews.slice();
+		newArray.sort(SorByRatingInDescendingOrder);
+		ParseTutorReviewToDisplay(newArray);
+	}
+
+	function SorByRatingInDescendingOrder(a, b)
+	{
+	    if (a.rating > b.rating)
+	    	return -1;
+
+	    if (a.rating < b.rating)
+	    	return 1;
+
+	    return 0;
+	}
+
+	function SorByLikesInDescendingOrder(a, b)
+	{
+	    if (a.likeCount > b.likeCount)
+	    	return -1;
+
+	    if (a.likeCount < b.likeCount)
+	    	return 1;
+
+	    return 0;
+	}
+
+	function SorByDislikesInDescendingOrder(a, b)
+	{
+	    if (a.dislikeCount > b.dislikeCount)
+	    	return -1;
+
+	    if (a.dislikeCount < b.dislikeCount)
+	    	return 1;
+
+	    return 0;
+	}
+
+	function ParseTutorReviewToDisplay(list)
+	{
+		$('#div-id-tutor-reviews-container').empty();
+
+		if (list.length == 0)
+			return;
+
+		for (var i = 0; i < list.length; i++)
+		{
+
+			var editedText = list[i].edited == true ? '(edited)' : '';
+			var userEditDropdown = GetTutorReviewDropdownForUser(list[i].canEdit, list[i].pk);
+
+			var newCommentObject = `
+			<div class="reviews-members pt-4 pb-4" id="tutor_review_container_`+list[i].pk+`">
+				<div class="media">
+					<a href="#"><img alt="Generic placeholder image" src="http://bootdey.com/img/Content/avatar/avatar1.png" class="mr-3 rounded-pill"></a>
+					<div class="media-body">
+						<div class="reviews-members-header">
+							`+userEditDropdown+`
+							<h6 class="mb-1"><b>`+list[i].reviewerFullName+`</b></h6>
+							<p class="text-gray">`+list[i].date+` <span class="text-secondary" >`+editedText+`</span></p>
+						</div>
+						<div class="reviews-members-body">
+							<p id="tutor_review_comment_container_`+list[i].pk+`">`+list[i].comment+`</p>
+						</div>
+						<div class="reviews-members-footer">
+							<button type="button" class="btn btn-outline-primary" style="border-radius: 35px;" onclick="likeTutorReview(`+list[i].pk+`)">
+								<i class="fa fa-thumbs-o-up"></i> `+list[i].likeCount+`
+							</button>
+							<button type="button" class="btn btn-outline-primary" style="border-radius: 35px;" onclick="dislikeTutorReview(`+list[i].pk+`)">
+								<i class="fa fa-thumbs-o-down"></i> `+list[i].dislikeCount+`
+							</button>
+							&nbsp;&nbsp;
+							`+GenerateStarsFromRating(list[i].rating);+`
+						</div>
+					</div>
+				</div>
+			</div>
+			<hr>`;
+
+			$('#div-id-tutor-reviews-container').append( newCommentObject );
+		}
+	}
+
+	function likeTutorReview(tutorReviewId)
+	{
+		$.ajax(
+		{
+			data:
+			{
+				'functionality': 'likeTutorReview',
+				'id': tutorReviewId,
+			},
+			dataType: 'json',
+			success: function (response)
+			{
+				if (response.statusCode == 401)
+				{
+					window.location.href = "{% url 'accounts:login-view' %}";
+				}
+
+				if (response.statusCode == 404)
+				{
+					Swal.fire({
+						icon: 'warning',
+						title: "Can't do that!",
+						text: response.message
+					});
+					removeTutorReviewFromGlobalReviewList(tutorReviewId);
+				}
+
+				if (response.statusCode == 200)
+				{
+					updateTutorReviewLikesAndDislikesFromGlobalReviewList(tutorReviewId, response.likeCount, response.dislikeCount);
+				}
+			}
+		});
+	}
+
+	function dislikeTutorReview(tutorReviewId)
+	{
+		$.ajax(
+		{
+			data:
+			{
+				'functionality': 'dislikeTutorReview',
+				'id': tutorReviewId,
+			},
+			dataType: 'json',
+			success: function (response)
+			{
+
+				if (response.statusCode == 401)
+				{
+					window.location.href = "{% url 'accounts:login-view' %}";
+				}
+
+				if (response.statusCode == 404)
+				{
+					Swal.fire({
+						icon: 'warning',
+						title: "Can't do that!",
+						text: response.message
+					});
+					removeTutorReviewFromGlobalReviewList(tutorReviewId);
+				}
+
+				if (response.statusCode == 200)
+				{
+					updateTutorReviewLikesAndDislikesFromGlobalReviewList(tutorReviewId, response.likeCount, response.dislikeCount);
+				}
+			}
+		});
+
+	}
+
+	function updateTutorReviewLikesAndDislikesFromGlobalReviewList(componentId, likesCount, dislikeCount)
+	{
+		for (var i = 0; i < listOfReviews.length; i++)
+		{
+			if (listOfReviews[i].pk == componentId)
+			{
+				listOfReviews[i].likeCount = eval(likesCount);
+				listOfReviews[i].dislikeCount = eval(dislikeCount);
+				break;
+			}
+		}
+
+		ParseTutorReviewToDisplay(listOfReviews);
+	}
+
+	function GetTutorReviewDropdownForUser(canEdit, componentId)
+	{
+		var response = `<div class="dropdown pull-right" style="display:inline-block;">
+							<button type="button" class="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+								<div class="dropdown-menu dropdown-primary">`;
+
+		if (canEdit)
+		{
+			response += `<span class="dropdown-item" style="cursor: pointer;" onclick="DeleteTutorReviewComponent(`+componentId+`);">
+							<i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete
+						</span>
+						<span class="dropdown-item" style="cursor: pointer;" onclick="ConvertTextToEditArea(`+componentId+`)">
+							<i class="fa fa-edit"></i>&nbsp;&nbsp;Edit
+						</span>`;
+		}
+		else
+		{
+			response += '<span class="dropdown-item"><i class="fa fa-warning"></i>&nbsp;&nbsp;Report</span>';
+		}
+
+		response+= `</div></div>`;
+		return response;
+	}
+
+	function ConvertTextToEditArea(componentId)
+	{
+		var regex = /<br\s*[\/]?>/gi;
+
+		$('p#tutor_review_comment_container_'+componentId).each(function()
+		{
+			$(this).replaceWith(
+				`<div id="tutorReviewCommentUpdateTextArea_`+componentId+`">
+					<textarea class="form-control border p-4" id="tutorCommentEditBox`+componentId+`" rows="4">`+$(this).html().replace(regex, "\n").trim()+`</textarea>
+					<div id="tutorReviewCommentUpdateCommentBtn_`+componentId+`" class="pull-right"><br>
+						<button type="button" class="btn btn-outline-danger" onclick="cancelTutorCommentUpdate(`+componentId+`);">Cancel</button>
+						&nbsp;&nbsp;
+						<button type="button" class="btn btn-outline-info" onclick="updateTutorReview(`+componentId+`);">Update Comment</button>
+					</div>
+					<div style="height:24px;"></div>
+				</div>`
+			);
+		});
+	}
+
+    function cancelTutorCommentUpdate(componentId)
+    {
+        for (var i = 0; i < listOfReviews.length; i++)
+        {
+            if (listOfReviews[i].pk == componentId)
+            {
+                $('#tutor_review_container_'+componentId).empty();
+
+                var editedText = listOfReviews[i].edited == true ? '(edited)' : '';
+                var userEditDropdown = GetTutorReviewDropdownForUser(listOfReviews[i].canEdit, listOfReviews[i].pk);
+
+                var existingReviewObject = `
+                <div class="media">
+                    <a href="#"><img alt="Generic placeholder image" src="http://bootdey.com/img/Content/avatar/avatar1.png" class="mr-3 rounded-pill"></a>
+                    <div class="media-body">
+                        <div class="reviews-members-header">
+                            `+userEditDropdown+`
+                            <h6 class="mb-1"><b>`+listOfReviews[i].reviewerFullName+`</b></h6>
+                            <p class="text-gray">`+listOfReviews[i].date+` <span class="text-secondary" >`+editedText+`</span></p>
+                        </div>
+                        <div class="reviews-members-body">
+                            <p id="tutor_review_comment_container_`+listOfReviews[i].pk+`">`+listOfReviews[i].comment+`</p>
+                        </div>
+                        <div class="reviews-members-footer">
+                            <button type="button" class="btn btn-outline-primary" style="border-radius: 35px;" onclick="likeTutorReview(`+listOfReviews[i].pk+`)">
+                                <i class="fa fa-thumbs-o-up"></i> `+listOfReviews[i].likeCount+`
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" style="border-radius: 35px;" onclick="dislikeTutorReview(`+listOfReviews[i].pk+`)">
+                                <i class="fa fa-thumbs-o-down"></i> `+listOfReviews[i].dislikeCount+`
+                            </button>
+                            &nbsp;&nbsp;
+                            `+GenerateStarsFromRating(listOfReviews[i].rating);+`
+                        </div>
+                    </div>
+                </div>
+                <hr>`;
+
+                $('#tutor_review_container_'+componentId).append(existingReviewObject);
+                break;
+            }
+        }
+    }
+
+    function updateTutorReview(componentId)
+    {
+        var comment = $('#tutorCommentEditBox'+componentId).val();
+
+        if (comment && !comment.trim() || comment.length==0)
+        {
+            alert("Enter a comment!");
+            return;
+        }
+
+        $.ajax(
+        {
+            data:
+            {
+                'functionality': 'updateTutorReview',
+                'id': componentId,
+                'comment': comment,
+            },
+            dataType: 'json',
+            success: function (response)
+            {
+
+                if (response.statusCode == 401)
+                {
+                    window.location.href = "{% url 'accounts:login-view' %}";
+                }
+
+
+                if (response.statusCode == 200)
+                {
+                    for (var i = 0; i < listOfReviews.length; i++)
+                    {
+                        if (listOfReviews[i].pk == componentId)
+                        {
+                            listOfReviews[i].comment = comment.replace(/\n\r?/g, '<br />')
+                            break;
+                        }
+                    }
+                    ParseTutorReviewToDisplay(listOfReviews);
+                }
+            }
+        });
+    }
+
+	function DeleteTutorReviewComponent(reviewId)
+	{
+		$.ajax(
+		{
+			data:
+			{
+				'functionality': 'deleteTutorReview',
+				'id': reviewId,
+			},
+			dataType: 'json',
+			success: function (response)
+			{
+
+				if (response.statusCode == 401)
+				{
+					window.location.href = "{% url 'accounts:login-view' %}";
+				}
+
+
+				if (response.statusCode == 200)
+				{
+					removeTutorReviewFromGlobalReviewList(reviewId);
+				}
+			}
+		});
+	}
+
+	function removeTutorReviewFromGlobalReviewList(componentId)
+	{
+		var newList = [];
+		var ratingValueMap = [0, 0, 0, 0, 0, 0];
+		var ratingValuePercentage = [];
+		// not the optimal solution for bigger arrays.
+
+		for (var i = 0; i < listOfReviews.length; i++)
+		{
+			if (listOfReviews[i].pk != componentId)
+			{
+				newList.push(listOfReviews[i]);
+				ratingValueMap[listOfReviews[i].rating] += 1;
+			}
+		}
+        listOfReviews = newList;
+
+		var totalCount = ratingValueMap.reduce((a, b) => a + b, 0);
+		if (totalCount > 0)
+		{
+			for(var i = 0; i <ratingValueMap.length; i++)
+			{
+				ratingValuePercentage.push(Math.round(ratingValueMap[i]/totalCount * 100));
+			}
+
+			DisplayReviewStatistics(ratingValuePercentage);
+		}
+
+		ParseTutorReviewToDisplay(listOfReviews);
+	}
+
+	function GenerateStarsFromRating(value)
+	{
+		var response = '';
+
+		for (var i = 0; i < value; i++)
+		{
+			response += '<i class="fa fa-star" style="font-size:20px;color:lightgreen;"></i>&nbsp;';
+		}
+		return response;
+	}
+
+	function renderSubjects()
+	{
+		{% for subject in tutorProfile.subjects %}
+
+			var subjectName = "{{subject}}".replace(/\s+/g, '-');
+			var subjectObject = `
+				<a href="/result/`+subjectName+`" style="margin: 0 10px 10px 0;">
+					<dir class="mtgtlDwEfX">
+						{{ subject }}
+					</dir>
+				</a>
+				`;
+			$( "#list_of_subjects" ).append( subjectObject );
+
+		{% endfor %}
+	}
+
+	function updateAnswerModal(questionId)
+	{
+		var answerText = $('#qa_answer_' + questionId).html();
+		var questionText = $('#qa_question_' + questionId).html();
+		var regex = /<br\s*[\/]?>/gi;
+		document.getElementById('question_id').value = questionId;
+		document.getElementById('question_text').value = questionText.replace(regex, "\n");
+		document.getElementById('answer_text').value = answerText.replace(regex, "\n");
+	}
+
+	function updateEditQuestionModal(questionId)
+	{
+		var subjectText = $('#qa_subject_' + questionId).html();
+		var questionText = $('#qa_question_' + questionId).html();
+		var regex = /<br\s*[\/]?>/gi;
+
+		// display correct subject in the dropdown
+		{% for subject in subjects %}
+
+			if (subjectText=='{{subject.name}}')
+			{
+				$("#editQuestionSubject").append('<option value="{{subject.name}}" selected>{{subject.name}}</option>');
+			}
+			else
+			{
+				$("#editQuestionSubject").append('<option value="{{subject.name}}">{{subject.name}}</option>');
+			}
+
+		{% endfor %}
+
+		// display correct question text and question id in the modal
+		document.getElementById('new_question').value = questionText.replace(regex, "\n");
+		document.getElementById('question_id_to_update').value = questionId;
+	}
+
+	function updateQuestion()
+	{
+		var questionId = $('#question_id_to_update').val();
+		var subject = $('#editQuestionSubject').find(":selected").text();
+		var question = $('textarea#new_question').val();
+		question = question.replace(/ +(?= )/g,'');
+		question = question.trim();
+
+		if (question && !question.trim() || question.length==0) {
+			alert("Enter a question!");
+			return;
+		}
+
+		// closing the modal and clearing the textarea
+		$("#editQuestionModal").modal('hide');
+		$("textarea#new_question").val("");
+
+		$.ajax(
+		{
+			data: {
+				'functionality': 'updateQuestion',
+				'id': questionId,
+				'subject': subject,
+				'question': question,
+			},
+			dataType: 'json',
+			success: function (response)
+			{
+				if (response.statusCode == 401)
+				{
+					window.location.href = "{% url 'accounts:login-view' %}";
+				}
+
+				if (response.statusCode == 200)
+				{
+					$('strong#qa_question_'+questionId).html(question.replace(/\n\r?/g, '<br />'));
+					$('#qa_subject_'+questionId).html(subject);
+					$('#qa_subject_'+questionId).attr("href", "/result/"+subject);
+				}
+
+				if (response.statusCode == 404)
+				{
+					Swal.fire({
+						icon: 'error',
+						title: "Can't do that!",
+						text: response.message
+					});
+					$( ".question_answer_container_"+questionId ).remove();
+				}
+			}
+		});
+	}
+
+	function likeQuestionAnswer(commentId)
+	{
+		$.ajax(
+		{
+			data:
+			{
+				'functionality': 'likeQuestionAnswer',
+				'id': commentId
+			},
+			dataType: 'json',
+			success: function (response)
+			{
+				if (response.statusCode == 200)
+				{
+					$('#comment_like_id_'+commentId).html('<i class="far fa-thumbs-up" style="font-size:15px"></i> ('+ response.likeCount +')');
+					$('#comment_dislike_id_'+commentId).html('<i class="far fa-thumbs-down" style="font-size:15px"></i> ('+ response.dislikeCount +')');
+				}
+
+				if (response.statusCode == 401)
+				{
+					window.location.href = "{% url 'accounts:login-view' %}";
+				}
+
+				if (response.statusCode == 404)
+				{
+					Swal.fire({
+						icon: 'error',
+						title: "Can't do that!",
+						text: response.message
+					});
+
+					$( ".question_answer_container_"+commentId ).remove();
+				}
+			}
+		});
+	}
+
+	function dislikeQuestionAnswer(commentId)
+	{
+		$.ajax(
+		{
+			data:
+			{
+				'functionality': 'dislikeQuestionAnswer',
+				'id': commentId
+			},
+			dataType: 'json',
+			success: function (response)
+			{
+				if (response.statusCode == 200)
+				{
+					$('#comment_like_id_'+commentId).html('<i class="far fa-thumbs-up" style="font-size:15px"></i> ('+ response.likeCount +')');
+					$('#comment_dislike_id_'+commentId).html('<i class="far fa-thumbs-down" style="font-size:15px"></i> ('+ response.dislikeCount +')');
+				}
+
+				if (response.statusCode == 401)
+				{
+					window.location.href = "{% url 'accounts:login-view' %}";
+				}
+
+				if (response.statusCode == 404)
+				{
+					Swal.fire({
+						icon: 'error',
+						title: "Can't do that!",
+						text: response.message
+					});
+
+					$( ".question_answer_container_"+commentId ).remove();
+				}
+			}
+		});
+	}
+
+	function createTutorReview()
+	{
+		var ratingValue = $('#ratingValue').find(":selected").text();
+		var comment = $('textarea#reviewComment').val();
+
+		if (comment && !comment.trim() || comment.length==0)
+		{
+			alert("Enter a review!");
+			return;
+		}
+
+		// closing the modal and clearing the textarea
+		$("#tutorReview").modal('hide');
+		$("textarea#reviewComment").val("");
+
+		$.ajax(
+		{
+			data:
+			{
+				'functionality': 'createTutorReview',
+				'rating': ratingValue,
+				'comment': comment,
+			},
+			dataType: 'json',
+			success: function (response)
+			{
+				if (response.statusCode == 401)
+				{
+					window.location.href = "{% url 'accounts:login-view' %}";
+				}
+
+				if (response.statusCode == 200)
+				{
+                    var tempList = [];
+                    tempList.push(
+                    {
+                        'pk': response.id,
+                        'date': response.createdDate,
+                        'reviewerFullName': '{{request.user.get_full_name}}',
+                        'rating': eval(ratingValue),
+                        'comment': comment,
+                        'likeCount': 0,
+                        'dislikeCount': 0,
+                        'edited': false,
+                        'canEdit': true,
+                    });
+
+                    for (var i = 0; i < listOfReviews.length; i++)
+                    {
+                        tempList.push(listOfReviews[i]);
+                    }
+
+                    listOfReviews = tempList;
+
+                    ParseTutorReviewToDisplay(listOfReviews)
+				}
+			}
+		});
+
+	}
+
+	function postQuestionAnswer()
+	{
+		var subject = $('#subject').find(":selected").text();
+		var question = $('textarea#question').val();
+		question = question.replace(/ +(?= )/g,'');
+		question = question.trim();
+
+		if (question && !question.trim() || question.length==0)
+		{
+			alert("Enter a question!");
+			return;
+		}
+
+		// closing the modal and clearing the textarea
+		$("#questionModal").modal('hide');
+		$("textarea#question").val("");
+
+		$.ajax(
+		{
+			data:
+			{
+				'functionality': 'postQuestionAnswer',
+				'subject': subject,
+				'question': question,
+			},
+			dataType: 'json',
+			success: function (response)
+			{
+				if (response.statusCode == 401)
+				{
+					window.location.href = "{% url 'accounts:login-view' %}";
+				}
+
+				if (response.statusCode == 200)
+				{
+					var newQuestionAnswer = `
+					<div class="container question_answer_container_`+response.id+`" style="width: auto;">
+						<div id="question_answer_id_`+response.id+`">
+							<a href="/result/`+subject+`" class="mtgtlDwEfX" style="display:inline-block;" id="qa_subject_`+response.id+`">`+subject+`</a>
+							`+response.questionerFullName+` asked a question at
+							<p style="display:inline-block;" id="tool_tip_date_`+response.id+`" data-toggle="tooltip" data-placement="top">`+response.createdDate+`</p>
+							<div class="dropdown pull-right" style="display:inline-block;">
+								<a class="btn-floating btn-lg black dropdown-toggle"type="button" id="dropdownMenu3" data-toggle="dropdown"
+									aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
+								<br>
+								<div class="dropdown-menu dropdown-primary">
+									<span class="dropdown-item" href="#" style="cursor: pointer;" onclick="deleteQuestionAnswer('`+response.id+`');"><i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete question</span>
+									<a class="dropdown-item" href="#" data-toggle="modal" data-target="#editQuestionModal" onclick="updateEditQuestionModal('`+response.id+`');"><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit question</a>
+									<a class="dropdown-item" href="/question_answer_thread/`+response.id+`" target="_blank"><i class="fab fa-discourse"></i>&nbsp;&nbsp;Answer in a thread</a>
+								</div>
+							</div>
+						</div>
+						
+						<div><strong id="qa_question_`+response.id+`">`+question.replace(/\n\r?/g, '<br />')+`</strong></div>
+						<br>
+						<div style="width: 970px;" id="qa_answer_`+response.id+`">`+response.answer.replace(/\n\r?/g, '<br />')+`</div><br>
+						<button id="comment_like_id_`+response.id+`" type="button" class="btn btn-default btn-sm" onclick="likeQuestionAnswer('`+response.id+`')">
+							<i class='far fa-thumbs-up' style='font-size:15px'></i> (`+response.likeCount+`)
+						</button>
+						<button id="comment_dislike_id_`+response.id+`" type="button" class="btn btn-default btn-sm" onclick="dislikeQuestionAnswer('`+response.id+`')">
+							<i class='far fa-thumbs-down' style='font-size:15px'></i> (`+response.dislikeCount+`)
+						</button><br><br><hr>
+					</div>`;
+
+					$( "#div-id-tutor-QuestionAnswer" ).prepend( newQuestionAnswer );
+				}
+			}
+		});
+	}
+
+	function answerQuestionAnswer()
+	{
+		var answer = $('textarea#answer_text').val();
+		answer = answer.trim();
+		var questionId = $('#question_id').val();
+
+		if (answer && !answer.trim() || answer.length==0)
+		{
+			alert("Enter an answer!");
+			return;
+		}
+
+		$("#answerModal").modal('hide');
+
+		$.ajax(
+		{
+			data:
+			{
+				'functionality': 'answerQuestionAnswer',
+				'id': questionId,
+				'answer': answer,
+			},
+			dataType: 'json',
+			success: function (response)
+			{
+                if (response.statusCode == 200)
+                {
+                    $('div#qa_answer_'+questionId).html(answer.replace(/\n\r?/g, '<br />'));
+                }
+
+				if (response.statusCode == 401)
+				{
+					window.location.href = "{% url 'accounts:login-view' %}";
+				}
+
+                if (response.statusCode == 403)
+                {
+                    Swal.fire({
+                        icon: 'error',
+                        title: "Can't do that!",
+                        text: response.message
+                    });
+                }
+
+				if (response.statusCode == 404)
+				{
+					$( ".question_answer_container_"+questionId ).remove();
+				}
+			}
+		});
+	}
+
+	function deleteQuestionAnswer(questionId)
+	{
+		$.ajax(
+		{
+			data:
+			{
+				'functionality': 'deleteQuestionAnswer',
+				'id': questionId
+			},
+			dataType: 'json',
+			success: function (response)
+			{
+
+				if (response.statusCode == 401)
+				{
+					window.location.href = "{% url 'accounts:login-view' %}";
+				}
+
+
+				if (response.statusCode == 200)
+				{
+					$( ".question_answer_container_"+questionId ).remove();
+				}
+			}
+		});
+	}
+
+	function StartMessage() {
+		$.ajax({
+			data: {
+				'functionality': 'createThread',
+				'participantId': '{{ tutorProfile.user.id }}',
+			},
+			url: '{% url "chat:chatPage" %}',
+			dataType: 'json',
+			success: function (response) {
+				if (response.statusCode == 200) {
+
+					document.location.href = '{% url "chat:chatPage" %}';
+
+				} else if (response.statusCode == 401) {
+					Swal.fire({
+						icon: 'error',
+						title: "Can't do that!",
+						text: response.message
+					});
+				} else {
+					Swal.fire({
+						icon: 'warning',
+						title: "Can't do that!",
+						text: response.message
+					});
+				}
+			}
+		});
+	}
+
+</script>
+{% endblock %}

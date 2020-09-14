@@ -1,0 +1,479 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/tutorSettingsPage.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'css/tutorProfileEditPage.css' %}"/>
+<div class="container-fluid " style="margin: auto;overflow-x: hidden; max-width: 1500px;">
+   <br>
+   {% if messages %}
+      {% for message in messages %}
+         {% if message.tags == "error" %}
+         <div style="color: black; text-align: center;" class="alert alert-danger" role="alert">{{message}}</div>
+         {% else %}
+         <div style="color: black; text-align: center;" class="alert alert-{{ message.tags }}" role="alert">{{message}}</div>
+         {% endif %}
+      {% endfor %}
+   {% endif %}
+   <div class="row gutters-sm justify-content-md-center">
+      <div class="col-md-auto">
+         <div class="card">
+            <div class="card-body">
+               <nav class="nav flex-column nav-pills nav-gap-y-1">
+                  <a href="#general" data-toggle="tab" class="nav-item nav-link has-icon nav-link-faded active">
+                  <i class="fas fa-user"></i>
+                  <label class="side-bar-text">General</label>
+                  </a>
+                  <a href="#biography" data-toggle="tab" class="nav-item nav-link has-icon nav-link-faded">
+                  <i class="fa fa-book"></i>
+                  <label class="side-bar-text">Biography</label>
+                  </a>
+                  <a href="#security" data-toggle="tab" class="nav-item nav-link has-icon nav-link-faded">
+                  <i class="fas fa-key"></i>
+                  <label class="side-bar-text">Security</label>
+                  </a>
+                  <a href="#notification" data-toggle="tab" class="nav-item nav-link has-icon nav-link-faded">
+                  <i class="fas fa-bell-slash"></i>
+                  <label class="side-bar-text">Notification</label>
+                  </a>
+                  <a href="#account" data-toggle="tab" class="nav-item nav-link has-icon nav-link-faded">
+                  <i class="fas fa-trash-alt"></i>
+                  <label class="side-bar-text">Account</label>
+                  </a>
+               </nav>
+            </div>
+         </div>
+      </div>
+      <div class="col-md-9 col-lg-9 col-md-auto">
+         <div class="card">
+            <div class="card-body tab-content">
+               <div class="tab-pane active" id="general">
+                  <h6>YOUR GENERAL INFORMATION</h6>
+                  <hr>
+                  <form method="post" enctype="multipart/form-data">
+                     <input type="text" name="updateGeneralInformation" hidden>
+                     {% csrf_token %}
+                     <div class="card-body media align-items-center">
+                        {% if profile.profilePicture %}
+                        <img src="{{ profile.profilePicture.url }}" alt="" class="d-block ui-w-80 rounded-circle">
+                        {% else %}
+                        <img src="https://icon-library.com/images/default-user-icon/default-user-icon-13.jpg" alt="" class="d-block ui-w-80 rounded-circle">
+                        {% endif %}
+                        <div class="media-body ml-4">
+                           <label class="btn btn-danger" for="profilePicture">
+                           <i class="fa fa-paperclip" aria-hidden="true"></i>&nbsp;&nbsp;
+                           <input id="profilePicture" name="profilePicture" type="file" style="display:none" onchange="$('#upload-file-info').html(this.files[0].name)"> Choose a File
+                           </label> &nbsp; <button type="reset" class="btn btn-info md-btn-flat">Reset</button> 
+                           <div class="text-light small mt-1">Allowed JPG, GIF or PNG. Max size of 800K</div>
+                           <div class="text-light small mt-1" id="upload-file-info"></div>
+                        </div>
+                     </div>
+                     <div class="form-group">
+                        <div class="row">
+                           <div class="col">
+                              <label for="fullName">First Name</label>
+                              <input type="text" class="form-control" id="firstName" name="firstName" placeholder="First Name" value="{{ profile.user.first_name }}" required>
+                           </div>
+                           <div class="col">
+                              <label for="fullName">Last Name</label>
+                              <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Last Name" value="{{ profile.user.last_name }}" required>
+                           </div>
+                        </div>
+                        <small id="fullNameHelp" class="form-text text-muted">Your name may appear around here where you are mentioned.</small>
+                     </div>
+                     <div class="form-group">
+                        <label for="email">Email address</label>
+                        <input type="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Email" value="{{ request.user.email }}" disabled>
+                        <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+                     </div>
+                     <div class="form-group">
+                        <label for="url">Profile page</label>
+                        <br>
+                        <a href="http://{{ request.META.HTTP_HOST }}/tutorprofile/{{ profile.url }}/">http://{{ request.META.HTTP_HOST }}/tutorprofile/{{ profile.url }}/</a>
+                     </div>
+                     <div class="form-group small text-muted">
+                        Some of the fields on this page are mandatory and by filling them out, you're giving us consent to share this data wherever your user profile appears.
+                     </div>
+                     <button type="submit" class="btn btn-primary">Update Profile</button>
+                     <button type="reset" class="btn btn-light">Reset Changes</button>
+                  </form>
+               </div>
+               <div class="tab-pane" id="biography" style="color: black;">
+                  <h6>BIOGRAPHY</h6>
+                  <hr>
+                  <form method="post">
+                     {% csrf_token %}
+                     <div class="form-group">
+                        <h4 for="summary">Summary</h4>
+                        <input type="text" class="form-control" id="summary" name="summary" value="{{ profile.summary }}" required>
+                     </div>
+                     <hr>
+                     <div class="form-group">
+                        <h4 for="about">About</h4>
+                        <textarea class="form-control autosize" id="about" name="about" rows="15" required>{{ profile.about }}</textarea>
+                     </div>
+                     <hr>
+                     <div class="form-group" id="education">
+                        <h4 for="education" style="display:inline;">Education</h4>
+                        <div id="listOfEducation">
+                           {% for e in request.user.education.all %}
+                           <div class="row">
+                              <div class="col-md-3 panel-pad-10">
+                                 <div class="card">
+                                    <input type="text" name="schoolName" class="form-control" placeholder="School Name" value="{{e.schoolName}}"
+                                    data-toggle="tooltip" data-placement="top" title="School Name" required>
+                                 </div>
+                              </div>
+                              <div class="col-md-3 panel-pad-10">
+                                 <div class="card">
+                                    <input type="text" name="qualification" class="form-control" placeholder="Qualification &amp; Grade(s)" value="{{e.qualification}}"
+                                    data-toggle="tooltip" data-placement="top" title="Qualification &amp; Grade(s)" required>
+                                 </div>
+                              </div>
+                              <div class="col-md-3 panel-pad-10">
+                                 <div class="card">
+                                    <input type="date" name="startDate" class="form-control" placeholder="Attended From" value="{{e.startDate|date:'Y-m-d'}}"
+                                    data-toggle="tooltip" data-placement="top" title="Attenderd from" required>
+                                 </div>
+                              </div>
+                              <div class="col-md-3 panel-pad-10">
+                                 <div class="card">
+                                    <input type="date" name="endDate" class="form-control" placeholder="Attended To" value="{{e.endDate|date:'Y-m-d'}}"
+                                    data-toggle="tooltip" data-placement="top" title="Attenderd To" required>
+                                 </div>
+                              </div>
+                           </div>
+                           {% endfor %}
+                        </div>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="addEducationRow();">Add another</button>
+                     </div>
+                     <hr>
+                     <div class="form-group">
+                        <h4 for="availability">Availability</h4>
+                        <table class="table" id="availabilitySchedule" style="width: auto; margin-left: -10px;">
+                           <thead>
+                              <tr>
+                                 <th scope="col"></th>
+                                 <th scope="col" style="padding-left:0px">Morning</th>
+                                 <th scope="col" style="padding-left:0px">Afternoon</th>
+                                 <th scope="col" style="padding-left:0px">Evening</th>
+                              </tr>
+                           </thead>
+                           <tbody>
+                              {% for key, value in profile.user.availability.getAvailability.items %}
+                              <tr>
+                                 <th style="vertical-align: middle; padding-left:0px" scope="row">{{key|title}}</th>
+                                 <td style="text-align: center; padding-left:0px">
+                                    <div class="card_2">
+                                       <div class="checkbox-container circular-container">
+                                          <label class="checkbox-label">
+                                          <input type="checkbox" name="availabilityChoices" value="{{key}}Morning"
+                                          {% if value.morning %} checked {% endif %}>
+                                          <span class="checkbox-custom circular"></span>
+                                          </label>
+                                       </div>
+                                    </div>
+                                 </td>
+                                 <td style="text-align: center; padding-left:0px">
+                                    <div class="card_2">
+                                       <div class="checkbox-container circular-container">
+                                          <label class="checkbox-label">
+                                          <input type="checkbox" name="availabilityChoices" value="{{key}}Afternoon"
+                                          {% if value.afternoon %} checked {% endif %}>
+                                          <span class="checkbox-custom circular"></span>
+                                          </label>
+                                       </div>
+                                    </div>
+                                 </td>
+                                 <td style="text-align: center; padding-left:0px">
+                                    <div class="card_2">
+                                       <div class="checkbox-container circular-container">
+                                          <label class="checkbox-label">
+                                          <input type="checkbox" name="availabilityChoices" value="{{key}}Evening"
+                                          {% if value.evening %} checked {% endif %}>
+                                          <span class="checkbox-custom circular"></span>
+                                          </label>
+                                       </div>
+                                    </div>
+                                 </td>
+                                 {% endfor %}
+                           </tbody>
+                        </table>
+                     </div>
+                     <hr>
+                     <div class="form-group">
+                        <h2 for="subjects">Subjects</h2>
+                        <select class="multiple-subjects form-control" name="subjects" multiple="multiple" required>
+                           {% for subject in profile.getSubjectsAsList %}
+                           <option selected="selected">{{subject}}</option>
+                           {% endfor %}
+                        </select>
+                     </div>
+                     <hr>
+                     <div class="form-group">
+                        <h2 for="teachingLevel">Teaching Level</h2>
+                        <p class="small">Who do you want to mostly teach?</p>
+                        <select class="multiple-subjects form-control" name="teachingLevels" multiple="multiple" required>
+                           {% for t in profile.teachingLevels.all %}
+                              <option selected="{{t}}">{{t}}</option>
+                           {% endfor %}
+                           {% for t in myEducationLevelComponent %}
+                              <option>{{t}}</option>
+                           {% endfor %}
+                        </select>
+                     </div>
+                     <div class="form-group" id="outer" style="width:100%; text-align: center;">
+                        <div class="inner" style="display: inline-block;">
+                           <button type="submit" class="btn btn-success">Save</button>
+                        </div>
+                        &#xA0;
+                        <div class="inner" style="display: inline-block;">
+                           <button type="reset" class="btn btn-secondary">Reset</button>
+                        </div>
+                        &#xA0;
+                     </div>
+                     <input type="hidden" name="updateTutorProfile">
+                     <input type="hidden" name="updateEducation">
+                  </form>
+               </div>
+               <div class="tab-pane" id="security">
+                  <h6>SECURITY SETTINGS</h6>
+                  <hr>
+                  <form method="post">
+                     {% csrf_token %}
+                     <input type="text" name="changePassword" hidden>
+                     <div class="form-group">
+                        <label class="d-block">Change Password</label>
+                        <input type="password" class="form-control" id="currentPassword" name="currentPassword" placeholder="Enter Current Password" required>
+                        <input type="password" class="form-control mt-1" id="newPassword" name="newPassword" placeholder="Enter New Password" required>
+                        <input type="password" class="form-control mt-1" id="confirmPassword" name="confirmPassword" placeholder="Enter New Password Again" required>
+                     </div>
+                     <button type="submit" class="btn btn-primary btn-sm">Save Password</button>
+                     <button type="reset" class="btn btn-light btn-sm">Reset Changes</button>
+                  </form>
+                  <hr>
+                  <form>
+                     <div class="form-group">
+                        <label class="d-block">Two Factor Authentication</label>
+                        <button class="btn btn-info" type="button">Enable two-factor authentication</button>
+                        <p class="small text-muted mt-2">Two-factor authentication adds an additional layer of security to your account by requiring more than just a password to log in.</p>
+                     </div>
+                  </form>
+                  <hr>
+               </div>
+               <div class="tab-pane" id="notification">
+                  <h6>NOTIFICATION SETTINGS</h6>
+                  <hr>
+                  <form method="post">
+                     {% csrf_token %}
+                     <input type="text" name="notificationSettings" hidden>
+                     <div class="form-group">
+                        <div class="custom-control custom-checkbox">
+                           <input type="checkbox" class="custom-control-input" id="loginAttemptNotification" name="loginAttemptNotification">
+                           <label class="custom-control-label" for="loginAttemptNotification">Email me when login attempted on a new device</label>
+                        </div>
+                        <br>
+                        <div class="custom-control custom-checkbox">
+                           <input type="checkbox" class="custom-control-input" id="questionAnswerNotification" name="questionAnswerNotification">
+                           <label class="custom-control-label" for="questionAnswerNotification">Email me when someone asks me a question.</label>
+                        </div>
+                        <br>
+                        <div class="custom-control custom-checkbox">
+                           <input type="checkbox" class="custom-control-input" id="answerOnForum" name="answerOnForum">
+                           <label class="custom-control-label" for="answerOnForum">Email me when someone answers on my forum thread</label>
+                        </div>
+                        <br>
+                        <div class="custom-control custom-checkbox">
+                           <input type="checkbox" class="custom-control-input" id="messageOnChat" name="messageOnChat">
+                           <label class="custom-control-label" for="messageOnChat">Email me when someone messages me on the chat.</label>
+                        </div>
+                     </div>
+                     <hr>
+                     <button type="submit" class="btn btn-primary">Update Notification</button>
+                     <button type="reset" class="btn btn-light">Reset Changes</button>
+                  </form>
+               </div>
+               <div class="tab-pane" id="account">
+                  <h6>ACCOUNT SETTINGS</h6>
+                  <hr>
+                  <form method="post">
+                     {% csrf_token %}
+                     <label class="d-block">Obtain a copy of your data</label>
+                     <button class="btn btn-primary btn-sm" type="button" id="request-copy-of-data" onclick="requestCopyOfData()">Request Data</button>
+                     <small class="form-text text-muted">Download a copy of your data from OneTutor apps and services. This may include your purchases or app usage history and the data your store with OneTutor, such as calenders, photots or documents.</small>
+                     <hr>
+                     <label class="d-block">Delete your account</label>
+                     <input type="text" name="deleteAccount" hidden>
+                     <button class="btn btn-info btn-sm" type="button" id="request-delete-code" onclick="requestDeleteCode()">Request Code</button>
+                     <small class="form-text text-muted">We'll send you a code to your email. Copy and Paste the code below.</small>
+                     <br>
+                     <input type="text" class="form-control" id="delete-code" name="delete-code" placeholder="Enter the code here" required>
+                     <br>
+                     <button class="btn btn-danger btn-sm" type="submit" id="delete-account-btn">Delete Account</button>
+                     <small class="form-text text-muted">Once you delete your account, there is no going back. Please be certain.</small>
+                  </form>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+<script type="text/javascript">
+
+	$(document).ready(function()
+      {
+         $("#delete-account-btn").prop('disabled', true);
+
+         $(".multiple-subjects").select2(
+            {
+               tags: true,
+               width: '100%',
+            }
+         );
+      }
+   );
+
+	addRemoveEducationBtn();
+	
+	function addEducationRow()
+	{
+
+		var newRow = `
+         <div class="row">
+            <div class="col-md-3 panel-pad-10">
+               <div class="card">
+                  <input type="text" name="schoolName" class="form-control" placeholder="School Name"
+                  data-toggle="tooltip" data-placement="top" title="School Name" required>
+               </div>
+            </div>
+            <div class="col-md-3 panel-pad-10">
+               <div class="card">
+                  <input type="text" name="qualification" class="form-control" placeholder="Qualification &amp; Grade(s)"
+                  data-toggle="tooltip" data-placement="top" title="Qualification &amp; Grade(s)" required>
+               </div>
+            </div>
+            <div class="col-md-3 panel-pad-10">
+               <div class="card">
+                  <input type="date" name="startDate" class="form-control" placeholder="Attended From"
+                  data-toggle="tooltip" data-placement="top" title="Attenderd from" required>
+               </div>
+            </div>
+            <div class="col-md-3 panel-pad-10">
+               <div class="card">
+                  <input type="date" name="endDate" class="form-control" placeholder="Attended To"
+                  data-toggle="tooltip" data-placement="top" title="Attenderd To" required>
+               </div>
+            </div>
+         </div>`;
+
+		$('#listOfEducation').append(newRow);
+
+      addRemoveEducationBtn();
+	}
+
+	function removeEducationRow()
+	{
+		$('#listOfEducation').children().last().remove();
+
+      addRemoveEducationBtn();
+	}
+
+	function addRemoveEducationBtn()
+   {
+      if ( $('#listOfEducation').children().length == 0 )
+         $('#removeRow').remove();
+      else
+         if ( $('#removeRow').length == 0 )
+            $('#education').append('<button type="button" id="removeRow" class="btn btn-danger btn-sm" onclick="removeEducationRow();">Remove Row</button>'); 
+   }
+
+   function requestCopyOfData()
+   {
+      $.ajax(
+      {
+         url: '{% url "accounts:requestCopyOfData" %}',
+         success: function (response)
+         {
+            if(response.statusCode == 200)
+            {
+               Swal.fire(
+                  {
+                     icon: 'success',
+                     title: "Operation Success!",
+                     text: response.message
+                  }
+               );
+
+            }
+            else if (response.statusCode == 401)
+            {
+               Swal.fire(
+                  {
+                     icon: 'warning',
+                     title: "Can't do that!",
+                     text: response.message
+                  }
+               );
+
+            }
+            else if (response.statusCode == 403)
+            {
+               Swal.fire(
+                  {
+                     icon: 'error',
+                     title: "Can't do that!",
+                     text: response.message
+                  }
+               );
+            }
+         }
+      });
+   }
+
+	function requestDeleteCode()
+   {
+		$.ajax(
+      {
+			url: '{% url "accounts:requestDeleteCode" %}',
+			success: function (response)
+         {
+				if(response.statusCode == 200)
+            {
+					$('#request-delete-code').remove();
+					$("#delete-account-btn").prop('disabled', false);
+
+					Swal.fire(
+                  {
+   						icon: 'success',
+   						title: "Operation Success!",
+   						text: response.message
+   					}
+               );
+
+				}
+            else if (response.statusCode == 401)
+            {
+					Swal.fire(
+                  {
+   						icon: 'warning',
+   						title: "Can't do that!",
+   						text: response.message
+   					}
+               );
+
+				}
+            else if (response.statusCode == 403)
+            {
+					Swal.fire(
+                  {
+   						icon: 'error',
+   						title: "Can't do that!",
+   						text: response.message
+   					}
+               );
+				}
+			}
+		});
+	}
+
+</script>
+{% endblock %}

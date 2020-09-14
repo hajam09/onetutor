@@ -1,0 +1,27 @@
+#smallscreen-footer
+{
+	display: none;
+}
+
+.QMwdLfHioF
+{
+	cursor: pointer;
+}
+
+@media (max-width: 767px)
+{
+	#buttons_in_sidebar
+	{
+		display: none;
+	}
+
+	#bigscreen-footer
+	{
+		display: none;
+	}
+
+	#smallscreen-footer
+	{
+		display: inline;
+	}
+}
