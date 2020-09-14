@@ -1,0 +1,14 @@
+{% extends "accounts/account_base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/error_page.css' %}" />
+<div class="container">
+   <div class="text">
+      <div class="text-inner">
+         <h1> Oh no. </h1>
+         <h2> Something went wrong, please re-request the link. </h2>
+         <a href="{% url 'tutoring:mainpage' %}"><button type="submit" class="btn btn-success">Home</button></a>
+      </div>
+   </div>
+</div>
+{% endblock %}

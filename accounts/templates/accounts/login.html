@@ -1,0 +1,52 @@
+{% extends "accounts/account_base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/login_signup.css' %}" />
+
+<div class="container">
+	<div class="login-signup-form">
+		<form method="post">
+			{% csrf_token %}
+			<h2>Login</h2>
+			{% if message %}
+				<div style="color: black; text-align: center;" class="alert alert-danger" role="alert">{{message}}</div>
+			{% endif %}
+			{% if messages %}
+				{% for message in messages %}
+					<div style="color: black; text-align: center;" class="alert alert-success" role="alert">{{message}}</div>
+				{% endfor %}
+			{% endif %}
+			<div class="form-group">
+				<div class="input-group">
+					<span class="input-group-addon"><i class="fa fa-user"></i></span>
+					<input type="text" class="form-control" name="username" placeholder="E-Mail" value="{% if username %} {{username}} {% endif %}" required="required" />
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="input-group">
+					<span class="input-group-addon"><i class="fa fa-lock"></i></span>
+					<input type="password" class="form-control" name="password" placeholder="Password" required="required" />
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="checkbox-inline"><input type="checkbox" name="remember_me" />Remember Me</label>
+				<div class="pull-right"><a href="#" onclick="showHidePassword();">Show Password</a></div>
+			</div>
+			<div class="form-group">
+				<button type="submit" class="btn btn-success btn-lg btn-block">Login</button>
+			</div>
+		</form>
+		<div class="text-center">Forgot your password? <a href="{% url 'accounts:password_request' %}">Reset Here</a></div>
+	</div>
+</div>
+<script type="text/javascript">
+	function showHidePassword() {
+		var password_1 = $("[name='password']");
+
+		if (password_1.attr("type")=="password")
+			password_1.attr("type","text");
+		else
+			password_1.attr("type","password");
+	}
+</script>
+{% endblock %}

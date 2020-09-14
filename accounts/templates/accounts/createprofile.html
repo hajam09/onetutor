@@ -1,0 +1,98 @@
+{% extends "accounts/account_base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/tab_pane.css' %}" />
+<style type="text/css">
+   .nav-tabs > li  {width:50%; text-align:center;}
+</style>
+<div class="container">
+   <div class="row">
+	  <div class="col-md-12">
+		 <!-- Nav tabs -->
+		 <div class="card">
+			<ul class="nav nav-tabs" role="tablist">
+			   <li role="presentation" class="active"><a href="#tutor" aria-controls="tutor" role="tab" data-toggle="tab"> <span>I am a tutor</span></a></li>
+			   <li role="presentation"><a href="#student" aria-controls="student" role="tab" data-toggle="tab"> <span>I am a student</span></a></li>
+			</ul>
+			<!-- Tab panes -->
+			<div class="tab-content">
+			   <div role="tabpanel" class="tab-pane active" id="tutor">
+				  <form method="post">
+					 {% csrf_token %}
+					 <div class="form-group">
+						<h2 for="summary">Summary</h2>
+						<input type="text" class="form-control" id="summary" name="summary">
+					 </div>
+					 <hr>
+					 <div class="form-group">
+						<h2 for="about">About</h2>
+						<textarea class="form-control" id="about" name="about" rows="5"></textarea>
+					 </div>
+					 <hr>
+					 <div class="form-group" id="education">
+						<h2 for="education" style="display:inline;">Education</h2>
+						<div class="row" id="education_1">
+							<div class="col-sm-4 panel-pad-10">
+								<div class="panel panel-default">
+									<input type="text" class="form-control" id="school_name_1" name="school_name_1" placeholder="School Name">
+								</div>
+							</div>
+							<div class="col-sm-4 panel-pad-10">
+								<div class="panel panel-default">
+									<input type="text" class="form-control" id="qualification_1" name="qualification_1" placeholder="Qualification & Grade(s)">
+								</div>
+							</div>
+							<div class="col-sm-4 panel-pad-10">
+								<div class="panel panel-default">
+									<input type="text" class="form-control" id="year_1" name="year_1" placeholder="Attended Years">
+								</div>
+							</div>
+						</div>
+						<button type="button" class="btn btn-primary btn-sm" onclick="addEducationRow();">Add another</button>
+					 </div>
+					 <hr>
+					 <div class="form-group">
+						<h2 for="subjects">Subjects</h2>
+						<input type="text" class="form-control" id="subjects" name="subjects" placeholder="English, Maths, Science, Geography, ...">
+					 </div>
+					 <div class="form-group">
+						<button type="submit" class="btn btn-success btn-lg btn-block">Create Profile</button>
+					 </div>
+					 <input type="hidden" name="numberOfEducation" value="1">
+				  </form>
+			   </div>
+			   <div role="tabpanel" class="tab-pane" id="student">
+			   </div>
+			</div>
+		 </div>
+	  </div>
+   </div>
+</div>
+<script type="text/javascript">
+	var numberOfEducation = 1;
+	function addEducationRow() {
+		numberOfEducation = numberOfEducation + 1;
+		var newRow = `<div class="row" id="education_{educationCounter}">
+						<div class="col-sm-4 panel-pad-10">
+							<div class="panel panel-default">
+								<input type="text" class="form-control" id="school_name_{educationCounter}" name="school_name_{educationCounter}" placeholder="School Name">
+							</div>
+						</div>
+						<div class="col-sm-4 panel-pad-10">
+							<div class="panel panel-default">
+								<input type="text" class="form-control" id="qualification_{educationCounter}" name="qualification_{educationCounter}" placeholder="Qualification & Grade(s)">
+							</div>
+						</div>
+						<div class="col-sm-4 panel-pad-10">
+							<div class="panel panel-default">
+								<input type="text" class="form-control" id="year_{educationCounter}" name="year_{educationCounter}" placeholder="Attended Years">
+							</div>
+						</div>
+					</div>`.split("{educationCounter}").join(numberOfEducation);
+
+		var insetIn = numberOfEducation-1;
+		$('input[name=numberOfEducation]').val(numberOfEducation);
+		$( newRow ).insertAfter( "#education_" + insetIn );
+	}
+</script>
+{% endblock %}
