@@ -7,7 +7,7 @@ from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_text, DjangoUnicodeDecodeError
 from .utils import generate_token
-from .models import StudentProfile, TutorProfile
+from .models import StudentProfile, TutorProfile, Countries
 from django.core.mail import EmailMessage
 from django.conf import settings
 from django.contrib import messages
@@ -128,14 +128,104 @@ def createprofile(request):
 		pass
 	return render(request,"accounts/createprofile.html", {})
 
+
+
+@login_required
+def tutorprofile(request):
+	tutorProfile = TutorProfile.objects.get(user=request.user.id)
+	tutorProfile.subjects = tutorProfile.subjects.split(",")
+
+	if request.method == "POST" and "updatePersonalDetails" in request.POST:
+		firstname = request.POST["first_name"].strip()
+		lastname = request.POST["last_name"].strip()
+
+		user = User.objects.get(pk=(request.user.id))
+		user.first_name = firstname
+		user.last_name = lastname
+		user.save()
+		return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "message": "Your personal details has been updated successfully", "alert": "success"})
+
+	if request.method == "POST" and "updatePassword" in request.POST:
+		currentPassword = request.POST["currentPassword"]
+		newPassword = request.POST["newPassword"]
+		confirmPassword = request.POST["confirmPassword"]
+
+		user = User.objects.get(pk=(request.user.id))
+
+		if currentPassword and not user.check_password(currentPassword):
+			return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "message": "Your current password does not match", "alert": "danger"})
+
+		if(newPassword and confirmPassword):
+			if(newPassword!=confirmPassword):
+				return render(request,"accounts/tutorprofile.html", {"message": "Your new password and confirm password does not match", "alert": "danger"})
+
+			if(len(newPassword)<8 or any(letter.isalpha() for letter in newPassword)==False or any(capital.isupper() for capital in newPassword)==False or any(number.isdigit() for number in newPassword)==False):
+				return render(request,"accounts/tutorprofile.html", {"message": "Your new password is not strong enough.", "alert": "warning"})
+
+			user.set_password(newPassword)
+		user.save()
+
+		if(newPassword and confirmPassword):
+			user = authenticate(username=user.username, password=newPassword)
+			if user:
+				auth_login(request, user)
+			else:
+				return redirect("accounts:login")
+
+	if request.method == "POST" and "updateAddress" in request.POST:
+		address_1 = request.POST["address_1"].title()
+		address_2 = request.POST["address_2"].title()
+		city = request.POST["city"].title()
+		stateProvice = request.POST["stateProvice"].title()
+		postalZip = request.POST["postalZip"].upper()
+		country = Countries.objects.get(alpha=request.POST["country"])
+		location = {"address_1": address_1, "address_2": address_2, "city": city, "stateProvice": stateProvice,
+					"postalZip": postalZip, "country": {"alpha": country.alpha, "name": country.name}}
+		TutorProfile.objects.filter(user=request.user.id).update(location=location)
+		tutorProfile = TutorProfile.objects.get(user=request.user.id)
+		return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "message": "Your location has been updated successfully", "alert": "success"})
+	countries = Countries.objects.all()
+	return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "countries": countries})
+
+@login_required
+def tutorprofileedit(request):
+	if request.method == "POST" and "updateTutorProfile" in request.POST:
+		summary = request.POST["summary"]
+		about = request.POST["about"]
+		subjects = request.POST["subjects"]
+		numberOfEducation = request.POST["numberOfEducation"]
+
+		education = {}
+		for i in range(int(numberOfEducation)):
+			education["education_" + str(i + 1) ] = {"school_name": request.POST["school_name_" + str(i + 1)], "qualification": request.POST["qualification_" + str(i + 1)], "year": request.POST["year_" + str(i + 1)]}
+
+		TutorProfile.objects.filter(user=request.user.id).update(user=request.user, userType="TUTOR", summary=summary, about=about, location=None, education=education, subjects=subjects, availability=None, profilePicture=None)
+		return redirect("accounts:profile")
+
+	tutorProfile = TutorProfile.objects.get(user=request.user.id)
+	return render(request,"accounts/tutorprofileedit.html", {"tutorProfile": tutorProfile})
+
+@login_required
+def studentprofile(request):
+	return render(request,"accounts/studentprofile.html", {})
+
+@login_required
+def studentprofileedit(request):
+	return render(request,"accounts/studentprofile.html", {})
+
 @login_required
 def profile(request):
 	if not TutorProfile.objects.filter(user=request.user.id).exists() and not StudentProfile.objects.filter(user=request.user.id).exists():
 		return redirect('accounts:createprofile')
 
-	userProfile = TutorProfile.objects.get(user=request.user.id) if TutorProfile.objects.filter(user=request.user.id).exists() else StudentProfile.objects.get(user=request.user.id)
-	if isinstance(userProfile, TutorProfile): userProfile.subjects = userProfile.subjects.split(",")
-	print(userProfile.subjects)
+	if TutorProfile.objects.filter(user=request.user.id).exists():
+		return redirect("accounts:tutorprofile")
+
+	if StudentProfile.objects.filter(user=request.user.id).exists():
+		return render("accounts:studentprofile")
+
+	return
+
 	# one-to-one-profile tab
 	# summary
 	# about full
@@ -147,7 +237,6 @@ def profile(request):
 	# tab 2
 	# list of questionbs for me
 	# my students and chat history with all the students.
-	return render(request,"accounts/profile.html", {"userProfile": userProfile})
 
 # @login_required
 # def profile(request):

@@ -11,11 +11,15 @@ class TutorProfile(models.Model):
 	education = jsonfield.JSONField()
 	subjects = models.CharField(max_length=8192)
 	availability = jsonfield.JSONField()# not implemented at the moment
-	profilePicture = models.ImageField(upload_to='profilepicture', blank=True)# not implemented at the moment
+	profilePicture = models.ImageField(upload_to='profilepicture', blank=True, null=True)# not implemented at the moment
 
 class StudentProfile(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
 	userType = models.CharField(max_length=8)
 	location = jsonfield.JSONField()# not implemented at the moment
 	subjects = models.CharField(max_length=8192)
-	profilePicture = models.ImageField(upload_to='profilepicture', blank=True)# not implemented at the moment
+	profilePicture = models.ImageField(upload_to='profilepicture', blank=True, null=True)# not implemented at the moment
+
+class Countries(models.Model):
+	alpha = models.CharField(max_length=4)
+	name = models.CharField(max_length=64)
