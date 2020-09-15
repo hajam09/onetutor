@@ -1,0 +1,102 @@
+{% extends "accounts/account_base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/tab_pane.css' %}" />
+<style type="text/css">
+   .nav-tabs > li  {width:100%; text-align:center;}
+</style>
+<div class="container">
+   <div class="row">
+	  <div class="col-md-12">
+		 <!-- Nav tabs -->
+		 <div class="card">
+			<ul class="nav nav-tabs" role="tablist">
+			   <li role="presentation" class="active"><a href="#tutor" aria-controls="tutor" role="tab" data-toggle="tab"> <span>I am a tutor</span></a></li>
+			</ul>
+			<!-- Tab panes -->
+			<div class="tab-content">
+			   <div role="tabpanel" class="tab-pane active" id="tutor">
+				  <form method="post">
+					 {% csrf_token %}
+					 <div class="form-group">
+						<h2 for="summary">Summary</h2>
+						<input type="text" class="form-control" id="summary" name="summary" value="{{tutorProfile.summary}}" required>
+					 </div>
+					 <hr>
+					 <div class="form-group">
+						<h2 for="about">About</h2>
+						<textarea class="form-control" id="about" name="about" rows="5" required>{{ tutorProfile.about }}</textarea>
+					 </div>
+					 <hr>
+					 <div class="form-group" id="education">
+						<h2 for="education" style="display:inline;">Education</h2>
+						{% for key,value in tutorProfile.education.items %}
+							<div class="row" id="education_{{ forloop.counter }}">
+								<div class="col-sm-4 panel-pad-10">
+									<div class="panel panel-default">
+										<input type="text" class="form-control" id="school_name_{{ forloop.counter }}" name="school_name_{{ forloop.counter }}" placeholder="School Name" value="{{value.school_name}}" required>
+									</div>
+								</div>
+								<div class="col-sm-4 panel-pad-10">
+									<div class="panel panel-default">
+										<input type="text" class="form-control" id="qualification_{{ forloop.counter }}" name="qualification_{{ forloop.counter }}" placeholder="Qualification & Grade(s)" value="{{value.qualification}}" required>
+									</div>
+								</div>
+								<div class="col-sm-4 panel-pad-10">
+									<div class="panel panel-default">
+										<input type="text" class="form-control" id="year_{{ forloop.counter }}" name="year_{{ forloop.counter }}" placeholder="Attended Years" value="{{value.year}}" required>
+									</div>
+								</div>
+							</div>
+						{% endfor %}
+
+						<button type="button" class="btn btn-primary btn-sm" onclick="addEducationRow();">Add another</button>
+					 </div>
+					 <hr>
+					 <div class="form-group">
+						<h2 for="subjects">Subjects</h2>
+						<input type="text" class="form-control" id="subjects" name="subjects" placeholder="English, Maths, Science, Geography, ..." value="{{tutorProfile.subjects}}" required>
+					 </div>
+					<div class="form-group" id="outer" style="width:100%; text-align: center;">
+						<div class="inner" style="display: inline-block;"><button type="submit" class="btn btn-success btn-lg" >Save</button></div>&nbsp;
+						<div class="inner" style="display: inline-block;"><button type="reset" class="btn btn-secondary btn-lg">Reset</button></div>&nbsp;
+						<div class="inner" style="display: inline-block;"><a href="{% url 'accounts:profile' %}" class="btn btn-danger btn-lg">Cancel</a></div>
+					</div>
+					 <input type="hidden" name="numberOfEducation" value="1">
+					 <input type="hidden" name="updateTutorProfile">
+				  </form>
+			   </div>
+			</div>
+		 </div>
+	  </div>
+   </div>
+</div>
+<script type="text/javascript">
+	var numberOfEducation = {{ tutorProfile.education|length }};
+	$('input[name=numberOfEducation]').val(numberOfEducation);
+	function addEducationRow() {
+		numberOfEducation = numberOfEducation + 1;
+		var newRow = `<div class="row" id="education_{educationCounter}">
+						<div class="col-sm-4 panel-pad-10">
+							<div class="panel panel-default">
+								<input type="text" class="form-control" id="school_name_{educationCounter}" name="school_name_{educationCounter}" placeholder="School Name" required>
+							</div>
+						</div>
+						<div class="col-sm-4 panel-pad-10">
+							<div class="panel panel-default">
+								<input type="text" class="form-control" id="qualification_{educationCounter}" name="qualification_{educationCounter}" placeholder="Qualification & Grade(s)" required>
+							</div>
+						</div>
+						<div class="col-sm-4 panel-pad-10">
+							<div class="panel panel-default">
+								<input type="text" class="form-control" id="year_{educationCounter}" name="year_{educationCounter}" placeholder="Attended Years" required>
+							</div>
+						</div>
+					</div>`.split("{educationCounter}").join(numberOfEducation);
+
+		var insetIn = numberOfEducation-1;
+		$('input[name=numberOfEducation]').val(numberOfEducation);
+		$( newRow ).insertAfter( "#education_" + insetIn );
+	}
+</script>
+{% endblock %}
