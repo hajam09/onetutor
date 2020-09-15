@@ -7,7 +7,7 @@ from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_text, DjangoUnicodeDecodeError
 from .utils import generate_token
-from .models import UserProfile
+from .models import StudentProfile, TutorProfile
 from django.core.mail import EmailMessage
 from django.conf import settings
 from django.contrib import messages
@@ -105,22 +105,37 @@ def logout(request):
 
 @login_required
 def createprofile(request):
-	# If profile exists then redirect to profile.
-	if request.method == "POST":
+	# only allowed for the user who do not have a profile yet
+	if TutorProfile.objects.filter(user=request.user.id).exists() or StudentProfile.objects.filter(user=request.user.id).exists():
+		return redirect('accounts:profile')
+
+	if request.method == "POST" and "tutor" in request.POST:
+		# user is a tutor
 		summary = request.POST["summary"]
 		about = request.POST["about"]
 		subjects = request.POST["subjects"]
 		numberOfEducation = request.POST["numberOfEducation"]
-		print(summary, about, subjects, numberOfEducation)
-		# school_name_1, qualification_1, year_1
 
+		education = {}
+		for i in range(int(numberOfEducation)):
+			education["education_" + str(i + 1) ] = {"school_name": request.POST["school_name_" + str(i + 1)], "qualification": request.POST["qualification_" + str(i + 1)], "year": request.POST["year_" + str(i + 1)]}
+
+		TutorProfile.objects.create(user=request.user, userType="TUTOR", summary=summary, about=about, location=None, education=education, subjects=subjects, availability=None, profilePicture=None)
+		print(education)
+
+	if request.method == "POST" and "student" in request.POST:
+		# user is a student
+		pass
 	return render(request,"accounts/createprofile.html", {})
 
 @login_required
 def profile(request):
-	if not UserProfile.objects.filter(user=request.user.id).exists():
+	if not TutorProfile.objects.filter(user=request.user.id).exists() and not StudentProfile.objects.filter(user=request.user.id).exists():
 		return redirect('accounts:createprofile')
-		
+
+	userProfile = TutorProfile.objects.get(user=request.user.id) if TutorProfile.objects.filter(user=request.user.id).exists() else StudentProfile.objects.get(user=request.user.id)
+	if isinstance(userProfile, TutorProfile): userProfile.subjects = userProfile.subjects.split(",")
+	print(userProfile.subjects)
 	# one-to-one-profile tab
 	# summary
 	# about full
@@ -132,7 +147,7 @@ def profile(request):
 	# tab 2
 	# list of questionbs for me
 	# my students and chat history with all the students.
-	return render(request,"accounts/profile.html", {})
+	return render(request,"accounts/profile.html", {"userProfile": userProfile})
 
 # @login_required
 # def profile(request):

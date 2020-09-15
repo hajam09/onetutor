@@ -21,12 +21,12 @@
 					 {% csrf_token %}
 					 <div class="form-group">
 						<h2 for="summary">Summary</h2>
-						<input type="text" class="form-control" id="summary" name="summary">
+						<input type="text" class="form-control" id="summary" name="summary" required>
 					 </div>
 					 <hr>
 					 <div class="form-group">
 						<h2 for="about">About</h2>
-						<textarea class="form-control" id="about" name="about" rows="5"></textarea>
+						<textarea class="form-control" id="about" name="about" rows="5" required></textarea>
 					 </div>
 					 <hr>
 					 <div class="form-group" id="education">
@@ -34,17 +34,17 @@
 						<div class="row" id="education_1">
 							<div class="col-sm-4 panel-pad-10">
 								<div class="panel panel-default">
-									<input type="text" class="form-control" id="school_name_1" name="school_name_1" placeholder="School Name">
+									<input type="text" class="form-control" id="school_name_1" name="school_name_1" placeholder="School Name" required>
 								</div>
 							</div>
 							<div class="col-sm-4 panel-pad-10">
 								<div class="panel panel-default">
-									<input type="text" class="form-control" id="qualification_1" name="qualification_1" placeholder="Qualification & Grade(s)">
+									<input type="text" class="form-control" id="qualification_1" name="qualification_1" placeholder="Qualification & Grade(s)" required>
 								</div>
 							</div>
 							<div class="col-sm-4 panel-pad-10">
 								<div class="panel panel-default">
-									<input type="text" class="form-control" id="year_1" name="year_1" placeholder="Attended Years">
+									<input type="text" class="form-control" id="year_1" name="year_1" placeholder="Attended Years" required>
 								</div>
 							</div>
 						</div>
@@ -53,15 +53,23 @@
 					 <hr>
 					 <div class="form-group">
 						<h2 for="subjects">Subjects</h2>
-						<input type="text" class="form-control" id="subjects" name="subjects" placeholder="English, Maths, Science, Geography, ...">
+						<input type="text" class="form-control" id="subjects" name="subjects" placeholder="English, Maths, Science, Geography, ..." required>
 					 </div>
 					 <div class="form-group">
 						<button type="submit" class="btn btn-success btn-lg btn-block">Create Profile</button>
 					 </div>
 					 <input type="hidden" name="numberOfEducation" value="1">
+					 <input type="hidden" name="tutor">
 				  </form>
 			   </div>
 			   <div role="tabpanel" class="tab-pane" id="student">
+			   	<form method="post">
+			   		{% csrf_token %}
+			   		<div class="form-group">
+						<button type="submit" class="btn btn-success btn-lg btn-block">Create Profile</button>
+					 </div>
+			   		<input type="hidden" name="student">
+			   	</form>
 			   </div>
 			</div>
 		 </div>
@@ -75,17 +83,17 @@
 		var newRow = `<div class="row" id="education_{educationCounter}">
 						<div class="col-sm-4 panel-pad-10">
 							<div class="panel panel-default">
-								<input type="text" class="form-control" id="school_name_{educationCounter}" name="school_name_{educationCounter}" placeholder="School Name">
+								<input type="text" class="form-control" id="school_name_{educationCounter}" name="school_name_{educationCounter}" placeholder="School Name" required>
 							</div>
 						</div>
 						<div class="col-sm-4 panel-pad-10">
 							<div class="panel panel-default">
-								<input type="text" class="form-control" id="qualification_{educationCounter}" name="qualification_{educationCounter}" placeholder="Qualification & Grade(s)">
+								<input type="text" class="form-control" id="qualification_{educationCounter}" name="qualification_{educationCounter}" placeholder="Qualification & Grade(s)" required>
 							</div>
 						</div>
 						<div class="col-sm-4 panel-pad-10">
 							<div class="panel panel-default">
-								<input type="text" class="form-control" id="year_{educationCounter}" name="year_{educationCounter}" placeholder="Attended Years">
+								<input type="text" class="form-control" id="year_{educationCounter}" name="year_{educationCounter}" placeholder="Attended Years" required>
 							</div>
 						</div>
 					</div>`.split("{educationCounter}").join(numberOfEducation);
