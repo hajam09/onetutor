@@ -32,7 +32,7 @@
 					 <div class="form-group" id="education">
 						<h2 for="education">Education</h2>
 						<div id="listOfEducation"></div>
-						<button type="button" class="btn btn-primary btn-sm" onclick="addEducationRow();">Add another</button>
+						<button type="button" class="btn btn-primary btn-sm" onclick="addEducationRow();">Add Row</button>
 					 </div>
 					 <hr>
 					 <div class="form-group">
@@ -63,6 +63,7 @@
 <script type="text/javascript">
 	var numberOfEducation = 0;
 	function addEducationRow() {
+		addRemoveEducationBtn();
 		numberOfEducation = numberOfEducation + 1;
 		var newRow = `<div class="row" id="education_{educationCounter}">
 						<div class="col-sm-4 panel-pad-10">
@@ -84,6 +85,22 @@
 
 		$('input[name=numberOfEducation]').val(numberOfEducation);
 		$('#listOfEducation').append(newRow);
+	}
+
+	function removeEducationRow() {
+		$('#listOfEducation').children().last().remove();
+		numberOfEducation = numberOfEducation - 1;
+		$('input[name=numberOfEducation]').val(numberOfEducation);
+
+		if ($('#listOfEducation').children().length == 0) {
+			$('#removeRow').remove();
+		}
+	}
+
+	function addRemoveEducationBtn() {
+		if ($('#removeRow').length > 0)
+			return
+		$('#education').append('<button type="button" id="removeRow" class="btn btn-danger btn-sm" onclick="removeEducationRow();">Remove Row</button>');
 	}
 </script>
 {% endblock %}

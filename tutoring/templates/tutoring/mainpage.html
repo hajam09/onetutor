@@ -1,26 +1,60 @@
 {% extends "accounts/account_base.html" %}
 {% load static %}
 {% block content %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/searchBox.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/searchBox.css' %}"/>
 <div class="container">
-	<div class="s01">
+	{% if tutorList %}
 		<form method="post">
-			{% csrf_token %}
-			<fieldset>
-				<legend style="color: black;">Shall we find a tutor for you?</legend>
-			</fieldset>
-			<div class="inner-form">
-				<div class="input-field first-wrap">
-					<input id="search" type="text" name="search" placeholder="Try 'GCSE Maths'" />
-				</div>
-				<div class="input-field second-wrap">
-					<input id="location" type="text" name="location" placeholder="Try 'London'" />
-				</div>
-				<div class="input-field third-wrap">
-					<button class="btn-search" type="submit">Search</button>
-				</div>
-			</div>
+		   {% csrf_token %}
+		   <div class="row" style="background: rgba(0, 0, 0, 0.5); padding: 20px 43px; padding-top: 40px;">
+			  <div class="col-xs-5">
+				 <div class="form-group">
+					<input style="border-radius: 0.5px;" type="text" class="form-control" name="generalQuery" placeholder="Try 'GCES Maths'">
+				 </div>
+			  </div>
+			  <div class="col-xs-5">
+				 <div class="form-group">
+					<input style="border-radius: 0.5px;" type="text" class="form-control" name="location" placeholder="Try 'London'">
+				 </div>
+			  </div>
+			  <div class="col-xs-2">
+				 <div class="form-group">
+					<input style="border-radius: 0.5px;" class="btn btn-primary" type="submit" value="Submit" style="background-color: #4272d7;">
+				 </div>
+			  </div>
+		   </div>
 		</form>
-	</div>
+		<br>
+		<h3 style="color: black; text-align: center;">Recommended tutors for you.</h3>
+		<hr>
+
+		{% for tutor in tutorList %}
+			{{tutor}}
+		{% endfor %}
+
+	{% else %}
+		{% if message %}
+			<div style="color: black; text-align: center;" class="alert {{alert}}" role="alert">{{message}}</div>
+		{% endif %}
+		<div class="s01">
+			<form method="post">
+				{% csrf_token %}
+				<fieldset>
+					<legend style="color: black;">Shall we find a tutor for you?</legend>
+				</fieldset>
+				<div class="inner-form">
+					<div class="input-field first-wrap">
+						<input type="text" name="generalQuery" placeholder="Try 'GCES Maths'" />
+					</div>
+					<div class="input-field second-wrap">
+						<input type="text" name="location" placeholder="Try 'London'" />
+					</div>
+					<div class="input-field third-wrap">
+						<button class="btn-search" type="submit">Search</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	{% endif %}
 </div>
 {% endblock %}
