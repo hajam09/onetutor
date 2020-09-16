@@ -121,7 +121,7 @@ def createprofile(request):
 			education["education_" + str(i + 1) ] = {"school_name": request.POST["school_name_" + str(i + 1)], "qualification": request.POST["qualification_" + str(i + 1)], "year": request.POST["year_" + str(i + 1)]}
 
 		TutorProfile.objects.create(user=request.user, userType="TUTOR", summary=summary, about=about, location=None, education=education, subjects=subjects, availability=None, profilePicture=None)
-		print(education)
+		return render("accounts:createprofile")
 
 	if request.method == "POST" and "student" in request.POST:
 		# user is a student
@@ -134,6 +134,7 @@ def createprofile(request):
 def tutorprofile(request):
 	tutorProfile = TutorProfile.objects.get(user=request.user.id)
 	tutorProfile.subjects = tutorProfile.subjects.split(",")
+	countries = Countries.objects.all()
 
 	if request.method == "POST" and "updatePersonalDetails" in request.POST:
 		firstname = request.POST["first_name"].strip()
@@ -183,8 +184,9 @@ def tutorprofile(request):
 					"postalZip": postalZip, "country": {"alpha": country.alpha, "name": country.name}}
 		TutorProfile.objects.filter(user=request.user.id).update(location=location)
 		tutorProfile = TutorProfile.objects.get(user=request.user.id)
-		return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "message": "Your location has been updated successfully", "alert": "success"})
-	countries = Countries.objects.all()
+		tutorProfile.subjects = tutorProfile.subjects.split(",")
+		return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "countries": countries, "message": "Your location has been updated successfully", "alert": "success"})
+	
 	return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "countries": countries})
 
 @login_required

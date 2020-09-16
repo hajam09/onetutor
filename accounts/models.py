@@ -23,3 +23,6 @@ class StudentProfile(models.Model):
 class Countries(models.Model):
 	alpha = models.CharField(max_length=4)
 	name = models.CharField(max_length=64)
+
+	def __str__ (self):
+		return self.alpha + " - " + self.name

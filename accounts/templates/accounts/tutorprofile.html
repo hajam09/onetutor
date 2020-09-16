@@ -167,11 +167,13 @@
 													{% endifequal %}
 												{% endfor %}
 											{% else %}
-												{% ifequal country.alpha "GB" %}
-													<option value="{{country.alpha}}" selected="selected">{{country.name}}</option>
-												{% else %}
-													<option value="{{country.alpha}}">{{country.name}}</option>
-												{% endifequal %}
+												{% for country in countries %}
+													{% ifequal country.alpha "GB" %}
+														<option value="{{country.alpha}}" selected="selected">{{country.name}}</option>
+													{% else %}
+														<option value="{{country.alpha}}">{{country.name}}</option>
+													{% endifequal %}
+												{% endfor %}
 											{% endif %}
 										</select>
 									</div>
