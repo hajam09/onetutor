@@ -6,7 +6,7 @@
    <div class="row">
    	{% if message %}
    		{% if alert %}
-   			<div style="color: black; text-align: center;" class="alert alert-{{alert}}" role="alert">{{message}}</div>
+   			<div style="color: black; text-align: center;" class="alert {{alert}}" role="alert">{{message}}</div>
    		{% endif %}
    	{% endif %}
 	  <div class="col-md-12">

@@ -30,26 +30,27 @@
 					 <hr>
 					 <div class="form-group" id="education">
 						<h2 for="education" style="display:inline;">Education</h2>
-						{% for key,value in tutorProfile.education.items %}
-							<div class="row" id="education_{{ forloop.counter }}">
-								<div class="col-sm-4 panel-pad-10">
-									<div class="panel panel-default">
-										<input type="text" class="form-control" id="school_name_{{ forloop.counter }}" name="school_name_{{ forloop.counter }}" placeholder="School Name" value="{{value.school_name}}" required>
+						<div id="listOfEducation">
+							{% for key,value in tutorProfile.education.items %}
+								<div class="row" id="education_{{ forloop.counter }}">
+									<div class="col-sm-4 panel-pad-10">
+										<div class="panel panel-default">
+											<input type="text" class="form-control" id="school_name_{{ forloop.counter }}" name="school_name_{{ forloop.counter }}" placeholder="School Name" value="{{value.school_name}}" required>
+										</div>
+									</div>
+									<div class="col-sm-4 panel-pad-10">
+										<div class="panel panel-default">
+											<input type="text" class="form-control" id="qualification_{{ forloop.counter }}" name="qualification_{{ forloop.counter }}" placeholder="Qualification & Grade(s)" value="{{value.qualification}}" required>
+										</div>
+									</div>
+									<div class="col-sm-4 panel-pad-10">
+										<div class="panel panel-default">
+											<input type="text" class="form-control" id="year_{{ forloop.counter }}" name="year_{{ forloop.counter }}" placeholder="Attended Years" value="{{value.year}}" required>
+										</div>
 									</div>
 								</div>
-								<div class="col-sm-4 panel-pad-10">
-									<div class="panel panel-default">
-										<input type="text" class="form-control" id="qualification_{{ forloop.counter }}" name="qualification_{{ forloop.counter }}" placeholder="Qualification & Grade(s)" value="{{value.qualification}}" required>
-									</div>
-								</div>
-								<div class="col-sm-4 panel-pad-10">
-									<div class="panel panel-default">
-										<input type="text" class="form-control" id="year_{{ forloop.counter }}" name="year_{{ forloop.counter }}" placeholder="Attended Years" value="{{value.year}}" required>
-									</div>
-								</div>
-							</div>
-						{% endfor %}
-
+							{% endfor %}
+						</div>
 						<button type="button" class="btn btn-primary btn-sm" onclick="addEducationRow();">Add another</button>
 					 </div>
 					 <hr>
@@ -74,7 +75,9 @@
 <script type="text/javascript">
 	var numberOfEducation = {{ tutorProfile.education|length }};
 	$('input[name=numberOfEducation]').val(numberOfEducation);
+	addRemoveEducationBtn();
 	function addEducationRow() {
+		addRemoveEducationBtn();
 		numberOfEducation = numberOfEducation + 1;
 		var newRow = `<div class="row" id="education_{educationCounter}">
 						<div class="col-sm-4 panel-pad-10">
@@ -94,9 +97,24 @@
 						</div>
 					</div>`.split("{educationCounter}").join(numberOfEducation);
 
-		var insetIn = numberOfEducation-1;
 		$('input[name=numberOfEducation]').val(numberOfEducation);
-		$( newRow ).insertAfter( "#education_" + insetIn );
+		$('#listOfEducation').append(newRow);
+	}
+
+	function removeEducationRow() {
+		$('#listOfEducation').children().last().remove();
+		numberOfEducation = numberOfEducation - 1;
+		$('input[name=numberOfEducation]').val(numberOfEducation);
+
+		if ($('#listOfEducation').children().length == 0) {
+			$('#removeRow').remove();
+		}
+	}
+
+	function addRemoveEducationBtn() {
+		if ($('#removeRow').length > 0)
+			return
+		$('#education').append('<button type="button" id="removeRow" class="btn btn-danger btn-sm" onclick="removeEducationRow();">Remove Row</button>');
 	}
 </script>
 {% endblock %}

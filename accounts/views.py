@@ -15,6 +15,57 @@ from django.core.cache import cache
 from django.http import HttpResponse
 import json
 
+# 
+import names
+from essential_generators import DocumentGenerator
+from faker import Faker
+def firstname():
+    return names.get_first_name()
+
+def surname():
+    return names.get_last_name()
+
+def emailaddress(firstname, lastname):
+    firstname = firstname.lower()
+    lastname = lastname.lower()
+    return firstname+"."+lastname+"@gmail.com"
+
+def passwordGenerate():
+    return "Maideen69"
+
+def usertype(arg):
+    if(arg=="tutor"):
+        return "TUTOR"
+    return "STUDENT"
+
+def generateTutorProfile():
+    gen = DocumentGenerator()
+    fake = Faker()
+    # account: username, email, password, first_name, last_name
+    first_name = firstname()
+    last_name = surname()
+    email = emailaddress(first_name, last_name)
+    username = emailaddress(first_name, last_name)
+    password = passwordGenerate()
+    # TutorProfile: user, userType, summary, about, location, education, subjects, availability, profilePicture
+    userType = usertype("tutor")
+    summary = gen.sentence()
+    about = gen.paragraph()
+    location = { "address_1": "24 Cranborne Road", "address_2": "Barking", "city": "London", "stateProvice": "Essex", "postalZip": "IG11 7XE", "country": { "alpha": "GB", "name": "United Kingdom" } }
+    education = { "education_1": { "school_name": "Imperial College London", "qualification": "Computing (Masters) - 2:1 (2016 - 2020)", "year": "Peter Symonds College" }, "education_2": { "school_name": "Peter Symonds College", "qualification": "A Levels - A*A*AA (Maths, Computing, Further Maths, Physics)", "year": "2014 - 2016" }, "education_3": { "school_name": "Perins School", "qualification": "GCSE - 10 x A* ", "year": "2009 - 2014" } }
+    subjects = "English, Maths, Science, ICT, RE, Statistics, DT, Computing, Games Development, Networks, Web Programming, GUI, Bayesian"
+    availability = None
+    profilePicture = None
+
+    user = User.objects.create_user(username=email, email=email, password=password, first_name=first_name, last_name=last_name)
+    TutorProfile.objects.create(user=user, userType="TUTOR", summary=summary, about=about, location=location, education=education, subjects=subjects, availability=None, profilePicture=None)
+
+
+# for i in range(10):
+#     generateTutorProfile()
+
+# 
+
 def login(request):
 	if request.method == "POST":
 
@@ -121,7 +172,7 @@ def createprofile(request):
 			education["education_" + str(i + 1) ] = {"school_name": request.POST["school_name_" + str(i + 1)], "qualification": request.POST["qualification_" + str(i + 1)], "year": request.POST["year_" + str(i + 1)]}
 
 		TutorProfile.objects.create(user=request.user, userType="TUTOR", summary=summary, about=about, location=None, education=education, subjects=subjects, availability=None, profilePicture=None)
-		return render("accounts:createprofile")
+		return redirect("accounts:createprofile")
 
 	if request.method == "POST" and "student" in request.POST:
 		# user is a student
@@ -132,7 +183,11 @@ def createprofile(request):
 
 @login_required
 def tutorprofile(request):
-	tutorProfile = TutorProfile.objects.get(user=request.user.id)
+	try:
+		tutorProfile = TutorProfile.objects.get(user=request.user.id)
+	except TutorProfile.DoesNotExist:
+		return redirect("accounts:createprofile")
+	
 	tutorProfile.subjects = tutorProfile.subjects.split(",")
 	countries = Countries.objects.all()
 
@@ -144,7 +199,7 @@ def tutorprofile(request):
 		user.first_name = firstname
 		user.last_name = lastname
 		user.save()
-		return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "message": "Your personal details has been updated successfully", "alert": "success"})
+		return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "message": "Your personal details has been updated successfully", "alert": "alert-success"})
 
 	if request.method == "POST" and "updatePassword" in request.POST:
 		currentPassword = request.POST["currentPassword"]
@@ -154,14 +209,14 @@ def tutorprofile(request):
 		user = User.objects.get(pk=(request.user.id))
 
 		if currentPassword and not user.check_password(currentPassword):
-			return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "message": "Your current password does not match", "alert": "danger"})
+			return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "message": "Your current password does not match", "alert": "alert-danger"})
 
 		if(newPassword and confirmPassword):
 			if(newPassword!=confirmPassword):
-				return render(request,"accounts/tutorprofile.html", {"message": "Your new password and confirm password does not match", "alert": "danger"})
+				return render(request,"accounts/tutorprofile.html", {"message": "Your new password and confirm password does not match", "alert": "alert-danger"})
 
 			if(len(newPassword)<8 or any(letter.isalpha() for letter in newPassword)==False or any(capital.isupper() for capital in newPassword)==False or any(number.isdigit() for number in newPassword)==False):
-				return render(request,"accounts/tutorprofile.html", {"message": "Your new password is not strong enough.", "alert": "warning"})
+				return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "message": "Your new password is not strong enough.", "alert": "alert-warning"})
 
 			user.set_password(newPassword)
 		user.save()
@@ -174,18 +229,18 @@ def tutorprofile(request):
 				return redirect("accounts:login")
 
 	if request.method == "POST" and "updateAddress" in request.POST:
-		address_1 = request.POST["address_1"].title()
-		address_2 = request.POST["address_2"].title()
-		city = request.POST["city"].title()
-		stateProvice = request.POST["stateProvice"].title()
-		postalZip = request.POST["postalZip"].upper()
+		address_1 = request.POST["address_1"].strip().title()
+		address_2 = request.POST["address_2"].strip().title()
+		city = request.POST["city"].strip().title()
+		stateProvice = request.POST["stateProvice"].strip().title()
+		postalZip = request.POST["postalZip"].strip().upper()
 		country = Countries.objects.get(alpha=request.POST["country"])
 		location = {"address_1": address_1, "address_2": address_2, "city": city, "stateProvice": stateProvice,
 					"postalZip": postalZip, "country": {"alpha": country.alpha, "name": country.name}}
 		TutorProfile.objects.filter(user=request.user.id).update(location=location)
 		tutorProfile = TutorProfile.objects.get(user=request.user.id)
 		tutorProfile.subjects = tutorProfile.subjects.split(",")
-		return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "countries": countries, "message": "Your location has been updated successfully", "alert": "success"})
+		return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "countries": countries, "message": "Your location has been updated successfully", "alert": "alert-success"})
 	
 	return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "countries": countries})
 
@@ -201,7 +256,7 @@ def tutorprofileedit(request):
 		for i in range(int(numberOfEducation)):
 			education["education_" + str(i + 1) ] = {"school_name": request.POST["school_name_" + str(i + 1)], "qualification": request.POST["qualification_" + str(i + 1)], "year": request.POST["year_" + str(i + 1)]}
 
-		TutorProfile.objects.filter(user=request.user.id).update(user=request.user, userType="TUTOR", summary=summary, about=about, location=None, education=education, subjects=subjects, availability=None, profilePicture=None)
+		TutorProfile.objects.filter(user=request.user.id).update(user=request.user, summary=summary, about=about, education=education, subjects=subjects, availability=None, profilePicture=None)
 		return redirect("accounts:profile")
 
 	tutorProfile = TutorProfile.objects.get(user=request.user.id)
