@@ -295,66 +295,6 @@ def profile(request):
 	# list of questionbs for me
 	# my students and chat history with all the students.
 
-# @login_required
-# def profile(request):
-# 	if request.method == "GET" and request.user.is_authenticated and not request.user.is_superuser:
-# 		if request.is_ajax():
-# 			functionality = request.GET["functionality"]
-# 			if functionality == "confirm-password":
-# 				if request.user.check_password(request.GET["password"]):
-# 					User.objects.get(id=int(request.user.pk)).delete()
-# 					return HttpResponse(json.dumps({"status_code": 200, "account_exists": False, "message": "Your account has been deleted successfully."}), content_type="application/json")
-# 				return HttpResponse(json.dumps({"status_code": 400, "account_exists": True, "message": "Your pasword did not match with our records."}), content_type="application/json")
-
-# 	if request.method == "POST":
-# 		firstname = request.POST['first_name'].strip()
-# 		lastname = request.POST['last_name'].strip()
-
-# 		password = request.POST['password']
-# 		password_2 = request.POST['password2'];
-
-# 		user = User.objects.get(pk=(request.user.id))
-# 		user.first_name = firstname
-# 		user.last_name = lastname
-
-# 		if(password and password_2):
-# 			if(password!=password_2):
-# 				context = {"message": "Your passwords do not match!"}
-# 				return render(request,"accounts/profile.html", context)
-
-# 			if(len(password)<8 or any(letter.isalpha() for letter in password)==False or any(capital.isupper() for capital in password)==False or any(number.isdigit() for number in password)==False):
-# 				context = {"message": "Your password is not strong enough."}
-# 				return render(request,"accounts/profile.html", context)
-			
-# 			user.set_password(password)
-# 		user.save()
-
-# 		if(password and password_2):
-# 			user = authenticate(username=user.username, password=password)
-# 			if user:
-# 				auth_login(request, user)
-# 			else:
-# 				return redirect("accounts:login")
-
-# 		context = {
-# 			"success": "Your details are updated.",
-# 			"first_name": firstname,
-# 			"last_name": lastname,
-# 		}
-# 		return render(request,"accounts/profile.html", context)
-
-# 	context = {
-# 		"first_name": request.user.first_name,
-# 		"last_name": request.user.last_name,
-# 		"email": request.user.email,
-# 		"likes": Review.objects.filter(likes__id=request.user.pk).count(),
-# 		"dislikes": Review.objects.filter(dislikes__id=request.user.pk).count(),
-# 		"comments": Review.objects.filter(user=request.user.pk).count(),
-# 		"books_read": Book.objects.filter(haveread__id=request.user.pk).count()
-# 	}
-# 	return render(request,"accounts/profile.html", context)
-
-
 def activateaccount(request, uidb64, token):
 	try:
 		uid = force_text(urlsafe_base64_decode(uidb64))

@@ -1,0 +1,117 @@
+{% extends "accounts/account_base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/tab_pane.css' %}" />
+<style type="text/css">
+	.nav-tabs > li  {width:33.3333%; text-align:center;}
+</style>
+<div class="container">
+	<div class="row">
+		<div class="col-md-12">
+		 <!-- Nav tabs -->
+		 <div class="card">
+			<ul class="nav nav-tabs" role="tablist">
+			   <li role="presentation" class="active"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab"> <span>Profile</span></a></li>
+			   <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab"> <span>Q & A</span></a></li>
+			   <li role="presentation"><a href="#communication" aria-controls="communication" role="tab" data-toggle="tab"><span>Communication</span></a></li>
+			</ul>
+			<!-- Tab panes -->
+			<div class="tab-content">
+			   <div role="tabpanel" class="tab-pane active" id="profile">
+				  <div>
+					 <h3>About</h3>
+					 <p>{{ tutorProfile.about|linebreaksbr }}</p>
+				  </div>
+				  <hr>
+				  <div>
+					 <h3>Education</h3>
+					 <div>
+						{% for key,value in tutorProfile.education.items %}
+						<div style="display: flex; flex-direction: row; align-items: flex-start; justify-content: flex-start; margin-bottom: 15px;">
+						   <img src="https://www.iconfinder.com/data/icons/building-1/512/build2-512.png" style="width: 50px; height: 50px; margin-right: 13px; -o-object-fit: contain; object-fit: contain; border-radius: 4px;">
+						   <div style="flex: 1 1; flex-direction: column;">
+							  <b style="margin-bottom: 5px;">{{value.school_name}}</b>
+							  <p style="margin-bottom: 0;">{{value.qualification}} ({{value.year}})</p>
+						   </div>
+						</div>
+						{% endfor %}
+					 </div>
+				  </div>
+				  <hr>
+				  <div>
+					 <h3>Subjects</h3>
+					 <div style="display: flex; flex-flow: row wrap;">
+						{% for subject in tutorProfile.subjects %}
+						<a href="" style="margin: 0 10px 10px 0;">
+						   <dir style="font-size: 12px; padding: 3px 8px; border-radius: 4px; text-align: center; color: #fff; background-color: #000; opacity: .64;">
+							  {{ subject }}
+						   </dir>
+						</a>
+						{% endfor %}
+					 </div>
+				  </div>
+			   </div>
+			   <div role="tabpanel" class="tab-pane" id="messages">
+					<button type="button" class="btn btn-info pull-right" data-toggle="modal" data-target="#questionModal">Ask a Question</button>
+					<div class="modal fade" id="questionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+					   <div class="modal-dialog">
+						  <div class="modal-content">
+							 <div class="modal-header">
+								<h3 class="modal-title" id="exampleModalLabel" style="display:inline-block;">Enter your Question below.</h3>
+								<button type="button" class="close" data-dismiss="modal" aria-label="Close" style="display:inline-block">
+								<span aria-hidden="true">&times;</span>
+								</button>
+							 </div>
+							 <div class="modal-body">
+								<form method="post">
+									{% csrf_token %}
+									<div class="form-group">
+									  <label for="subject-related" class="col-form-label">Subject related to:</label>
+									  <input type="text" class="form-control" id="subject-related" name="subject-related" placeholder="English or Maths or Science" required>
+								   </div>
+								   <div class="form-group">
+									  <label for="question" class="col-form-label">Question:</label>
+									  <textarea class="form-control" id="question" name="question" required></textarea>
+								   </div>
+								   <input type="text" name="postQuestion" hidden>
+								   <div class="modal-footer">
+										<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+										<button type="submit" class="btn btn-success">Post my Question</button>
+									</div>
+								</form>
+							 </div>
+						  </div>
+					   </div>
+					</div>
+					<div>
+						{% if questionAndAnswers %}
+							{% for qa in questionAndAnswers %}
+								<div>
+									<div>
+										<div>
+											<div style="display: flex; flex-flow: row wrap;">
+												{% for subject in qa.subject %}
+													<a href="" style="margin: 0 10px 10px 0;">
+													   <dir style="font-size: 12px; padding: 3px 8px; border-radius: 4px; text-align: center; color: #fff; background-color: #000; opacity: .64;">
+														  {{ subject }}
+													   </dir>
+													</a>
+												{% endfor %}
+											</div>
+											<p></p>
+											<a href=""></a>
+											<p></p>
+										</div>
+									</div>
+								</div>
+							{% endfor %}
+						{% endif %}
+					</div>	
+			   </div>
+			   <div role="tabpanel" class="tab-pane" id="communication">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passage..</div>
+			</div>
+		 </div>
+	  </div>
+	</div>
+</div>
+{% endblock %}
