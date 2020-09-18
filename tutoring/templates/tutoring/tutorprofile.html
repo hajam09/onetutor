@@ -3,115 +3,176 @@
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/tab_pane.css' %}" />
 <style type="text/css">
-	.nav-tabs > li  {width:33.3333%; text-align:center;}
+	/***
+		User Profile Sidebar by @keenthemes
+		A component of Metronic Theme - #1 Selling Bootstrap 3 Admin Theme in Themeforest: http://j.mp/metronictheme
+		Licensed under MIT
+	***/
+	.nav-tabs>li{width:50%;text-align:center}.profile{margin:20px 0}.profile-sidebar{padding:20px 0 10px 0;background:#fff}.profile-userpic img{float:none;margin:0 auto;width:50%;height:50%;-webkit-border-radius:50%!important;-moz-border-radius:50%!important;border-radius:50%!important}.profile-usertitle{text-align:center;margin-top:20px}.profile-usertitle-name{color:#5a7391;font-size:16px;font-weight:600;margin-bottom:7px}.profile-usertitle-job{text-transform:uppercase;color:#5b9bd1;font-size:12px;font-weight:600;margin-bottom:15px}.profile-userbuttons{text-align:center;margin-top:10px}.profile-userbuttons .btn{text-transform:uppercase;font-size:11px;font-weight:600;padding:6px 15px;margin-right:5px}.profile-userbuttons .btn:last-child{margin-right:0}.profile-usermenu{margin-top:30px}.profile-usermenu ul li{border-bottom:1px solid #f0f4f7}.profile-usermenu ul li:last-child{border-bottom:0}.profile-usermenu ul li p{color:#5b9bd1;font-size:15px;font-weight:600;margin-left:15px}.profile-usermenu ul li p i{margin-right:8px;font-size:14px}.profile-usermenu ul li p:hover{background-color:#fafcfd;color:#5b9bd1}.profile-usermenu ul li.active{border-bottom:0}.profile-usermenu ul li.active a{color:#5b9bd1;background-color:#f6f9fb;border-left:2px solid #5b9bd1;margin-left:-2px}.profile-content{padding:20px;background:#fff;min-height:460px}.tutor_Answer__1aisT:not(:first-child){margin-top:16px}.feed_question_Component__1AuPU{position:relative;display:flex;flex-direction:column;width:100%;--vPad:14px;--hPad:20px}.feed_question_Component__1AuPU:not(:first-child){margin-top:16px}@media(min-width:768px){.feed_question_Component__1AuPU{--vPad:14px;--hPad:27px}.feed_question_Question_Title__2OHwe{margin:21px 0 0}.feed_question_Question_Answer__2E1dk{font:400 14px/21px Tenon;margin:22px 50px 25px 0}}.feed_question_Question__1SU6V{position:relative;padding:var(--vPad) var(--hPad);background-color:#fff}.feed_subject_badge_FeedSubjectBadge__HZ_pL{padding:3px 8px;border-radius:4px;text-align:center;font:500 9px/11px Tenon;color:#fff;background-color:#000;opacity:.64}.feed_question_Subject__1D7HM{z-index:5;position:absolute;top:var(--vPad);right:var(--hPad)}.feed_question_Question_Asker__3hFgj{font:400 11px/13px Tenon;color:#3b3b3b;opacity:.5;margin:0}@media(min-width:768px){.feed_question_Component__1AuPU{--vPad:14px;--hPad:27px}.feed_question_Question_Title__2OHwe{margin:21px 0 0}.feed_question_Question_Answer__2E1dk{font:400 14px/21px Tenon;margin:22px 50px 25px 0}}.feed_question_Question_Title__2OHwe{margin:15px 0 0;font:500 15px/18px Tenon;color:#3b3b3b;opacity:1}.feed_question_Question_Answer__2E1dk{text-align:left;white-space:pre-line;font:400 13px/18px Tenon;color:#4c4c4c;opacity:1;margin:15px 0 20px}.feed_question_Question_Answer__2E1dk>p:last-child{margin-bottom:0}@media(min-width:768px){.feed_question_Component__1AuPU{--vPad:14px;--hPad:27px}.feed_question_Question_Title__2OHwe{margin:21px 0 0}.feed_question_Question_Answer__2E1dk{font:400 14px/21px Tenon;margin:22px 50px 25px 0}}
 </style>
 <div class="container">
-	<div class="row">
-		<div class="col-md-12">
-		 <!-- Nav tabs -->
-		 <div class="card">
-			<ul class="nav nav-tabs" role="tablist">
-			   <li role="presentation" class="active"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab"> <span>Profile</span></a></li>
-			   <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab"> <span>Q & A</span></a></li>
-			   <li role="presentation"><a href="#communication" aria-controls="communication" role="tab" data-toggle="tab"><span>Communication</span></a></li>
-			</ul>
-			<!-- Tab panes -->
-			<div class="tab-content">
-			   <div role="tabpanel" class="tab-pane active" id="profile">
-				  <div>
-					 <h3>About</h3>
-					 <p>{{ tutorProfile.about|linebreaksbr }}</p>
-				  </div>
-				  <hr>
-				  <div>
-					 <h3>Education</h3>
-					 <div>
-						{% for key,value in tutorProfile.education.items %}
-						<div style="display: flex; flex-direction: row; align-items: flex-start; justify-content: flex-start; margin-bottom: 15px;">
-						   <img src="https://www.iconfinder.com/data/icons/building-1/512/build2-512.png" style="width: 50px; height: 50px; margin-right: 13px; -o-object-fit: contain; object-fit: contain; border-radius: 4px;">
-						   <div style="flex: 1 1; flex-direction: column;">
-							  <b style="margin-bottom: 5px;">{{value.school_name}}</b>
-							  <p style="margin-bottom: 0;">{{value.qualification}} ({{value.year}})</p>
-						   </div>
-						</div>
-						{% endfor %}
-					 </div>
-				  </div>
-				  <hr>
-				  <div>
-					 <h3>Subjects</h3>
-					 <div style="display: flex; flex-flow: row wrap;">
-						{% for subject in tutorProfile.subjects %}
-						<a href="" style="margin: 0 10px 10px 0;">
-						   <dir style="font-size: 12px; padding: 3px 8px; border-radius: 4px; text-align: center; color: #fff; background-color: #000; opacity: .64;">
-							  {{ subject }}
-						   </dir>
-						</a>
-						{% endfor %}
-					 </div>
-				  </div>
-			   </div>
-			   <div role="tabpanel" class="tab-pane" id="messages">
-					<button type="button" class="btn btn-info pull-right" data-toggle="modal" data-target="#questionModal">Ask a Question</button>
-					<div class="modal fade" id="questionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-					   <div class="modal-dialog">
-						  <div class="modal-content">
-							 <div class="modal-header">
-								<h3 class="modal-title" id="exampleModalLabel" style="display:inline-block;">Enter your Question below.</h3>
-								<button type="button" class="close" data-dismiss="modal" aria-label="Close" style="display:inline-block">
-								<span aria-hidden="true">&times;</span>
-								</button>
-							 </div>
-							 <div class="modal-body">
-								<form method="post">
-									{% csrf_token %}
-									<div class="form-group">
-									  <label for="subject-related" class="col-form-label">Subject related to:</label>
-									  <input type="text" class="form-control" id="subject-related" name="subject-related" placeholder="English or Maths or Science" required>
-								   </div>
-								   <div class="form-group">
-									  <label for="question" class="col-form-label">Question:</label>
-									  <textarea class="form-control" id="question" name="question" required></textarea>
-								   </div>
-								   <input type="text" name="postQuestion" hidden>
-								   <div class="modal-footer">
-										<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-										<button type="submit" class="btn btn-success">Post my Question</button>
-									</div>
-								</form>
-							 </div>
-						  </div>
-					   </div>
+	<div class="row profile">
+		<div class="col-md-3">
+			<div class="profile-sidebar">
+				<!-- SIDEBAR USERPIC -->
+				<div class="profile-userpic">
+					<img src="http://keenthemes.com/preview/metronic/theme/assets/admin/pages/media/profile/profile_user.jpg" class="img-responsive" alt="" />
+				</div>
+				<!-- END SIDEBAR USERPIC -->
+				<!-- SIDEBAR USER TITLE -->
+				<div class="profile-usertitle">
+					<div class="profile-usertitle-name">
+						{{ tutorProfile.user.first_name }} {{ tutorProfile.user.last_name }}
 					</div>
-					<div>
-						{% if questionAndAnswers %}
-							{% for qa in questionAndAnswers %}
-								<div>
+					<div class="profile-usertitle-job">
+						{{ tutorProfile.summary }}
+					</div>
+				</div>
+				<!-- END SIDEBAR USER TITLE -->
+				<!-- SIDEBAR BUTTONS -->
+				<div class="profile-userbuttons">
+					<div class="modal fade" id="questionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+						<div class="modal-dialog">
+							<div class="modal-content">
+								<div class="modal-header">
+									<h3 class="modal-title" id="exampleModalLabel" style="display: inline-block;">Enter your Question below.</h3>
+									<button type="button" class="close" data-dismiss="modal" aria-label="Close" style="display: inline-block;">
+										<span aria-hidden="true">&times;</span>
+									</button>
+								</div>
+								<div class="modal-body">
+									<form method="post">
+										{% csrf_token %}
+										<div class="form-group">
+											<label for="subject-related" class="col-form-label pull-left">Subject related to:</label>
+											<input type="text" class="form-control" id="subject-related" name="subject-related" placeholder="English or Maths or Science" required />
+										</div>
+										<div class="form-group">
+											<label for="question" class="col-form-label pull-left">Question:</label>
+											<textarea class="form-control" id="question" name="question" required></textarea>
+										</div>
+										<input type="text" name="postQuestion" hidden />
+										<div class="modal-footer">
+											<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+											<button type="submit" class="btn btn-success">Post my Question</button>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+					<button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#questionModal">Ask a Question</button>
+					<button type="button" class="btn btn-danger btn-sm">Message</button>
+				</div>
+				<!-- END SIDEBAR BUTTONS -->
+				<!-- SIDEBAR MENU -->
+				<div class="profile-usermenu">
+					<ul class="nav">
+						<li>
+							<p>Tutor Score - 100</p>
+						</li>
+						<li>
+							<p>Charges £25 per hour</p>
+						</li>
+						<li>
+							<p>25 Questions Answered</p>
+						</li>
+						<li>
+							<p>Tuitoned 25 students</p>
+						</li>
+					</ul>
+				</div>
+				<!-- END MENU -->
+			</div>
+		</div>
+		<div class="col-md-9">
+			<div class="profile-content">
+				<div class="row">
+					<div class="col-md-12">
+						<!-- Nav tabs -->
+						<div class="card">
+							<ul class="nav nav-tabs" role="tablist">
+								<li role="presentation" class="active">
+									<a href="#profile" aria-controls="profile" role="tab" data-toggle="tab"> <span>Profile</span></a>
+								</li>
+								<li role="presentation">
+									<a href="#messages" aria-controls="messages" role="tab" data-toggle="tab"> <span>Q & A</span></a>
+								</li>
+							</ul>
+							<!-- Tab panes -->
+							<div class="tab-content">
+								<div role="tabpanel" class="tab-pane active" id="profile">
 									<div>
+										<h3>About</h3>
+										<p>{{ tutorProfile.about|linebreaksbr }}</p>
+									</div>
+									<hr />
+									<div>
+										<h3>Education</h3>
 										<div>
-											<div style="display: flex; flex-flow: row wrap;">
-												{% for subject in qa.subject %}
-													<a href="" style="margin: 0 10px 10px 0;">
-													   <dir style="font-size: 12px; padding: 3px 8px; border-radius: 4px; text-align: center; color: #fff; background-color: #000; opacity: .64;">
-														  {{ subject }}
-													   </dir>
-													</a>
-												{% endfor %}
+											{% for key,value in tutorProfile.education.items %}
+											<div style="display: flex; flex-direction: row; align-items: flex-start; justify-content: flex-start; margin-bottom: 15px;">
+												<img
+													src="https://www.iconfinder.com/data/icons/building-1/512/build2-512.png"
+													style="width: 50px; height: 50px; margin-right: 13px; -o-object-fit: contain; object-fit: contain; border-radius: 4px;"
+												/>
+												<div style="flex: 1 1; flex-direction: column;">
+													<b style="margin-bottom: 5px;">{{value.school_name}}</b>
+													<p style="margin-bottom: 0;">{{value.qualification}} ({{value.year}})</p>
+												</div>
 											</div>
-											<p></p>
-											<a href=""></a>
-											<p></p>
+											{% endfor %}
+										</div>
+									</div>
+									<hr />
+									<div>
+										<h3>Subjects</h3>
+										<div style="display: flex; flex-flow: row wrap;">
+											{% for subject in tutorProfile.subjects %}
+											<a href="" style="margin: 0 10px 10px 0;">
+												<dir style="font-size: 12px; padding: 3px 8px; border-radius: 4px; text-align: center; color: #fff; background-color: #000; opacity: 0.64;">
+													{{ subject }}
+												</dir>
+											</a>
+											{% endfor %}
 										</div>
 									</div>
 								</div>
-							{% endfor %}
-						{% endif %}
-					</div>	
-			   </div>
-			   <div role="tabpanel" class="tab-pane" id="communication">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passage..</div>
+								<div role="tabpanel" class="tab-pane" id="messages">
+									<div class="row">
+										{% if questionAndAnswers %} {% for qa in questionAndAnswers %}
+										<div class="tutor_Answer__1aisT">
+											<div class="feed_question_Component__1AuPU">
+												<div class="feed_question_Question__1SU6V">
+													<div class="feed_subject_badge_FeedSubjectBadge__HZ_pL feed_question_Subject__1D7HM">English
+														<!-- <div style="display: flex; flex-flow: row wrap;">
+															{% for subject in qa.subject %}
+															<a href="" style="margin: 0 10px 10px 0;">
+																<dir style="font-size: 12px; padding: 3px 8px; border-radius: 4px; text-align: center; color: #fff; background-color: #000; opacity: .64;">
+																	{{ subject }}
+																</dir>
+															</a>
+															{% endfor %}
+														</div> -->
+													</div>
+													<p class="feed_question_Question_Asker__3hFgj">Asked by {{ qa.questioner.first_name }} {{ qa.questioner.last_name }}</p>
+													<h4 class="feed_question_Question_Title__2OHwe">{{ qa.question|linebreaksbr }}</h4>
+													<p class="feed_question_Question_Answer__2E1dk">
+														<p>{{ qa.answer|linebreaksbr }}</p>
+													</p>
+												</div>
+											</div>
+										</div>
+										{% endfor %} {% endif %}
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
-		 </div>
-	  </div>
+		</div>
 	</div>
 </div>
+
 {% endblock %}
