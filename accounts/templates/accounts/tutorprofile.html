@@ -2,6 +2,26 @@
 {% load static %}
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/tab_pane.css' %}" />
+<style type="text/css">
+	.pass_show {
+		position: relative
+	}
+
+	.pass_show .ptxt {
+		position: absolute;
+		top: 71%;
+		right: 10px;
+		z-index: 1;
+		color: #f36c01;
+		margin-top: -10px;
+		cursor: pointer;
+		transition: .3s ease all;
+	}
+
+	.pass_show .ptxt:hover {
+		color: #333333;
+	}
+</style>
 <div class="container">
    <div class="row">
    	{% if message %}
@@ -95,19 +115,19 @@
 							{% csrf_token %}
 							<div class="row">
 								<div class="col-xs-4">
-									<div class="form-group">
+									<div class="form-group pass_show">
 										<label for="currentPassword">Current Password</label>
 										<input type="password" class="form-control" id="currentPassword" name="currentPassword" placeholder="Enter Current Password" required>
 									</div>
 								</div>
 								<div class="col-xs-4">
-									<div class="form-group">
+									<div class="form-group pass_show">
 										<label for="newPassword">New Password</label>
 										<input type="password" class="form-control" id="newPassword" name="newPassword" placeholder="Enter New Password" required>
 									</div>
 								</div>
 								<div class="col-xs-4">
-									<div class="form-group">
+									<div class="form-group pass_show">
 										<label for="confirmPassword">Cofirm Password</label>
 										<input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Enter New Password Again" required>
 									</div>
@@ -192,4 +212,20 @@
 	  </div>
    </div>
 </div>
+<script type="text/javascript">
+	$(document).ready(function () {
+		$('.pass_show').append('<span class="ptxt">Show</span>');
+	});
+
+
+	$(document).on('click', '.pass_show .ptxt', function () {
+
+		$(this).text($(this).text() == "Show" ? "Hide" : "Show");
+
+		$(this).prev().attr('type', function (index, attr) {
+			return attr == 'password' ? 'text' : 'password';
+		});
+
+	});
+</script>
 {% endblock %}
