@@ -1,0 +1,173 @@
+[
+	{
+		"username": "hajam09@yahoo.com",
+		"email": "hajam09@yahoo.com",
+		"password": "Maideeen69",
+		"first_name": "Mohamed Ashraf",
+		"last_name": "Hajamohideen",
+		"user": "UserObject",
+		"userType": "TUTOR",
+		"summary": "some sentence",
+		"about": "some sentence",
+		"location": {
+			"address_1": "24 Cranborne Road",
+			"address_2": "Barking",
+			"city": "London",
+			"stateProvice": "Essex", 
+			"postalZip": "IG11 7XE",
+			"country": { "alpha": "GB", "name": "United Kingdom" }
+		},
+		"education": {
+			"education_1": { "school_name": "Imperial College London", "qualification": "Computing (Masters) - 2:1", "year": "2016 - 2020" },
+			"education_2": { "school_name": "Peter Symonds College", "qualification": "A Levels - A*A*AA (Maths, Computing, Further Maths, Physics)", "year": "2014 - 2016" },
+			"education_3": { "school_name": "Perins School", "qualification": "GCSE - 10 x A* ", "year": "2009 - 2014" }
+		},
+		"subjects": "English, Maths, Science, ICT, RE, Statistics, DT, Computing, Games Development, Networks, Web Programming, GUI, Bayesian",
+		"availability": {
+			"monday": {"morning": false, "afternoon": false, "evening": false},
+			"tuesday": {"morning": false, "afternoon": false, "evening": false},
+			"wednesday": {"morning": false, "afternoon": false, "evening": false},
+			"thursday": {"morning": false, "afternoon": false, "evening": false},
+			"friday": {"morning": false, "afternoon": false, "evening": false},
+			"saturday": {"morning": false, "afternoon": false, "evening": false},
+			"sunday": {"morning": false, "afternoon": false, "evening": false}
+		},
+		"profilePicture": "None"
+	},
+	{
+		"username": "hallie.swanson@gmail.com",
+		"email": "hallie.swanson@gmail.com",
+		"password": "B£kfjBJK3",
+		"first_name": "Hallie",
+		"last_name": "Swanson",
+		"user": "UserObject",
+		"userType": "TUTOR",
+		"summary": "some sentence",
+		"about": "some sentence",
+		"location": {
+			"address_1": "75 Church Lane",
+			"address_2": "Guildford",
+			"city": "Sheffield",
+			"stateProvice": "Essex", 
+			"postalZip": "S91 1IT",
+			"country": { "alpha": "GB", "name": "United Kingdom" }
+		},
+		"education": {
+			"education_1": { "school_name": "Kings College London", "qualification": "BSc Biology with Honors - 1st", "year": "2015 - 2018" },
+			"education_2": { "school_name": "Seven Kings Sixthform", "qualification": "A Levels - ABB", "year": "2013 - 2015" }
+		},
+		"subjects": "Biology, Maths, Chemistry, Physiscs",
+		"availability": {
+			"monday": {"morning": false, "afternoon": false, "evening": false},
+			"tuesday": {"morning": false, "afternoon": false, "evening": false},
+			"wednesday": {"morning": false, "afternoon": false, "evening": false},
+			"thursday": {"morning": false, "afternoon": false, "evening": false},
+			"friday": {"morning": false, "afternoon": false, "evening": false},
+			"saturday": {"morning": false, "afternoon": false, "evening": false},
+			"sunday": {"morning": false, "afternoon": false, "evening": false}
+		},
+		"profilePicture": "None"
+	},
+	{
+		"username": "alanis.delgado@hotmail.com",
+		"email": "alanis.delgado@hotmail.com",
+		"password": "ddgd76",
+		"first_name": "Alanis",
+		"last_name": "Delgado",
+		"user": "UserObject",
+		"userType": "TUTOR",
+		"summary": "some sentence",
+		"about": "some sentence",
+		"location": {
+			"address_1": "59 York Road",
+			"address_2": "Quay",
+			"city": "SOUTHAMPTON",
+			"stateProvice": "Sussex", 
+			"postalZip": "SO24 8EA",
+			"country": { "alpha": "GB", "name": "United Kingdom" }
+		},
+		"education": {
+			"education_1": { "school_name": "University of Cambridge", "qualification": "BSc English with Honors - 1st", "year": "2015 - 2018" },
+			"education_2": { "school_name": "Eastbury Community School", "qualification": "A Levels - AAA", "year": "2013 - 2015" }
+		},
+		"subjects": "English, Law, EPQ, English Literature",
+		"availability": {
+			"monday": {"morning": false, "afternoon": false, "evening": false},
+			"tuesday": {"morning": false, "afternoon": false, "evening": false},
+			"wednesday": {"morning": false, "afternoon": false, "evening": false},
+			"thursday": {"morning": false, "afternoon": false, "evening": false},
+			"friday": {"morning": false, "afternoon": false, "evening": false},
+			"saturday": {"morning": false, "afternoon": false, "evening": false},
+			"sunday": {"morning": false, "afternoon": false, "evening": false}
+		},
+		"profilePicture": "None"
+	},
+	{
+		"username": "ross.hunter@hotmail.com",
+		"email": "ross.hunter@hotmail.com",
+		"password": "as23S3",
+		"first_name": "Ross",
+		"last_name": "Hunter",
+		"user": "UserObject",
+		"userType": "TUTOR",
+		"summary": "Award winning Maths & Computing Tutor | KS3, GCSE, A-Level",
+		"about": "some sentence",
+		"location": {
+			"address_1": "45 Swelling Road",
+			"address_2": "Dagenham",
+			"city": "London",
+			"stateProvice": "Essex", 
+			"postalZip": "RM9 8EA",
+			"country": { "alpha": "GB", "name": "United Kingdom" }
+		},
+		"education": {
+			"education_1": { "school_name": "University of Southhampton", "qualification": "BSc Mathematics with Honors - 1st", "year": "2015 - 2018" },
+			"education_2": { "school_name": "Eastbury Community School", "qualification": "A Levels - AAC", "year": "2013 - 2015" }
+		},
+		"subjects": "English, Maths, Further Maths, ICT Law, EPQ, English Literature",
+		"availability": {
+			"monday": {"morning": false, "afternoon": false, "evening": false},
+			"tuesday": {"morning": false, "afternoon": false, "evening": false},
+			"wednesday": {"morning": false, "afternoon": false, "evening": false},
+			"thursday": {"morning": false, "afternoon": false, "evening": false},
+			"friday": {"morning": false, "afternoon": false, "evening": false},
+			"saturday": {"morning": false, "afternoon": false, "evening": false},
+			"sunday": {"morning": false, "afternoon": false, "evening": false}
+		},
+		"profilePicture": "None"
+	},
+	{
+		"username": "oliver.queen@hotmail.com",
+		"email": "oliver.queen@hotmail.com",
+		"password": "aF3f3",
+		"first_name": "Oliver",
+		"last_name": "Queen",
+		"user": "UserObject",
+		"userType": "TUTOR",
+		"summary": "I am the green Arrow",
+		"about": "I was stranded on an island...",
+		"location": {
+			"address_1": "76 Stephen ROad",
+			"address_2": "Avian",
+			"city": "Starling",
+			"stateProvice": "Sussex", 
+			"postalZip": "S374 8UY",
+			"country": { "alpha": "GB", "name": "United Kingdom" }
+		},
+		"education": {
+			"education_1": { "school_name": "University of Cambridge", "qualification": "BSc English with Honors - 1st", "year": "2015 - 2018" },
+			"education_2": { "school_name": "Eastbury Community School", "qualification": "A Levels - AAA", "year": "2013 - 2015" }
+		},
+		"subjects": "English, Law, EPQ, English Literature",
+		"availability": {
+			"monday": {"morning": false, "afternoon": false, "evening": false},
+			"tuesday": {"morning": false, "afternoon": false, "evening": false},
+			"wednesday": {"morning": false, "afternoon": false, "evening": false},
+			"thursday": {"morning": false, "afternoon": false, "evening": false},
+			"friday": {"morning": false, "afternoon": false, "evening": false},
+			"saturday": {"morning": false, "afternoon": false, "evening": false},
+			"sunday": {"morning": false, "afternoon": false, "evening": false}
+		},
+		"profilePicture": "None"
+	}
+]

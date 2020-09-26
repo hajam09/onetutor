@@ -63,6 +63,72 @@
 				  </div>
 				  <hr>
 				  <div>
+				  	<h3 for="availability">Availability</h3>
+				  	<table class="table" id="availabilitySchedule" style="width: auto;">
+						    <thead>
+						        <tr>
+						            <th scope="col"></th>
+						            <th scope="col">Morning</th>
+						            <th scope="col">Afternoon</th>
+						            <th scope="col">Evening</th>
+						        </tr>
+						    </thead>
+						    <tbody>
+						    	{% for key,value in tutorProfile.availability.items %}
+						    	<tr>
+									<th style="vertical-align: middle;" scope="row">{{key|title}}</th>
+									<td style="text-align: center">
+										{% if value.morning %}
+											<div class="btn-group" data-toggle="buttons">
+												<label class="btn btn-success" disabled>
+													<span class="glyphicon glyphicon-ok"></span>
+												</label>
+											</div>
+										{% else %}
+											<div class="btn-group" data-toggle="buttons">
+												<label class="btn btn-danger" disabled>
+													<span class="glyphicon glyphicon-remove"></span>
+												</label>
+											</div>
+										{% endif %}
+									</td>
+									<td style="text-align: center">
+										{% if value.afternoon %}
+											<div class="btn-group" data-toggle="buttons">
+												<label class="btn btn-success" disabled>
+													<span class="glyphicon glyphicon-ok"></span>
+												</label>
+											</div>
+										{% else %}
+											<div class="btn-group" data-toggle="buttons">
+												<label class="btn btn-danger" disabled>
+													<span class="glyphicon glyphicon-remove"></span>
+												</label>
+											</div>
+										{% endif %}
+									</td>
+									<td style="text-align: center">
+										{% if value.evening %}
+											<div class="btn-group" data-toggle="buttons">
+												<label class="btn btn-success" disabled>
+													<span class="glyphicon glyphicon-ok"></span>
+												</label>
+											</div>
+										{% else %}
+											<div class="btn-group" data-toggle="buttons">
+												<label class="btn btn-danger" disabled>
+													<span class="glyphicon glyphicon-remove"></span>
+												</label>
+											</div>
+										{% endif %}
+									</td>	
+						    	</tr>
+						    	{% endfor %}
+						    </tbody>
+						</table>
+				  </div>
+				  <hr>
+				  <div>
 					 <h3>Subjects</h3>
 					 <div style="display: flex; flex-flow: row wrap;">
 						{% for subject in tutorProfile.subjects %}

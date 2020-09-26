@@ -9,6 +9,7 @@ def mainpage(request):
 		location = request.POST["location"]
 
 		tutorList = None
+		# user may want to find a particular tutor by name(s).
 		if generalQuery and location:
 			tutorList = TutorProfile.objects.filter(summary__icontains=generalQuery, location__icontains=location) | \
 						TutorProfile.objects.filter(subjects__icontains=generalQuery, location__icontains=location)
