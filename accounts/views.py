@@ -14,57 +14,7 @@ from django.contrib import messages
 from django.core.cache import cache
 from django.http import HttpResponse
 import json
-
-# 
-import names
-from essential_generators import DocumentGenerator
-from faker import Faker
-def firstname():
-    return names.get_first_name()
-
-def surname():
-    return names.get_last_name()
-
-def emailaddress(firstname, lastname):
-    firstname = firstname.lower()
-    lastname = lastname.lower()
-    return firstname+"."+lastname+"@gmail.com"
-
-def passwordGenerate():
-    return "Maideen69"
-
-def usertype(arg):
-    if(arg=="tutor"):
-        return "TUTOR"
-    return "STUDENT"
-
-def generateTutorProfile():
-    gen = DocumentGenerator()
-    fake = Faker()
-    # account: username, email, password, first_name, last_name
-    first_name = firstname()
-    last_name = surname()
-    email = emailaddress(first_name, last_name)
-    username = emailaddress(first_name, last_name)
-    password = passwordGenerate()
-    # TutorProfile: user, userType, summary, about, location, education, subjects, availability, profilePicture
-    userType = usertype("tutor")
-    summary = gen.sentence()
-    about = gen.paragraph()
-    location = { "address_1": "24 Cranborne Road", "address_2": "Barking", "city": "London", "stateProvice": "Essex", "postalZip": "IG11 7XE", "country": { "alpha": "GB", "name": "United Kingdom" } }
-    education = { "education_1": { "school_name": "Imperial College London", "qualification": "Computing (Masters) - 2:1 (2016 - 2020)", "year": "Peter Symonds College" }, "education_2": { "school_name": "Peter Symonds College", "qualification": "A Levels - A*A*AA (Maths, Computing, Further Maths, Physics)", "year": "2014 - 2016" }, "education_3": { "school_name": "Perins School", "qualification": "GCSE - 10 x A* ", "year": "2009 - 2014" } }
-    subjects = "English, Maths, Science, ICT, RE, Statistics, DT, Computing, Games Development, Networks, Web Programming, GUI, Bayesian"
-    availability = None
-    profilePicture = None
-
-    user = User.objects.create_user(username=email, email=email, password=password, first_name=first_name, last_name=last_name)
-    TutorProfile.objects.create(user=user, userType="TUTOR", summary=summary, about=about, location=location, education=education, subjects=subjects, availability=None, profilePicture=None)
-
-
-# for i in range(10):
-#     generateTutorProfile()
-
-# 
+from .seedDataInstaller import *
 
 def login(request):
 	if request.method == "POST":
@@ -171,7 +121,16 @@ def createprofile(request):
 		for i in range(int(numberOfEducation)):
 			education["education_" + str(i + 1) ] = {"school_name": request.POST["school_name_" + str(i + 1)], "qualification": request.POST["qualification_" + str(i + 1)], "year": request.POST["year_" + str(i + 1)]}
 
-		TutorProfile.objects.create(user=request.user, userType="TUTOR", summary=summary, about=about, location=None, education=education, subjects=subjects, availability=None, profilePicture=None)
+		availability = {}
+		availability["monday"] = {"morning": False, "afternoon": False, "evening": False}
+		availability["tuesday"] = {"morning": False, "afternoon": False, "evening": False}
+		availability["wednesday"] = {"morning": False, "afternoon": False, "evening": False}
+		availability["thursday"] = {"morning": False, "afternoon": False, "evening": False}
+		availability["friday"] = {"morning": False, "afternoon": False, "evening": False}
+		availability["saturday"] = {"morning": False, "afternoon": False, "evening": False}
+		availability["sunday"] = {"morning": False, "afternoon": False, "evening": False}
+
+		TutorProfile.objects.create(user=request.user, userType="TUTOR", summary=summary, about=about, location=None, education=education, subjects=subjects, availability=availability, profilePicture=None)
 		return redirect("accounts:createprofile")
 
 	if request.method == "POST" and "student" in request.POST:
@@ -251,12 +210,28 @@ def tutorprofileedit(request):
 		about = request.POST["about"]
 		subjects = request.POST["subjects"]
 		numberOfEducation = request.POST["numberOfEducation"]
+		availabilityChoices = request.POST.getlist('availabilityChoices')
+
+		availability = {}
+		availability["monday"] = {"morning": False, "afternoon": False, "evening": False}
+		availability["tuesday"] = {"morning": False, "afternoon": False, "evening": False}
+		availability["wednesday"] = {"morning": False, "afternoon": False, "evening": False}
+		availability["thursday"] = {"morning": False, "afternoon": False, "evening": False}
+		availability["friday"] = {"morning": False, "afternoon": False, "evening": False}
+		availability["saturday"] = {"morning": False, "afternoon": False, "evening": False}
+		availability["sunday"] = {"morning": False, "afternoon": False, "evening": False}
+
+		for i in availabilityChoices:
+			i = i.split("_")
+			weekDay = i[0]
+			dayTime = i[1]
+			availability[weekDay][dayTime] = True
 
 		education = {}
 		for i in range(int(numberOfEducation)):
 			education["education_" + str(i + 1) ] = {"school_name": request.POST["school_name_" + str(i + 1)], "qualification": request.POST["qualification_" + str(i + 1)], "year": request.POST["year_" + str(i + 1)]}
 
-		TutorProfile.objects.filter(user=request.user.id).update(user=request.user, summary=summary, about=about, education=education, subjects=subjects, availability=None, profilePicture=None)
+		TutorProfile.objects.filter(user=request.user.id).update(user=request.user, summary=summary, about=about, education=education, subjects=subjects, availability=availability, profilePicture=None)
 		return redirect("accounts:profile")
 
 	tutorProfile = TutorProfile.objects.get(user=request.user.id)
@@ -282,18 +257,6 @@ def profile(request):
 		return render("accounts:studentprofile")
 
 	return
-
-	# one-to-one-profile tab
-	# summary
-	# about full
-	# Education: Image, name, Grades and years
-	# subjects and levels
-	# availability
-	# price for each subject
-
-	# tab 2
-	# list of questionbs for me
-	# my students and chat history with all the students.
 
 def activateaccount(request, uidb64, token):
 	try:
