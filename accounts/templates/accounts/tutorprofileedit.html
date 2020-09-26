@@ -66,6 +66,73 @@
 						        </tr>
 						    </thead>
 						    <tbody>
+						    	{% for key,value in tutorProfile.availability.items %}
+						    		<tr>
+										<th style="vertical-align: middle;" scope="row">{{key|title}}</th>
+										<td style="text-align: center">
+											{% if value.morning %}
+												<div class="card_2">
+													<div class="checkbox-container circular-container">
+														<label class="checkbox-label">
+															<input type="checkbox" name="availabilityChoices" value="{{key}}_morning" checked>
+															<span class="checkbox-custom circular"></span>
+														</label>
+													</div>
+												</div>
+											{% else %}
+												<div class="card_2">
+													<div class="checkbox-container circular-container">
+														<label class="checkbox-label">
+															<input type="checkbox" name="availabilityChoices" value="{{key}}_morning">
+															<span class="checkbox-custom circular"></span>
+														</label>
+													</div>
+												</div>
+											{% endif %}
+										</td>
+										<td style="text-align: center">
+											{% if value.afternoon %}
+												<div class="card_2">
+													<div class="checkbox-container circular-container">
+														<label class="checkbox-label">
+															<input type="checkbox" name="availabilityChoices" value="{{key}}_afternoon" checked>
+															<span class="checkbox-custom circular"></span>
+														</label>
+													</div>
+												</div>
+											{% else %}
+												<div class="card_2">
+													<div class="checkbox-container circular-container">
+														<label class="checkbox-label">
+															<input type="checkbox" name="availabilityChoices" value="{{key}}_afternoon">
+															<span class="checkbox-custom circular"></span>
+														</label>
+													</div>
+												</div>
+											{% endif %}
+										</td>
+										<td style="text-align: center">
+											{% if value.evening %}
+												<div class="card_2">
+													<div class="checkbox-container circular-container">
+														<label class="checkbox-label">
+															<input type="checkbox" name="availabilityChoices" value="{{key}}_evening" checked>
+															<span class="checkbox-custom circular"></span>
+														</label>
+													</div>
+												</div>
+											{% else %}
+												<div class="card_2">
+													<div class="checkbox-container circular-container">
+														<label class="checkbox-label">
+															<input type="checkbox" name="availabilityChoices" value="{{key}}_evening">
+															<span class="checkbox-custom circular"></span>
+														</label>
+													</div>
+												</div>
+											{% endif %}
+										</td>
+						    	{% endfor %}
 						    </tbody>
 						</table>
 					</div>
@@ -92,7 +159,7 @@
 	var numberOfEducation = {{ tutorProfile.education|length }};
 	$('input[name=numberOfEducation]').val(numberOfEducation);
 
-	addRemoveEducationBtn();displayAvailabilitySchedule();
+	addRemoveEducationBtn();
 	
 	function addEducationRow() {
 		addRemoveEducationBtn();
@@ -134,48 +201,5 @@
 			return
 		$('#education').append('<button type="button" id="removeRow" class="btn btn-danger btn-sm" onclick="removeEducationRow();">Remove Row</button>');
 	}
-
-	function displayAvailabilitySchedule() {
-		var weekDays = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
-
-		var checkBoxMorning = `<div class="card_2">
-									<div class="checkbox-container circular-container">
-										<label class="checkbox-label">
-											<input type="checkbox" name="availabilityChoices" value="{weekDays}_morning">
-											<span class="checkbox-custom circular"></span>
-										</label>
-									</div>
-								</div>`;
-
-		var checkBoxAfternoon = `<div class="card_2">
-									<div class="checkbox-container circular-container">
-										<label class="checkbox-label">
-											<input type="checkbox" name="availabilityChoices" value="{weekDays}_afternoon">
-											<span class="checkbox-custom circular"></span>
-										</label>
-									</div>
-								</div>`;
-
-		var checkBoxEvening = `<div class="card_2">
-									<div class="checkbox-container circular-container">
-										<label class="checkbox-label">
-											<input type="checkbox" name="availabilityChoices" value="{weekDays}_evening">
-											<span class="checkbox-custom circular"></span>
-										</label>
-									</div>
-								</div>`;
-
-		for (var i = 0; i < weekDays.length; i++) {
-			var newRow = `<tr>
-							<th style="vertical-align: middle;" scope="row">{weekDaysCapital}</th>
-							<td style="text-align: center">{checkBoxMorning}</td>
-							<td style="text-align: center">{checkBoxAfternoon}</td>
-							<td style="text-align: center">{checkBoxEvening}</td>
-						</tr>`.split("{checkBoxMorning}").join(checkBoxMorning).split("{checkBoxAfternoon}").join(checkBoxAfternoon).split("{checkBoxEvening}").join(checkBoxEvening).split("{weekDays}").join(weekDays[i]).split("{weekDaysCapital}").join(capitalizeFirstLetter(weekDays[i]));
-			$("#availabilitySchedule").find('tbody').append(newRow);
-		}
-	}
-
-	function capitalizeFirstLetter(string) { return string.charAt(0).toUpperCase() + string.slice(1); }
 </script>
 {% endblock %}
