@@ -220,7 +220,7 @@ def tutorprofileedit(request):
 		availability["friday"] = {"morning": False, "afternoon": False, "evening": False}
 		availability["saturday"] = {"morning": False, "afternoon": False, "evening": False}
 		availability["sunday"] = {"morning": False, "afternoon": False, "evening": False}
-
+		
 		for i in availabilityChoices:
 			i = i.split("_")
 			weekDay = i[0]
