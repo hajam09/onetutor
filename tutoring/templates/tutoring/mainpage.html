@@ -29,7 +29,8 @@
 		<hr>
 
 		{% for tutor in tutorList %}
-			{{tutor}}
+			<a href="{% url 'tutoring:viewtutorprofile' tutor.pk  %}">{{tutor}}</a>
+			
 		{% endfor %}
 
 	{% else %}

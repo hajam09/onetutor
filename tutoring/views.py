@@ -39,7 +39,9 @@ def viewtutorprofile(request, tutorId):
 	
 	tutorProfile.subjects = tutorProfile.subjects.split(",")
 
-	if request.method == "POST" and "postQuestion" in request.POST and request.user.is_authenticated:
+	if request.method == "POST" and "postQuestion" in request.POST:
+		if not request.user.is_authenticated:
+			return redirect('accounts:login')
 		subjectRelated = request.POST['subject-related']
 		question = request.POST['question']
 		QuestionAnswer.objects.create(subject=subjectRelated, question=question, answer="Not answered yet.", questioner=request.user, answerer=tutorProfile.user)

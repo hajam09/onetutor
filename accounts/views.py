@@ -13,7 +13,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.cache import cache
 from django.http import HttpResponse
-import json
+import json, re
 from .seedDataInstaller import *
 
 def login(request):
@@ -209,6 +209,14 @@ def tutorprofileedit(request):
 		summary = request.POST["summary"]
 		about = request.POST["about"]
 		subjects = request.POST["subjects"]
+		subjects = subjects.strip()
+		subjects = re.sub(' +', ' ', subjects)
+		subjects = re.sub(' ,+', ',', subjects)
+		subjects = subjects.replace(", ", ",")
+		subjects = subjects.split(",")
+		subjects.sort()
+		subjects = ", ".join(subjects)
+		
 		numberOfEducation = request.POST["numberOfEducation"]
 		availabilityChoices = request.POST.getlist('availabilityChoices')
 
