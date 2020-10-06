@@ -213,13 +213,32 @@
 									</div>
 								</div>
 								<div role="tabpanel" class="tab-pane" id="messages">
-									<div class="row">
+									{% if questionAndAnswers %} {% for qa in questionAndAnswers %}
+										<div class="container">
+											<div class="row">
+												<div class="col-xs-6">Asked by {{ qa.questioner.first_name }} {{ qa.questioner.last_name }}</div>
+												<div class="col-xs-6" style="display: flex; flex-flow: row wrap;">
+													{% for subject in tutorProfile.subjects %}
+					                              <a href="" style="margin: 0 10px 10px 0;">
+					                                 <dir style="font-size: 12px; padding: 3px 8px; border-radius: 4px; text-align: center; color: #fff; background-color: #000; opacity: .64;">
+					                                    {{ subject }}
+					                                 </dir>
+					                              </a>
+					                              {% endfor %}
+												</div>
+											</div>
+											<div>{{ qa.question|linebreaksbr }}</div>
+											<div>{{ qa.answer|linebreaksbr }}</div>
+										</div>
+										<hr>
+									{% endfor %} {% endif %}
+									<!-- <div class="row">
 										{% if questionAndAnswers %} {% for qa in questionAndAnswers %}
 										<div class="tutor_Answer__1aisT">
 											<div class="feed_question_Component__1AuPU">
 												<div class="feed_question_Question__1SU6V">
 													<div class="feed_subject_badge_FeedSubjectBadge__HZ_pL feed_question_Subject__1D7HM">English
-														<!-- <div style="display: flex; flex-flow: row wrap;">
+														<div style="display: flex; flex-flow: row wrap;">
 															{% for subject in qa.subject %}
 															<a href="" style="margin: 0 10px 10px 0;">
 																<dir style="font-size: 12px; padding: 3px 8px; border-radius: 4px; text-align: center; color: #fff; background-color: #000; opacity: .64;">
@@ -227,7 +246,7 @@
 																</dir>
 															</a>
 															{% endfor %}
-														</div> -->
+														</div>
 													</div>
 													<p class="feed_question_Question_Asker__3hFgj">Asked by {{ qa.questioner.first_name }} {{ qa.questioner.last_name }}</p>
 													<h4 class="feed_question_Question_Title__2OHwe">{{ qa.question|linebreaksbr }}</h4>
@@ -238,7 +257,7 @@
 											</div>
 										</div>
 										{% endfor %} {% endif %}
-									</div>
+									</div> -->
 								</div>
 							</div>
 						</div>
