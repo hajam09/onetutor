@@ -7,7 +7,7 @@ class TutorProfile(models.Model):
 	userType = models.CharField(max_length=8)
 	summary = models.CharField(max_length=128)
 	about = models.TextField()
-	location = jsonfield.JSONField()# not implemented at the moment
+	location = jsonfield.JSONField()
 	education = jsonfield.JSONField()
 	subjects = models.CharField(max_length=8192)
 	availability = jsonfield.JSONField()# not implemented at the moment
