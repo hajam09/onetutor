@@ -58,13 +58,13 @@
 		},
 		"subjects": "Biology, Maths, Chemistry, Physiscs",
 		"availability": {
-			"monday": {"morning": false, "afternoon": false, "evening": false},
-			"tuesday": {"morning": false, "afternoon": false, "evening": false},
-			"wednesday": {"morning": false, "afternoon": false, "evening": false},
-			"thursday": {"morning": false, "afternoon": false, "evening": false},
-			"friday": {"morning": false, "afternoon": false, "evening": false},
-			"saturday": {"morning": false, "afternoon": false, "evening": false},
-			"sunday": {"morning": false, "afternoon": false, "evening": false}
+			"monday": {"morning": true, "afternoon": false, "evening": true},
+			"tuesday": {"morning": true, "afternoon": false, "evening": true},
+			"wednesday": {"morning": true, "afternoon": false, "evening": true},
+			"thursday": {"morning": true, "afternoon": false, "evening": true},
+			"friday": {"morning": true, "afternoon": false, "evening": true},
+			"saturday": {"morning": true, "afternoon": false, "evening": true},
+			"sunday": {"morning": true, "afternoon": false, "evening": true}
 		},
 		"profilePicture": "None"
 	},
@@ -92,13 +92,13 @@
 		},
 		"subjects": "English, Law, EPQ, English Literature",
 		"availability": {
-			"monday": {"morning": false, "afternoon": false, "evening": false},
-			"tuesday": {"morning": false, "afternoon": false, "evening": false},
-			"wednesday": {"morning": false, "afternoon": false, "evening": false},
-			"thursday": {"morning": false, "afternoon": false, "evening": false},
-			"friday": {"morning": false, "afternoon": false, "evening": false},
-			"saturday": {"morning": false, "afternoon": false, "evening": false},
-			"sunday": {"morning": false, "afternoon": false, "evening": false}
+			"monday": {"morning": false, "afternoon": true, "evening": false},
+			"tuesday": {"morning": false, "afternoon": true, "evening": false},
+			"wednesday": {"morning": false, "afternoon": true, "evening": false},
+			"thursday": {"morning": false, "afternoon": true, "evening": false},
+			"friday": {"morning": false, "afternoon": true, "evening": false},
+			"saturday": {"morning": false, "afternoon": true, "evening": false},
+			"sunday": {"morning": false, "afternoon": true, "evening": false}
 		},
 		"profilePicture": "None"
 	},
@@ -126,12 +126,12 @@
 		},
 		"subjects": "English, Maths, Further Maths, ICT Law, EPQ, English Literature",
 		"availability": {
-			"monday": {"morning": false, "afternoon": false, "evening": false},
-			"tuesday": {"morning": false, "afternoon": false, "evening": false},
-			"wednesday": {"morning": false, "afternoon": false, "evening": false},
-			"thursday": {"morning": false, "afternoon": false, "evening": false},
-			"friday": {"morning": false, "afternoon": false, "evening": false},
-			"saturday": {"morning": false, "afternoon": false, "evening": false},
+			"monday": {"morning": true, "afternoon": true, "evening": false},
+			"tuesday": {"morning": false, "afternoon": true, "evening": false},
+			"wednesday": {"morning": false, "afternoon": false, "evening": true},
+			"thursday": {"morning": false, "afternoon": true, "evening": false},
+			"friday": {"morning": true, "afternoon": true, "evening": false},
+			"saturday": {"morning": false, "afternoon": true, "evening": false},
 			"sunday": {"morning": false, "afternoon": false, "evening": false}
 		},
 		"profilePicture": "None"
@@ -160,13 +160,47 @@
 		},
 		"subjects": "English, Law, EPQ, English Literature",
 		"availability": {
-			"monday": {"morning": false, "afternoon": false, "evening": false},
+			"monday": {"morning": true, "afternoon": false, "evening": true},
 			"tuesday": {"morning": false, "afternoon": false, "evening": false},
-			"wednesday": {"morning": false, "afternoon": false, "evening": false},
-			"thursday": {"morning": false, "afternoon": false, "evening": false},
-			"friday": {"morning": false, "afternoon": false, "evening": false},
+			"wednesday": {"morning": false, "afternoon": false, "evening": true},
+			"thursday": {"morning": false, "afternoon": true, "evening": false},
+			"friday": {"morning": true, "afternoon": true, "evening": false},
 			"saturday": {"morning": false, "afternoon": false, "evening": false},
-			"sunday": {"morning": false, "afternoon": false, "evening": false}
+			"sunday": {"morning": true, "afternoon": false, "evening": true}
+		},
+		"profilePicture": "None"
+	},
+	{
+		"username": "cisco.ramone@outlook.com",
+		"email": "cisco.ramone@hotmail.com",
+		"password": "83HShg23dn83",
+		"first_name": "Cisco",
+		"last_name": "Ramone",
+		"user": "UserObject",
+		"userType": "TUTOR",
+		"summary": "I like teach something about mechanical engineering",
+		"about": "I am a meth human and I have super powers. But I use my knowledge to fight bad people. \n \n I Have a bad doppleganger who is now dead. ",
+		"location": {
+			"address_1": "123 George Forman Road",
+			"address_2": "Hunslow",
+			"city": "London",
+			"stateProvice": "Essex", 
+			"postalZip": "JH95 7QW",
+			"country": { "alpha": "GB", "name": "United Kingdom" }
+		},
+		"education": {
+			"education_1": { "school_name": "University of Oxford", "qualification": "BSc Mechanical Engineering - 1st", "year": "2012 - 2015" },
+			"education_2": { "school_name": "Sydney Russell School", "qualification": "A Levels - A*A*A*A*", "year": "2008 - 2010" }
+		},
+		"subjects": "Science, Triple Science, Computing, Advanced Robotics, String Theory",
+		"availability": {
+			"monday": {"morning": true, "afternoon": false, "evening": true},
+			"tuesday": {"morning": false, "afternoon": false, "evening": false},
+			"wednesday": {"morning": false, "afternoon": false, "evening": true},
+			"thursday": {"morning": false, "afternoon": true, "evening": false},
+			"friday": {"morning": true, "afternoon": true, "evening": false},
+			"saturday": {"morning": false, "afternoon": false, "evening": false},
+			"sunday": {"morning": true, "afternoon": false, "evening": true}
 		},
 		"profilePicture": "None"
 	}
