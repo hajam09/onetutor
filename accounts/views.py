@@ -8,6 +8,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_text, DjangoUnicodeDecodeError
 from .utils import generate_token
 from .models import StudentProfile, TutorProfile, Countries
+from tutoring.models import QuestionAnswer
 from django.core.mail import EmailMessage
 from django.conf import settings
 from django.contrib import messages
@@ -150,6 +151,10 @@ def tutorprofile(request):
 	tutorProfile.subjects = tutorProfile.subjects.split(",")
 	countries = Countries.objects.all()
 
+	questionAndAnswers = QuestionAnswer.objects.filter(answerer=tutorProfile.user)
+	for i in questionAndAnswers:
+		i.subject = i.subject.split(",")
+
 	if request.method == "POST" and "updatePersonalDetails" in request.POST:
 		firstname = request.POST["first_name"].strip()
 		lastname = request.POST["last_name"].strip()
@@ -158,7 +163,7 @@ def tutorprofile(request):
 		user.first_name = firstname
 		user.last_name = lastname
 		user.save()
-		return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "message": "Your personal details has been updated successfully", "alert": "alert-success"})
+		return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "countries": countries, "message": "Your personal details has been updated successfully", "alert": "alert-success", "activeAccountTab": True})
 
 	if request.method == "POST" and "updatePassword" in request.POST:
 		currentPassword = request.POST["currentPassword"]
@@ -168,14 +173,14 @@ def tutorprofile(request):
 		user = User.objects.get(pk=(request.user.id))
 
 		if currentPassword and not user.check_password(currentPassword):
-			return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "message": "Your current password does not match", "alert": "alert-danger"})
+			return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "countries": countries, "message": "Your current password does not match", "alert": "alert-danger", "activeAccountTab": True})
 
 		if(newPassword and confirmPassword):
 			if(newPassword!=confirmPassword):
-				return render(request,"accounts/tutorprofile.html", {"message": "Your new password and confirm password does not match", "alert": "alert-danger"})
+				return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "countries": countries, "message": "Your new password and confirm password does not match", "alert": "alert-danger", "activeAccountTab": True})
 
 			if(len(newPassword)<8 or any(letter.isalpha() for letter in newPassword)==False or any(capital.isupper() for capital in newPassword)==False or any(number.isdigit() for number in newPassword)==False):
-				return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "message": "Your new password is not strong enough.", "alert": "alert-warning"})
+				return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "countries": countries, "message": "Your new password is not strong enough.", "alert": "alert-warning", "activeAccountTab": True})
 
 			user.set_password(newPassword)
 		user.save()
@@ -199,9 +204,9 @@ def tutorprofile(request):
 		TutorProfile.objects.filter(user=request.user.id).update(location=location)
 		tutorProfile = TutorProfile.objects.get(user=request.user.id)
 		tutorProfile.subjects = tutorProfile.subjects.split(",")
-		return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "countries": countries, "message": "Your location has been updated successfully", "alert": "alert-success"})
+		return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "countries": countries, "message": "Your location has been updated successfully", "alert": "alert-success", "activeAccountTab": True})
 	
-	return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "countries": countries})
+	return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "countries": countries, "questionAndAnswers": questionAndAnswers})
 
 @login_required
 def tutorprofileedit(request):

@@ -19,14 +19,26 @@
          <!-- Nav tabs -->
          <div class="card">
             <ul class="nav nav-tabs" role="tablist">
+               {% if activeAccountTab %}
+               <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab"><span>Profile</span></a></li>
+               {% else %}
                <li role="presentation" class="active"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab"><span>Profile</span></a></li>
+               {% endif %}
                <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab"><span>Q & A</span></a></li>
                <li role="presentation"><a href="#settings" aria-controls="settings" role="tab" data-toggle="tab"><span>My Students</span></a></li>
+               {% if activeAccountTab %}
+               <li role="presentation" class="active"><a href="#account" aria-controls="settings" role="tab" data-toggle="tab"><span>Account</span></a></li>
+               {% else %}
                <li role="presentation"><a href="#account" aria-controls="settings" role="tab" data-toggle="tab"><span>Account</span></a></li>
+               {% endif %}
             </ul>
             <!-- Tab panes -->
             <div class="tab-content">
+               {% if activeAccountTab %}
+               <div role="tabpanel" class="tab-pane" id="profile">
+               {% else %}
                <div role="tabpanel" class="tab-pane active" id="profile">
+               {% endif %}
                   <a class="btn btn-primary pull-right" href="{% url 'accounts:tutorprofileedit' %}" role="button">Edit my Profile</a>
                   <div>
                      <h3>About</h3>
@@ -132,10 +144,32 @@
                   <hr>
                </div>
                <div role="tabpanel" class="tab-pane" id="messages">
-               	
+               	{% if questionAndAnswers %} {% for qa in questionAndAnswers %}
+                     <div class="container">
+                        <div class="row">
+                           <div class="col-xs-6">Asked by {{ qa.questioner.first_name }} {{ qa.questioner.last_name }}</div>
+                           <div class="col-xs-6" style="display: flex; flex-flow: row wrap; float: right;">
+                              {% for subject in qa.subject %}
+                                 <a href="" style="margin: -13px 10px 10px 0;">
+                                    <dir style="font-size: 12px; padding: 3px 8px; border-radius: 4px; text-align: center; color: #fff; background-color: #000; opacity: .64;">
+                                       {{ subject }}
+                                    </dir>
+                                 </a>
+                              {% endfor %}
+                           </div>
+                        </div>
+                        <div>{{ qa.question|linebreaksbr }}</div>
+                        <div>{{ qa.answer|linebreaksbr }}</div>
+                     </div>
+                     <hr>
+                  {% endfor %} {% endif %}
                </div>
                <div role="tabpanel" class="tab-pane" id="settings">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passage..</div>
+               {% if activeAccountTab %}
+               <div role="tabpanel" class="tab-pane active" id="account">
+               {% else %}
                <div role="tabpanel" class="tab-pane" id="account">
+               {% endif %}
                   <div class="container">
                       <div class="row">
                           <div class="col-sm-12">
