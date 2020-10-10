@@ -18,6 +18,7 @@ body {
     /*background: #cccccc;*/
     background-color:#395D6D;
 }
+.special-img{position:relative;top:-5px;float:left;left:-5px}.navbar-nav>li>a.profile-image{padding-top:14px;padding-bottom:0}
 </style>
 <body>
     <nav class="navbar navbar-inverse">
@@ -47,7 +48,14 @@ body {
                     {% else %}
                     <!-- Member -->
                     <li class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">Account <span class="caret"></span></a>
+                        <a class="dropdown-toggle profile-image" data-toggle="dropdown" href="#">
+                            {% if request.user.tutorprofile.profilePicture %}
+                            <img src="{{ request.user.tutorprofile.profilePicture.url }}" class="img-circle special-img" style="width:33px;">
+                            {% else %}
+                            <img src="https://icon-library.com/images/default-user-icon/default-user-icon-13.jpg" class="img-circle special-img" style="width:35px;">
+                            {% endif %}
+                            <span class="caret"></span>
+                        </a>
                         <ul class="dropdown-menu">
                             <li><a href="{% url 'accounts:profile' %}"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
                             <li><a href="{% url 'accounts:profile' %}"><span class="glyphicon glyphicon-book"></span> Shelf WrongURL</a></li>

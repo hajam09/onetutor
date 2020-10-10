@@ -185,7 +185,7 @@
                                       <div class="tab-pane active" id="personalDetails">
                                        <div>
                                           <h3 style="text-align: center;">Update Personal Details</h3>
-                                          <form method="post">
+                                          <form method="post" enctype="multipart/form-data">
                                              {% csrf_token %}
                                              <div class="row">
                                                 <div class="col-xs-6">
@@ -205,6 +205,13 @@
                                                 <label for="email">Email address</label>
                                                 <input type="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Email" value="{{ request.user.email }}" disabled>
                                                 <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+                                             </div>
+                                             <div class="form-group">
+                                                <label class="btn btn-danger" for="my-file-selector">
+                                                   <span class="glyphicon glyphicon-paperclip"></span>&nbsp;&nbsp;
+                                                   <input id="my-file-selector" name="my-file-selector" type="file" style="display:none" onchange="$('#upload-file-info').html(this.files[0].name)"> Choose a File
+                                                </label>
+                                                <span class='label label-info' id="upload-file-info"></span>
                                              </div>
                                              <input type="text" name="updatePersonalDetails" hidden>
                                              <div class="form-group" id="outer" style="width:100%; text-align: center;">

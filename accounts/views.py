@@ -14,7 +14,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.cache import cache
 from django.http import HttpResponse
-import json, re
+import json, re, os
 from .seedDataInstaller import *
 
 def login(request):
@@ -159,10 +159,19 @@ def tutorprofile(request):
 		firstname = request.POST["first_name"].strip()
 		lastname = request.POST["last_name"].strip()
 
+		if "my-file-selector" in request.FILES:
+			previousProfileImage = os.path.join(settings.MEDIA_ROOT, tutorProfile.profilePicture.name)
+			if os.path.exists(previousProfileImage):
+				os.remove(previousProfileImage)
+				
+			profilePicture = request.FILES["my-file-selector"]
+			tutorProfile.profilePicture = profilePicture
+			tutorProfile.save(update_fields=['profilePicture'])
+
 		user = User.objects.get(pk=(request.user.id))
 		user.first_name = firstname
 		user.last_name = lastname
-		user.save()
+		user.save()		
 		return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "countries": countries, "message": "Your personal details has been updated successfully", "alert": "alert-success", "activeAccountTab": True})
 
 	if request.method == "POST" and "updatePassword" in request.POST:
