@@ -160,9 +160,10 @@ def tutorprofile(request):
 		lastname = request.POST["last_name"].strip()
 
 		if "my-file-selector" in request.FILES:
-			previousProfileImage = os.path.join(settings.MEDIA_ROOT, tutorProfile.profilePicture.name)
-			if os.path.exists(previousProfileImage):
-				os.remove(previousProfileImage)
+			if tutorProfile.profilePicture:
+				previousProfileImage = os.path.join(settings.MEDIA_ROOT, tutorProfile.profilePicture.name)
+				if os.path.exists(previousProfileImage):
+					os.remove(previousProfileImage)
 				
 			profilePicture = request.FILES["my-file-selector"]
 			tutorProfile.profilePicture = profilePicture
