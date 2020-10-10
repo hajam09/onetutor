@@ -21,7 +21,11 @@
 			<div class="profile-sidebar">
 				<!-- SIDEBAR USERPIC -->
 				<div class="profile-userpic">
-					<img src="http://keenthemes.com/preview/metronic/theme/assets/admin/pages/media/profile/profile_user.jpg" class="img-responsive" alt="" />
+					{% if tutorProfile.profilePicture %}
+					<img src="{{ tutorProfile.profilePicture.url }}" class="img-responsive" style="width:100px;" alt="" />
+					{% else %}
+					<img src="https://icon-library.com/images/default-user-icon/default-user-icon-13.jpg" class="img-responsive" style="width:100px;" alt="" />
+					{% endif %}
 				</div>
 				<!-- END SIDEBAR USERPIC -->
 				<!-- SIDEBAR USER TITLE -->
