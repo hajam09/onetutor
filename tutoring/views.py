@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
-from accounts.models import TutorProfile
+from accounts.models import TutorProfile, Subject
 from .models import QuestionAnswer
 
 def mainpage(request):
@@ -26,7 +26,7 @@ def mainpage(request):
 		if tutorList.count() == 0:
 			context["message"] = "Sorry, we couldn't find you a tutor for your search. Try entering something broad."
 			context["alert"] = "alert-info" 
-		print(context)
+
 		return render(request, "tutoring/mainpage.html", context)
 
 	return render(request, "tutoring/mainpage.html", {})
@@ -42,15 +42,23 @@ def viewtutorprofile(request, tutorId):
 	if request.method == "POST" and "postQuestion" in request.POST:
 		if not request.user.is_authenticated:
 			return redirect('accounts:login')
-		subjectRelated = request.POST['subject-related']
+		subjectRelated = request.POST['subject']
 		question = request.POST['question']
 		QuestionAnswer.objects.create(subject=subjectRelated, question=question, answer="Not answered yet.", questioner=request.user, answerer=tutorProfile.user)
 
-	questionAndAnswers = QuestionAnswer.objects.filter(answerer=tutorProfile.user)
-	for i in questionAndAnswers:
-		i.subject = i.subject.split(",")
+	if request.method == "POST" and "postAnswer" in request.POST:
+		if not request.user.is_authenticated:
+			return redirect('accounts:login')
+		questionId = request.POST['questionId']
+		newAnswer = request.POST['answerText']
+		questionAndAnswers = QuestionAnswer.objects.get(pk=questionId)
+		questionAndAnswers.answer = newAnswer
+		questionAndAnswers.save(update_fields=['answer'])
 
-	return render(request, "tutoring/tutorprofile.html", {"tutorProfile": tutorProfile, "questionAndAnswers": questionAndAnswers})
+	questionAndAnswers = QuestionAnswer.objects.filter(answerer=tutorProfile.user)
+	subjects = Subject.objects.all()
+
+	return render(request, "tutoring/tutorprofile.html", {"tutorProfile": tutorProfile, "questionAndAnswers": questionAndAnswers, "subjects": subjects})
 
 def viewstudentprofile(request, studentId):
 	print("bb")

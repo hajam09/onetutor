@@ -24,13 +24,13 @@
 		},
 		"subjects": "English, Maths, Science, ICT, RE, Statistics, DT, Computing, Games Development, Networks, Web Programming, GUI, Bayesian",
 		"availability": {
-			"monday": {"morning": false, "afternoon": false, "evening": false},
-			"tuesday": {"morning": false, "afternoon": false, "evening": false},
+			"monday": {"morning": true, "afternoon": false, "evening": false},
+			"tuesday": {"morning": false, "afternoon": true, "evening": false},
 			"wednesday": {"morning": false, "afternoon": false, "evening": false},
-			"thursday": {"morning": false, "afternoon": false, "evening": false},
-			"friday": {"morning": false, "afternoon": false, "evening": false},
-			"saturday": {"morning": false, "afternoon": false, "evening": false},
-			"sunday": {"morning": false, "afternoon": false, "evening": false}
+			"thursday": {"morning": false, "afternoon": true, "evening": false},
+			"friday": {"morning": true, "afternoon": false, "evening": false},
+			"saturday": {"morning": false, "afternoon": true, "evening": false},
+			"sunday": {"morning": true, "afternoon": false, "evening": false}
 		},
 		"profilePicture": "None"
 	},
