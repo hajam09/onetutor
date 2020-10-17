@@ -20,6 +20,12 @@ class StudentProfile(models.Model):
 	subjects = models.CharField(max_length=8192)
 	profilePicture = models.ImageField(upload_to='profilepicture', blank=True, null=True)# not implemented at the moment
 
+class Subject(models.Model):
+	name = models.CharField(max_length=64)
+
+	def __str__ (self):
+		return str(self.id) + " - " + self.name
+
 class Countries(models.Model):
 	alpha = models.CharField(max_length=4)
 	name = models.CharField(max_length=64)

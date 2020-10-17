@@ -1,8 +1,7 @@
-from .models import Countries
+from .models import Countries, Subject, TutorProfile
 import json
 from pathlib import Path
 from django.contrib.auth.models import User
-from .models import TutorProfile
 
 # 
 import names
@@ -49,7 +48,7 @@ def installTutorFromFaker():
 
 def installCountries():
 	# Countries.objects.all().delete()
-	for i in open("countries.txt", "r").readlines():
+	for i in open("seed-data/countries.txt", "r").readlines():
 		i = i.replace("\n", "").split("|")
 		if not Countries.objects.filter(alpha=i[0]).exists():
 			Countries.objects.create(alpha=i[0], name=i[1])
@@ -66,9 +65,18 @@ def installTutor():
 											location=d["location"], education=d["education"], subjects=d["subjects"], availability=d["availability"], profilePicture=None)
 	return
 
+def installSubjects():
+	for i in open("seed-data/subjects.txt", "r").readlines():
+		i = i.replace("\n", "")
+		if not Subject.objects.filter(name=i).exists():
+			Subject.objects.create(name=i)
+	return
+
 def main():
 	installCountries()
 	installTutor()
+	installSubjects()
 	# installTutorFromFaker()
+	return
 
 main()
