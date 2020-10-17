@@ -2,6 +2,28 @@
 {% load static %}
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/searchBox.css' %}"/>
+<style type="text/css">
+	.profile-userpic img{float:none;margin:0 auto;width:50%;height:50%;-webkit-border-radius:50%!important;-moz-border-radius:50%!important;border-radius:50%!important}
+	a, a:visited, a:hover, a:active { color: black; }
+
+	.sidebar-box {
+	max-height: 120px;
+	position: relative;
+	overflow: hidden;
+}
+
+.sidebar-box .read-more {
+	position: absolute;
+	bottom: -2px;
+	left: 0;
+	width: 100%;
+	text-align: center;
+	margin: 0;
+	padding: 3px 0;
+	/* "transparent" only works here because == rgba(0,0,0,0) */
+	/*background-image: linear-gradient(to bottom, transparent, black);*/
+}
+</style>
 <div class="container">
 	{% if tutorList %}
 		<form method="post">
@@ -29,8 +51,28 @@
 		<hr>
 
 		{% for tutor in tutorList %}
-			<a href="{% url 'tutoring:viewtutorprofile' tutor.pk  %}">{{tutor}}</a>
-			
+            <div class="row" id="{{tutor.pk}}">
+            	<br>
+            	<div class="col-xs-2">
+            		<div class="profile-userpic">
+						{% if tutor.profilePicture %}
+						<img src="{{ tutor.profilePicture.url }}" class="img-responsive" style="width:120px;" alt="" />
+						{% else %}
+						<img src="https://icon-library.com/images/default-user-icon/default-user-icon-13.jpg" class="img-responsive" style="width:120px;" alt="" />
+						{% endif %}
+					</div>
+            	</div>
+            	<div class="col-xs-8 sidebar-box" style="height: 108px;">
+            		<a style="cursor: pointer; text-decoration: none;" href="{% url 'tutoring:viewtutorprofile' tutor.pk  %}">
+            			<h4>{{ tutor.user.first_name }} {{ tutor.user.last_name }}</h4>
+            			<p> {{ tutor.summary }}</p>
+            			<p> {{ tutor.about|truncatechars:122 }}</p>
+            		</a>
+            		<p class="read-more"><a href="{% url 'tutoring:viewtutorprofile' tutor.pk  %}" class="button"><span class="badge badge-pill badge-light">Read More</span></a></p>
+            		<!-- <a style="cursor: pointer; text-decoration: none;" href="{% url 'tutoring:viewtutorprofile' tutor.pk  %}"></a> -->
+            	</div>
+            	<div class="col-xs-2"> TWO </div>
+            </div>
 		{% endfor %}
 
 	{% else %}
