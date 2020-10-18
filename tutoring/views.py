@@ -2,6 +2,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from accounts.models import TutorProfile, Subject
 from .models import QuestionAnswer
+from django.http import HttpResponse
+import json
+from django.core import serializers
 
 def mainpage(request):
 	if request.method == "POST":
@@ -55,7 +58,7 @@ def viewtutorprofile(request, tutorId):
 		questionAndAnswers.answer = newAnswer
 		questionAndAnswers.save(update_fields=['answer'])
 
-	questionAndAnswers = QuestionAnswer.objects.filter(answerer=tutorProfile.user)
+	questionAndAnswers = QuestionAnswer.objects.filter(answerer=tutorProfile.user).order_by('-id')
 	subjects = Subject.objects.all()
 
 	return render(request, "tutoring/tutorprofile.html", {"tutorProfile": tutorProfile, "questionAndAnswers": questionAndAnswers, "subjects": subjects})
@@ -63,3 +66,45 @@ def viewtutorprofile(request, tutorId):
 def viewstudentprofile(request, studentId):
 	print("bb")
 	return render(request, "tutoring/studentprofile.html", {})
+
+def like_comment(request):
+	commentId = request.GET.get('commentId', None)
+	user = User.objects.get(id=int(request.user.pk))
+	this_comment = QuestionAnswer.objects.get(id=int(commentId))
+	list_of_liked = QuestionAnswer.objects.filter(likes__id=user.pk)
+	list_of_disliked = QuestionAnswer.objects.filter(dislikes__id=user.pk)
+
+	if(this_comment not in list_of_liked):
+		user.likes.add(this_comment)
+	else:
+		user.likes.remove(this_comment)
+
+	if(this_comment in list_of_disliked):
+		user.dislikes.remove(this_comment)
+
+	response = {
+		"this_comment": serializers.serialize("json", [this_comment,]),
+		"status_code": 200
+	}
+	return HttpResponse(json.dumps(response), content_type="application/json")
+
+def dislike_comment(request):
+	commentId = request.GET.get('commentId', None)
+	user = User.objects.get(id=int(request.user.pk))
+	this_comment = QuestionAnswer.objects.get(id=int(commentId))
+	list_of_liked = QuestionAnswer.objects.filter(likes__id=user.pk)
+	list_of_disliked = QuestionAnswer.objects.filter(dislikes__id=user.pk)
+
+	if(this_comment not in list_of_disliked):
+		user.dislikes.add(this_comment)
+	else:
+		user.dislikes.remove(this_comment)
+		
+	if(this_comment in list_of_liked):
+		user.likes.remove(this_comment)
+
+	response = {
+		"this_comment": serializers.serialize("json", [this_comment,]),
+		"status_code": 200
+	}
+	return HttpResponse(json.dumps(response), content_type="application/json")

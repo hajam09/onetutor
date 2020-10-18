@@ -253,17 +253,25 @@
 											</div>
 										</div>
 									</div>
+									<div style="overflow-y: scroll; overflow-x: hidden; height:866px;">
 									{% if questionAndAnswers %} {% for qa in questionAndAnswers %}
 										<div class="container">
-											<div> {{ qa.questioner.first_name }} {{ qa.questioner.last_name }} asked a question about <a href="#" class="qaSubjects">{{ qa.subject }}</a></div>
+											<div> {{ qa.questioner.first_name }} {{ qa.questioner.last_name }} asked a question about <a href="#" class="qaSubjects">{{ qa.subject }}</a>at {{ qa.date }}</div>
 											<br>
 											<div><strong>{{ qa.question|linebreaksbr }}</strong></div>
 											<br>
-											<div>{{ qa.answer|linebreaksbr }}</div>
+											<div style="width: 970px;">{{ qa.answer|linebreaksbr }}</div><br>
+											<button id="comment_like_id_{{qa.id}}" type="button" class="btn btn-default btn-sm" onclick="like_comment('{{qa.id}}')">
+												<span class="glyphicon glyphicon-thumbs-up"></span> ({{qa.likes.count}})
+											</button>
+											<button id="comment_dislike_id_{{qa.id}}" type="button" class="btn btn-default btn-sm" onclick="dislike_comment('{{qa.id}}')">
+												<span class="glyphicon glyphicon-thumbs-down"></span> ({{qa.dislikes.count}})
+											</button><br><br>
 											<span class="badge badge-info" data-toggle="modal" data-target="#answerModal" onclick="updateAnswerModal('{{ qa.id }}', '{{ qa.question|linebreaksbr }}', '{{ qa.answer|linebreaksbr }}');">Answer this question</span>
 										</div>
 										<hr>
 									{% endfor %} {% endif %}
+									</div>
 								</div>
 							</div>
 						</div>
@@ -278,6 +286,47 @@
 		document.getElementById('questionId').value = questionId;
 		document.getElementById('questionText').value = questionText;
 		document.getElementById('answerText').value = answerText;
+	}
+
+	function like_comment(commentId) {
+		$.ajax({
+			url: '{% url "tutoring:like_comment" %}',
+			data: {
+				'commentId': commentId
+			},
+			dataType: 'json',
+			success: function (response) {
+				if(response.status_code == 200) {
+					var this_comment = eval(response.this_comment)[0];
+					var number_of_likes = this_comment.fields.likes.length;
+					var number_of_dislikes = this_comment.fields.dislikes.length;
+
+					$('#comment_like_id_'+commentId).html('<span class="glyphicon glyphicon-thumbs-up"></span> ('+ number_of_likes +')');
+					$('#comment_dislike_id_'+commentId).html('<span class="glyphicon glyphicon-thumbs-down"></span> ('+ number_of_dislikes +')');
+	            }
+			}
+		});
+	}
+
+	function dislike_comment(commentId) {
+		$.ajax({
+			url: '{% url "tutoring:dislike_comment" %}',
+			data: {
+				'commentId': commentId
+			},
+			dataType: 'json',
+			success: function (response) {
+				if(response.status_code == 200) {
+					var this_comment = eval(response.this_comment)[0];
+					var number_of_likes = this_comment.fields.likes.length;
+					var number_of_dislikes = this_comment.fields.dislikes.length;
+					console.log(number_of_likes, number_of_dislikes);
+
+					$('#comment_like_id_'+commentId).html('<span class="glyphicon glyphicon-thumbs-up"></span> ('+ number_of_likes +')');
+					$('#comment_dislike_id_'+commentId).html('<span class="glyphicon glyphicon-thumbs-down"></span> ('+ number_of_dislikes +')');
+				}
+			}
+		});
 	}
 </script>
 {% endblock %}
