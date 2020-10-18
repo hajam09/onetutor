@@ -151,7 +151,7 @@ def tutorprofile(request):
 	tutorProfile.subjects = tutorProfile.subjects.split(",")
 	countries = Countries.objects.all()
 
-	questionAndAnswers = QuestionAnswer.objects.filter(answerer=tutorProfile.user)
+	questionAndAnswers = QuestionAnswer.objects.filter(answerer=tutorProfile.user).order_by('-id')
 	for i in questionAndAnswers:
 		i.subject = i.subject.split(",")
 
