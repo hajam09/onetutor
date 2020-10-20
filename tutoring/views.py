@@ -5,6 +5,7 @@ from .models import QuestionAnswer
 from django.http import HttpResponse
 import json
 from django.core import serializers
+from datetime import datetime
 
 def mainpage(request):
 	if request.method == "POST":
@@ -106,5 +107,43 @@ def dislike_comment(request):
 	response = {
 		"this_comment": serializers.serialize("json", [this_comment,]),
 		"status_code": 200
+	}
+	return HttpResponse(json.dumps(response), content_type="application/json")
+
+def post_question_for_tutor(request):
+	QuestionAnswer.objects.all().delete()
+	if not request.user.is_authenticated:
+		response = {
+			"status_code": 403,
+			"authenticated": False
+		}
+		return HttpResponse(json.dumps(response), content_type="application/json")
+
+	subject = request.GET.get('subject', None)
+	question = request.GET.get('question', None)
+	tutorId = request.GET.get('tutorId', None)
+
+	tutorProfile = TutorProfile.objects.get(pk=tutorId)
+
+	new_question = QuestionAnswer.objects.create(subject=subject, question=question,
+		answer="Not answered yet.", questioner=request.user, answerer=tutorProfile.user)
+
+	date = new_question.date.strftime("%b. %d, %Y,")
+	time = datetime.strptime( new_question.date.strftime("%H:%M"), "%H:%M")
+	time = time.strftime("%I:%M %p").lower().replace("pm", "p.m.").replace("am", "a.m.")
+	date_time = str(date + " " + time)
+
+	response = {
+		"status_code": 200,
+		"new_question": True,
+		"questionId": new_question.id,
+		"subject": new_question.subject,
+		"questioner_first_name": new_question.questioner.first_name,
+		"questioner_last_name": new_question.questioner.last_name,
+		"qa_question": new_question.question,
+		"qa_answer": new_question.answer,
+		"date_time": date_time,
+		"likes_count": new_question.likes.count(),
+		"dislikes_count": new_question.dislikes.count(),
 	}
 	return HttpResponse(json.dumps(response), content_type="application/json")
