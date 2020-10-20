@@ -9,4 +9,5 @@ urlpatterns = [
 	path('view/studentprofile/<int:studentId>/', views.viewstudentprofile, name='viewstudentprofile'),
 	path('like_comment/', views.like_comment, name='like_comment'),
 	path('dislike_comment/', views.dislike_comment, name='dislike_comment'),
+	path('post_question_for_tutor/', views.post_question_for_tutor, name='post_question_for_tutor'),
 ]
