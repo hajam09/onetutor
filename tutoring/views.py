@@ -69,6 +69,20 @@ def viewstudentprofile(request, studentId):
 	return render(request, "tutoring/studentprofile.html", {})
 
 def like_comment(request):
+	if not request.is_ajax():
+		response = {
+			"status_code": 403,
+			"message": "Bad Request"
+		}
+		return HttpResponse(json.dumps(response), content_type="application/json")
+
+	if not request.user.is_authenticated:
+		response = {
+			"status_code": 401,
+			"message": "Login to like the question and answer. "
+		}
+		return HttpResponse(json.dumps(response), content_type="application/json")
+
 	commentId = request.GET.get('commentId', None)
 	user = User.objects.get(id=int(request.user.pk))
 	this_comment = QuestionAnswer.objects.get(id=int(commentId))
@@ -90,6 +104,20 @@ def like_comment(request):
 	return HttpResponse(json.dumps(response), content_type="application/json")
 
 def dislike_comment(request):
+	if not request.is_ajax():
+		response = {
+			"status_code": 403,
+			"message": "Bad Request"
+		}
+		return HttpResponse(json.dumps(response), content_type="application/json")
+
+	if not request.user.is_authenticated:
+		response = {
+			"status_code": 401,
+			"message": "Login to like the question and answer. "
+		}
+		return HttpResponse(json.dumps(response), content_type="application/json")
+
 	commentId = request.GET.get('commentId', None)
 	user = User.objects.get(id=int(request.user.pk))
 	this_comment = QuestionAnswer.objects.get(id=int(commentId))

@@ -296,13 +296,19 @@
 			},
 			dataType: 'json',
 			success: function (response) {
-				if(response.status_code == 200) {
+				if (response.status_code == 200) {
 					var this_comment = eval(response.this_comment)[0];
 					var number_of_likes = this_comment.fields.likes.length;
 					var number_of_dislikes = this_comment.fields.dislikes.length;
 
 					$('#comment_like_id_'+commentId).html('<span class="glyphicon glyphicon-thumbs-up"></span> ('+ number_of_likes +')');
 					$('#comment_dislike_id_'+commentId).html('<span class="glyphicon glyphicon-thumbs-down"></span> ('+ number_of_dislikes +')');
+
+	            } else if (response.status_code == 401) {
+	            	alert(response.message);
+
+	            } else if (response.status_code == 403) {
+	            	alert(response.message);
 	            }
 			}
 		});
@@ -323,7 +329,13 @@
 
 					$('#comment_like_id_'+commentId).html('<span class="glyphicon glyphicon-thumbs-up"></span> ('+ number_of_likes +')');
 					$('#comment_dislike_id_'+commentId).html('<span class="glyphicon glyphicon-thumbs-down"></span> ('+ number_of_dislikes +')');
-				}
+
+				} else if (response.status_code == 401) {
+	            	alert(response.message);
+
+	            } else if (response.status_code == 403) {
+	            	alert(response.message);
+	            }
 			}
 		});
 	}
