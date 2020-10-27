@@ -6,6 +6,7 @@ from django.http import HttpResponse
 import json
 from django.core import serializers
 from datetime import datetime
+from deprecated import deprecated
 
 def mainpage(request):
 	if request.method == "POST":
@@ -42,6 +43,12 @@ def viewtutorprofile(request, tutorId):
 		return redirect("tutoring:mainpage")
 	
 	tutorProfile.subjects = tutorProfile.subjects.split(",")
+	context = {
+		"tutorProfile": tutorProfile,
+		"subjects": Subject.objects.all()
+	}
+	activeQATab = False
+	activeQuestion = None
 
 	if request.method == "POST" and "postQuestion" in request.POST:
 		if not request.user.is_authenticated:
@@ -49,6 +56,7 @@ def viewtutorprofile(request, tutorId):
 		subjectRelated = request.POST['subject']
 		question = request.POST['question']
 		QuestionAnswer.objects.create(subject=subjectRelated, question=question, answer="Not answered yet.", questioner=request.user, answerer=tutorProfile.user)
+		context["activeQATab"] = True
 
 	if request.method == "POST" and "postAnswer" in request.POST:
 		if not request.user.is_authenticated:
@@ -58,11 +66,12 @@ def viewtutorprofile(request, tutorId):
 		questionAndAnswers = QuestionAnswer.objects.get(pk=questionId)
 		questionAndAnswers.answer = newAnswer
 		questionAndAnswers.save(update_fields=['answer'])
+		context["activeQATab"] = True
+		context["activeQuestion"] = questionId
 
-	questionAndAnswers = QuestionAnswer.objects.filter(answerer=tutorProfile.user).order_by('-id')
-	subjects = Subject.objects.all()
+	context["questionAndAnswers"] = QuestionAnswer.objects.filter(answerer=tutorProfile.user).order_by('-id')
 
-	return render(request, "tutoring/tutorprofile.html", {"tutorProfile": tutorProfile, "questionAndAnswers": questionAndAnswers, "subjects": subjects})
+	return render(request, "tutoring/tutorprofile.html", context)
 
 def viewstudentprofile(request, studentId):
 	print("bb")
@@ -138,8 +147,8 @@ def dislike_comment(request):
 	}
 	return HttpResponse(json.dumps(response), content_type="application/json")
 
+@deprecated(version='1.2.1', reason="Prevents linebreaksbr tag to be applied to the question and answer textfield.")
 def post_question_for_tutor(request):
-	QuestionAnswer.objects.all().delete()
 	if not request.user.is_authenticated:
 		response = {
 			"status_code": 403,
@@ -163,15 +172,11 @@ def post_question_for_tutor(request):
 
 	response = {
 		"status_code": 200,
-		"new_question": True,
-		"questionId": new_question.id,
-		"subject": new_question.subject,
+		"new_question": serializers.serialize("json", [new_question,]),
 		"questioner_first_name": new_question.questioner.first_name,
 		"questioner_last_name": new_question.questioner.last_name,
 		"qa_question": new_question.question,
 		"qa_answer": new_question.answer,
 		"date_time": date_time,
-		"likes_count": new_question.likes.count(),
-		"dislikes_count": new_question.dislikes.count(),
 	}
 	return HttpResponse(json.dumps(response), content_type="application/json")

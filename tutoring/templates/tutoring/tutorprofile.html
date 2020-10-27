@@ -106,16 +106,32 @@
 						<!-- Nav tabs -->
 						<div class="card">
 							<ul class="nav nav-tabs" role="tablist">
+								{% if activeQATab %}
+								<li role="presentation">
+									<a href="#profile" aria-controls="profile" role="tab" data-toggle="tab"> <span>Profile</span></a>
+								</li>
+								{% else %}
 								<li role="presentation" class="active">
 									<a href="#profile" aria-controls="profile" role="tab" data-toggle="tab"> <span>Profile</span></a>
 								</li>
+								{% endif %}
+								{% if activeQATab %}
+								<li role="presentation" class="active">
+									<a href="#messages" aria-controls="messages" role="tab" data-toggle="tab"> <span>Q & A</span></a>
+								</li>
+								{% else %}
 								<li role="presentation">
 									<a href="#messages" aria-controls="messages" role="tab" data-toggle="tab"> <span>Q & A</span></a>
 								</li>
+								{% endif %}
 							</ul>
 							<!-- Tab panes -->
 							<div class="tab-content">
+								{% if activeQATab %}
+								<div role="tabpanel" class="tab-pane" id="profile">
+								{% else %}
 								<div role="tabpanel" class="tab-pane active" id="profile">
+								{% endif %}
 									<div>
 										<h3>About</h3>
 										<p>{{ tutorProfile.about|linebreaksbr }}</p>
@@ -221,7 +237,11 @@
 					                     </div>
 									</div>
 								</div>
+								{% if activeQATab %}
+								<div role="tabpanel" class="tab-pane active" id="messages">
+								{% else %}
 								<div role="tabpanel" class="tab-pane" id="messages">
+								{% endif %}
 									<div class="modal fade" id="answerModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
 										<div class="modal-dialog">
 											<div class="modal-content">
@@ -256,7 +276,7 @@
 									<div style="overflow-y: scroll; overflow-x: hidden; height:866px;" id="tutor_questions">
 									{% if questionAndAnswers %} {% for qa in questionAndAnswers %}
 										<div class="container">
-											<div> <a href="#" class="qaSubjects">{{ qa.subject }}</a>{{ qa.questioner.first_name }} {{ qa.questioner.last_name }} asked a question at {{ qa.date }}</div>
+											<div id="question_answer_id_{{qa.id}}"> <a href="#" class="qaSubjects">{{ qa.subject }}</a>{{ qa.questioner.first_name }} {{ qa.questioner.last_name }} asked a question at {{ qa.date }}</div>
 											<br>
 											<div><strong>{{ qa.question|linebreaksbr }}</strong></div>
 											<br>
@@ -282,6 +302,12 @@
 	</div>
 </div>
 <script type="text/javascript">
+	window.onload = function() {
+		if ("{{ activeQuestion }}") {
+			location.href="#question_answer_id_{{ activeQuestion }}";
+		}
+	}
+
 	function updateAnswerModal(questionId, questionText, answerText) {
 		document.getElementById('questionId').value = questionId;
 		document.getElementById('questionText').value = questionText;
@@ -340,74 +366,56 @@
 		});
 	}
 
-	$('#askQuestionForm').submit(function () {
-		$('#questionModal').modal('hide');
+	// This method of form submission prevents linebreaksbr tag to be applied to the question and answer textfield.
+	// $('#askQuestionForm').submit(function () {
+	// 	$('#questionModal').modal('hide');
 
-		$.ajax({
-			url: '{% url "tutoring:post_question_for_tutor" %}',
-			data: {
-				'subject': $('#subject').val(),
-				'question': $('textarea#question').val(),
-				'tutorId': '{{ tutorProfile.id }}'
-			},
-			dataType: 'json',
-			success: function (response) {
-				if(response.status_code == 403 && !response.authenticated) {
-					// need to redirect to login page
-				}
-				else if(response.status_code == 200 && response.new_question) {
-					response.qa_question = response.qa_question.split(/\r\n|\r|\n/);
-					response.qa_question = insertBreakPoint(response.qa_question, "<br>");
+	// 	$.ajax({
+	// 		url: '{% url "tutoring:post_question_for_tutor" %}',
+	// 		data: {
+	// 			'subject': $('#subject').val(),
+	// 			'question': $('textarea#question').val(),
+	// 			'tutorId': '{{ tutorProfile.id }}'
+	// 		},
+	// 		dataType: 'json',
+	// 		success: function (response) {
+	// 			if(response.status_code == 403 && !response.authenticated) {
+	// 				// need to redirect to login page
+	// 			}
+	// 			else if(response.status_code == 200 && response.new_question) {
+	// 				var new_question = eval(response.new_question)[0];
 
-					response.qa_answer = response.qa_answer.split(/\r\n|\r|\n/);
-					response.qa_answer = insertBreakPoint(response.qa_answer, "<br>");
+	// 				new_question_row = `<div class="container">
+	// 										<div> <a href="#" class="qaSubjects">rhFJBGnpZm</a>lhqZoRYUAj 0o0rifXxK0 asked a question at FKVT6ZkFAa</div>
+	// 										<br>
+	// 										<div><strong>xAavHwHy3l</strong></div>
+	// 										<br>
+	// 										<div style="width: 970px;">q9Ml9rUkfX</div><br>
+	// 										<button id="comment_like_id_Kb6QOysRCO" type="button" class="btn btn-default btn-sm" onclick="like_comment(Kb6QOysRCO)">
+	// 											<span class="glyphicon glyphicon-thumbs-up"></span> (l4unh90SDR)
+	// 										</button>
+	// 										<button id="comment_dislike_id_Kb6QOysRCO" type="button" class="btn btn-default btn-sm" onclick="dislike_comment(Kb6QOysRCO)">
+	// 											<span class="glyphicon glyphicon-thumbs-down"></span> (hGvnJU9PZn)
+	// 										</button><br><br>
+	// 										<span class="badge badge-info" data-toggle="modal" data-target="#answerModal" onclick="updateAnswerModal(Kb6QOysRCO, xAavHwHy3l, 'q9Ml9rUkfX');">Answer this question</span>
+	// 									</div>
+	// 									<hr>`;
+	// 				new_question_row = new_question_row.split('rhFJBGnpZm').join(new_question.fields.subject)
+	// 									.split('lhqZoRYUAj').join(response.questioner_first_name)
+	// 									.split('0o0rifXxK0').join(response.questioner_last_name)
+	// 									.split('FKVT6ZkFAa').join(response.date_time)
+	// 									.split('Kb6QOysRCO').join(new_question.pk)
+	// 									.split('l4unh90SDR').join(new_question.fields.likes.length)
+	// 									.split('xAavHwHy3l').join(response.qa_question)
+	// 									.split('q9Ml9rUkfX').join(response.qa_answer)
+	// 									.split('hGvnJU9PZn').join(new_question.fields.dislikes.length);
 
-					new_question_row = `<div class="container">
-											<div> <a href="#" class="qaSubjects">rhFJBGnpZm</a>lhqZoRYUAj 0o0rifXxK0 asked a question at FKVT6ZkFAa</div>
-											<br>
-											<div><strong>xAavHwHy3l</strong></div>
-											<br>
-											<div style="width: 970px;">q9Ml9rUkfX</div><br>
-											<button id="comment_like_id_Kb6QOysRCO" type="button" class="btn btn-default btn-sm" onclick="like_comment(Kb6QOysRCO)">
-												<span class="glyphicon glyphicon-thumbs-up"></span> (l4unh90SDR)
-											</button>
-											<button id="comment_dislike_id_Kb6QOysRCO" type="button" class="btn btn-default btn-sm" onclick="dislike_comment(Kb6QOysRCO)">
-												<span class="glyphicon glyphicon-thumbs-down"></span> (hGvnJU9PZn)
-											</button><br><br>
-											<span class="badge badge-info" data-toggle="modal" data-target="#answerModal" onclick="updateAnswerModal(Kb6QOysRCO, xAavHwHy3l, 'q9Ml9rUkfX');">Answer this question</span>
-										</div>
-										<hr>`;
-					new_question_row = new_question_row.split('rhFJBGnpZm').join(response.subject)
-										.split('lhqZoRYUAj').join(response.questioner_first_name)
-										.split('0o0rifXxK0').join(response.questioner_last_name)
-										.split('FKVT6ZkFAa').join(response.date_time)
-										.split('Kb6QOysRCO').join(response.questionId)
-										.split('l4unh90SDR').join(response.likes_count)
-										.split('xAavHwHy3l').join(response.qa_question)
-										.split('q9Ml9rUkfX').join(response.qa_answer)
-										.split('hGvnJU9PZn').join(response.dislikes_count);
-
-					$("#tutor_questions").prepend(new_question_row);
-				}
-			}
-		});
-		$('#question').val('');
-		return false;
-	});
-
-	function insertBreakPoint(list_1, breaker) {
-		var newList = [];
-
-		for(var i = 0; i<list_1.length; i++) {
-			newList.push(list_1[i]);
-
-			if(i==list_1.length-1) {
-				break;
-			}
-
-			newList.push(breaker);
-		}
-		return newList.join("");
-	}
+	// 				$("#tutor_questions").prepend(new_question_row);
+	// 			}
+	// 		}
+	// 	});
+	// 	$('#question').val('');
+	// 	return false;
+	// });
 </script>
 {% endblock %}
