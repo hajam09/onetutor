@@ -31,12 +31,20 @@
 		   <div class="row" style="background: rgba(0, 0, 0, 0.5); padding: 20px 43px; padding-top: 40px;">
 			  <div class="col-xs-5">
 				 <div class="form-group">
+				 	{% if generalQuery %}
+					<input style="border-radius: 0.5px;" type="text" class="form-control" name="generalQuery" placeholder="Try 'GCES Maths'" value="{{ generalQuery }}">
+					{% else %}
 					<input style="border-radius: 0.5px;" type="text" class="form-control" name="generalQuery" placeholder="Try 'GCES Maths'">
+					{% endif %}
 				 </div>
 			  </div>
 			  <div class="col-xs-5">
 				 <div class="form-group">
+				 	{% if location %}
+					<input style="border-radius: 0.5px;" type="text" class="form-control" name="location" placeholder="Try 'London'" value="{{ location }}">
+					{% else %}
 					<input style="border-radius: 0.5px;" type="text" class="form-control" name="location" placeholder="Try 'London'">
+					{% endif %}
 				 </div>
 			  </div>
 			  <div class="col-xs-2">

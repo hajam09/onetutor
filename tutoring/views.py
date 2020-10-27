@@ -12,21 +12,31 @@ def mainpage(request):
 	if request.method == "POST":
 		generalQuery = request.POST["generalQuery"]
 		location = request.POST["location"]
+		context = {}
 
 		tutorList = None
 		# user may want to find a particular tutor by name(s).
 		if generalQuery and location:
 			tutorList = TutorProfile.objects.filter(summary__icontains=generalQuery, location__icontains=location) | \
 						TutorProfile.objects.filter(subjects__icontains=generalQuery, location__icontains=location)
+			context["generalQuery"] = generalQuery
+			context["location"] = location
 
-		if generalQuery:
+		elif generalQuery:
 			tutorList = TutorProfile.objects.filter(summary__icontains=generalQuery) | \
 						TutorProfile.objects.filter(subjects__icontains=generalQuery)
+			context["generalQuery"] = generalQuery
 
-		if location:
+		elif location:
 			tutorList = TutorProfile.objects.filter(location__icontains=location)
+			context["location"] = location
 
-		context = {"tutorList": tutorList}
+		else:
+			context["message"] = "Search for a tutor again!"
+			context["alert"] = "alert-danger"
+			return render(request, "tutoring/mainpage.html", context)
+
+		context["tutorList"] = tutorList
 
 		if tutorList.count() == 0:
 			context["message"] = "Sorry, we couldn't find you a tutor for your search. Try entering something broad."
