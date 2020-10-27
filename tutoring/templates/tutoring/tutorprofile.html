@@ -276,7 +276,11 @@
 									<div style="overflow-y: scroll; overflow-x: hidden; height:866px;" id="tutor_questions">
 									{% if questionAndAnswers %} {% for qa in questionAndAnswers %}
 										<div class="container">
-											<div id="question_answer_id_{{qa.id}}"> <a href="#" class="qaSubjects">{{ qa.subject }}</a>{{ qa.questioner.first_name }} {{ qa.questioner.last_name }} asked a question at {{ qa.date }}</div>
+											<div id="question_answer_id_{{qa.id}}">
+												<a href="#" class="qaSubjects" style="display:inline-block;">{{ qa.subject }}</a>
+												{{ qa.questioner.first_name }} {{ qa.questioner.last_name }} asked a question at
+												<p style="display:inline-block;" id="tool_tip_date_{{qa.id}}" data-toggle="tooltip" data-placement="top">{{ qa.date }}</p>
+											</div>
 											<br>
 											<div><strong>{{ qa.question|linebreaksbr }}</strong></div>
 											<br>
@@ -306,6 +310,7 @@
 		if ("{{ activeQuestion }}") {
 			location.href="#question_answer_id_{{ activeQuestion }}";
 		}
+		calculate_moments();
 	}
 
 	function updateAnswerModal(questionId, questionText, answerText) {
@@ -365,6 +370,66 @@
 			}
 		});
 	}
+
+	function timeSince(date) {
+		var seconds = Math.floor((new Date() - date) / 1000);
+		var interval = seconds / 31536000;
+
+		if (interval > 1) {
+			return Math.floor(interval) + " Years";
+		}
+		interval = seconds / 2592000;
+
+		if (interval > 1) {
+			return Math.floor(interval) + " Months";
+		}
+		interval = seconds / 86400;
+
+		if (interval > 1) {
+			return Math.floor(interval) + " Days";
+		}
+		interval = seconds / 3600;
+
+		if (interval > 1) {
+			return Math.floor(interval) + " Hours";
+		}
+		interval = seconds / 60;
+
+		if (interval > 1) {
+			return Math.floor(interval) + " Minutes";
+		}
+
+		return Math.floor(seconds) + " Seconds";
+	}
+
+	function time_converter(date) {
+		var split_date = date.split(" ");
+		var split_time = split_date[3].split(":");
+
+		if (date.includes("p.m.")) {
+			split_time[0] = parseInt(split_time[0]) + 12;
+		}
+
+		split_date[3] = split_time.join(":");
+		split_date.pop();
+		split_date = split_date.join(" ");
+		return split_date;
+	}
+
+	function calculate_moments() {
+		{% if questionAndAnswers %} {% for qa in questionAndAnswers %}
+			var converted_date = time_converter("{{ qa.date }}");
+			var parsed_date = Date.parse(converted_date);
+			var result = timeSince(parsed_date);
+			document.getElementById("tool_tip_date_{{qa.id}}").setAttribute("title", result);
+		{% endfor %} {% endif %}
+	}
+
+	var intervalTimeSec = 30;
+
+	setInterval(function() {
+		calculate_moments();
+	}, 1000*intervalTimeSec);
 
 	// This method of form submission prevents linebreaksbr tag to be applied to the question and answer textfield.
 	// $('#askQuestionForm').submit(function () {

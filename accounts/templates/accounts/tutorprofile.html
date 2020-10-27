@@ -9,6 +9,7 @@
           width: 1500px;
       }
    }
+   .qaSubjects{margin: -13px 10px 10px 0; font-size: 12px; padding: 3px 8px; border-radius: 4px; text-align: center; color: #fff; background-color: #000; opacity: .64;}
 </style>
 <div class="container">
    <div class="row">
@@ -146,20 +147,14 @@
                <div role="tabpanel" class="tab-pane" id="messages" style="overflow-y: scroll; height:938px;">
                	{% if questionAndAnswers %} {% for qa in questionAndAnswers %}
                      <div class="container">
-                        <div class="row">
-                           <div class="col-xs-6">Asked by {{ qa.questioner.first_name }} {{ qa.questioner.last_name }}</div>
-                           <div class="col-xs-6" style="display: flex; flex-flow: row wrap; float: right;">
-                              {% for subject in qa.subject %}
-                                 <a href="" style="margin: -13px 10px 10px 0;">
-                                    <dir style="font-size: 12px; padding: 3px 8px; border-radius: 4px; text-align: center; color: #fff; background-color: #000; opacity: .64;">
-                                       {{ subject }}
-                                    </dir>
-                                 </a>
-                              {% endfor %}
-                           </div>
-                        </div>
-                        <div>{{ qa.question|linebreaksbr }}</div>
-                        <div>{{ qa.answer|linebreaksbr }}</div>
+                        <div id="question_answer_id_{{qa.id}}"> <a href="#" class="qaSubjects">{{ qa.subject }}</a>{{ qa.questioner.first_name }} {{ qa.questioner.last_name }} asked a question at {{ qa.date }}</div>
+                        <br>
+                        <div><strong>{{ qa.question|linebreaksbr }}</strong></div>
+                        <br>
+                        <div style="width: 970px;">{{ qa.answer|linebreaksbr }}</div><br>
+                        <span class="glyphicon glyphicon-thumbs-up"></span> ({{qa.likes.count}})
+                        <span class="glyphicon glyphicon-thumbs-down"></span> ({{qa.dislikes.count}})
+                        <br><br>
                      </div>
                      <hr>
                   {% endfor %} {% endif %}

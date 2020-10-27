@@ -152,8 +152,6 @@ def tutorprofile(request):
 	countries = Countries.objects.all()
 
 	questionAndAnswers = QuestionAnswer.objects.filter(answerer=tutorProfile.user).order_by('-id')
-	for i in questionAndAnswers:
-		i.subject = i.subject.split(",")
 
 	if request.method == "POST" and "updatePersonalDetails" in request.POST:
 		firstname = request.POST["first_name"].strip()
