@@ -3,9 +3,10 @@ from django.urls import reverse
 from .models import QuestionAnswer
 from django.contrib.auth.models import User
 from accounts.models import TutorProfile
+import json
 # from accounts.seedDataInstaller import *
 
-class TestViewsMainpage(TestCase):
+class TestViewsMainPage(TestCase):
 
 	def create_user(self, u, e, p, f, l):
 		return User.objects.create_user(username=u, email=e, password=p, first_name=f, last_name=l)
@@ -140,3 +141,159 @@ class TestViewsMainpage(TestCase):
 		self.assertNotIn("message", response.context)
 		self.assertNotIn("alert", response.context)
 		self.assertTemplateUsed(response, "tutoring/mainpage.html")
+
+class TestViewsViewTutorProfile(TestCase):
+
+	def create_user(self, u, e, p, f, l):
+		return User.objects.create_user(username=u, email=e, password=p, first_name=f, last_name=l)
+
+	def create_tutor_profile(self, u, s, a, su):
+		location = {
+						"address_1": "24 Cranborne Road",
+						"address_2": "Barking",
+						"city": "London",
+						"stateProvice": "Essex", 
+						"postalZip": "IG11 7XE",
+						"country": { "alpha": "GB", "name": "United Kingdom" }
+					}
+		education = {
+			"education_1": { "school_name": "Imperial College London", "qualification": "Computing (Masters) - 2:1", "year": "2016 - 2020" },
+			"education_2": { "school_name": "Peter Symonds College", "qualification": "A Levels - A*A*AA (Maths, Computing, Further Maths, Physics)", "year": "2014 - 2016" },
+			"education_3": { "school_name": "Perins School", "qualification": "GCSE - 10 x A* ", "year": "2009 - 2014" }
+		}
+
+		availability = {
+			"monday": {"morning": True, "afternoon": False, "evening": False},
+			"tuesday": {"morning": False, "afternoon": True, "evening": False},
+			"wednesday": {"morning": False, "afternoon": False, "evening": False},
+			"thursday": {"morning": False, "afternoon": True, "evening": False},
+			"friday": {"morning": True, "afternoon": False, "evening": False},
+			"saturday": {"morning": False, "afternoon": True, "evening": False},
+			"sunday": {"morning": True, "afternoon": False, "evening": False}
+		}
+		
+		return TutorProfile.objects.create(user=u, userType="TUTOR",
+										summary=s, about=a, location=location,
+										education=education, subjects=su,
+										availability=availability, profilePicture=None)
+
+	def setUp(self):
+		self.client = Client()
+		self.url = reverse('tutoring:viewtutorprofile', kwargs={'tutorId':1})
+		self.tutor_1 = self.create_user("barry.allen@yahoo.com", "barry.allen@yahoo.com", "RanDomPasWord56", "Barry", "Allen")
+		self.tutor_1_profile = self.create_tutor_profile(self.tutor_1, "summary 1", "about 1", "English, Maths")
+		self.tutor_2 = self.create_user("oliver.queen@yahoo.com", "oliver.queen@yahoo.com", "RanDomPasWord56", "Oliver", "Queen")
+		self.tutor_2_profile = self.create_tutor_profile(self.tutor_2, "summary 2", "about 2", "English, ICT, RE")
+
+	def test_viewtutorprofile_does_not_exist(self):
+		"""
+			Searching for a tutor that does not exist in the db.
+		"""
+		self.url = reverse('tutoring:viewtutorprofile', kwargs={'tutorId':99})
+		response = self.client.get(self.url, {})
+		self.assertEqual(response.status_code, 302)
+		self.assertRedirects(response, '/')
+
+	def test_viewtutorprofile_postQuestion_not_authenticated(self):
+		"""
+			Searching for a tutor that does exist in the db.
+			The user is not authenticated.
+		"""
+		context = {
+			"postQuestion": "",
+			"subject": "Maths",
+			"question": "What is the question?"
+		}
+		response = self.client.post(self.url, context)
+		self.assertEqual(response.status_code, 302)
+		self.assertRedirects(response, "/accounts/login/")
+
+	def test_viewtutorprofile_postQuestion_authenticated(self):
+		"""
+			Searching for a tutor that does exist in the db.
+			The user is authenticated.
+			The user is posting a question.
+		"""
+		context = {
+			"postQuestion": "",
+			"subject": "Maths",
+			"question": "What is the question?"
+		}
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		count_before = QuestionAnswer.objects.all().count()
+		response = self.client.post(self.url, context)
+		self.assertEqual(response.status_code, 200)
+		self.assertTrue(response.context['request'].user.is_authenticated)
+		self.assertEqual(QuestionAnswer.objects.all().count(), count_before + 1)
+		self.assertIn("activeQATab", response.context)
+		self.assertEquals(response.context["activeQATab"], True)
+		self.assertIn("questionAndAnswers", response.context)
+		self.assertTemplateUsed(response, "tutoring/tutorprofile.html")
+
+	def test_viewtutorprofile_postAnswer_not_authenticated(self):
+		"""
+			Searching for a tutor that does exist in the db.
+			The user is not authenticated.
+		"""
+		context = {
+			"postAnswer": "",
+			"subject": "Maths",
+			"question": "What is the question?"
+		}
+		response = self.client.post(self.url, context)
+		self.assertEqual(response.status_code, 302)
+		self.assertRedirects(response, "/accounts/login/")
+
+	def test_viewtutorprofile_postAnswer_authenticated(self):
+		"""
+			Searching for a tutor that does exist in the db.
+			The user is authenticated.
+			The user is posting the answer.
+		"""
+		self.test_viewtutorprofile_postQuestion_authenticated() # just to login a user.
+		random_question = str(QuestionAnswer.objects.all()[0].pk)
+		context = {
+			"postAnswer": "",
+			"questionId": random_question,
+			"answerText": "Making a reply to the answer"
+		}
+		response = self.client.post(self.url, context)
+		self.assertIn("activeQATab", response.context)
+		self.assertEquals(response.context["activeQATab"], True)
+		self.assertIn("activeQuestion", response.context)
+		self.assertEquals(response.context["activeQuestion"], random_question)
+		self.assertIn("questionAndAnswers", response.context)
+		self.assertTemplateUsed(response, "tutoring/tutorprofile.html")
+		self.assertEquals(QuestionAnswer.objects.all()[0].answer, "Making a reply to the answer")
+
+class TestViewsLikeComment(TestCase):
+
+	def setUp(self):
+		self.client = Client()
+		self.url = reverse('tutoring:like_comment')
+
+	def test_like_comment_not_ajax(self):
+		"""
+			User is not authenticated
+			Making a POST request so it is not an AJAX request.
+		"""
+		response = self.client.post(self.url, {})
+		ajax_reponse = json.loads(response.content) 
+		self.assertEquals(response.status_code, 200)
+		self.assertIn("status_code", ajax_reponse)
+		self.assertEquals(ajax_reponse["status_code"], 403)
+		self.assertIn("message", ajax_reponse)
+		self.assertEquals(ajax_reponse["message"], "Bad Request")
+
+	def test_like_comment_not_authenticated(self):
+		"""
+			User is not authenticated
+			Making an AJAX request.
+		"""
+		response = self.client.post(self.url, {}, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content) 
+		self.assertEquals(response.status_code, 200)
+		self.assertIn("status_code", ajax_reponse)
+		self.assertEquals(ajax_reponse["status_code"], 401)
+		self.assertIn("message", ajax_reponse)
+		self.assertEquals(ajax_reponse["message"], "Login to like the question and answer. ")
