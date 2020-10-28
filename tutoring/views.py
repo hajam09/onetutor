@@ -134,7 +134,7 @@ def dislike_comment(request):
 	if not request.user.is_authenticated:
 		response = {
 			"status_code": 401,
-			"message": "Login to like the question and answer. "
+			"message": "Login to dislike the question and answer. "
 		}
 		return HttpResponse(json.dumps(response), content_type="application/json")
 
