@@ -36,10 +36,12 @@ class TestViewsMainPage(TestCase):
 			"sunday": {"morning": True, "afternoon": False, "evening": False}
 		}
 		
-		return TutorProfile.objects.create(user=u, userType="TUTOR",
-										summary=s, about=a, location=location,
-										education=education, subjects=su,
-										availability=availability, profilePicture=None)
+		return TutorProfile.objects.create(
+			user=u, userType="TUTOR",
+			summary=s, about=a, location=location,
+			education=education, subjects=su,
+			availability=availability, profilePicture=None
+		)
 
 	def setUp(self):
 		self.client = Client()
@@ -172,10 +174,12 @@ class TestViewsViewTutorProfile(TestCase):
 			"sunday": {"morning": True, "afternoon": False, "evening": False}
 		}
 		
-		return TutorProfile.objects.create(user=u, userType="TUTOR",
-										summary=s, about=a, location=location,
-										education=education, subjects=su,
-										availability=availability, profilePicture=None)
+		return TutorProfile.objects.create(
+			user=u, userType="TUTOR",
+			summary=s, about=a, location=location,
+			education=education, subjects=su,
+			availability=availability, profilePicture=None
+		)
 
 	def setUp(self):
 		self.client = Client()
@@ -268,9 +272,55 @@ class TestViewsViewTutorProfile(TestCase):
 
 class TestViewsLikeComment(TestCase):
 
+	def create_user(self, u, e, p, f, l):
+		return User.objects.create_user(username=u, email=e, password=p, first_name=f, last_name=l)
+
+	def create_tutor_profile(self, u, s, a, su):
+		location = {
+						"address_1": "24 Cranborne Road",
+						"address_2": "Barking",
+						"city": "London",
+						"stateProvice": "Essex", 
+						"postalZip": "IG11 7XE",
+						"country": { "alpha": "GB", "name": "United Kingdom" }
+					}
+		education = {
+			"education_1": { "school_name": "Imperial College London", "qualification": "Computing (Masters) - 2:1", "year": "2016 - 2020" },
+			"education_2": { "school_name": "Peter Symonds College", "qualification": "A Levels - A*A*AA (Maths, Computing, Further Maths, Physics)", "year": "2014 - 2016" },
+			"education_3": { "school_name": "Perins School", "qualification": "GCSE - 10 x A* ", "year": "2009 - 2014" }
+		}
+
+		availability = {
+			"monday": {"morning": True, "afternoon": False, "evening": False},
+			"tuesday": {"morning": False, "afternoon": True, "evening": False},
+			"wednesday": {"morning": False, "afternoon": False, "evening": False},
+			"thursday": {"morning": False, "afternoon": True, "evening": False},
+			"friday": {"morning": True, "afternoon": False, "evening": False},
+			"saturday": {"morning": False, "afternoon": True, "evening": False},
+			"sunday": {"morning": True, "afternoon": False, "evening": False}
+		}
+		
+		return TutorProfile.objects.create(
+			user=u, userType="TUTOR",
+			summary=s, about=a, location=location,
+			education=education, subjects=su,
+			availability=availability, profilePicture=None
+		)
+
 	def setUp(self):
 		self.client = Client()
 		self.url = reverse('tutoring:like_comment')
+		self.tutor_1 = self.create_user("barry.allen@yahoo.com", "barry.allen@yahoo.com", "RanDomPasWord56", "Barry", "Allen")
+		self.tutor_1_profile = self.create_tutor_profile(self.tutor_1, "summary 1", "about 1", "English, Maths")
+		self.tutor_2 = self.create_user("oliver.queen@yahoo.com", "oliver.queen@yahoo.com", "RanDomPasWord56", "Oliver", "Queen")
+		self.tutor_2_profile = self.create_tutor_profile(self.tutor_2, "summary 2", "about 2", "English, ICT, RE")
+		self.new_question = QuestionAnswer.objects.create(
+			subject="Maths",
+			question="What is the purpose of life?",
+			answer="Not answered yet.",
+			questioner=self.tutor_1,
+			answerer=self.tutor_2
+		)
 
 	def test_like_comment_not_ajax(self):
 		"""
@@ -297,3 +347,218 @@ class TestViewsLikeComment(TestCase):
 		self.assertEquals(ajax_reponse["status_code"], 401)
 		self.assertIn("message", ajax_reponse)
 		self.assertEquals(ajax_reponse["message"], "Login to like the question and answer. ")
+
+	def test_like_comment_add_like(self):
+		"""
+			Making an AJAX request.
+			User is authenticated.
+			User not in list of liked.
+			User not in list of disliked.
+			L(0) : D(0) --> L(1) : D(0)
+		"""
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		payload = {
+			"commentId": str(self.new_question.pk)
+		}
+		user = User.objects.get(username='barry.allen@yahoo.com')
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertIn(self.new_question, QuestionAnswer.objects.filter(likes__id=user.pk))
+		self.assertNotIn(self.new_question, QuestionAnswer.objects.filter(dislikes__id=user.pk))
+		self.assertEquals(response.status_code, 200)
+		self.assertIn("status_code", ajax_reponse)
+		self.assertEquals(ajax_reponse["status_code"], 200)
+		self.assertIn("this_comment", ajax_reponse)
+
+	def test_like_comment_remove_like(self):
+		"""
+			Making an AJAX request.
+			User is authenticated.
+			User in list of liked.
+			User not in list of disliked.
+			L(1) : D(0) --> L(0) : D(0)
+		"""
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		payload = {
+			"commentId": str(self.new_question.pk)
+		}
+		user = User.objects.get(username='barry.allen@yahoo.com')
+		user.likes.add(self.new_question)
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertNotIn(self.new_question, QuestionAnswer.objects.filter(likes__id=user.pk))
+		self.assertNotIn(self.new_question, QuestionAnswer.objects.filter(dislikes__id=user.pk))
+		self.assertEquals(response.status_code, 200)
+		self.assertIn("status_code", ajax_reponse)
+		self.assertEquals(ajax_reponse["status_code"], 200)
+		self.assertIn("this_comment", ajax_reponse)
+
+	def test_like_comment_add_like_remove_dislike(self):
+		"""
+			Making an AJAX request.
+			User is authenticated.
+			User not in list of liked.
+			User in list of disliked.
+			L(0) : D(1) --> L(1) : D(0)
+		"""
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		payload = {
+			"commentId": str(self.new_question.pk)
+		}
+		user = User.objects.get(username='barry.allen@yahoo.com')
+		user.dislikes.add(self.new_question)
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertIn(self.new_question, QuestionAnswer.objects.filter(likes__id=user.pk))
+		self.assertNotIn(self.new_question, QuestionAnswer.objects.filter(dislikes__id=user.pk))
+		self.assertEquals(response.status_code, 200)
+		self.assertIn("status_code", ajax_reponse)
+		self.assertEquals(ajax_reponse["status_code"], 200)
+		self.assertIn("this_comment", ajax_reponse)
+
+
+class TestViewsDislikeComment(TestCase):
+
+	def create_user(self, u, e, p, f, l):
+		return User.objects.create_user(username=u, email=e, password=p, first_name=f, last_name=l)
+
+	def create_tutor_profile(self, u, s, a, su):
+		location = {
+						"address_1": "24 Cranborne Road",
+						"address_2": "Barking",
+						"city": "London",
+						"stateProvice": "Essex", 
+						"postalZip": "IG11 7XE",
+						"country": { "alpha": "GB", "name": "United Kingdom" }
+					}
+		education = {
+			"education_1": { "school_name": "Imperial College London", "qualification": "Computing (Masters) - 2:1", "year": "2016 - 2020" },
+			"education_2": { "school_name": "Peter Symonds College", "qualification": "A Levels - A*A*AA (Maths, Computing, Further Maths, Physics)", "year": "2014 - 2016" },
+			"education_3": { "school_name": "Perins School", "qualification": "GCSE - 10 x A* ", "year": "2009 - 2014" }
+		}
+
+		availability = {
+			"monday": {"morning": True, "afternoon": False, "evening": False},
+			"tuesday": {"morning": False, "afternoon": True, "evening": False},
+			"wednesday": {"morning": False, "afternoon": False, "evening": False},
+			"thursday": {"morning": False, "afternoon": True, "evening": False},
+			"friday": {"morning": True, "afternoon": False, "evening": False},
+			"saturday": {"morning": False, "afternoon": True, "evening": False},
+			"sunday": {"morning": True, "afternoon": False, "evening": False}
+		}
+		
+		return TutorProfile.objects.create(
+			user=u, userType="TUTOR",
+			summary=s, about=a, location=location,
+			education=education, subjects=su,
+			availability=availability, profilePicture=None
+		)
+
+	def setUp(self):
+		self.client = Client()
+		self.url = reverse('tutoring:dislike_comment')
+		self.tutor_1 = self.create_user("barry.allen@yahoo.com", "barry.allen@yahoo.com", "RanDomPasWord56", "Barry", "Allen")
+		self.tutor_1_profile = self.create_tutor_profile(self.tutor_1, "summary 1", "about 1", "English, Maths")
+		self.tutor_2 = self.create_user("oliver.queen@yahoo.com", "oliver.queen@yahoo.com", "RanDomPasWord56", "Oliver", "Queen")
+		self.tutor_2_profile = self.create_tutor_profile(self.tutor_2, "summary 2", "about 2", "English, ICT, RE")
+		self.new_question = QuestionAnswer.objects.create(
+			subject="Maths",
+			question="What is the purpose of life?",
+			answer="Not answered yet.",
+			questioner=self.tutor_1,
+			answerer=self.tutor_2
+		)
+
+	def test_dislike_comment_not_ajax(self):
+		"""
+			User is not authenticated
+			Making a POST request so it is not an AJAX request.
+		"""
+		response = self.client.post(self.url, {})
+		ajax_reponse = json.loads(response.content) 
+		self.assertEquals(response.status_code, 200)
+		self.assertIn("status_code", ajax_reponse)
+		self.assertEquals(ajax_reponse["status_code"], 403)
+		self.assertIn("message", ajax_reponse)
+		self.assertEquals(ajax_reponse["message"], "Bad Request")
+
+	def test_dislike_comment_not_authenticated(self):
+		"""
+			User is not authenticated
+			Making an AJAX request.
+		"""
+		response = self.client.post(self.url, {}, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content) 
+		self.assertEquals(response.status_code, 200)
+		self.assertIn("status_code", ajax_reponse)
+		self.assertEquals(ajax_reponse["status_code"], 401)
+		self.assertIn("message", ajax_reponse)
+		self.assertEquals(ajax_reponse["message"], "Login to dislike the question and answer. ")
+
+	def test_dislike_comment_add_dislike(self):
+		"""
+			Making an AJAX request.
+			User is authenticated.
+			User not in list of liked.
+			User not in list of disliked.
+			L(0) : D(0) --> L(0) : D(1)
+		"""
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		payload = {
+			"commentId": str(self.new_question.pk)
+		}
+		user = User.objects.get(username='barry.allen@yahoo.com')
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertNotIn(self.new_question, QuestionAnswer.objects.filter(likes__id=user.pk))
+		self.assertIn(self.new_question, QuestionAnswer.objects.filter(dislikes__id=user.pk))
+		self.assertEquals(response.status_code, 200)
+		self.assertIn("status_code", ajax_reponse)
+		self.assertEquals(ajax_reponse["status_code"], 200)
+		self.assertIn("this_comment", ajax_reponse)
+
+	def test_dislike_comment_remove_dislike(self):
+		"""
+			Making an AJAX request.
+			User is authenticated.
+			User not in list of liked.
+			User in list of disliked.
+			L(0) : D(1) --> L(0) : D(0)
+		"""
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		payload = {
+			"commentId": str(self.new_question.pk)
+		}
+		user = User.objects.get(username='barry.allen@yahoo.com')
+		user.dislikes.add(self.new_question)
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertNotIn(self.new_question, QuestionAnswer.objects.filter(likes__id=user.pk))
+		self.assertNotIn(self.new_question, QuestionAnswer.objects.filter(dislikes__id=user.pk))
+		self.assertEquals(response.status_code, 200)
+		self.assertIn("status_code", ajax_reponse)
+		self.assertEquals(ajax_reponse["status_code"], 200)
+		self.assertIn("this_comment", ajax_reponse)
+
+	def test_dislike_comment_add_dislike_remove_like(self):
+		"""
+			Making an AJAX request.
+			User is authenticated.
+			User in list of liked.
+			User not in list of disliked.
+			L(1) : D(0) --> L(0) : D(1)
+		"""
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		payload = {
+			"commentId": str(self.new_question.pk)
+		}
+		user = User.objects.get(username='barry.allen@yahoo.com')
+		user.likes.add(self.new_question)
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertNotIn(self.new_question, QuestionAnswer.objects.filter(likes__id=user.pk))
+		self.assertIn(self.new_question, QuestionAnswer.objects.filter(dislikes__id=user.pk))
+		self.assertEquals(response.status_code, 200)
+		self.assertIn("status_code", ajax_reponse)
+		self.assertEquals(ajax_reponse["status_code"], 200)
+		self.assertIn("this_comment", ajax_reponse)
