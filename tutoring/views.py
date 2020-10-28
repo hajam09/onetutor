@@ -7,6 +7,7 @@ import json
 from django.core import serializers
 from datetime import datetime
 from deprecated import deprecated
+from http import HTTPStatus
 
 def mainpage(request):
 	if request.method == "POST":
@@ -118,7 +119,7 @@ def like_comment(request):
 
 	response = {
 		"this_comment": serializers.serialize("json", [this_comment,]),
-		"status_code": 200
+		"status_code": HTTPStatus.OK
 	}
 	return HttpResponse(json.dumps(response), content_type="application/json")
 
