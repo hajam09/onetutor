@@ -2,7 +2,8 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from accounts.models import TutorProfile
+from accounts.models import TutorProfile, Countries
+from tutoring.models import QuestionAnswer
 
 class TestViewsLogin(TestCase):
 
@@ -245,7 +246,211 @@ class TestViewsCreateProfile(TestCase):
 		pass
 
 class TestViewsTutorProfile(TestCase):
-	pass
+	
+	def create_user(self, u, e, p, f, l):
+		return User.objects.create_user(username=u, email=e, password=p, first_name=f, last_name=l)
+
+	def create_tutor_profile(self, u, s, a, su):
+		location = {
+						"address_1": "24 Cranborne Road",
+						"address_2": "Barking",
+						"city": "London",
+						"stateProvice": "Essex", 
+						"postalZip": "IG11 7XE",
+						"country": { "alpha": "GB", "name": "United Kingdom" }
+					}
+		education = {
+			"education_1": { "school_name": "Imperial College London", "qualification": "Computing (Masters) - 2:1", "year": "2016 - 2020" },
+			"education_2": { "school_name": "Peter Symonds College", "qualification": "A Levels - A*A*AA (Maths, Computing, Further Maths, Physics)", "year": "2014 - 2016" },
+			"education_3": { "school_name": "Perins School", "qualification": "GCSE - 10 x A* ", "year": "2009 - 2014" }
+		}
+
+		availability = {
+			"monday": {"morning": True, "afternoon": False, "evening": False},
+			"tuesday": {"morning": False, "afternoon": True, "evening": False},
+			"wednesday": {"morning": False, "afternoon": False, "evening": False},
+			"thursday": {"morning": False, "afternoon": True, "evening": False},
+			"friday": {"morning": True, "afternoon": False, "evening": False},
+			"saturday": {"morning": False, "afternoon": True, "evening": False},
+			"sunday": {"morning": True, "afternoon": False, "evening": False}
+		}
+		
+		return TutorProfile.objects.create(
+			user=u, userType="TUTOR",
+			summary=s, about=a, location=location,
+			education=education, subjects=su,
+			availability=availability, profilePicture=None
+		)
+
+	def setUp(self):
+		self.client = Client()
+		self.url = reverse('accounts:tutorprofile')
+		self.user_1 = self.create_user("barry.allen@yahoo.com", "barry.allen@yahoo.com", "RanDomPasWord56", "Barry", "Allen")
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+
+	def test_tutorprofile_GET(self):
+		self.user_1_profile = self.create_tutor_profile(self.user_1, "summary 1", "about 1", "English, Maths")
+		response = self.client.get(self.url)
+		self.assertEquals(response.status_code, 200)
+		self.assertTemplateUsed(response, "accounts/tutorprofile.html")
+
+	def test_tutorprofile_tutor_profile_does_not_exist(self):
+		"""
+			User must be authenticated prior to calling the view.
+			TutorProfile does not exist to the authenticated user.
+		"""
+		response = self.client.post(self.url, {})
+		self.assertEqual(response.status_code, 302)
+		self.assertRedirects(response, '/accounts/createprofile/')
+		self.assertIn('_auth_user_id', self.client.session)
+
+	def test_tutorprofile_update_personal_details(self):
+		"""
+			User must be authenticated prior to calling the view.
+			TutorProfile does exist to the authenticated user.
+		"""
+		context = {
+			"updatePersonalDetails": "",
+			"first_name": "Adrian",
+			"last_name": "Chase"
+		}
+		self.user_1_profile = self.create_tutor_profile(self.user_1, "summary 1", "about 1", "English, Maths")
+		response = self.client.post(self.url, context)
+		self.assertEquals(response.status_code, 200)
+		self.assertIn("tutorProfile", response.context)
+		self.assertEquals(response.context["tutorProfile"], TutorProfile.objects.get(user=self.user_1))
+		self.assertIn("countries", response.context)
+		self.assertCountEqual(response.context["countries"], Countries.objects.all())
+		self.assertIn("message", response.context)
+		self.assertEquals(response.context["message"], "Your personal details has been updated successfully")
+		self.assertIn("alert", response.context)
+		self.assertEquals(response.context["alert"], "alert-success")
+		self.assertIn("activeAccountTab", response.context)
+		self.assertEquals(response.context["activeAccountTab"], True)
+		self.assertTemplateUsed(response, "accounts/tutorprofile.html")
+
+		self.user_1 = User.objects.get(email="barry.allen@yahoo.com")
+		self.assertEquals(self.user_1.first_name, context["first_name"])
+		self.assertEquals(self.user_1.last_name, context["last_name"])
+
+	def test_tutorprofile_update_personal_details_upload_profile_picture(self):
+		"""
+			User must be authenticated prior to calling the view.
+			TutorProfile does exist to the authenticated user.
+			Uploading a profile picture for the tutor profile.
+		"""
+		pass
+
+	def test_tutorprofile_update_password_mismatch(self):
+		"""
+			User must be authenticated prior to calling the view.
+			TutorProfile does exist to the authenticated user.
+			User current password confirmation not matching.
+		"""
+		context = {
+			"updatePassword": "",
+			"currentPassword": "RanDomPasWord99",
+			"newPassword": "Strong98183",
+			"confirmPassword": "Strong98183"
+		}
+		self.user_1_profile = self.create_tutor_profile(self.user_1, "summary 1", "about 1", "English, Maths")
+		response = self.client.post(self.url, context)
+		self.assertEquals(response.status_code, 200)
+		self.assertIn("alert", response.context)
+		self.assertEquals(response.context["alert"], "alert-danger")
+		self.assertTemplateUsed(response, "accounts/tutorprofile.html")
+		self.assertIn("tutorProfile", response.context)
+		self.assertEquals(response.context["tutorProfile"], TutorProfile.objects.get(user=self.user_1))
+		self.assertIn("countries", response.context)
+		self.assertCountEqual(response.context["countries"], Countries.objects.all())
+		self.assertIn("message", response.context)
+		self.assertEquals(response.context["message"], "Your current password does not match")
+		self.assertIn("activeAccountTab", response.context)
+		self.assertEquals(response.context["activeAccountTab"], True)
+
+	def test_tutorprofile_update_password_mismatch_2(self):
+		"""
+			User must be authenticated prior to calling the view.
+			TutorProfile does exist to the authenticated user.
+			User current password confirmation does match.
+			User's new password and confirmation password does not match.
+		"""
+		context = {
+			"updatePassword": "",
+			"currentPassword": "RanDomPasWord56",
+			"newPassword": "Strong98183",
+			"confirmPassword": "Strong76456"
+		}
+		self.user_1_profile = self.create_tutor_profile(self.user_1, "summary 1", "about 1", "English, Maths")
+		response = self.client.post(self.url, context)
+		self.assertEquals(response.status_code, 200)
+		self.assertIn("alert", response.context)
+		self.assertEquals(response.context["alert"], "alert-danger")
+		self.assertTemplateUsed(response, "accounts/tutorprofile.html")
+		self.assertIn("tutorProfile", response.context)
+		self.assertEquals(response.context["tutorProfile"], TutorProfile.objects.get(user=self.user_1))
+		self.assertIn("countries", response.context)
+		self.assertCountEqual(response.context["countries"], Countries.objects.all())
+		self.assertIn("message", response.context)
+		self.assertEquals(response.context["message"], "Your new password and confirm password does not match")
+		self.assertIn("activeAccountTab", response.context)
+		self.assertEquals(response.context["activeAccountTab"], True)
+
+	def test_tutorprofile_update_weak_password(self):
+		"""
+			User must be authenticated prior to calling the view.
+			TutorProfile does exist to the authenticated user.
+			User current password confirmation does match.
+			User's new password and confirmation password does match.
+			User's new password is weak.
+		"""
+		context = {
+			"updatePassword": "",
+			"currentPassword": "RanDomPasWord56",
+			"newPassword": "123",
+			"confirmPassword": "123"
+		}
+		self.user_1_profile = self.create_tutor_profile(self.user_1, "summary 1", "about 1", "English, Maths")
+		response = self.client.post(self.url, context)
+		self.assertEquals(response.status_code, 200)
+		self.assertIn("alert", response.context)
+		self.assertEquals(response.context["alert"], "alert-warning")
+		self.assertTemplateUsed(response, "accounts/tutorprofile.html")
+		self.assertIn("tutorProfile", response.context)
+		self.assertEquals(response.context["tutorProfile"], TutorProfile.objects.get(user=self.user_1))
+		self.assertIn("countries", response.context)
+		self.assertCountEqual(response.context["countries"], Countries.objects.all())
+		self.assertIn("message", response.context)
+		self.assertEquals(response.context["message"], "Your new password is not strong enough.")
+		self.assertIn("activeAccountTab", response.context)
+		self.assertEquals(response.context["activeAccountTab"], True)
+
+	def test_tutorprofile_update_password_authenticate(self):
+		"""
+			User must be authenticated prior to calling the view.
+			TutorProfile does exist to the authenticated user.
+			User current password confirmation does match.
+			User's new password and confirmation password does match.
+			User's new password is strong.
+			User should be authenticated after changing password.
+		"""
+		context = {
+			"updatePassword": "",
+			"currentPassword": "RanDomPasWord56",
+			"newPassword": "RanDomPasWord123",
+			"confirmPassword": "RanDomPasWord123"
+		}
+		self.user_1_profile = self.create_tutor_profile(self.user_1, "summary 1", "about 1", "English, Maths")
+		response = self.client.post(self.url, context)
+		self.assertEquals(response.status_code, 200)
+		self.assertIn('_auth_user_id', self.client.session)
+		self.assertTemplateUsed(response, "accounts/tutorprofile.html")
+		self.assertIn("tutorProfile", response.context)
+		self.assertEquals(response.context["tutorProfile"], TutorProfile.objects.get(user=self.user_1))
+		self.assertIn("countries", response.context)
+		self.assertCountEqual(response.context["countries"], Countries.objects.all())
+		self.assertIn("questionAndAnswers", response.context)
+		self.assertCountEqual(response.context["questionAndAnswers"], QuestionAnswer.objects.filter(answerer=self.user_1))
 
 class TestViewsTutorProfileEdit(TestCase):
 	pass
