@@ -2,6 +2,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.core.cache import cache
+from accounts.models import TutorProfile
 
 class TestViewsLogin(TestCase):
 
@@ -184,7 +185,64 @@ class TestViewsRegister(TestCase):
 		self.assertTrue(User.objects.filter(username="oliver.queen@yahoo.com").exists())
 
 class TestViewsCreateProfile(TestCase):
-	pass
+	
+	def create_user(self, u, e, p, f, l):
+		return User.objects.create_user(username=u, email=e, password=p, first_name=f, last_name=l)
+
+	def setUp(self):
+		self.client = Client()
+		self.url = reverse('accounts:createprofile')
+		self.user_1 = self.create_user("barry.allen@yahoo.com", "barry.allen@yahoo.com", "RanDomPasWord56", "Barry", "Allen")
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+
+	def test_createprofile_GET(self):
+		"""
+			User must be authenticated prior to calling the view.
+		"""
+		response = self.client.get(self.url)
+		self.assertEquals(response.status_code, 200)
+		self.assertTemplateUsed(response, "accounts/createprofile.html")
+
+	def test_createprofile_create_tutor_profile(self):
+		"""
+			User must be authenticated prior to calling the view.
+		"""
+		context = {
+			"tutor": "aa",
+			"summary": "Summary for this particular tutor.",
+			"about": "Short about section for this tutor.",
+			"subjects": "English, Maths, Science, ICT",
+			"numberOfEducation": "1" ,
+			"school_name_1": "ECS",
+			"qualification_1": "A-Levels",
+			"year_1": "2010-2015",
+			"country": "GB",
+			"address_1": "99 Some Road",
+			"address_2": "becontree",
+			"city": "Cambridge",
+			"stateProvice": "Sussex",
+			"postalZip": "MU8 3SW",
+		}
+		count_before = TutorProfile.objects.all().count()
+		response = self.client.post(self.url, context)
+		self.assertEquals(response.status_code, 302)
+		self.assertEqual(TutorProfile.objects.all().count(), count_before + 1)
+		self.assertEqual(TutorProfile.objects.all().order_by('-id')[0].user, self.user_1)
+
+
+	def test_createprofile_create_student_profile(self):
+		pass
+
+	def test_createprofile_tutor_profile_exists(self):
+		"""
+			User must be authenticated prior to calling the view.
+		"""
+		self.test_createprofile_create_tutor_profile()
+		response = self.client.post(self.url, {})
+		self.assertEquals(response.status_code, 302)
+
+	def test_createprofile_student_profile_exists(self):
+		pass
 
 class TestViewsTutorProfile(TestCase):
 	pass

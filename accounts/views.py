@@ -131,13 +131,27 @@ def createprofile(request):
 		availability["saturday"] = {"morning": False, "afternoon": False, "evening": False}
 		availability["sunday"] = {"morning": False, "afternoon": False, "evening": False}
 
-		TutorProfile.objects.create(user=request.user, userType="TUTOR", summary=summary, about=about, location=None, education=education, subjects=subjects, availability=availability, profilePicture=None)
+		country = Countries.objects.get(alpha=request.POST["country"])
+		location = {
+			"address_1": request.POST["address_1"].strip().title(),
+			"address_2": request.POST["address_2"].strip().title(),
+			"city": request.POST["city"].strip().title(),
+			"stateProvice": request.POST["stateProvice"].strip().title(),
+			"postalZip": request.POST["postalZip"].strip().upper(),
+			"country": {
+				"alpha": country.alpha,
+				"name": country.name
+			}
+		}
+
+		TutorProfile.objects.create(user=request.user, userType="TUTOR", summary=summary, about=about, location=location, education=education, subjects=subjects, availability=availability, profilePicture=None)
 		return redirect("accounts:createprofile")
 
 	if request.method == "POST" and "student" in request.POST:
 		# user is a student
 		pass
-	return render(request,"accounts/createprofile.html", {})
+	countries = Countries.objects.all()
+	return render(request,"accounts/createprofile.html", {"countries": countries})
 
 
 
