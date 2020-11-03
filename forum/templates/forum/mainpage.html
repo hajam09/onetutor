@@ -10,6 +10,22 @@
   width: 65%;
   height: auto;  
 }
+
+.tMyWLFVFbi {
+position: relative; top: -1px; display: inline-block; padding-left: 13px; vertical-align: middle;
+}
+
+.upvote, .downvote{
+	background-color: #ebebeb; border: none; text-align: center; text-decoration: none; display: inline-block;
+}
+
+.upvote:hover{
+	color: green;
+	background-color: white;
+}
+.downvote:hover{
+	color: red;background-color: white;
+}
 </style>
 <div class="container">
 	<div class="modal fade" id="forumModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -54,9 +70,90 @@
 	{% if sub_forums %} {% for forums in sub_forums %}
 		<div>
 			<div class="container mYuVCoYkae">
+				<div class="col-sm-1" style="margin: 0px -18px 10px; display: inline-block;">
+					<div class="row">
+						<button type="button" class="btn btn-default btn-sm upvote" onclick="upvote_sub_forum('{{forums.id}}')">
+							<span class="glyphicon glyphicon-arrow-up"></span>
+						</button>
+					</div>
+					<div class="row">
+						<div id="sub_forums_votes_{{forums.id}}" class="tMyWLFVFbi"></div>
+					</div>
+					<div class="row">
+						<button type="button" class="btn btn-default btn-sm downvote" onclick="downvote_sub_forum('{{forums.id}}')">
+							<span class="glyphicon glyphicon-arrow-down"></span>
+						</button>
+					</div>
+				</div>
+				<!-- <div class="col-sm-11" style="display: inline-block;">
+					<div class="row" style="margin-left: 5px;">A</div>
+					<div class="row" style="margin-left: 5px;">B</div>
+				</div> -->
 			</div>
 		</div>
 		<br><br>
 	{% endfor %} {% endif %}
 </div>
+<script type="text/javascript">
+	window.onload = function() {
+		if ("{{ sub_forums }}") {
+
+			"{% for forums in sub_forums %}"
+				$('#sub_forums_votes_{{forums.id}}').html( parseInt('{{forums.sub_forum_likes.count}}') - parseInt('{{forums.sub_forum_dislikes.count}}') );
+			"{% endfor %}"
+		}
+	}
+
+	function upvote_sub_forum(sub_forum_id) {
+		$.ajax({
+			url: '{% url "forum:upvote_sub_forum" %}',
+			data: {
+				'sub_forum_id': sub_forum_id
+			},
+			dataType: 'json',
+			success: function (response) {
+				console.log(response);
+				if (response.status_code == 200) {
+					var this_sub_forum = eval(response.this_sub_forum)[0];
+					var number_of_likes = this_sub_forum.fields.sub_forum_likes.length;
+					var number_of_dislikes = this_sub_forum.fields.sub_forum_dislikes.length;
+
+					$('#sub_forums_votes_'+sub_forum_id).html(number_of_likes-number_of_dislikes);
+
+	            } else if (response.status_code == 401) {
+	            	alert(response.message);
+
+	            } else if (response.status_code == 403) {
+	            	alert(response.message);
+	            }
+			}
+		});
+	}
+
+	function downvote_sub_forum(sub_forum_id) {
+		$.ajax({
+			url: '{% url "forum:downvote_sub_forum" %}',
+			data: {
+				'sub_forum_id': sub_forum_id
+			},
+			dataType: 'json',
+			success: function (response) {
+				console.log(response);
+				if (response.status_code == 200) {
+					var this_sub_forum = eval(response.this_sub_forum)[0];
+					var number_of_likes = this_sub_forum.fields.sub_forum_likes.length;
+					var number_of_dislikes = this_sub_forum.fields.sub_forum_dislikes.length;
+
+					$('#sub_forums_votes_'+sub_forum_id).html(number_of_likes-number_of_dislikes);
+
+	            } else if (response.status_code == 401) {
+	            	alert(response.message);
+
+	            } else if (response.status_code == 403) {
+	            	alert(response.message);
+	            }
+			}
+		});
+	}
+</script>
 {% endblock %}

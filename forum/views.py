@@ -56,3 +56,73 @@ def forumpage(request, forum_url):
 	# 		anonymous=random_anonymous
 	# 	)
 	return render(request, "forum/forumpage.html", {})
+
+def upvote_sub_forum(request):
+	if not request.is_ajax():
+		response = {
+			"status_code": 403,
+			"message": "Bad Request"
+		}
+		return HttpResponse(json.dumps(response), content_type="application/json")
+
+	if not request.user.is_authenticated:
+		response = {
+			"status_code": 401,
+			"message": "Login to dislike the question and answer. "
+		}
+		return HttpResponse(json.dumps(response), content_type="application/json")
+
+	sub_forum_id = request.GET.get('sub_forum_id', None)
+	user = User.objects.get(id=int(request.user.pk))
+	this_sub_forum = SubForum.objects.get(id=int(sub_forum_id))
+	list_of_liked = SubForum.objects.filter(sub_forum_likes__id=user.pk)
+	list_of_disliked = SubForum.objects.filter(sub_forum_dislikes__id=user.pk)
+
+	if(this_sub_forum not in list_of_liked):
+		user.sub_forum_likes.add(this_sub_forum)
+	else:
+		user.sub_forum_likes.remove(this_sub_forum)
+
+	if(this_sub_forum in list_of_disliked):
+		user.sub_forum_dislikes.remove(this_sub_forum)
+
+	response = {
+		"this_sub_forum": serializers.serialize("json", [this_sub_forum,]),
+		"status_code": 200
+	}
+	return HttpResponse(json.dumps(response), content_type="application/json")
+
+def downvote_sub_forum(request):
+	if not request.is_ajax():
+		response = {
+			"status_code": 403,
+			"message": "Bad Request"
+		}
+		return HttpResponse(json.dumps(response), content_type="application/json")
+
+	if not request.user.is_authenticated:
+		response = {
+			"status_code": 401,
+			"message": "Login to dislike the question and answer. "
+		}
+		return HttpResponse(json.dumps(response), content_type="application/json")
+
+	sub_forum_id = request.GET.get('sub_forum_id', None)
+	user = User.objects.get(id=int(request.user.pk))
+	this_sub_forum = SubForum.objects.get(id=int(sub_forum_id))
+	list_of_liked = SubForum.objects.filter(sub_forum_likes__id=user.pk)
+	list_of_disliked = SubForum.objects.filter(sub_forum_dislikes__id=user.pk)
+
+	if(this_sub_forum not in list_of_disliked):
+		user.sub_forum_dislikes.add(this_sub_forum)
+	else:
+		user.sub_forum_dislikes.remove(this_sub_forum)
+		
+	if(this_sub_forum in list_of_liked):
+		user.sub_forum_likes.remove(this_sub_forum)
+
+	response = {
+		"this_sub_forum": serializers.serialize("json", [this_sub_forum,]),
+		"status_code": 200
+	}
+	return HttpResponse(json.dumps(response), content_type="application/json")
