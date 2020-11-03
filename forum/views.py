@@ -7,7 +7,7 @@ import json, random
 from essential_generators import DocumentGenerator
 from django.contrib.auth.models import User
 
-def mainpage(request):
+def mainpage(request, page_number):
 	if request.method == "POST" and "createForum" in request.POST:
 		if not request.user.is_authenticated:
 			return redirect('accounts:login')
@@ -33,8 +33,15 @@ def mainpage(request):
 			anonymous=anonymous
 		)
 
-	sub_forums = SubForum.objects.all().order_by('-id')
-	return render(request, "forum/mainpage.html", {"sub_forums": sub_forums})
+	sub_forums_all = SubForum.objects.all().order_by('-id')
+	sub_forums = [sub_forums_all[i:i + 10] for i in range(0, len(sub_forums_all), 10)]
+
+	context = {
+		"sub_forums": sub_forums[int(page_number)-1],
+		"pages": len(sub_forums),
+		"current_page": page_number
+	}
+	return render(request, "forum/mainpage.html", context)
 
 def forumpage(request, forum_url):
 	print("ssss")
