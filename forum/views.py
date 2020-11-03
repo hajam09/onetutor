@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from .models import Forum, SubForum#, Comment
 from datetime import datetime
+from django.core import serializers
 from django.http import HttpResponse
 import json, random
 from essential_generators import DocumentGenerator
@@ -36,6 +37,7 @@ def mainpage(request):
 	return render(request, "forum/mainpage.html", {"sub_forums": sub_forums})
 
 def forumpage(request, forum_url):
+	print("ssss")
 	# for i in range(100):
 	# 	gen = DocumentGenerator()
 	# 	random_parent_forum = random.choice(Forum.objects.all())
@@ -54,17 +56,3 @@ def forumpage(request, forum_url):
 	# 		anonymous=random_anonymous
 	# 	)
 	return render(request, "forum/forumpage.html", {})
-
-def like_sub_forum(request):
-	print("like_sub_forum")
-	response = {
-		"status_code": 200
-	}
-	return HttpResponse(json.dumps(response), content_type="application/json")
-
-def dislike_sub_forum(request):
-	print("like_sub_forum")
-	response = {
-		"status_code": 200
-	}
-	return HttpResponse(json.dumps(response), content_type="application/json")
