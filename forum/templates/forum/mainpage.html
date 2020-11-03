@@ -26,6 +26,8 @@ position: relative; top: -1px; display: inline-block; padding-left: 13px; vertic
 .downvote:hover{
 	color: red;background-color: white;
 }
+
+.center { text-align: center; } .pagination { display: inline-block; } .pagination a { color: black; float: left; padding: 8px 16px; text-decoration: none; transition: background-color .3s; border: 1px solid #ddd; margin: 0 4px; } .pagination a.active { background-color: #4CAF50; color: white; border: 1px solid #4CAF50; }
 </style>
 <div class="container">
 	<div class="modal fade" id="forumModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -67,6 +69,7 @@ position: relative; top: -1px; display: inline-block; padding-left: 13px; vertic
 		<div style="color: black; text-align: center;" class="alert {{alert}}" role="alert">{{message}} Click <a href="{{url}}">HERE</a> to check it out!</div>
 	{% endif %} {% endif %} {% endif %}
 	<br><br><br>
+	<!-- TODO: Displaying the sub forums is not in optimal condition. Need a lot of work in CSS.  -->
 	{% if sub_forums %} {% for forums in sub_forums %}
 		<div>
 			<div class="container mYuVCoYkae">
@@ -85,22 +88,40 @@ position: relative; top: -1px; display: inline-block; padding-left: 13px; vertic
 						</button>
 					</div>
 				</div>
-				<!-- <div class="col-sm-11" style="display: inline-block;">
-					<div class="row" style="margin-left: 5px;">A</div>
+				<div class="col-sm-11" style="display: inline-block;">
+					<div class="row" style="margin-left: 5px; margin-top: -13px;">A</div>
+					<div class="row" style="margin-left: 5px; margin-bottom: 40px;"><p>{{forums.forum_title}}</p></div>
 					<div class="row" style="margin-left: 5px;">B</div>
-				</div> -->
+				</div>
 			</div>
 		</div>
 		<br><br>
 	{% endfor %} {% endif %}
+	<div class="center">
+		<div class="pagination">
+			<a href="{% url 'forum:mainpage' current_page|add:'-1' %}" id="previous_page">&laquo;</a>
+			<a href="{% url 'forum:mainpage' current_page|add:'1' %}" id="next_page">&raquo;</a>
+		</div>
+	</div>
 </div>
 <script type="text/javascript">
 	window.onload = function() {
 		if ("{{ sub_forums }}") {
-
 			"{% for forums in sub_forums %}"
 				$('#sub_forums_votes_{{forums.id}}').html( parseInt('{{forums.sub_forum_likes.count}}') - parseInt('{{forums.sub_forum_dislikes.count}}') );
 			"{% endfor %}"
+		}
+
+		// Pagination
+
+		for (var i = 1; i <= {{pages}}; i++) {
+			var new_tag = null;
+			if (i == {{current_page}}) {
+				new_tag = '<a href=/forum/'+i+'/ class="active">'+i+'</a>';
+			} else {
+				new_tag = '<a  href=/forum/'+i+'>'+i+'</a>';
+			}
+			$( new_tag ).insertBefore( "#next_page" );
 		}
 	}
 
