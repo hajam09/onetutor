@@ -54,25 +54,9 @@
 	{% if sub_forums %} {% for forums in sub_forums %}
 		<div>
 			<div class="container mYuVCoYkae">
-				<div class="col-sm-1" style="margin: 0px -31px 10px; display: inline-block;">
-					<div onclick="increaseLikeCount('{{forums.id}}')"><span class="glyphicon glyphicon-arrow-up"></span></div>
-					<div id="sub_forum_like_id_{{forums.id}}" style="position: relative; top: -1px; display: inline-block; padding-left: 4px;">{{forums.sub_forum_likes.count}}</div>
-					<div onclick="increaseDislikeCount('{{forums.id}}')"><span class="glyphicon glyphicon-arrow-down"></span></div>
-				</div>
-				<div class="col-sm-11" style="display: inline-block;">
-					<div class="row" style="margin-left: 5px;">A</div>
-					<div class="row" style="margin-left: 5px;">B</div>
-				</div>
 			</div>
 		</div>
 		<br><br>
 	{% endfor %} {% endif %}
 </div>
-<script type="text/javascript">
-	function increaseLikeCount(sub_forum_id) {
-	}
-
-	function increaseDislikeCount(sub_forum_id) {
-	}
-</script>
 {% endblock %}
