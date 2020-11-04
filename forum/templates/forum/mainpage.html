@@ -66,7 +66,7 @@ position: relative; top: -1px; display: inline-block; padding-left: 13px; vertic
 	</div>
 	<button type="button" class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#forumModal">Start a Forum</button>
 	{% if message %} {% if alert %} {% if url %} 
-		<div style="color: black; text-align: center;" class="alert {{alert}}" role="alert">{{message}} Click <a href="{{url}}">HERE</a> to check it out!</div>
+		<div style="color: black; text-align: center;" class="alert {{alert}}" role="alert">{{message}} Click <a href="{% url 'forum:parentforumpage' forum_url=url page_number=1 %}">HERE</a> to check it out!</div>
 	{% endif %} {% endif %} {% endif %}
 	<br><br><br>
 	<!-- TODO: Displaying the sub forums is not in optimal condition. Need a lot of work in CSS.  -->
@@ -89,7 +89,9 @@ position: relative; top: -1px; display: inline-block; padding-left: 13px; vertic
 					</div>
 				</div>
 				<div class="col-sm-11" style="display: inline-block;">
-					<div class="row" style="margin-left: 5px; margin-top: -13px;">A</div>
+					<div class="row" style="margin-left: 5px; margin-top: -13px;">
+						<a href="{% url 'forum:parentforumpage' forum_url=forums.parent_forum.forum_url page_number=1 %}">{{forums.parent_forum.forum_url}}</a>
+					</div>
 					<div class="row" style="margin-left: 5px; margin-bottom: 40px;"><p>{{forums.forum_title}}</p></div>
 					<div class="row" style="margin-left: 5px;">B</div>
 				</div>
