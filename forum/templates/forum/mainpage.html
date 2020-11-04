@@ -113,13 +113,28 @@ position: relative; top: -1px; display: inline-block; padding-left: 13px; vertic
 		}
 
 		// Pagination
-
+		var list_of_pages = [];
 		for (var i = 1; i <= {{pages}}; i++) {
+			list_of_pages.push(i);
+		}
+		
+		var new_list_of_pages = list_of_pages.slice({{current_page}}-3, {{current_page}}+3);
+
+		while(new_list_of_pages.length==0){
+			new_list_of_pages = list_of_pages.slice({{current_page}}-2, {{current_page}}+4);
+
+			if ({{current_page}} == 1) {
+				new_list_of_pages = list_of_pages.slice(0, 6);
+			}
+			break;
+		}
+
+		for (var i = 0; i < new_list_of_pages.length; i++) {
 			var new_tag = null;
-			if (i == {{current_page}}) {
-				new_tag = '<a href=/forum/'+i+'/ class="active">'+i+'</a>';
+			if (new_list_of_pages[i] == {{current_page}}) {
+				new_tag = '<a href=/forum/'+new_list_of_pages[i]+'/ class="active">'+new_list_of_pages[i]+'</a>';
 			} else {
-				new_tag = '<a  href=/forum/'+i+'>'+i+'</a>';
+				new_tag = '<a  href=/forum/'+new_list_of_pages[i]+'>'+new_list_of_pages[i]+'</a>';
 			}
 			$( new_tag ).insertBefore( "#next_page" );
 		}
