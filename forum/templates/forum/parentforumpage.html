@@ -142,5 +142,57 @@
 			$("#next_page").hide();
 		}
 	}
+
+	function upvote_sub_forum(sub_forum_id) {
+		$.ajax({
+			url: '{% url "forum:upvote_sub_forum" %}',
+			data: {
+				'sub_forum_id': sub_forum_id
+			},
+			dataType: 'json',
+			success: function (response) {
+				console.log(response);
+				if (response.status_code == 200) {
+					var this_sub_forum = eval(response.this_sub_forum)[0];
+					var number_of_likes = this_sub_forum.fields.sub_forum_likes.length;
+					var number_of_dislikes = this_sub_forum.fields.sub_forum_dislikes.length;
+
+					$('#sub_forums_votes_'+sub_forum_id).html(number_of_likes-number_of_dislikes);
+
+	            } else if (response.status_code == 401) {
+	            	alert(response.message);
+
+	            } else if (response.status_code == 403) {
+	            	alert(response.message);
+	            }
+			}
+		});
+	}
+
+	function downvote_sub_forum(sub_forum_id) {
+		$.ajax({
+			url: '{% url "forum:downvote_sub_forum" %}',
+			data: {
+				'sub_forum_id': sub_forum_id
+			},
+			dataType: 'json',
+			success: function (response) {
+				console.log(response);
+				if (response.status_code == 200) {
+					var this_sub_forum = eval(response.this_sub_forum)[0];
+					var number_of_likes = this_sub_forum.fields.sub_forum_likes.length;
+					var number_of_dislikes = this_sub_forum.fields.sub_forum_dislikes.length;
+
+					$('#sub_forums_votes_'+sub_forum_id).html(number_of_likes-number_of_dislikes);
+
+	            } else if (response.status_code == 401) {
+	            	alert(response.message);
+
+	            } else if (response.status_code == 403) {
+	            	alert(response.message);
+	            }
+			}
+		});
+	}
 </script>
 {% endblock %}
