@@ -1,0 +1,146 @@
+{% extends "accounts/account_base.html" %}
+{% load static %}
+{% block content %}
+<style type="text/css">
+	.mYuVCoYkae{border-radius:4px;border:2px solid #8f9685;padding:20px;width:65%;height:auto}.tMyWLFVFbi{position:relative;top:-1px;display:inline-block;padding-left:13px;vertical-align:middle}.downvote,.upvote{background-color:#ebebeb;border:none;text-align:center;text-decoration:none;display:inline-block}.upvote:hover{color:green;background-color:#fff}.downvote:hover{color:red;background-color:#fff}.center{text-align:center}.pagination{display:inline-block}.pagination a{color:#000;float:left;padding:8px 16px;text-decoration:none;transition:background-color .3s;border:1px solid #ddd;margin:0 4px}.pagination a.active{background-color:#4caf50;color:#fff;border:1px solid #4caf50}
+</style>
+<div class="container">
+	<div class="jumbotron">
+		<h1>{{parent_forum.forum_title}}</h1>
+		<p>{{parent_forum.forum_description}}</p>
+	</div>
+	<div class="modal fade" id="forumModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header text-center">
+					<h3 class="modal-title" id="exampleModalLabel" style="display: inline-block;">Create a post in {{parent_forum.forum_title}}</h3>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close" style="display: inline-block;">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<form method="post" enctype="multipart/form-data">
+						{% csrf_token %}
+						<div class="form-group">
+							<label for="post_title" class="col-form-label pull-left">What's the post title?</label>
+							<input name="post_title" type="text" id="post_title" class="form-control validate" placeholder="Post Title" required>
+						</div>
+						<div class="form-group">
+							<label for="post_description" class="col-form-label pull-left">Give it a description:</label>
+							<textarea class="form-control" id="post_description" name="post_description" required></textarea>
+						</div>
+						<div class="form-group">
+							<label class="btn btn-danger" for="my-file-selector">
+								<span class="glyphicon glyphicon-paperclip"></span>&nbsp;&nbsp;
+								<input id="my-file-selector" name="my-file-selector" type="file" style="display:none" onchange="$('#upload-file-info').html(this.files[0].name)"> Choose a File
+							</label>
+							<span class='label label-info' id="upload-file-info"></span>
+						</div>
+						<div>
+							<strong>Anonymous Me</strong>
+							<label class="switch"><input type="checkbox" name="anonymise_me"><span class="slider round"></span></label>
+						</div>
+						<input type="text" name="createSubForum" hidden />
+						<div class="modal-footer">
+							<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+							<button type="submit" class="btn btn-success">Create</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<button type="button" class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#forumModal">Start a Post</button>
+	{% if newForumMessage %} {% if alert %}
+		<div style="color: black; text-align: center;" class="alert {{alert}}" role="alert">{{newForumMessage}}</div>
+	{% endif %} {% endif %}
+	<br><br><br>
+	<!-- TODO: Displaying the sub forums is not in optimal condition. Need a lot of work in CSS.  -->
+	{% if sub_forums %} {% for forums in sub_forums %}
+		<div>
+			<div class="container mYuVCoYkae">
+				<div class="col-sm-1" style="margin: 0px -18px 10px; display: inline-block;">
+					<div class="row">
+						<button type="button" class="btn btn-default btn-sm upvote" onclick="upvote_sub_forum('{{forums.id}}')">
+							<span class="glyphicon glyphicon-arrow-up"></span>
+						</button>
+					</div>
+					<div class="row">
+						<div id="sub_forums_votes_{{forums.id}}" class="tMyWLFVFbi"></div>
+					</div>
+					<div class="row">
+						<button type="button" class="btn btn-default btn-sm downvote" onclick="downvote_sub_forum('{{forums.id}}')">
+							<span class="glyphicon glyphicon-arrow-down"></span>
+						</button>
+					</div>
+				</div>
+				<div class="col-sm-11" style="display: inline-block;">
+					<div class="row" style="margin-left: 5px; margin-top: -13px;">
+						Posted by <a href="#">{{forums.creator.first_name}}</a> at {{forums.created_at}}
+					</div>
+					<div class="row" style="margin-left: 5px; margin-bottom: 40px;"><p>{{forums.forum_title}}</p></div>
+					<div class="row" style="margin-left: 5px;">B</div>
+				</div>
+			</div>
+		</div>
+		<br><br>
+	{% endfor %} {% endif %}
+	<div class="center">
+		<div class="pagination">
+			<a href="{% url 'forum:parentforumpage' forum_url current_page|add:'-1' %}" id="previous_page">&laquo;</a>
+			<a href="{% url 'forum:parentforumpage' forum_url current_page|add:'1' %}" id="next_page">&raquo;</a>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	window.onload = function() {
+		if ("{{ sub_forums }}") {
+			"{% for forums in sub_forums %}"
+				$('#sub_forums_votes_{{forums.id}}').html( parseInt('{{forums.sub_forum_likes.count}}') - parseInt('{{forums.sub_forum_dislikes.count}}') );
+			"{% endfor %}"
+		}
+
+		// Pagination
+		var list_of_pages = [];
+		for (var i = 1; i <= {{pages}}; i++) {
+			list_of_pages.push(i);
+		}
+		console.log(list_of_pages);
+
+		var displaying_pages = [];
+		if (list_of_pages.length <7) {
+			displaying_pages = list_of_pages;
+		} else {
+			displaying_pages = list_of_pages.slice({{current_page}}-3, {{current_page}}+3);
+		}
+
+
+		while(displaying_pages.length==0){
+			displaying_pages = list_of_pages.slice({{current_page}}-2, {{current_page}}+4);
+
+			if ({{current_page}} == 1) {
+				displaying_pages = list_of_pages.slice(0, 6);
+			}
+			break;
+		}
+
+		for (var i = 0; i < displaying_pages.length; i++) {
+			var new_tag = null;
+			if (displaying_pages[i] == {{current_page}}) {
+				new_tag = '<a href=/forum/community/{{forum_url}}/'+displaying_pages[i]+'/ class="active">'+displaying_pages[i]+'</a>';
+			} else {
+				new_tag = '<a  href=/forum/community/{{forum_url}}/'+displaying_pages[i]+'>'+displaying_pages[i]+'</a>';
+			}
+			$( new_tag ).insertBefore( "#next_page" );
+		}
+
+		if (displaying_pages.includes(1)) {
+			$("#previous_page").hide();
+		}
+
+		if (displaying_pages.includes(list_of_pages.slice(-1)[0])) {
+			$("#next_page").hide();
+		}
+	}
+</script>
+{% endblock %}
