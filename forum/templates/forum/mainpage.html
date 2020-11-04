@@ -118,26 +118,36 @@ position: relative; top: -1px; display: inline-block; padding-left: 13px; vertic
 			list_of_pages.push(i);
 		}
 		
-		var new_list_of_pages = list_of_pages.slice({{current_page}}-3, {{current_page}}+3);
+		var displaying_pages = list_of_pages.slice({{current_page}}-3, {{current_page}}+3);
 
-		while(new_list_of_pages.length==0){
-			new_list_of_pages = list_of_pages.slice({{current_page}}-2, {{current_page}}+4);
+		while(displaying_pages.length==0){
+			displaying_pages = list_of_pages.slice({{current_page}}-2, {{current_page}}+4);
 
 			if ({{current_page}} == 1) {
-				new_list_of_pages = list_of_pages.slice(0, 6);
+				displaying_pages = list_of_pages.slice(0, 6);
 			}
 			break;
 		}
 
-		for (var i = 0; i < new_list_of_pages.length; i++) {
+		for (var i = 0; i < displaying_pages.length; i++) {
 			var new_tag = null;
-			if (new_list_of_pages[i] == {{current_page}}) {
-				new_tag = '<a href=/forum/'+new_list_of_pages[i]+'/ class="active">'+new_list_of_pages[i]+'</a>';
+			if (displaying_pages[i] == {{current_page}}) {
+				new_tag = '<a href=/forum/'+displaying_pages[i]+'/ class="active">'+displaying_pages[i]+'</a>';
 			} else {
-				new_tag = '<a  href=/forum/'+new_list_of_pages[i]+'>'+new_list_of_pages[i]+'</a>';
+				new_tag = '<a  href=/forum/'+displaying_pages[i]+'>'+displaying_pages[i]+'</a>';
 			}
 			$( new_tag ).insertBefore( "#next_page" );
 		}
+
+		if (displaying_pages.includes(1)) {
+			$("#previous_page").hide();
+		}
+
+		if (displaying_pages.includes(list_of_pages.slice(-1)[0])) {
+			$("#next_page").hide();
+		}
+
+		console.log(displaying_pages);
 	}
 
 	function upvote_sub_forum(sub_forum_id) {
