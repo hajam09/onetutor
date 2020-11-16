@@ -4,32 +4,10 @@ from datetime import datetime
 from django.core import serializers
 from django.http import HttpResponse
 import json, random
-from essential_generators import DocumentGenerator
 from django.contrib.auth.models import User
-
-def generate_subforum():
-	# for i in range(100):
-	# 	gen = DocumentGenerator()
-	# 	random_community = random.choice(Forum.objects.all())
-	# 	random_creator = random.choice(User.objects.all())
-	# 	random_forum_title = gen.sentence()
-	# 	random_community_url = ''.join(e for e in random_forum_title if e.isalnum())
-	# 	random_forum_description = gen.paragraph()
-	# 	random_anonymous = False
-
-	# 	SubForum.objects.create(
-	# 		community=random_community,
-	# 		creator=random_creator,
-	# 		forum_title=random_forum_title,
-	# 		community_url=random_community_url,
-	# 		forum_description=random_forum_description,
-	# 		anonymous=random_anonymous
-	# 	)
-	return
 
 def mainpage(request, page_number):
 	communities = Community.objects.all().order_by('-community_likes')
-	print(communities)
 
 	if not communities:
 		context = {
@@ -113,11 +91,9 @@ def communitypage(request, community_url, page_number):
 
 	if len(forums) != 0:
 		if int(page_number)<1:
-			print("less thatn 1")
 			return redirect('forum:communitypage', community_url=community_url, page_number=1)
 
 		if int(page_number) > len(forums):
-			print("greate than forums len")
 			return redirect('forum:communitypage', community_url=community_url, page_number=len(forums))
 
 	context = {
@@ -242,7 +218,6 @@ def upvote_forum(request):
 	return HttpResponse(json.dumps(response), content_type="application/json")
 
 def downvote_forum(request):
-	print(request)
 	if not request.is_ajax():
 		response = {
 			"status_code": 403,
