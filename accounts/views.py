@@ -15,7 +15,7 @@ from django.contrib import messages
 from django.core.cache import cache
 from django.http import HttpResponse
 import json, re, os
-from .seedDataInstaller import *
+from .seed_data_installer import *
 
 def login(request):
 	if request.method == "POST":

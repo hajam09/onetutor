@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Forum, SubForum#, Comment
+from .models import Community, Forum
 from datetime import datetime
 from django.core import serializers
 from django.http import HttpResponse
@@ -10,95 +10,90 @@ from django.contrib.auth.models import User
 def generate_subforum():
 	# for i in range(100):
 	# 	gen = DocumentGenerator()
-	# 	random_parent_forum = random.choice(Forum.objects.all())
+	# 	random_community = random.choice(Forum.objects.all())
 	# 	random_creator = random.choice(User.objects.all())
 	# 	random_forum_title = gen.sentence()
-	# 	random_forum_url = ''.join(e for e in random_forum_title if e.isalnum())
+	# 	random_community_url = ''.join(e for e in random_forum_title if e.isalnum())
 	# 	random_forum_description = gen.paragraph()
 	# 	random_anonymous = False
 
 	# 	SubForum.objects.create(
-	# 		parent_forum=random_parent_forum,
+	# 		community=random_community,
 	# 		creator=random_creator,
 	# 		forum_title=random_forum_title,
-	# 		forum_url=random_forum_url,
+	# 		community_url=random_community_url,
 	# 		forum_description=random_forum_description,
 	# 		anonymous=random_anonymous
 	# 	)
 	return
 
 def mainpage(request, page_number):
-	sub_forums_all = SubForum.objects.all().order_by('-sub_forum_likes')
-	sub_forums = [sub_forums_all[i:i + 10] for i in range(0, len(sub_forums_all), 10)]
+	communities = Community.objects.all().order_by('-community_likes')
+	print(communities)
+
+	if not communities:
+		context = {
+			"message": "Looks like you have to create a new community!.",
+			"alert": "alert-info"
+		}
+		return render(request, "forum/mainpage.html", context)
+
+	sub_communities = [communities[i:i + 10] for i in range(0, len(communities), 10)]
 
 	if int(page_number)<1:
 		return redirect('forum:mainpage', page_number=1)
 
-	if int(page_number) > len(sub_forums):
-		return redirect('forum:mainpage', page_number=len(sub_forums))
+	if int(page_number) > len(sub_communities):
+		return redirect('forum:mainpage', page_number=len(sub_communities))
 
-	if request.method == "POST" and "createForum" in request.POST:
+	if request.method == "POST" and "create_community" in request.POST:
 		if not request.user.is_authenticated:
 			return redirect('accounts:login')
 
-		forum_title = request.POST["forum_title"]
-		forum_url = ''.join(e for e in forum_title if e.isalnum())
-		forum_description = request.POST["description"]
+		community_title = request.POST["community_title"]
+		community_url = ''.join(e for e in community_title if e.isalnum())
+		community_description = request.POST["community_description"]
 		anonymous = request.POST.get('anonymise_me', False) == 'on'
 
-		if Forum.objects.filter(forum_url=forum_url).exists():
+		if Community.objects.filter(community_url=community_url).exists():
 			context = {
-				"sub_forums": sub_forums[int(page_number)-1],
-				"pages": len(sub_forums),
+				"sub_communities": sub_communities[int(page_number)-1],
+				"pages": len(sub_communities),
 				"current_page": page_number,
 				"message": "Hey we think a similar forum already exists to what you're creating.",
-				"url": forum_url,
+				"url": community_url,
 				"alert": "alert-info"
 			}
 			return render(request, "forum/mainpage.html", context)
 
-		Forum.objects.create(
+		Community.objects.create(
 			creator = request.user,
-			forum_title = forum_title,
-			forum_url = forum_url,
-			forum_description = forum_description,
+			community_title = community_title,
+			community_url = community_url,
+			community_description = community_description,
 			anonymous=anonymous
 		)
-		request.session['newForumMessage'] = "WOW! It's a new community. Create a sub-forum, upload stuff or do what ever you want. Sky's the limit!"
-		return redirect('forum:parentforumpage', forum_url=forum_url, page_number=1)
+		request.session['new_community_message'] = "WOW! It's a new community. Create a sub-forum, upload stuff or do what ever you want. Sky's the limit!"
+		return redirect('forum:communitypage', community_url=community_url, page_number=1)
 
 	context = {
-		"sub_forums": sub_forums[int(page_number)-1],
-		"pages": len(sub_forums),
+		"sub_communities": sub_communities[int(page_number)-1],
+		"pages": len(sub_communities),
 		"current_page": page_number
 	}
 	return render(request, "forum/mainpage.html", context)
 
-def parentforumpage(request, forum_url, page_number):
-	parent_forum = Forum.objects.get(forum_url=forum_url)
-	sub_forums_all = SubForum.objects.filter(parent_forum=parent_forum).order_by('-id')
-	sub_forums = [sub_forums_all[i:i + 10] for i in range(0, len(sub_forums_all), 10)]
+def communitypage(request, community_url, page_number):
+	community = Community.objects.get(community_url=community_url)
+	forums_all = Forum.objects.filter(community=community).order_by('-id')
+	forums = [forums_all[i:i + 10] for i in range(0, len(forums_all), 10)]
 
-	if int(page_number)<1:
-		return redirect('forum:parentforumpage', forum_url=forum_url, page_number=1)
-
-	if int(page_number) > len(sub_forums):
-		return redirect('forum:parentforumpage', forum_url=forum_url, page_number=len(sub_forums))
-
-	context = {
-		"parent_forum": parent_forum,
-		"sub_forums": sub_forums[int(page_number)-1],
-		"forum_url": forum_url,
-		"current_page": page_number,
-		"pages": len(sub_forums)
-	}
-
-	if request.method == "POST" and "createSubForum" in request.POST:
+	if request.method == "POST" and "create_forum" in request.POST:
 		if not request.user.is_authenticated:
 			return redirect('accounts:login')
 
-		post_title = request.POST["post_title"]
-		post_description = request.POST["post_description"]
+		forum_title = request.POST["forum_title"]
+		forum_description = request.POST["forum_description"]
 		anonymous = request.POST.get('anonymise_me', False) == 'on'
 
 		if "my-file-selector" in request.FILES:
@@ -106,24 +101,42 @@ def parentforumpage(request, forum_url, page_number):
 			# tutorProfile.profilePicture = profilePicture
 			# tutorProfile.save(update_fields=['profilePicture'])
 
-		SubForum.objects.create(
-			parent_forum=parent_forum,
+		Forum.objects.create(
+			community=community,
 			creator=request.user,
-			forum_title = post_title,
-			forum_url=''.join(e for e in post_title if e.isalnum()),
-			forum_description=post_description,
+			forum_title = forum_title,
+			forum_url=''.join(e for e in forum_title if e.isalnum()),
+			forum_description=forum_description,
 			anonymous=anonymous
 		)
-		return redirect('forum:parentforumpage', forum_url=forum_url, page_number=page_number)
+		return redirect('forum:communitypage', community_url=community_url, page_number=page_number)
 
-	if "newForumMessage" in request.session:
-		context["newForumMessage"] = request.session["newForumMessage"]
+	if len(forums) != 0:
+		if int(page_number)<1:
+			print("less thatn 1")
+			return redirect('forum:communitypage', community_url=community_url, page_number=1)
+
+		if int(page_number) > len(forums):
+			print("greate than forums len")
+			return redirect('forum:communitypage', community_url=community_url, page_number=len(forums))
+
+	context = {
+		"community": community,
+		"community_url": community_url,
+		"forums": forums[int(page_number)-1] if len(forums)>0 else [],
+		"current_page": page_number,
+		"pages": len(forums)
+	}
+
+	if "new_community_message" in request.session:
+		context["new_community_message"] = request.session["new_community_message"]
 		context["alert"] = "alert-success"
-		del request.session["newForumMessage"]
+		del request.session["new_community_message"]
 
-	return render(request, "forum/parentforumpage.html", context)
+	return render(request, "forum/communitypage.html", context)
 
-def upvote_sub_forum(request):
+
+def upvote_community(request):
 	if not request.is_ajax():
 		response = {
 			"status_code": 403,
@@ -134,31 +147,31 @@ def upvote_sub_forum(request):
 	if not request.user.is_authenticated:
 		response = {
 			"status_code": 401,
-			"message": "Login to dislike the question and answer. "
+			"message": "Login to vote this community."
 		}
 		return HttpResponse(json.dumps(response), content_type="application/json")
 
-	sub_forum_id = request.GET.get('sub_forum_id', None)
+	community_id = request.GET.get('community_id', None)
 	user = User.objects.get(id=int(request.user.pk))
-	this_sub_forum = SubForum.objects.get(id=int(sub_forum_id))
-	list_of_liked = SubForum.objects.filter(sub_forum_likes__id=user.pk)
-	list_of_disliked = SubForum.objects.filter(sub_forum_dislikes__id=user.pk)
+	this_community = Community.objects.get(id=int(community_id))
+	list_of_liked = Community.objects.filter(community_likes__id=user.pk)
+	list_of_disliked = Community.objects.filter(community_dislikes__id=user.pk)
 
-	if(this_sub_forum not in list_of_liked):
-		user.sub_forum_likes.add(this_sub_forum)
+	if(this_community not in list_of_liked):
+		user.community_likes.add(this_community)
 	else:
-		user.sub_forum_likes.remove(this_sub_forum)
+		user.community_likes.remove(this_community)
 
-	if(this_sub_forum in list_of_disliked):
-		user.sub_forum_dislikes.remove(this_sub_forum)
+	if(this_community in list_of_disliked):
+		user.community_dislikes.remove(this_community)
 
 	response = {
-		"this_sub_forum": serializers.serialize("json", [this_sub_forum,]),
+		"this_community": serializers.serialize("json", [this_community,]),
 		"status_code": 200
 	}
 	return HttpResponse(json.dumps(response), content_type="application/json")
 
-def downvote_sub_forum(request):
+def downvote_community(request):
 	if not request.is_ajax():
 		response = {
 			"status_code": 403,
@@ -169,26 +182,97 @@ def downvote_sub_forum(request):
 	if not request.user.is_authenticated:
 		response = {
 			"status_code": 401,
-			"message": "Login to dislike the question and answer. "
+			"message": "Login to vote this community."
 		}
 		return HttpResponse(json.dumps(response), content_type="application/json")
 
-	sub_forum_id = request.GET.get('sub_forum_id', None)
+	community_id = request.GET.get('community_id', None)
 	user = User.objects.get(id=int(request.user.pk))
-	this_sub_forum = SubForum.objects.get(id=int(sub_forum_id))
-	list_of_liked = SubForum.objects.filter(sub_forum_likes__id=user.pk)
-	list_of_disliked = SubForum.objects.filter(sub_forum_dislikes__id=user.pk)
+	this_community = Community.objects.get(id=int(community_id))
+	list_of_liked = Community.objects.filter(community_likes__id=user.pk)
+	list_of_disliked = Community.objects.filter(community_dislikes__id=user.pk)
 
-	if(this_sub_forum not in list_of_disliked):
-		user.sub_forum_dislikes.add(this_sub_forum)
+	if(this_community not in list_of_disliked):
+		user.community_dislikes.add(this_community)
 	else:
-		user.sub_forum_dislikes.remove(this_sub_forum)
+		user.community_dislikes.remove(this_community)
 		
-	if(this_sub_forum in list_of_liked):
-		user.sub_forum_likes.remove(this_sub_forum)
+	if(this_community in list_of_liked):
+		user.community_likes.remove(this_community)
 
 	response = {
-		"this_sub_forum": serializers.serialize("json", [this_sub_forum,]),
+		"this_community": serializers.serialize("json", [this_community,]),
+		"status_code": 200
+	}
+	return HttpResponse(json.dumps(response), content_type="application/json")
+
+def upvote_forum(request):
+	if not request.is_ajax():
+		response = {
+			"status_code": 403,
+			"message": "Bad Request"
+		}
+		return HttpResponse(json.dumps(response), content_type="application/json")
+
+	if not request.user.is_authenticated:
+		response = {
+			"status_code": 401,
+			"message": "Login to vote this forum."
+		}
+		return HttpResponse(json.dumps(response), content_type="application/json")
+
+	forum_id = request.GET.get('forum_id', None)
+	user = User.objects.get(id=int(request.user.pk))
+	this_forum = Forum.objects.get(id=int(forum_id))
+	list_of_liked = Forum.objects.filter(forum_likes__id=user.pk)
+	list_of_disliked = Forum.objects.filter(forum_dislikes__id=user.pk)
+
+	if(this_forum not in list_of_liked):
+		user.forum_likes.add(this_forum)
+	else:
+		user.forum_likes.remove(this_forum)
+
+	if(this_forum in list_of_disliked):
+		user.forum_dislikes.remove(this_forum)
+
+	response = {
+		"this_forum": serializers.serialize("json", [this_forum,]),
+		"status_code": 200
+	}
+	return HttpResponse(json.dumps(response), content_type="application/json")
+
+def downvote_forum(request):
+	print(request)
+	if not request.is_ajax():
+		response = {
+			"status_code": 403,
+			"message": "Bad Request"
+		}
+		return HttpResponse(json.dumps(response), content_type="application/json")
+
+	if not request.user.is_authenticated:
+		response = {
+			"status_code": 401,
+			"message": "Login to vote this community."
+		}
+		return HttpResponse(json.dumps(response), content_type="application/json")
+
+	forum_id = request.GET.get('forum_id', None)
+	user = User.objects.get(id=int(request.user.pk))
+	this_forum = Forum.objects.get(id=int(forum_id))
+	list_of_liked = Forum.objects.filter(forum_likes__id=user.pk)
+	list_of_disliked = Forum.objects.filter(forum_dislikes__id=user.pk)
+
+	if(this_forum not in list_of_disliked):
+		user.forum_dislikes.add(this_forum)
+	else:
+		user.forum_dislikes.remove(this_forum)
+		
+	if(this_forum in list_of_liked):
+		user.forum_likes.remove(this_forum)
+
+	response = {
+		"this_forum": serializers.serialize("json", [this_forum,]),
 		"status_code": 200
 	}
 	return HttpResponse(json.dumps(response), content_type="application/json")

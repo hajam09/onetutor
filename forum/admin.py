@@ -1,6 +1,5 @@
 from django.contrib import admin
-from .models import Forum, SubForum#, Comment
+from .models import Community, Forum
 
+admin.site.register(Community)
 admin.site.register(Forum)
-admin.site.register(SubForum)
-# admin.site.register(Comment)
