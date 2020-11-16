@@ -2,6 +2,7 @@ from .models import Countries, Subject, TutorProfile
 import json
 from pathlib import Path
 from django.contrib.auth.models import User
+from forum.models import Community, Forum
 
 # 
 import names
@@ -72,11 +73,32 @@ def installSubjects():
 			Subject.objects.create(name=i)
 	return
 
+def installForum():
+	for i in range(100):
+		gen = DocumentGenerator()
+		random_community = random.choice(Community.objects.all())
+		random_creator = random.choice(User.objects.all())
+		random_forum_title = gen.sentence()
+		random_forum_url = ''.join(e for e in random_forum_title if e.isalnum())
+		random_forum_description = gen.paragraph()
+		random_anonymous = False
+
+		Forum.objects.create(
+			community=random_community,
+			creator=creator,
+			forum_title=random_forum_title,
+			forum_url=random_forum_url,
+			forum_description=random_forum_description,
+			anonymous=anonymous
+		)
+	return
+
 def main():
 	installCountries()
 	installTutor()
 	installSubjects()
 	# installTutorFromFaker()
+	# installForum()
 	return
 
 main()
