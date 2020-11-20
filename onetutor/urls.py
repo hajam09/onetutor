@@ -25,5 +25,7 @@ urlpatterns = [
     path('', include('tutoring.urls')),
 ]
 
+handler404 = 'accounts.views.not_found_page'
+
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

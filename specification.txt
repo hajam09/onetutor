@@ -3,13 +3,10 @@ Feature:
 * On user profile, allow user to delete their account. Send an email for their confirmation code.
 * On my students, create a chat page to allow direct communication between the tutor and the student(s).
 * Create a form to allow students to create a profile.
-* Display a custom 404 page for the application.
 * Allow only students to rate tutors given the tutor has tutored the student.
 * Create a copyright footer for the application.
 * Write Cucumber tests for various Views
 * Test if HTML forms can be passed via arguments.
-* Create/Update Terms&Conditions on the registrations page.
-* Create/Update Privacy Policy on the registrations page.
 
 Bugs / Fixes:
 * On login and logout, redirect the user to their previous page if possible.

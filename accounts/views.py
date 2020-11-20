@@ -299,6 +299,9 @@ def rules(request, rule_type):
 	if rule_type == "terms_and_conditions":
 		return render(request,"accounts/termsandconditions.html", {})
 
+def not_found_page(request, *args, **argv):
+	return render(request,"accounts/404.html", {})
+
 def activateaccount(request, uidb64, token):
 	try:
 		uid = force_text(urlsafe_base64_decode(uidb64))
