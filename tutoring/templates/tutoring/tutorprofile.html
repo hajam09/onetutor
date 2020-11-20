@@ -15,6 +15,10 @@
 		    width: 1500px;
 		}
 	}
+
+	.mtgtlDwEfX {
+		font-size: 12px; padding: 3px 8px; border-radius: 4px; text-align: center; color: #fff; background-color: #000; opacity: .64;
+	}
 </style>
 <div class="container">
 	<div class="row profile">
@@ -224,14 +228,14 @@
 					                        </div>
 					                        <div class="col-xs-6">
 					                           <h3>Subjects</h3>
-					                           <div style="display: flex; flex-flow: row wrap;">
-					                              {% for subject in tutorProfile.subjects %}
-					                              <a href="" style="margin: 0 10px 10px 0;">
-					                                 <dir style="font-size: 12px; padding: 3px 8px; border-radius: 4px; text-align: center; color: #fff; background-color: #000; opacity: .64;">
+					                           <div style="display: flex; flex-flow: row wrap;" id="list_of_subjects">
+					                              <!-- {% for subject in tutorProfile.subjects %}
+					                              <a href="/subject_tag/{{subject}}" style="margin: 0 10px 10px 0;">
+					                                 <dir class="mtgtlDwEfX">
 					                                    {{ subject }}
 					                                 </dir>
 					                              </a>
-					                              {% endfor %}
+					                              {% endfor %} -->
 					                           </div>
 					                        </div>
 					                     </div>
@@ -311,6 +315,21 @@
 			location.href="#question_answer_id_{{ activeQuestion }}";
 		}
 		calculate_moments();
+		update_subjects();
+	}
+
+	function update_subjects() {
+		{% for subject in tutorProfile.subjects %}
+			var subject_name = "{{subject}}".replace(/\s+/g, '-');
+			var subject_item = `
+				<a href="/subject_tag/`+subject_name+`" style="margin: 0 10px 10px 0;">
+					 <dir class="mtgtlDwEfX">
+					 	{{ subject }}
+					 </dir>
+				</a>
+			`;
+			$( "#list_of_subjects" ).append( subject_item );
+		{% endfor %}
 	}
 
 	function updateAnswerModal(questionId, questionText, answerText) {
