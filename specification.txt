@@ -1,5 +1,4 @@
 Feature:
-* Display tutors who teach the subjects when subject tag is clicked in tutor/student profile.
 * Use SweetAlert2 to customise alerts.
 * On user profile, allow user to delete their account. Send an email for their confirmation code.
 * On my students, create a chat page to allow direct communication between the tutor and the student(s).
