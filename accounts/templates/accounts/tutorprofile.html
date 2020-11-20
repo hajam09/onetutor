@@ -10,6 +10,11 @@
       }
    }
    .qaSubjects{margin: -13px 10px 10px 0; font-size: 12px; padding: 3px 8px; border-radius: 4px; text-align: center; color: #fff; background-color: #000; opacity: .64;}
+
+   .mtgtlDwEfX {
+      font-size: 12px; padding: 3px 8px; border-radius: 4px; text-align: center; color: #fff; background-color: #000; opacity: .64;
+
+   }
 </style>
 <div class="container">
    <div class="row">
@@ -130,14 +135,14 @@
                         </div>
                         <div class="col-xs-6">
                            <h3>Subjects</h3>
-                           <div style="display: flex; flex-flow: row wrap;">
-                              {% for subject in tutorProfile.subjects %}
+                           <div style="display: flex; flex-flow: row wrap;" id="list_of_subjects">
+                              <!-- {% for subject in tutorProfile.subjects %}
                               <a href="" style="margin: 0 10px 10px 0;">
-                                 <dir style="font-size: 12px; padding: 3px 8px; border-radius: 4px; text-align: center; color: #fff; background-color: #000; opacity: .64;">
+                                 <dir class="mtgtlDwEfX">
                                     {{ subject }}
                                  </dir>
                               </a>
-                              {% endfor %}
+                              {% endfor %} -->
                            </div>
                         </div>
                      </div>
@@ -336,6 +341,7 @@
 <script type="text/javascript">
 	$(document).ready(function () {
 		$('.pass_show').append('<span class="ptxt">Show</span>');
+      update_subjects();
 	});
 
 
@@ -348,5 +354,19 @@
 		});
 
 	});
+
+   function update_subjects() {
+      {% for subject in tutorProfile.subjects %}
+         var subject_name = "{{subject}}".replace(/\s+/g, '-');
+         var subject_item = `
+            <a href="/subject_tag/`+subject_name+`" style="margin: 0 10px 10px 0;">
+                <dir class="mtgtlDwEfX">
+                  {{ subject }}
+                </dir>
+            </a>
+         `;
+         $( "#list_of_subjects" ).append( subject_item );
+      {% endfor %}
+   }
 </script>
 {% endblock %}

@@ -53,7 +53,7 @@ def viewtutorprofile(request, tutorId):
 	except TutorProfile.DoesNotExist:
 		return redirect("tutoring:mainpage")
 	
-	tutorProfile.subjects = tutorProfile.subjects.split(",")
+	tutorProfile.subjects = tutorProfile.subjects.replace(", ", ",").split(",")
 	context = {
 		"tutorProfile": tutorProfile,
 		"subjects": Subject.objects.all()
@@ -157,6 +157,22 @@ def dislike_comment(request):
 		"status_code": 200
 	}
 	return HttpResponse(json.dumps(response), content_type="application/json")
+
+def subject_tag(request, tag_name):
+	tutor_list = TutorProfile.objects.filter(subjects__icontains=tag_name)
+
+	list_of_subjects = []
+
+	for tutors in tutor_list:
+		list_subject = tutors.subjects.replace(", ", ",").split(",")
+		unique_subjects = [subject for subject in list_subject if subject not in list_of_subjects]
+		list_of_subjects.extend(unique_subjects)
+	
+	context = {
+		"tutor_list": tutor_list,
+		"list_of_subjects": list_of_subjects
+	}
+	return render(request, "tutoring/resultbysubjects.html", context)
 
 @deprecated(version='1.2.1', reason="Prevents linebreaksbr tag to be applied to the question and answer textfield.")
 def post_question_for_tutor(request):

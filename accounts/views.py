@@ -162,7 +162,7 @@ def tutorprofile(request):
 	except TutorProfile.DoesNotExist:
 		return redirect("accounts:createprofile")
 	
-	tutorProfile.subjects = tutorProfile.subjects.split(",")
+	tutorProfile.subjects = tutorProfile.subjects.replace(", ", ",").split(",")
 	countries = Countries.objects.all()
 
 	questionAndAnswers = QuestionAnswer.objects.filter(answerer=tutorProfile.user).order_by('-id')
