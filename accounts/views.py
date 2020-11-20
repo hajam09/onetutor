@@ -293,6 +293,12 @@ def profile(request):
 
 	return
 
+def rules(request, rule_type):
+	if rule_type == "privacy_policy":
+		return render(request,"accounts/privacypolicy.html", {})
+	if rule_type == "terms_and_conditions":
+		return render(request,"accounts/termsandconditions.html", {})
+
 def activateaccount(request, uidb64, token):
 	try:
 		uid = force_text(urlsafe_base64_decode(uidb64))
