@@ -281,7 +281,7 @@
 									{% if questionAndAnswers %} {% for qa in questionAndAnswers %}
 										<div class="container">
 											<div id="question_answer_id_{{qa.id}}">
-												<a href="#" class="qaSubjects" style="display:inline-block;">{{ qa.subject }}</a>
+												<a href="/subject_tag/{{qa.subject}}" class="qaSubjects" style="display:inline-block;">{{ qa.subject }}</a>
 												{{ qa.questioner.first_name }} {{ qa.questioner.last_name }} asked a question at
 												<p style="display:inline-block;" id="tool_tip_date_{{qa.id}}" data-toggle="tooltip" data-placement="top">{{ qa.date }}</p>
 											</div>
