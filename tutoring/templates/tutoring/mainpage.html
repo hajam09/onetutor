@@ -71,12 +71,12 @@
 					</div>
             	</div>
             	<div class="col-xs-8 sidebar-box" style="height: 108px;">
-            		<a style="cursor: pointer; text-decoration: none;" href="{% url 'tutoring:viewtutorprofile' tutor.pk  %}">
+            		<a style="cursor: pointer; text-decoration: none;" href="{% url 'tutoring:viewtutorprofile' tutor.secondary_key %}">
             			<h4>{{ tutor.user.first_name }} {{ tutor.user.last_name }}</h4>
             			<p> {{ tutor.summary }}</p>
             			<p> {{ tutor.about|truncatechars:122 }}</p>
             		</a>
-            		<p class="read-more"><a href="{% url 'tutoring:viewtutorprofile' tutor.pk  %}" class="button"><span class="badge badge-pill badge-light">Read More</span></a></p>
+            		<p class="read-more"><a href="{% url 'tutoring:viewtutorprofile' tutor.secondary_key %}" class="button"><span class="badge badge-pill badge-light">Read More</span></a></p>
             	</div>
             	<div class="col-xs-2"> TWO </div>
             </div>

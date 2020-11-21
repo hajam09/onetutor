@@ -183,17 +183,17 @@ class TestViewsViewTutorProfile(TestCase):
 
 	def setUp(self):
 		self.client = Client()
-		self.url = reverse('tutoring:viewtutorprofile', kwargs={'tutorId':1})
 		self.tutor_1 = self.create_user("barry.allen@yahoo.com", "barry.allen@yahoo.com", "RanDomPasWord56", "Barry", "Allen")
 		self.tutor_1_profile = self.create_tutor_profile(self.tutor_1, "summary 1", "about 1", "English, Maths")
 		self.tutor_2 = self.create_user("oliver.queen@yahoo.com", "oliver.queen@yahoo.com", "RanDomPasWord56", "Oliver", "Queen")
 		self.tutor_2_profile = self.create_tutor_profile(self.tutor_2, "summary 2", "about 2", "English, ICT, RE")
+		self.url = reverse('tutoring:viewtutorprofile', kwargs={'tutor_secondary_key':self.tutor_1_profile.secondary_key})
 
 	def test_viewtutorprofile_does_not_exist(self):
 		"""
 			Searching for a tutor that does not exist in the db.
 		"""
-		self.url = reverse('tutoring:viewtutorprofile', kwargs={'tutorId':99})
+		self.url = reverse('tutoring:viewtutorprofile', kwargs={'tutor_secondary_key':'cd4df0b5-7500-4f97-83eb-586768a9c265'})
 		response = self.client.get(self.url, {})
 		self.assertEqual(response.status_code, 302)
 		self.assertRedirects(response, '/')

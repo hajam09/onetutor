@@ -47,9 +47,9 @@ def mainpage(request):
 
 	return render(request, "tutoring/mainpage.html", {})
 
-def viewtutorprofile(request, tutorId):
+def viewtutorprofile(request, tutor_secondary_key):
 	try:
-		tutorProfile = TutorProfile.objects.get(pk=tutorId)
+		tutorProfile = TutorProfile.objects.get(secondary_key=tutor_secondary_key)
 	except TutorProfile.DoesNotExist:
 		return redirect("tutoring:mainpage")
 	
