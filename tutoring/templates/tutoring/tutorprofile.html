@@ -355,10 +355,18 @@
 					$('#comment_dislike_id_'+commentId).html('<span class="glyphicon glyphicon-thumbs-down"></span> ('+ number_of_dislikes +')');
 
 	            } else if (response.status_code == 401) {
-	            	alert(response.message);
+	            	Swal.fire({
+	            		icon: 'warning',
+	            		title: "Can't do that!",
+	            		text: response.message
+	            	});
 
 	            } else if (response.status_code == 403) {
-	            	alert(response.message);
+	            	Swal.fire({
+	            		icon: 'error',
+	            		title: "Can't do that!",
+	            		text: response.message
+	            	});
 	            }
 			}
 		});
@@ -381,10 +389,18 @@
 					$('#comment_dislike_id_'+commentId).html('<span class="glyphicon glyphicon-thumbs-down"></span> ('+ number_of_dislikes +')');
 
 				} else if (response.status_code == 401) {
-	            	alert(response.message);
+	            	Swal.fire({
+	            		icon: 'warning',
+	            		title: "Can't do that!",
+	            		text: response.message
+	            	});
 
 	            } else if (response.status_code == 403) {
-	            	alert(response.message);
+	            	Swal.fire({
+	            		icon: 'error',
+	            		title: "Can't do that!",
+	            		text: response.message
+	            	});
 	            }
 			}
 		});
