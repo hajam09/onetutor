@@ -4,73 +4,87 @@
 <link rel="stylesheet" type="text/css" href="{% static 'css/tab_pane.css' %}" />
 <style type="text/css">
    .nav-tabs>li{width:100%;text-align:center}.card_2::after{clear:both;display:block;content:""}.checkbox-label{display:block;position:relative;margin:auto;cursor:pointer;font-size:22px;line-height:24px;height:24px;width:24px;clear:both}.checkbox-label input{position:absolute;opacity:0;cursor:pointer}.checkbox-label .checkbox-custom{position:absolute;top:0;left:0;height:24px;width:24px;background-color:transparent;border-radius:5px;transition:all .3s ease-out;-webkit-transition:all .3s ease-out;-moz-transition:all .3s ease-out;-ms-transition:all .3s ease-out;-o-transition:all .3s ease-out;border:2px solid #fff}.checkbox-label input:checked~.checkbox-custom{background-color:#fff;border-radius:5px;-webkit-transform:rotate(0deg) scale(1);-ms-transform:rotate(0deg) scale(1);transform:rotate(0deg) scale(1);opacity:1;border:2px solid #fff}.checkbox-label .checkbox-custom::after{position:absolute;content:"";left:12px;top:12px;height:0;width:0;border-radius:5px;border:solid #009bff;border-width:0 3px 3px 0;-webkit-transform:rotate(0deg) scale(0);-ms-transform:rotate(0deg) scale(0);transform:rotate(0deg) scale(0);opacity:1;transition:all .3s ease-out;-webkit-transition:all .3s ease-out;-moz-transition:all .3s ease-out;-ms-transition:all .3s ease-out;-o-transition:all .3s ease-out}.checkbox-label input:checked~.checkbox-custom::after{-webkit-transform:rotate(45deg) scale(1);-ms-transform:rotate(45deg) scale(1);transform:rotate(45deg) scale(1);opacity:1;left:8px;top:3px;width:6px;height:12px;border:solid #009bff;border-width:0 2px 2px 0;background-color:transparent;border-radius:0}.checkbox-label .checkbox-custom::before{position:absolute;content:"";left:10px;top:10px;width:0;height:0;border-radius:5px;border:2px solid #fff;-webkit-transform:scale(0);-ms-transform:scale(0);transform:scale(0)}.checkbox-label input:checked~.checkbox-custom::before{left:-3px;top:-3px;width:24px;height:24px;border-radius:5px;-webkit-transform:scale(3);-ms-transform:scale(3);transform:scale(3);opacity:0;z-index:999;transition:all .3s ease-out;-webkit-transition:all .3s ease-out;-moz-transition:all .3s ease-out;-ms-transition:all .3s ease-out;-o-transition:all .3s ease-out}.checkbox-label .checkbox-custom.circular{border-radius:50%;border:2px solid purple}.checkbox-label input:checked~.checkbox-custom.circular{background-color:#fff;border-radius:50%;border:2px solid #fff}.checkbox-label input:checked~.checkbox-custom.circular::after{border:solid #0067ff;border-width:0 2px 2px 0}.checkbox-label .checkbox-custom.circular::after{border-radius:50%}.checkbox-label .checkbox-custom.circular::before{border-radius:50%;border:2px solid #fff}.checkbox-label input:checked~.checkbox-custom.circular::before{border-radius:50%}
-   @media (min-width: 1200px){
-		.container {
-		    width: 1500px;
-		}
-	}
+    @media (min-width: 1200px){
+      .container {
+          width: 1600px;
+      }
+      .wrapper {
+         width: 75%;
+      }
+   }body{color: black;}
 </style>
-<div class="container">
-   <div class="row">
-	  <div class="col-md-12">
-		 <!-- Nav tabs -->
-		 <div class="card">
-			<ul class="nav nav-tabs" role="tablist">
-			   <li role="presentation" class="active"><a href="#tutor" aria-controls="tutor" role="tab" data-toggle="tab"> <span>I am a tutor</span></a></li>
-			</ul>
-			<!-- Tab panes -->
-			<div class="tab-content">
-			   <div role="tabpanel" class="tab-pane active" id="tutor">
-				  <form method="post">
-					 {% csrf_token %}
-					 <div class="form-group">
-						<h2 for="summary">Summary</h2>
-						<input type="text" class="form-control" id="summary" name="summary" value="{{tutorProfile.summary}}" required>
-					 </div>
-					 <hr>
-					 <div class="form-group">
-						<h2 for="about">About</h2>
-						<textarea class="form-control" id="about" name="about" rows="15" required>{{ tutorProfile.about }}</textarea>
-					</div>
-					 <hr>
-					 <div class="form-group" id="education">
-						<h2 for="education" style="display:inline;">Education</h2>
-						<div id="listOfEducation">
-							{% for key,value in tutorProfile.education.items %}
-								<div class="row" id="education_{{ forloop.counter }}">
-									<div class="col-sm-4 panel-pad-10">
-										<div class="panel panel-default">
-											<input type="text" class="form-control" id="school_name_{{ forloop.counter }}" name="school_name_{{ forloop.counter }}" placeholder="School Name" value="{{value.school_name}}" required>
-										</div>
-									</div>
-									<div class="col-sm-4 panel-pad-10">
-										<div class="panel panel-default">
-											<input type="text" class="form-control" id="qualification_{{ forloop.counter }}" name="qualification_{{ forloop.counter }}" placeholder="Qualification & Grade(s)" value="{{value.qualification}}" required>
-										</div>
-									</div>
-									<div class="col-sm-4 panel-pad-10">
-										<div class="panel panel-default">
-											<input type="text" class="form-control" id="year_{{ forloop.counter }}" name="year_{{ forloop.counter }}" placeholder="Attended Years" value="{{value.year}}" required>
-										</div>
-									</div>
-								</div>
-							{% endfor %}
-						</div>
-						<button type="button" class="btn btn-primary btn-sm" onclick="addEducationRow();">Add another</button>
-					 </div>
-					 <hr>
-					 <div class="form-group">
-						<h2 for="availability">Availability</h2>
-						<table class="table" id="availabilitySchedule" style="width: auto;">
-						    <thead>
-						        <tr>
-						            <th scope="col"></th>
-						            <th scope="col">Morning</th>
-						            <th scope="col">Afternoon</th>
-						            <th scope="col">Evening</th>
-						        </tr>
-						    </thead>
-						    <tbody>
+<div class="wrapper" style="margin: auto;">
+<br>
+	<div class="container-fluid">
+	    <div class="row">
+	        <div class="col-lg-12">
+	            <!-- Nav tabs -->
+	            <div class="card">
+	                <ul class="nav nav-tabs" role="tablist">
+	                    <li role="presentation" class="active nav-item"><a href="#tutor" aria-controls="tutor" role="tab" data-toggle="tab" class="nav-link"> <span>I am a tutor</span></a>
+	                    </li>
+	                </ul>
+	                <!-- Tab panes -->
+	                <div class="tab-content">
+	                    <div role="tabpanel" class="tab-pane active" id="tutor">
+	                        <form method="post">
+	                            {% csrf_token %}
+	                            <div class="form-group">
+	                                <h2 for="summary">Summary</h2>
+	                                <input type="text" class="form-control" id="summary" name="summary" value="{{tutorProfile.summary}}"
+	                                    required>
+	                            </div>
+	                            <hr>
+	                            <div class="form-group">
+	                                <h2 for="about">About</h2>
+	                                <textarea class="form-control autosize" id="about" name="about" rows="15" required>{{ tutorProfile.about }}</textarea>
+	                            </div>
+	                            <hr>
+	                            <div class="form-group" id="education">
+	                                <h2 for="education" style="display:inline;">Education</h2>
+	                                <div id="listOfEducation">
+	                                    {% for key,value in tutorProfile.education.items %}
+	                                    <div class="row" id="education_{{ forloop.counter }}">
+	                                        <div class="col-md-4 panel-pad-10">
+	                                            <div class="card">
+	                                                <input type="text" class="form-control" id="school_name_{{ forloop.counter }}"
+	                                                    name="school_name_{{ forloop.counter }}" placeholder="School Name" value="{{value.school_name}}"
+	                                                    required>
+	                                            </div>
+	                                        </div>
+	                                        <div class="col-md-4 panel-pad-10">
+	                                            <div class="card">
+	                                                <input type="text" class="form-control" id="qualification_{{ forloop.counter }}"
+	                                                    name="qualification_{{ forloop.counter }}" placeholder="Qualification &amp; Grade(s)"
+	                                                    value="{{value.qualification}}" required>
+	                                            </div>
+	                                        </div>
+	                                        <div class="col-md-4 panel-pad-10">
+	                                            <div class="card">
+	                                                <input type="text" class="form-control" id="year_{{ forloop.counter }}"
+	                                                    name="year_{{ forloop.counter }}" placeholder="Attended Years" value="{{value.year}}"
+	                                                    required>
+	                                            </div>
+	                                        </div>
+	                                    </div>
+	                                    {% endfor %}
+	                                </div>
+	                                <button type="button" class="btn btn-primary btn-sm"
+	                                    onclick="addEducationRow();">Add another</button>
+	                            </div>
+	                            <hr>
+	                            <div class="form-group">
+	                                <h2 for="availability">Availability</h2>
+	                                <table class="table" id="availabilitySchedule" style="width: auto;">
+	                                    <thead>
+	                                        <tr>
+	                                            <th scope="col"></th>
+	                                            <th scope="col">Morning</th>
+	                                            <th scope="col">Afternoon</th>
+	                                            <th scope="col">Evening</th>
+	                                        </tr>
+	                                    </thead>
+	                                    <tbody>
 						    	{% for key,value in tutorProfile.availability.items %}
 						    		<tr>
 										<th style="vertical-align: middle;" scope="row">{{key|title}}</th>
@@ -139,26 +153,36 @@
 										</td>
 						    	{% endfor %}
 						    </tbody>
-						</table>
-					</div>
-					 <hr>
-					 <div class="form-group">
-						<h2 for="subjects">Subjects</h2>
-						<input type="text" class="form-control" id="subjects" name="subjects" placeholder="English, Maths, Science, Geography, ..." value="{{tutorProfile.subjects}}" required>
-					 </div>
-					<div class="form-group" id="outer" style="width:100%; text-align: center;">
-						<div class="inner" style="display: inline-block;"><button type="submit" class="btn btn-success btn-lg" >Save</button></div>&nbsp;
-						<div class="inner" style="display: inline-block;"><button type="reset" class="btn btn-secondary btn-lg">Reset</button></div>&nbsp;
-						<div class="inner" style="display: inline-block;"><a href="{% url 'accounts:profile' %}" class="btn btn-danger btn-lg">Cancel</a></div>
-					</div>
-					 <input type="hidden" name="numberOfEducation" value="1">
-					 <input type="hidden" name="updateTutorProfile">
-				  </form>
-			   </div>
-			</div>
-		 </div>
-	  </div>
-   </div>
+	                                </table>
+	                            </div>
+	                            <hr>
+	                            <div class="form-group">
+	                                <h2 for="subjects">Subjects</h2>
+	                                <input type="text" class="form-control" id="subjects" name="subjects"
+	                                    placeholder="English, Maths, Science, Geography, ..." value="{{tutorProfile.subjects}}"
+	                                    required>
+	                            </div>
+	                            <div class="form-group" id="outer" style="width:100%; text-align: center;">
+	                                <div class="inner" style="display: inline-block;">
+	                                    <button type="submit" class="btn btn-success btn-lg">Save</button>
+	                                </div>
+	                                &#xA0;
+	                                <div class="inner" style="display: inline-block;">
+	                                    <button type="reset" class="btn btn-secondary btn-lg">Reset</button>
+	                                </div>
+	                                &#xA0;
+	                                <div class="inner" style="display: inline-block;"><a href="{% url 'accounts:profile' %}" class="btn btn-danger btn-lg">Cancel</a>
+	                                </div>
+	                            </div>
+	                            <input type="hidden" name="numberOfEducation" value="1">
+	                            <input type="hidden" name="updateTutorProfile">
+	                        </form>
+	                    </div>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+	</div>
 </div>
 <script type="text/javascript">
 	var numberOfEducation = {{ tutorProfile.education|length }};
@@ -170,21 +194,25 @@
 		addRemoveEducationBtn();
 		numberOfEducation = numberOfEducation + 1;
 		var newRow = `<div class="row" id="education_{educationCounter}">
-						<div class="col-sm-4 panel-pad-10">
-							<div class="panel panel-default">
-								<input type="text" class="form-control" id="school_name_{educationCounter}" name="school_name_{educationCounter}" placeholder="School Name" required>
-							</div>
-						</div>
-						<div class="col-sm-4 panel-pad-10">
-							<div class="panel panel-default">
-								<input type="text" class="form-control" id="qualification_{educationCounter}" name="qualification_{educationCounter}" placeholder="Qualification & Grade(s)" required>
-							</div>
-						</div>
-						<div class="col-sm-4 panel-pad-10">
-							<div class="panel panel-default">
-								<input type="text" class="form-control" id="year_{educationCounter}" name="year_{educationCounter}" placeholder="Attended Years" required>
-							</div>
-						</div>
+					    <div class="col-md-4 panel-pad-10">
+					        <div class="card">
+					            <input type="text" class="form-control" id="school_name_{educationCounter}"
+					                name="school_name_{educationCounter}" placeholder="School Name" required>
+					        </div>
+					    </div>
+					    <div class="col-md-4 panel-pad-10">
+					        <div class="card">
+					            <input type="text" class="form-control" id="qualification_{educationCounter}"
+					                name="qualification_{educationCounter}" placeholder="Qualification &amp; Grade(s)"
+					                required>
+					        </div>
+					    </div>
+					    <div class="col-md-4 panel-pad-10">
+					        <div class="card">
+					            <input type="text" class="form-control" id="year_{educationCounter}" name="year_{educationCounter}"
+					                placeholder="Attended Years" required>
+					        </div>
+					    </div>
 					</div>`.split("{educationCounter}").join(numberOfEducation);
 
 		$('input[name=numberOfEducation]').val(numberOfEducation);

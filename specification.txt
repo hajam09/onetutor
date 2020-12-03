@@ -5,12 +5,14 @@ Feature:
 * Allow only students to rate tutors given the tutor has tutored the student.
 * Create a copyright footer for the application.
 * Write Cucumber tests for various Views
-* Test if HTML forms can be passed via arguments.
 
 Bugs / Fixes:
+* Priority: Cannot activate email when regestering.
 * On login and logout, redirect the user to their previous page if possible.
 * In login/registraion page, change the font colours so they appear to the users.
 * On photo upload trim the photo to reduce size.
 * On tutor profile when no Q&A exists, display a friendly message.
 * On tutor profile, display tutor's additional information with more CSS.
 * Test the system with no user data and default seed data.
+* On tutorprofile there is a clash/overlap between availability and subjects.
+* On tutorprofile, when changing first name or last name it does not update the field on submit. User has to refresh again.

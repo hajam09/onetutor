@@ -14,8 +14,9 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.cache import cache
 from django.http import HttpResponse
-import json, re, os
+import json, re, os, random, string
 from .seed_data_installer import *
+from http import HTTPStatus
 
 def login(request):
 	if request.method == "POST":
@@ -82,7 +83,7 @@ def register(request):
 				return render(request,"accounts/registration.html", context)
 
 			user = User.objects.create_user(username=email, email=email, password=password, first_name=firstname, last_name=lastname)
-			user.is_active = False
+			user.is_active = True if settings.DEBUG else False
 			user.save()
 
 			current_site = get_current_site(request)
@@ -167,9 +168,21 @@ def tutorprofile(request):
 
 	questionAndAnswers = QuestionAnswer.objects.filter(answerer=tutorProfile.user).order_by('-id')
 
-	if request.method == "POST" and "updatePersonalDetails" in request.POST:
+	if request.method == "POST" and "delete_account" in request.POST:
+		delete_code = request.POST["delete-code"]
+		if "user_" + str(request.user.id) + "_delete_key" in request.session:
+			if delete_code == request.session["user_" + str(request.user.id) + "_delete_key"]:
+				u = User.objects.get(pk=request.user.id)
+				u.delete()
+				del request.session["user_" + str(request.user.id) + "_delete_key"]
+				messages.add_message(request,messages.SUCCESS,"Account deleted successfully")
+				return redirect('tutoring:mainpage')
+
+	if request.method == "POST" and "update_general_information" in request.POST:
 		firstname = request.POST["first_name"].strip()
 		lastname = request.POST["last_name"].strip()
+
+		print(firstname, lastname)
 
 		if "my-file-selector" in request.FILES:
 			if tutorProfile.profilePicture:
@@ -187,7 +200,7 @@ def tutorprofile(request):
 		user.save()		
 		return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "countries": countries, "message": "Your personal details has been updated successfully", "alert": "alert-success", "activeAccountTab": True})
 
-	if request.method == "POST" and "updatePassword" in request.POST:
+	if request.method == "POST" and "update_password" in request.POST:
 		currentPassword = request.POST["currentPassword"]
 		newPassword = request.POST["newPassword"]
 		confirmPassword = request.POST["confirmPassword"]
@@ -374,3 +387,33 @@ def password_change(request, uidb64, token):
 		return render(request, "accounts/password_reset_form.html",{})
 	else:
 		return render(request, "accounts/activate_failed.html",status=401)
+
+def request_delete_code(request):
+	if not request.is_ajax():
+		response = {
+			"status_code": 403,
+			"message": "Bad Request"
+		}
+		return HttpResponse(json.dumps(response), content_type="application/json")
+
+	if not request.user.is_authenticated:
+		response = {
+			"status_code": 401,
+			"message": "Login to request a code."
+		}
+		return HttpResponse(json.dumps(response), content_type="application/json")
+
+	# generate a random string, send it to the user's email and add it to the session.
+	delete_code = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(20))
+	request.session["user_" + str(request.user.id) + "_delete_key"] = delete_code
+
+	subject = 'Account deletion code.'
+	message = """Hi {},\n\n Below is the code to delete your account permanently. Copy the code and paste it on our website. \n\n Your codeis: {}""".format(" ".join(request.user.first_name), delete_code)
+	email_message = EmailMessage(subject, message, settings.EMAIL_HOST_USER, [request.user.email])
+	email_message.send()
+
+	response = {
+		"status_code": HTTPStatus.OK,
+		"message": "Check your email for the code."
+	}
+	return HttpResponse(json.dumps(response), content_type="application/json")

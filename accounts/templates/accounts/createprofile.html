@@ -3,121 +3,142 @@
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/tab_pane.css' %}" />
 <style type="text/css">
-   .nav-tabs > li  {width:50%; text-align:center;}
+   body{color:#000}.nav-tabs>li{width:50%;text-align:center}
+   @media (min-width: 1200px){
+      .container {
+          width: 1600px;
+      }
+      .wrapper {
+         width: 75%;
+      }
+   }
 </style>
-<div class="container">
-   <div class="row">
-	  <div class="col-md-12">
-		 <!-- Nav tabs -->
-		 <div class="card">
-			<ul class="nav nav-tabs" role="tablist">
-			   <li role="presentation" class="active"><a href="#tutor" aria-controls="tutor" role="tab" data-toggle="tab"> <span>I am a tutor</span></a></li>
-			   <li role="presentation"><a href="#student" aria-controls="student" role="tab" data-toggle="tab"> <span>I am a student</span></a></li>
-			</ul>
-			<!-- Tab panes -->
-			<div class="tab-content">
-			   <div role="tabpanel" class="tab-pane active" id="tutor">
-				  <form method="post">
-					 {% csrf_token %}
-					 <div class="form-group">
-						<h2 for="summary">Summary</h2>
-						<input type="text" class="form-control" id="summary" name="summary" required>
-					 </div>
-					 <hr>
-					 <div class="form-group">
-						<h2 for="about">About</h2>
-						<textarea class="form-control" id="about" name="about" rows="5" required></textarea>
-					 </div>
-					 <hr>
-					 <div class="form-group" id="education">
-						<h2 for="education">Education</h2>
-						<div id="listOfEducation"></div>
-						<button type="button" class="btn btn-primary btn-sm" onclick="addEducationRow();">Add Row</button>
-					 </div>
-					 <hr>
-					 <div class="form-group">
-						<h2 for="subjects">Subjects</h2>
-						<input type="text" class="form-control" id="subjects" name="subjects" placeholder="English, Maths, Science, Geography, ..." required>
-					 </div>
-					 <hr>
-					 <div class="form-group">
-					 	<h2 for="address">Address</h2>
-					 	<div class="form-group">
-                           <label for="address_1">Address Line 1</label>
-                           <input type="text" class="form-control" id="address_1" name="address_1" placeholder="Address Line 1" value="{{tutorProfile.location.address_1}}" required>
-                        </div>
-                        <div class="form-group">
-                           <label for="address_2">Address Line 2</label>
-                           <input type="text" class="form-control" id="address_2" name="address_2" placeholder="Address Line 2" value="{{tutorProfile.location.address_2}}">
-                        </div>
-                        <div class="row">
-                           <div class="col-xs-6">
-                              <div class="form-group">
-                                 <label for="city">City</label>
-                                 <input type="text" class="form-control" id="city" name="city" placeholder="City" value="{{tutorProfile.location.city}}" required>
-                              </div>
-                           </div>
-                           <div class="col-xs-6">
-                              <div class="form-group">
-                                 <label for="stateProvice">State / Province</label>
-                                 <input type="text" class="form-control" id="stateProvice" name="stateProvice" placeholder="State / Province" value="{{tutorProfile.location.stateProvice}}">
-                              </div>
-                           </div>
-                        </div>
-                        <div class="row">
-                           <div class="col-xs-6">
-                              <div class="form-group">
-                                 <label for="postalZip">Postal / Zip Code</label>
-                                 <input type="text" class="form-control" id="postalZip" name="postalZip" placeholder="Postal / Zip Code" value="{{tutorProfile.location.postalZip}}" required>
-                              </div>
-                           </div>
-                           <div class="col-xs-6">
-                              <div class="form-group">
-                                 <label for="country">Country</label>
-                                 <select class="form-control" id="country" name="country">
-                                    {% if tutorProfile.location.country %}
-                                    {% for country in countries %}
-                                    {% ifequal country.alpha tutorProfile.location.country.alpha %}
-                                    <option value="{{country.alpha}}" selected="selected">{{country.name}}</option>
-                                    {% else %}
-                                    <option value="{{country.alpha}}">{{country.name}}</option>
-                                    {% endifequal %}
-                                    {% endfor %}
-                                    {% else %}
-                                    {% for country in countries %}
-                                    {% ifequal country.alpha "GB" %}
-                                    <option value="{{country.alpha}}" selected="selected">{{country.name}}</option>
-                                    {% else %}
-                                    <option value="{{country.alpha}}">{{country.name}}</option>
-                                    {% endifequal %}
-                                    {% endfor %}
-                                    {% endif %}
-                                 </select>
-                              </div>
-                           </div>
-                        </div>
-					 </div>
-					 <div class="form-group">
-						<button type="submit" class="btn btn-success btn-lg btn-block">Create Profile</button>
-					 </div>
-
-					 <input type="hidden" name="numberOfEducation" value="0">
-					 <input type="hidden" name="tutor">
-				  </form>
-			   </div>
-			   <div role="tabpanel" class="tab-pane" id="student">
-			   	<form method="post">
-			   		{% csrf_token %}
-			   		<div class="form-group">
-						<button type="submit" class="btn btn-success btn-lg btn-block">Create Profile</button>
-					 </div>
-			   		<input type="hidden" name="student">
-			   	</form>
-			   </div>
+<br>
+<div class="wrapper" style="margin: auto;">
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-lg-12">
+			<!-- Nav tabs -->
+			<div class="card">
+				<ul class="nav nav-tabs" role="tablist">
+					<li role="presentation" class="active nav-item"><a href="#tutor" aria-controls="tutor" role="tab" data-toggle="tab" class="nav-link"> <span>I am a tutor</span></a>
+					</li>
+					<li role="presentation" class="nav-item"><a href="#student" aria-controls="student" role="tab" data-toggle="tab"
+						class="nav-link"> <span>I am a student</span></a>
+					</li>
+				</ul>
+				<!-- Tab panes -->
+				<div class="tab-content">
+					<div role="tabpanel" class="tab-pane active" id="tutor">
+						<form method="post">
+							{% csrf_token %}
+							<div class="form-group">
+								<h2 for="summary">Summary</h2>
+								<input type="text" class="form-control" id="summary" name="summary" required>
+							</div>
+							<hr>
+							<div class="form-group">
+								<h2 for="about">About</h2>
+								<textarea class="form-control" id="about" name="about" rows="5" required></textarea>
+							</div>
+							<hr>
+							<div class="form-group" id="education">
+								<h2 for="education">Education</h2>
+								<div id="listOfEducation"></div>
+								<button type="button" class="btn btn-primary btn-sm" onclick="addEducationRow();">Add Row</button>
+							</div>
+							<hr>
+							<div class="form-group">
+								<h2 for="subjects">Subjects</h2>
+								<input type="text" class="form-control" id="subjects" name="subjects"
+									placeholder="English, Maths, Science, Geography, ..." required>
+							</div>
+							<hr>
+							<div class="form-group">
+								<h2 for="address">Address</h2>
+								<div class="form-group">
+									<label for="address_1"><b>Address Line 1</b></label>
+									<input type="text" class="form-control" id="address_1"
+										name="address_1" placeholder="Address Line 1" value="{{tutorProfile.location.address_1}}"
+										required>
+								</div>
+								<div class="form-group">
+									<label for="address_2"><b>Address Line 2</b></label>
+									<input type="text" class="form-control" id="address_2"
+										name="address_2" placeholder="Address Line 2" value="{{tutorProfile.location.address_2}}">
+								</div>
+								<div class="row">
+									<div class="col-6">
+										<div class="form-group">
+											<label for="city"><b>City</b></label>
+											<input type="text" class="form-control" id="city" name="city"
+												placeholder="City" value="{{tutorProfile.location.city}}" required>
+										</div>
+									</div>
+									<div class="col-6">
+										<div class="form-group">
+											<label for="stateProvice"><b>State / Province</b></label>
+											<input type="text" class="form-control" id="stateProvice"
+												name="stateProvice" placeholder="State / Province" value="{{tutorProfile.location.stateProvice}}">
+										</div>
+									</div>
+								</div>
+								<div class="row">
+									<div class="col-6">
+										<div class="form-group">
+											<label for="postalZip"><b>Postal / Zip Code</b></label>
+											<input type="text" class="form-control" id="postalZip"
+												name="postalZip" placeholder="Postal / Zip Code" value="{{tutorProfile.location.postalZip}}"
+												required>
+										</div>
+									</div>
+									<div class="col-6">
+										<div class="form-group">
+											<label for="country"><b>Country</b></label>
+											<select class="form-control" id="country" name="country">
+												{% if tutorProfile.location.country %}
+													{% for country in countries %}
+														{% ifequal country.alpha tutorProfile.location.country.alpha %}
+															<option value="{{country.alpha}}" selected="selected">{{country.name}}</option>
+														{% else %}
+															<option value="{{country.alpha}}">{{country.name}}</option>
+														{% endifequal %}
+													{% endfor %}
+												{% else %}
+													{% for country in countries %}
+														{% ifequal country.alpha "GB" %}
+															<option value="{{country.alpha}}" selected="selected">{{country.name}}</option>
+														{% else %}
+															<option value="{{country.alpha}}">{{country.name}}</option>
+														{% endifequal %}
+													{% endfor %}
+												{% endif %}
+											</select>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<button type="submit" class="btn btn-success btn-lg btn-block">Create Profile</button>
+							</div>
+							<input type="hidden" name="numberOfEducation" value="0">
+							<input type="hidden" name="tutor">
+						</form>
+					</div>
+					<div role="tabpanel" class="tab-pane" id="student">
+						<form method="post">
+							{% csrf_token %}
+							<div class="form-group">
+								<button type="submit" class="btn btn-success btn-lg btn-block">Create Profile</button>
+							</div>
+							<input type="hidden" name="student">
+						</form>
+					</div>
+				</div>
 			</div>
-		 </div>
-	  </div>
-   </div>
+		</div>
+	</div>
+</div>
 </div>
 <script type="text/javascript">
 	var numberOfEducation = 0;
@@ -125,19 +146,23 @@
 		addRemoveEducationBtn();
 		numberOfEducation = numberOfEducation + 1;
 		var newRow = `<div class="row" id="education_{educationCounter}">
-						<div class="col-sm-4 panel-pad-10">
-							<div class="panel panel-default">
-								<input type="text" class="form-control" id="school_name_{educationCounter}" name="school_name_{educationCounter}" placeholder="School Name" required>
+						<div class="col-md-4 panel-pad-10">
+							<div class="card">
+								<input type="text" class="form-control" id="school_name_{educationCounter}"
+								name="school_name_{educationCounter}" placeholder="School Name" required>
 							</div>
 						</div>
-						<div class="col-sm-4 panel-pad-10">
-							<div class="panel panel-default">
-								<input type="text" class="form-control" id="qualification_{educationCounter}" name="qualification_{educationCounter}" placeholder="Qualification & Grade(s)" required>
+						<div class="col-md-4 panel-pad-10">
+							<div class="card">
+								<input type="text" class="form-control" id="qualification_{educationCounter}"
+								name="qualification_{educationCounter}" placeholder="Qualification &amp; Grade(s)"
+								required>
 							</div>
 						</div>
-						<div class="col-sm-4 panel-pad-10">
-							<div class="panel panel-default">
-								<input type="text" class="form-control" id="year_{educationCounter}" name="year_{educationCounter}" placeholder="Attended Years" required>
+						<div class="col-md-4 panel-pad-10">
+							<div class="card">
+								<input type="text" class="form-control" id="year_{educationCounter}" name="year_{educationCounter}"
+								placeholder="Attended Years" required>
 							</div>
 						</div>
 					</div>`.split("{educationCounter}").join(numberOfEducation);

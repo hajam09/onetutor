@@ -3,108 +3,108 @@
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/searchBox.css' %}"/>
 <style type="text/css">
-	.profile-userpic img{float:none;margin:0 auto;width:50%;height:50%;-webkit-border-radius:50%!important;-moz-border-radius:50%!important;border-radius:50%!important}
-	a, a:visited, a:hover, a:active { color: black; }
-
-	.sidebar-box {
-	max-height: 120px;
-	position: relative;
-	overflow: hidden;
-}
-
-.sidebar-box .read-more {
-	position: absolute;
-	bottom: -2px;
-	left: 0;
-	width: 100%;
-	text-align: center;
-	margin: 0;
-	padding: 3px 0;
-	/* "transparent" only works here because == rgba(0,0,0,0) */
-	/*background-image: linear-gradient(to bottom, transparent, black);*/
-}
+.widget-26{color:#3c4142;font-weight:400}.widget-26 tr:first-child td{border:0}.widget-26 .widget-26-job-emp-img img{width:35px;height:35px;border-radius:50%}.widget-26 .widget-26-job-title{min-width:200px}.widget-26 .widget-26-job-title a{font-weight:400;font-size:.875rem;color:#3c4142;line-height:1.5}.widget-26 .widget-26-job-title a:hover{color:#68cbd7;text-decoration:none}.widget-26 .widget-26-job-title .employer-name{margin:0;line-height:1.5;font-weight:400;color:#3c4142;font-size:.8125rem;color:#3c4142}.widget-26 .widget-26-job-title .employer-name:hover{color:#68cbd7;text-decoration:none}.widget-26 .widget-26-job-info{min-width:100px;font-weight:400}.widget-26 .widget-26-job-info p{line-height:1.5;color:#3c4142;font-size:.8125rem}.widget-26 .widget-26-job-info .location{color:#3c4142}.widget-26 .widget-26-job-salary{min-width:70px;font-weight:400;color:#3c4142;font-size:.8125rem}.widget-26 .widget-26-job-category{padding:.5rem;display:inline-flex;white-space:nowrap;border-radius:15px}.widget-26 .widget-26-job-category .indicator{width:13px;height:13px;margin-right:.5rem;float:left;border-radius:50%}.widget-26 .widget-26-job-category span{font-size:.8125rem;color:#3c4142;font-weight:600}.bg-soft-danger{background-color:#fedce0}.search-body{margin-bottom:1.5rem}.card-margin{margin-bottom:1.875rem}.card-margin{margin-bottom:1.875rem}.card{border:0;box-shadow:0 0 10px 0 rgba(82,63,105,.1);-webkit-box-shadow:0 0 10px 0 rgba(82,63,105,.1);-moz-box-shadow:0 0 10px 0 rgba(82,63,105,.1);-ms-box-shadow:0 0 10px 0 rgba(82,63,105,.1)}.card{position:relative;display:flex;flex-direction:column;min-width:0;word-wrap:break-word;background-color:#fff;background-clip:border-box;border:1px solid #e6e4e9;border-radius:8px}
 </style>
 <div class="container">
 	{% if tutorList %}
+		<br><br><br><br><br><br>
 		<form method="post">
-		   {% csrf_token %}
-		   <div class="row" style="background: rgba(0, 0, 0, 0.5); padding: 20px 43px; padding-top: 40px;">
-			  <div class="col-xs-5">
-				 <div class="form-group">
-				 	{% if generalQuery %}
-					<input style="border-radius: 0.5px;" type="text" class="form-control" name="generalQuery" placeholder="Try 'GCES Maths'" value="{{ generalQuery }}">
+			{% csrf_token %}
+			<div class="form-row" style="background: rgba(0, 0, 0, 0.5); padding: 43px 43px; padding-top: 40px;">
+				<div class="col-5">
+					{% if generalQuery %}
+						<input style="border-radius: 0.5px;" type="text" class="form-control" name="generalQuery" placeholder="Try 'GCSE Maths'" value="{{ generalQuery }}">
 					{% else %}
-					<input style="border-radius: 0.5px;" type="text" class="form-control" name="generalQuery" placeholder="Try 'GCES Maths'">
+						<input style="border-radius: 0.5px;" type="text" class="form-control" name="generalQuery" placeholder="Try 'GCES Maths'">
 					{% endif %}
-				 </div>
-			  </div>
-			  <div class="col-xs-5">
-				 <div class="form-group">
-				 	{% if location %}
-					<input style="border-radius: 0.5px;" type="text" class="form-control" name="location" placeholder="Try 'London'" value="{{ location }}">
+				</div>
+				<div class="col-5">
+					{% if location %}
+						<input style="border-radius: 0.5px;" type="text" class="form-control" name="location" placeholder="Try 'London'" value="{{ location }}">
 					{% else %}
-					<input style="border-radius: 0.5px;" type="text" class="form-control" name="location" placeholder="Try 'London'">
+						<input style="border-radius: 0.5px;" type="text" class="form-control" name="location" placeholder="Try 'London'">
 					{% endif %}
-				 </div>
-			  </div>
-			  <div class="col-xs-2">
-				 <div class="form-group">
+				</div>
+				<div class="col">
 					<input style="border-radius: 0.5px;" class="btn btn-primary" type="submit" value="Submit" style="background-color: #4272d7;">
-				 </div>
-			  </div>
-		   </div>
+				</div>
+			</div>
 		</form>
-		<br>
-		<h3 style="color: black; text-align: center;">Recommended tutors for you.</h3>
 		<hr>
-
-		{% for tutor in tutorList %}
-            <div class="row" id="{{tutor.pk}}">
-            	<br>
-            	<div class="col-xs-2">
-            		<div class="profile-userpic">
-						{% if tutor.profilePicture %}
-						<img src="{{ tutor.profilePicture.url }}" class="img-responsive" style="width:120px;" alt="" />
-						{% else %}
-						<img src="https://icon-library.com/images/default-user-icon/default-user-icon-13.jpg" class="img-responsive" style="width:120px;" alt="" />
-						{% endif %}
-					</div>
-            	</div>
-            	<div class="col-xs-8 sidebar-box" style="height: 108px;">
-            		<a style="cursor: pointer; text-decoration: none;" href="{% url 'tutoring:viewtutorprofile' tutor.secondary_key %}">
-            			<h4>{{ tutor.user.first_name }} {{ tutor.user.last_name }}</h4>
-            			<p> {{ tutor.summary }}</p>
-            			<p> {{ tutor.about|truncatechars:122 }}</p>
-            		</a>
-            		<p class="read-more"><a href="{% url 'tutoring:viewtutorprofile' tutor.secondary_key %}" class="button"><span class="badge badge-pill badge-light">Read More</span></a></p>
-            	</div>
-            	<div class="col-xs-2"> TWO </div>
-            </div>
-		{% endfor %}
-
+		<br>
+		<div class="row">
+			<div class="col-12"><div class="card card-margin"><div class="card-body">
+				<div class="row search-body"><div class="col-lg-12"><div class="search-result">
+					<div class="result-body"><div class="table-responsive">
+						<table class="table widget-26">
+							<tbody>
+								{% for tutor in tutorList %}
+								<tr id="{{tutor.pk}}">
+									<td>
+										<div class="widget-26-job-emp-img">
+											{% if tutor.profilePicture %}
+											<img src="{{ tutor.profilePicture.url }}" alt="Company" />
+											{% else %}
+											<img src="https://icon-library.com/images/default-user-icon/default-user-icon-13.jpg" class="img-responsive" alt="" />
+											{% endif %}
+										</div>
+									</td>
+									<td>
+										<div class="widget-26-job-title">
+											<a href="{% url 'tutoring:viewtutorprofile' tutor.secondary_key %}">{{ tutor.user.first_name }} {{ tutor.user.last_name }}</a>
+											<p class="m-0"><a href="#" class="employer-name">{{ tutor.summary }}</a></p>
+										</div>
+									</td>
+									<td>
+										<div class="widget-26-job-info">
+											<p class="text-muted m-0"><span class="location">{{ tutor.location.address_2 }}, {{ tutor.location.country.name }}</span></p>
+										</div>
+									</td>
+									<td>
+										<div class="widget-26-job-salary">$ 35/hr</div>
+									</td>
+									<td>
+										<div class="widget-26-job-category bg-soft-danger">
+											<i class="indicator bg-danger"></i>
+											<span>Score</span>
+										</div>
+									</td>
+								</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div></div>
+				</div></div></div>
+			</div></div></div>
+		</div>
 	{% else %}
 		{% if message %}
 			<div style="color: black; text-align: center;" class="alert {{alert}}" role="alert">{{message}}</div>
 		{% endif %}
-		<div class="s01">
-			<form method="post">
-				{% csrf_token %}
-				<fieldset>
-					<legend style="color: black;">Shall we find a tutor for you?</legend>
-				</fieldset>
-				<div class="inner-form">
-					<div class="input-field first-wrap">
-						<input type="text" name="generalQuery" placeholder="Try 'GCES Maths'" />
+		{% if messages %}
+			{% for message in messages %}
+				<div style="color: black; text-align: center;" class="alert alert-success" role="alert">{{message}}</div>
+			{% endfor %}
+		{% endif %}
+			<div class="s01">
+				<form method="post">
+					{% csrf_token %}
+					<fieldset>
+						<legend style="color: black;">Shall we find a tutor for you?</legend>
+					</fieldset>
+					<div class="inner-form">
+						<div class="input-field first-wrap">
+							<input type="text" name="generalQuery" placeholder="Try 'GCES Maths'" />
+						</div>
+						<div class="input-field second-wrap">
+							<input type="text" name="location" placeholder="Try 'London'" />
+						</div>
+						<div class="input-field third-wrap">
+							<button class="btn-search" type="submit">Search</button>
+						</div>
 					</div>
-					<div class="input-field second-wrap">
-						<input type="text" name="location" placeholder="Try 'London'" />
-					</div>
-					<div class="input-field third-wrap">
-						<button class="btn-search" type="submit">Search</button>
-					</div>
-				</div>
-			</form>
-		</div>
+				</form>
+			</div>
 	{% endif %}
 </div>
 {% endblock %}

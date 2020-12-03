@@ -3,345 +3,497 @@
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/tab_pane.css' %}" />
 <style type="text/css">
-	.pass_show{position:relative}.pass_show .ptxt{position:absolute;top:71%;right:10px;z-index:1;color:#f36c01;margin-top:-10px;cursor:pointer;transition:.3s ease all}.pass_show .ptxt:hover{color:#333}
-   @media (min-width: 1200px){
-      .container {
-          width: 1500px;
-      }
-   }
-   .qaSubjects{margin: -13px 10px 10px 0; font-size: 12px; padding: 3px 8px; border-radius: 4px; text-align: center; color: #fff; background-color: #000; opacity: .64;}
+	.pass_show{position:relative}.pass_show .ptxt{position:absolute;top:71%;right:10px;z-index:1;color:#f36c01;margin-top:-10px;cursor:pointer;transition:.3s ease all}.pass_show .ptxt:hover{color:#333}.qaSubjects{margin:-13px 10px 10px 0;font-size:12px;padding:3px 8px;border-radius:4px;text-align:center;color:#fff;background-color:#000;opacity:.64}.mtgtlDwEfX{font-size:12px;padding:3px 8px;border-radius:4px;text-align:center;color:#fff;background-color:#000;opacity:.64}body{color:#000}.ui-w-80{width:100px!important;height:auto}.btn-default{border-color:rgba(24,28,33,.1);background:rgba(0,0,0,0);color:#4e5155}label.btn{margin-bottom:0}.btn-outline-primary{border-color:#26b4ff;background:0 0;color:#26b4ff}.btn{cursor:pointer}.text-light{color:#babbbc!important}.account-settings-fileinput{position:absolute;visibility:hidden;width:1px;height:1px;opacity:0}
 
-   .mtgtlDwEfX {
-      font-size: 12px; padding: 3px 8px; border-radius: 4px; text-align: center; color: #fff; background-color: #000; opacity: .64;
-
-   }
+	@media (min-width: 1200px) {
+		.container {
+			width: 1600px;
+		}
+		.wrapper {
+			width: 75%;
+		}
+	}
 </style>
-<div class="container">
-   <div class="row">
-      {% if message %} {% if alert %}
-      <div style="color: black; text-align: center;" class="alert {{alert}}" role="alert">{{message}}</div>
-      {% endif %} {% endif %}
-      <div class="col-md-12">
-         <!-- Nav tabs -->
-         <div class="card">
-            <ul class="nav nav-tabs" role="tablist">
-               {% if activeAccountTab %}
-               <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab"><span>Profile</span></a></li>
-               {% else %}
-               <li role="presentation" class="active"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab"><span>Profile</span></a></li>
-               {% endif %}
-               <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab"><span>Q & A</span></a></li>
-               <li role="presentation"><a href="#settings" aria-controls="settings" role="tab" data-toggle="tab"><span>My Students</span></a></li>
-               {% if activeAccountTab %}
-               <li role="presentation" class="active"><a href="#account" aria-controls="settings" role="tab" data-toggle="tab"><span>Account</span></a></li>
-               {% else %}
-               <li role="presentation"><a href="#account" aria-controls="settings" role="tab" data-toggle="tab"><span>Account</span></a></li>
-               {% endif %}
-            </ul>
-            <!-- Tab panes -->
-            <div class="tab-content">
-               {% if activeAccountTab %}
-               <div role="tabpanel" class="tab-pane" id="profile">
-               {% else %}
-               <div role="tabpanel" class="tab-pane active" id="profile">
-               {% endif %}
-                  <a class="btn btn-primary pull-right" href="{% url 'accounts:tutorprofileedit' %}" role="button">Edit my Profile</a>
-                  <div>
-                     <h3>About</h3>
-                     <p>{{ tutorProfile.about|linebreaksbr }}</p>
-                  </div>
-                  <hr>
-                  <div>
-                     <h3>Education</h3>
-                     <div>
-                        {% for key,value in tutorProfile.education.items %}
-                        <div style="display: flex; flex-direction: row; align-items: flex-start; justify-content: flex-start; margin-bottom: 15px;">
-                           <img src="https://www.iconfinder.com/data/icons/building-1/512/build2-512.png" style="width: 50px; height: 50px; margin-right: 13px; -o-object-fit: contain; object-fit: contain; border-radius: 4px;">
-                           <div style="flex: 1 1; flex-direction: column;">
-                              <b style="margin-bottom: 5px;">{{value.school_name}}</b>
-                              <p style="margin-bottom: 0;">{{value.qualification}} ({{value.year}})</p>
-                           </div>
-                        </div>
-                        {% endfor %}
-                     </div>
-                  </div>
-                  <hr>
-                  <div>
-                     <div class="row">
-                        <div class="col-xs-6">
-                           <h3 for="availability">Availability</h3>
-                           <table class="table" id="availabilitySchedule" style="width: auto;">
-                              <thead>
-                                 <tr>
-                                    <th scope="col"></th>
-                                    <th scope="col">Morning</th>
-                                    <th scope="col">Afternoon</th>
-                                    <th scope="col">Evening</th>
-                                 </tr>
-                              </thead>
-                              <tbody>
-                                 {% for key,value in tutorProfile.availability.items %}
-                                 <tr>
-                                    <th style="vertical-align: middle;" scope="row">{{key|title}}</th>
-                                    <td style="text-align: center">
-                                       {% if value.morning %}
-                                       <div class="btn-group" data-toggle="buttons">
-                                          <label class="btn btn-success" disabled>
-                                          <span class="glyphicon glyphicon-ok"></span>
-                                          </label>
-                                       </div>
-                                       {% else %}
-                                       <div class="btn-group" data-toggle="buttons">
-                                          <label class="btn btn-danger" disabled>
-                                          <span class="glyphicon glyphicon-remove"></span>
-                                          </label>
-                                       </div>
-                                       {% endif %}
-                                    </td>
-                                    <td style="text-align: center">
-                                       {% if value.afternoon %}
-                                       <div class="btn-group" data-toggle="buttons">
-                                          <label class="btn btn-success" disabled>
-                                          <span class="glyphicon glyphicon-ok"></span>
-                                          </label>
-                                       </div>
-                                       {% else %}
-                                       <div class="btn-group" data-toggle="buttons">
-                                          <label class="btn btn-danger" disabled>
-                                          <span class="glyphicon glyphicon-remove"></span>
-                                          </label>
-                                       </div>
-                                       {% endif %}
-                                    </td>
-                                    <td style="text-align: center">
-                                       {% if value.evening %}
-                                       <div class="btn-group" data-toggle="buttons">
-                                          <label class="btn btn-success" disabled>
-                                          <span class="glyphicon glyphicon-ok"></span>
-                                          </label>
-                                       </div>
-                                       {% else %}
-                                       <div class="btn-group" data-toggle="buttons">
-                                          <label class="btn btn-danger" disabled>
-                                          <span class="glyphicon glyphicon-remove"></span>
-                                          </label>
-                                       </div>
-                                       {% endif %}
-                                    </td>
-                                 </tr>
-                                 {% endfor %}
-                              </tbody>
-                           </table>
-                        </div>
-                        <div class="col-xs-6">
-                           <h3>Subjects</h3>
-                           <div style="display: flex; flex-flow: row wrap;" id="list_of_subjects">
-                              <!-- {% for subject in tutorProfile.subjects %}
-                              <a href="" style="margin: 0 10px 10px 0;">
-                                 <dir class="mtgtlDwEfX">
-                                    {{ subject }}
-                                 </dir>
-                              </a>
-                              {% endfor %} -->
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-                  <hr>
-               </div>
-               <div role="tabpanel" class="tab-pane" id="messages" style="overflow-y: scroll; height:938px;">
-               	{% if questionAndAnswers %} {% for qa in questionAndAnswers %}
-                     <div class="container">
-                        <div id="question_answer_id_{{qa.id}}"> <a href="#" class="qaSubjects">{{ qa.subject }}</a>{{ qa.questioner.first_name }} {{ qa.questioner.last_name }} asked a question at {{ qa.date }}</div>
-                        <br>
-                        <div><strong>{{ qa.question|linebreaksbr }}</strong></div>
-                        <br>
-                        <div style="width: 970px;">{{ qa.answer|linebreaksbr }}</div><br>
-                        <span class="glyphicon glyphicon-thumbs-up"></span> ({{qa.likes.count}})
-                        <span class="glyphicon glyphicon-thumbs-down"></span> ({{qa.dislikes.count}})
-                        <br><br>
-                     </div>
-                     <hr>
-                  {% endfor %} {% endif %}
-               </div>
-               <div role="tabpanel" class="tab-pane" id="settings">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passage..</div>
-               {% if activeAccountTab %}
-               <div role="tabpanel" class="tab-pane active" id="account">
-               {% else %}
-               <div role="tabpanel" class="tab-pane" id="account">
-               {% endif %}
-                  <div class="container">
-                      <div class="row">
-                          <div class="col-sm-12">
-                              <div class="col-sm-9" style="width: 95%;">
-                                  <ul class="nav nav-tabs tabs-right">
-                                      <li style="width:33.3333%" class="active"><a href="#personalDetails" data-toggle="tab">Personal Details</a></li>
-                                      <li style="width:33.3333%"><a href="#password" data-toggle="tab">Password</a></li>
-                                      <li style="width:33.3333%"><a href="#address" data-toggle="tab">Address</a></li>
-                                  </ul>
-                              </div>
-                              <div class="col-sm-6" style="width: 95%;">
-                                  <div class="tab-content">
-                                      <div class="tab-pane active" id="personalDetails">
-                                       <div>
-                                          <h3 style="text-align: center;">Update Personal Details</h3>
-                                          <form method="post" enctype="multipart/form-data">
-                                             {% csrf_token %}
-                                             <div class="row">
-                                                <div class="col-xs-6">
-                                                   <div class="form-group">
-                                                      <label for="first_name">First Name</label>
-                                                      <input type="text" class="form-control" id="first_name" name="first_name" placeholder="First Name" value="{{ tutorProfile.user.first_name }}" required>
-                                                   </div>
-                                                </div>
-                                                <div class="col-xs-6">
-                                                   <div class="form-group">
-                                                      <label for="last_name">Last Name</label>
-                                                      <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Last Name" value="{{ tutorProfile.user.last_name }}" required>
-                                                   </div>
-                                                </div>
-                                             </div>
-                                             <div class="form-group">
-                                                <label for="email">Email address</label>
-                                                <input type="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Email" value="{{ request.user.email }}" disabled>
-                                                <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
-                                             </div>
-                                             <div class="form-group">
-                                                <label class="btn btn-danger" for="my-file-selector">
-                                                   <span class="glyphicon glyphicon-paperclip"></span>&nbsp;&nbsp;
-                                                   <input id="my-file-selector" name="my-file-selector" type="file" style="display:none" onchange="$('#upload-file-info').html(this.files[0].name)"> Choose a File
-                                                </label>
-                                                <span class='label label-info' id="upload-file-info"></span>
-                                             </div>
-                                             <input type="text" name="updatePersonalDetails" hidden>
-                                             <div class="form-group" id="outer" style="width:100%; text-align: center;">
-                                                <div class="inner" style="display: inline-block;"><button type="submit" class="btn btn-success btn-lg" >Update Details</button></div>
-                                                &nbsp;
-                                                <div class="inner" style="display: inline-block;"><button type="reset" class="btn btn-secondary btn-lg">Reset</button></div>
-                                                &nbsp;
-                                             </div>
-                                          </form>
-                                       </div>
-                                      </div>
-                                      <div class="tab-pane" id="password">
-                                         <div>
-                                             <h3 style="text-align: center;">Update Password</h3>
-                                             <form method="post">
-                                                {% csrf_token %}
-                                                <div class="row">
-                                                   <div class="col-xs-4">
-                                                      <div class="form-group pass_show">
-                                                         <label for="currentPassword">Current Password</label>
-                                                         <input type="password" class="form-control" id="currentPassword" name="currentPassword" placeholder="Enter Current Password" required>
-                                                      </div>
-                                                   </div>
-                                                   <div class="col-xs-4">
-                                                      <div class="form-group pass_show">
-                                                         <label for="newPassword">New Password</label>
-                                                         <input type="password" class="form-control" id="newPassword" name="newPassword" placeholder="Enter New Password" required>
-                                                      </div>
-                                                   </div>
-                                                   <div class="col-xs-4">
-                                                      <div class="form-group pass_show">
-                                                         <label for="confirmPassword">Cofirm Password</label>
-                                                         <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Enter New Password Again" required>
-                                                      </div>
-                                                   </div>
-                                                   <input type="text" name="updatePassword" hidden>
-                                                   <div class="form-group" id="outer" style="width:100%; text-align: center;">
-                                                      <div class="inner" style="display: inline-block;"><button type="submit" class="btn btn-success btn-lg" >Update Password</button></div>
-                                                      &nbsp;
-                                                      <div class="inner" style="display: inline-block;"><button type="reset" class="btn btn-secondary btn-lg">Reset</button></div>
-                                                      &nbsp;
-                                                   </div>
-                                                </div>
-                                             </form>
-                                          </div>
-                                      </div>
-                                      <div class="tab-pane" id="address">
-                                         <div>
-                                             <h3 style="text-align: center;">Update Addess</h3>
-                                             <form method="post">
-                                                {% csrf_token %}
-                                                <div class="form-group">
-                                                   <label for="address_1">Address Line 1</label>
-                                                   <input type="text" class="form-control" id="address_1" name="address_1" placeholder="Address Line 1" value="{{tutorProfile.location.address_1}}" required>
-                                                </div>
-                                                <div class="form-group">
-                                                   <label for="address_2">Address Line 2</label>
-                                                   <input type="text" class="form-control" id="address_2" name="address_2" placeholder="Address Line 2" value="{{tutorProfile.location.address_2}}">
-                                                </div>
-                                                <div class="row">
-                                                   <div class="col-xs-6">
-                                                      <div class="form-group">
-                                                         <label for="city">City</label>
-                                                         <input type="text" class="form-control" id="city" name="city" placeholder="City" value="{{tutorProfile.location.city}}" required>
-                                                      </div>
-                                                   </div>
-                                                   <div class="col-xs-6">
-                                                      <div class="form-group">
-                                                         <label for="stateProvice">State / Province</label>
-                                                         <input type="text" class="form-control" id="stateProvice" name="stateProvice" placeholder="State / Province" value="{{tutorProfile.location.stateProvice}}">
-                                                      </div>
-                                                   </div>
-                                                </div>
-                                                <div class="row">
-                                                   <div class="col-xs-6">
-                                                      <div class="form-group">
-                                                         <label for="postalZip">Postal / Zip Code</label>
-                                                         <input type="text" class="form-control" id="postalZip" name="postalZip" placeholder="Postal / Zip Code" value="{{tutorProfile.location.postalZip}}" required>
-                                                      </div>
-                                                   </div>
-                                                   <div class="col-xs-6">
-                                                      <div class="form-group">
-                                                         <label for="country">Country</label>
-                                                         <select class="form-control" id="country" name="country">
-                                                            {% if tutorProfile.location.country %}
-                                                            {% for country in countries %}
-                                                            {% ifequal country.alpha tutorProfile.location.country.alpha %}
-                                                            <option value="{{country.alpha}}" selected="selected">{{country.name}}</option>
-                                                            {% else %}
-                                                            <option value="{{country.alpha}}">{{country.name}}</option>
-                                                            {% endifequal %}
-                                                            {% endfor %}
-                                                            {% else %}
-                                                            {% for country in countries %}
-                                                            {% ifequal country.alpha "GB" %}
-                                                            <option value="{{country.alpha}}" selected="selected">{{country.name}}</option>
-                                                            {% else %}
-                                                            <option value="{{country.alpha}}">{{country.name}}</option>
-                                                            {% endifequal %}
-                                                            {% endfor %}
-                                                            {% endif %}
-                                                         </select>
-                                                      </div>
-                                                   </div>
-                                                </div>
-                                                <input type="text" name="updateAddress" hidden>
-                                                <div class="form-group" id="outer" style="width:100%; text-align: center;">
-                                                   <div class="inner" style="display: inline-block;"><button type="submit" class="btn btn-success btn-lg" >Update Address</button></div>
-                                                   &nbsp;
-                                                   <div class="inner" style="display: inline-block;"><button type="reset" class="btn btn-secondary btn-lg">Reset</button></div>
-                                                   &nbsp;
-                                                </div>
-                                             </form>
-                                          </div>
-                                      </div>
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
-                  </div>
-               </div>
-            </div>
-         </div>
-      </div>
-   </div>
+<div class="wrapper" style="margin: auto;">
+	<br>
+	<div class="container-fluid">
+		<div class="row">
+			{% if message %} {% if alert %}
+			<!-- Need to center the message. -->
+			<div style="color: black; text-align: center;"
+				class="alert {{alert}}" role="alert">{{message}}
+			</div>
+			{% endif %} {% endif %}
+			<div class="col-lg-12">
+				<!-- Nav tabs -->
+				<div class="card">
+					<ul class="nav nav-tabs" role="tablist">
+						{% if activeAccountTab %}
+						<li role="presentation" class="nav-item"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab"
+							class="nav-link"><span>Profile</span></a>
+						</li>
+						{% else %}
+						<li role="presentation" class="active nav-item"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab"
+							class="nav-link"><span>Profile</span></a>
+						</li>
+						{% endif %}
+						<li role="presentation" class="nav-item"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab"
+							class="nav-link"><span>Q &amp; A</span></a>
+						</li>
+						<li role="presentation" class="nav-item"><a href="#settings" aria-controls="settings" role="tab" data-toggle="tab"
+							class="nav-link"><span>My Students</span></a>
+						</li>
+						{% if activeAccountTab %}
+						<li role="presentation" class="active nav-item"><a href="#account" aria-controls="settings" role="tab" data-toggle="tab"
+							class="nav-link"><span>Account</span></a>
+						</li>
+						{% else %}
+						<li role="presentation" class="nav-item"><a href="#account" aria-controls="settings" role="tab" data-toggle="tab"
+							class="nav-link"><span>Account</span></a>
+						</li>
+						{% endif %}
+					</ul>
+					<!-- Tab panes -->
+					<div class="tab-content">
+						{% if activeAccountTab %}
+						<div role="tabpanel" class="tab-pane" id="profile">
+							{% else %}
+							<div role="tabpanel" class="tab-pane active" id="profile">
+								{% endif %} <a class="btn btn-primary float-right" href="{% url 'accounts:tutorprofileedit' %}"
+									role="button">Edit my Profile</a>
+								<div>
+									<h3>About</h3>
+									<p>{{ tutorProfile.about|linebreaksbr }}</p>
+								</div>
+								<hr>
+								<br>
+								<div>
+									<h3>Education</h3>
+									<div>
+										{% for key,value in tutorProfile.education.items %}
+										<div style="display: flex; flex-direction: row; align-items: flex-start; justify-content: flex-start; margin-bottom: 15px;">
+											<img src="https://www.iconfinder.com/data/icons/building-1/512/build2-512.png"
+												style="width: 50px; height: 50px; margin-right: 13px; -o-object-fit: contain; object-fit: contain; border-radius: 4px;">
+											<div style="flex: 1 1; flex-direction: column;">
+												<b style="margin-bottom: 5px;">{{value.school_name}}</b>
+												<p style="margin-bottom: 0;">{{value.qualification}} ({{value.year}})</p>
+											</div>
+										</div>
+										{% endfor %}
+									</div>
+								</div>
+								<hr>
+								<br>
+								<div>
+									<div class="row">
+										<div class="col-sm-6">
+											<h3 for="availability">Availability</h3>
+											<table class="table" id="availabilitySchedule" style="width: auto;">
+												<thead>
+													<tr>
+														<th scope="col"></th>
+														<th scope="col">Morning</th>
+														<th scope="col">Afternoon</th>
+														<th scope="col">Evening</th>
+													</tr>
+												</thead>
+												<tbody>
+													{% for key,value in tutorProfile.availability.items %}
+													<tr>
+														<th style="vertical-align: middle;" scope="row">{{key|title}}</th>
+														<td style="text-align: center">
+															{% if value.morning %}
+															<div class="btn-group" data-toggle="buttons">
+																<label class="btn btn-success" disabled> <i class="fas fa-check"></i>
+																</label>
+															</div>
+															{% else %}
+															<div class="btn-group" data-toggle="buttons">
+																<label class="btn btn-danger" disabled> <i class="fas fa-times"></i>
+																</label>
+															</div>
+															{% endif %}
+														</td>
+														<td style="text-align: center">
+															{% if value.afternoon %}
+															<div class="btn-group" data-toggle="buttons">
+																<label class="btn btn-success" disabled> <i class="fas fa-check"></i>
+																</label>
+															</div>
+															{% else %}
+															<div class="btn-group" data-toggle="buttons">
+																<label class="btn btn-danger" disabled> <i class="fas fa-times"></i>
+																</label>
+															</div>
+															{% endif %}
+														</td>
+														<td style="text-align: center">
+															{% if value.evening %}
+															<div class="btn-group" data-toggle="buttons">
+																<label class="btn btn-success" disabled> <i class="fas fa-check"></i>
+																</label>
+															</div>
+															{% else %}
+															<div class="btn-group" data-toggle="buttons">
+																<label class="btn btn-danger" disabled> <i class="fas fa-times"></i>
+																</label>
+															</div>
+															{% endif %}
+														</td>
+													</tr>
+													{% endfor %}
+												</tbody>
+											</table>
+										</div>
+										<div class="col-sm-6">
+											<h3>Subjects</h3>
+											<div style="display: flex; flex-flow: row wrap;" id="list_of_subjects">
+												<!-- {% for subject in tutorProfile.subjects %} <a href="" style="margin:
+													0 10px 10px 0;">
+													
+													<dir class="mtgtlDwEfX">
+													
+													{{ subject }}
+													
+													</dir>
+													
+													</a>
+													
+													{% endfor %} -->
+											</div>
+										</div>
+									</div>
+								</div>
+								<hr>
+							</div>
+							<div role="tabpanel" class="tab-pane" id="messages" style="overflow-y: scroll; height:938px;">
+								{% if questionAndAnswers %} {% for qa in questionAndAnswers %}
+								<div class="container">
+									<div id="question_answer_id_{{qa.id}}"> <a href="#" class="qaSubjects">{{ qa.subject }}</a>{{ qa.questioner.first_name
+										}} {{ qa.questioner.last_name }} asked a question at {{ qa.date }}
+									</div>
+									<br>
+									<div><strong>{{ qa.question|linebreaksbr }}</strong>
+									</div>
+									<br>
+									<div style="width: 970px;">{{ qa.answer|linebreaksbr }}</div>
+									<br> <span class="glyphicon glyphicon-thumbs-up"></span> ({{qa.likes.count}})
+									<span
+										class="glyphicon glyphicon-thumbs-down"></span>({{qa.dislikes.count}})
+									<br>
+									<br>
+								</div>
+								<hr>
+								{% endfor %} {% endif %}
+							</div>
+							<div role="tabpanel" class="tab-pane" id="settings">Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+								Lorem Ipsum has been the industry&apos;s standard dummy text ever since
+								the 1500s, when an unknown printer took a galley of type and scrambled
+								it to make a type specimen book. It has survived not only five centuries,
+								but also the leap into electronic typesetting, remaining essentially unchanged.
+								It was popularised in the 1960s with the release of Letraset sheets containing
+								Lorem Ipsum passage..
+							</div>
+							{% if activeAccountTab %}
+							<div role="tabpanel" class="tab-pane active" id="account">
+								{% else %}
+								<div role="tabpanel" class="tab-pane" id="account">
+									{% endif %}
+									<div class="container-fluid">
+										<div class="row gutters-sm">
+											<div class="col-md-3 d-none d-md-block">
+												<div class="card">
+													<div class="card-body">
+														<nav class="nav flex-column nav-pills nav-gap-y-1">
+															<a href="#generalinformation" data-toggle="tab" class="nav-item nav-link has-icon nav-link-faded active">
+																<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user mr-2">
+																	<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+																	<circle cx="12" cy="7" r="4"></circle>
+																</svg>
+																General
+															</a>
+															<a href="#accountsetting" data-toggle="tab" class="nav-item nav-link has-icon nav-link-faded">
+																<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-settings mr-2">
+																	<circle cx="12" cy="12" r="3"></circle>
+																	<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+																</svg>
+																Account
+															</a>
+															<a href="#security" data-toggle="tab" class="nav-item nav-link has-icon nav-link-faded">
+																<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shield mr-2">
+																	<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+																</svg>
+																Security
+															</a>
+															<a href="#notification" data-toggle="tab" class="nav-item nav-link has-icon nav-link-faded">
+																<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell mr-2">
+																	<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+																	<path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+																</svg>
+																Notification
+															</a>
+															<a href="#billing" data-toggle="tab" class="nav-item nav-link has-icon nav-link-faded">
+																<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-credit-card mr-2">
+																	<rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+																	<line x1="1" y1="10" x2="23" y2="10"></line>
+																</svg>
+																Billing
+															</a>
+														</nav>
+													</div>
+												</div>
+											</div>
+											<div class="col-md-9">
+												<div class="card">
+													<div class="card-header border-bottom mb-3 d-flex d-md-none">
+														<ul class="nav nav-tabs card-header-tabs nav-gap-x-1" role="tablist">
+															<li class="nav-item">
+																<a href="#generalinformation" data-toggle="tab" class="nav-link has-icon active">
+																	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user">
+																		<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+																		<circle cx="12" cy="7" r="4"></circle>
+																	</svg>
+																</a>
+															</li>
+															<li class="nav-item">
+																<a href="#accountsetting" data-toggle="tab" class="nav-link has-icon">
+																	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-settings">
+																		<circle cx="12" cy="12" r="3"></circle>
+																		<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+																	</svg>
+																</a>
+															</li>
+															<li class="nav-item">
+																<a href="#security" data-toggle="tab" class="nav-link has-icon">
+																	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shield">
+																		<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+																	</svg>
+																</a>
+															</li>
+															<li class="nav-item">
+																<a href="#notification" data-toggle="tab" class="nav-link has-icon">
+																	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell">
+																		<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+																		<path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+																	</svg>
+																</a>
+															</li>
+															<li class="nav-item">
+																<a href="#billing" data-toggle="tab" class="nav-link has-icon">
+																	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-credit-card">
+																		<rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+																		<line x1="1" y1="10" x2="23" y2="10"></line>
+																	</svg>
+																</a>
+															</li>
+														</ul>
+													</div>
+													<div class="card-body tab-content">
+														<div class="tab-pane active" id="generalinformation">
+															<h6>YOUR GENERAL INFORMATION</h6>
+															<hr>
+															<form method="post" enctype="multipart/form-data">
+																<input type="text" name="update_general_information" hidden>
+																{% csrf_token %}
+																<div class="card-body media align-items-center">
+																	{% if request.user.tutorprofile.profilePicture %}
+																	<img src="{{ request.user.tutorprofile.profilePicture.url }}" alt="" class="d-block ui-w-80 rounded-circle">
+																	{% else %}
+																	<img src="https://icon-library.com/images/default-user-icon/default-user-icon-13.jpg" alt="" class="d-block ui-w-80 rounded-circle">
+																	{% endif %}
+																	<div class="media-body ml-4">
+																		<label class="btn btn-danger" for="my-file-selector">
+																		<i class="fa fa-paperclip" aria-hidden="true"></i>&nbsp;&nbsp;
+																		<input id="my-file-selector" name="my-file-selector" type="file" style="display:none" onchange="$('#upload-file-info').html(this.files[0].name)"> Choose a File
+																		</label> &nbsp; <button type="button" class="btn btn-info md-btn-flat">Reset</button> 
+																		<div class="text-light small mt-1">Allowed JPG, GIF or PNG. Max size of 800K</div>
+																		<div class="text-light small mt-1" id="upload-file-info"></div>
+																	</div>
+																</div>
+																<div class="form-group">
+																	<div class="row">
+																		<div class="col">
+																			<label for="fullName">First Name</label>
+																			<input type="text" class="form-control" id="first_name" name="first_name" placeholder="First Name" value="{{ tutorProfile.user.first_name }}" required>
+																		</div>
+																		<div class="col">
+																			<label for="fullName">Last Name</label>
+																			<input type="text" class="form-control" id="last_name" name="last_name" placeholder="Last Name" value="{{ tutorProfile.user.last_name }}" required>
+																		</div>
+																	</div>
+																	<small id="fullNameHelp" class="form-text text-muted">Your name may appear around here where you are mentioned. You can change or remove it at any time.</small>
+																</div>
+																<div class="form-group">
+																	<label for="email">Email address</label>
+																	<input type="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Email" value="{{ request.user.email }}" disabled>
+																	<small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+																</div>
+																<div class="form-group">
+																	<label for="url">URL</label>
+																	<input type="text" class="form-control" id="url" placeholder="Enter your website address" value="http://localhost:8000/view/tutorprofile/{{ tutorProfile.secondary_key }}/" disabled>
+																</div>
+																<div class="form-group small text-muted">
+																	All of the fields on this page are optional and can be deleted at any time, and by filling them out, you're giving us consent to share this data wherever your user profile appears.
+																</div>
+																<button type="submit" class="btn btn-primary">Update Profile</button>
+																<button type="reset" class="btn btn-light">Reset Changes</button>
+															</form>
+														</div>
+														<div class="tab-pane" id="accountsetting">
+															<h6>ACCOUNT SETTINGS</h6>
+															<hr>
+															<form method="post">
+																{% csrf_token %}
+																<input type="text" name="delete_account" hidden>
+																<button class="btn btn-info" type="button" id="request-delete-code" onclick="request_delete_code()">Request Code</button>
+																<small class="form-text text-muted">We'll send you a code to your email. Copy and Paste the code below.</small>
+																<br>
+																<input type="text" class="form-control" id="delete-code" name="delete-code" placeholder="Enter the code here" required>
+																<br>
+																<!-- <div class="form-group">
+																	<label for="username">Username</label>
+																	<input type="text" class="form-control" id="username" aria-describedby="usernameHelp" placeholder="Enter your username" value="kennethvaldez">
+																	<small id="usernameHelp" class="form-text text-muted">After changing your username, your old username becomes available for anyone else to claim.</small>
+																</div>
+																<hr> -->
+																<div class="form-group">
+																	<label class="d-block text-danger">Delete Account</label>
+																	<p class="text-muted font-size-sm">Once you delete your account, there is no going back. Please be certain.</p>
+																</div>
+																<button class="btn btn-danger" type="submit">Delete Account</button>
+															</form>
+														</div>
+														<div class="tab-pane" id="security">
+															<h6>SECURITY SETTINGS</h6>
+															<hr>
+															<form method="post">
+																{% csrf_token %}
+																<input type="text" name="update_password" hidden>
+																<div class="form-group">
+																	<label class="d-block">Change Password</label>
+																	<input type="password" class="form-control" id="currentPassword" name="currentPassword" placeholder="Enter Current Password" required>
+																	<input type="password" class="form-control mt-1" id="newPassword" name="newPassword" placeholder="Enter New Password" required>
+																	<input type="password" class="form-control mt-1" id="confirmPassword" name="confirmPassword" placeholder="Enter New Password Again" required>
+																</div>
+																<button type="submit" class="btn btn-primary btn-sm">Update Profile</button>
+																<button type="reset" class="btn btn-light btn-sm">Reset Changes</button>
+															</form>
+															<hr>
+															<form>
+																<div class="form-group">
+																	<label class="d-block">Two Factor Authentication</label>
+																	<button class="btn btn-info" type="button">Enable two-factor authentication</button>
+																	<p class="small text-muted mt-2">Two-factor authentication adds an additional layer of security to your account by requiring more than just a password to log in.</p>
+																</div>
+															</form>
+															<hr>
+															<form>
+																<div class="form-group mb-0">
+																	<label class="d-block">Sessions</label>
+																	<p class="font-size-sm text-secondary">This is a list of devices that have logged into your account. Revoke any sessions that you do not recognize.</p>
+																	<ul class="list-group list-group-sm">
+																		<li class="list-group-item has-icon">
+																			<div>
+																				<h6 class="mb-0">San Francisco City 190.24.335.55</h6>
+																				<small class="text-muted">Your current session seen in United States</small>
+																			</div>
+																			<button class="btn btn-light btn-sm ml-auto" type="button">More info</button>
+																		</li>
+																	</ul>
+																</div>
+															</form>
+														</div>
+														<div class="tab-pane" id="notification">
+															<h6>NOTIFICATION SETTINGS</h6>
+															<hr>
+															<form>
+																<div class="form-group">
+																	<label class="d-block mb-0">Security Alerts</label>
+																	<div class="small text-muted mb-3">Receive security alert notifications via email</div>
+																	<div class="custom-control custom-checkbox">
+																		<input type="checkbox" class="custom-control-input" id="customCheck1" checked="">
+																		<label class="custom-control-label" for="customCheck1">Email each time a vulnerability is found</label>
+																	</div>
+																	<div class="custom-control custom-checkbox">
+																		<input type="checkbox" class="custom-control-input" id="customCheck2" checked="">
+																		<label class="custom-control-label" for="customCheck2">Email a digest summary of vulnerability</label>
+																	</div>
+																</div>
+																<div class="form-group mb-0">
+																	<label class="d-block">SMS Notifications</label>
+																	<ul class="list-group list-group-sm">
+																		<li class="list-group-item has-icon">
+																			Comments
+																			<div class="custom-control custom-control-nolabel custom-switch ml-auto">
+																				<input type="checkbox" class="custom-control-input" id="customSwitch1" checked="">
+																				<label class="custom-control-label" for="customSwitch1"></label>
+																			</div>
+																		</li>
+																		<li class="list-group-item has-icon">
+																			Updates From People
+																			<div class="custom-control custom-control-nolabel custom-switch ml-auto">
+																				<input type="checkbox" class="custom-control-input" id="customSwitch2">
+																				<label class="custom-control-label" for="customSwitch2"></label>
+																			</div>
+																		</li>
+																		<li class="list-group-item has-icon">
+																			Reminders
+																			<div class="custom-control custom-control-nolabel custom-switch ml-auto">
+																				<input type="checkbox" class="custom-control-input" id="customSwitch3" checked="">
+																				<label class="custom-control-label" for="customSwitch3"></label>
+																			</div>
+																		</li>
+																		<li class="list-group-item has-icon">
+																			Events
+																			<div class="custom-control custom-control-nolabel custom-switch ml-auto">
+																				<input type="checkbox" class="custom-control-input" id="customSwitch4" checked="">
+																				<label class="custom-control-label" for="customSwitch4"></label>
+																			</div>
+																		</li>
+																		<li class="list-group-item has-icon">
+																			Pages You Follow
+																			<div class="custom-control custom-control-nolabel custom-switch ml-auto">
+																				<input type="checkbox" class="custom-control-input" id="customSwitch5">
+																				<label class="custom-control-label" for="customSwitch5"></label>
+																			</div>
+																		</li>
+																	</ul>
+																</div>
+															</form>
+														</div>
+														<div class="tab-pane" id="billing">
+															<h6>BILLING SETTINGS</h6>
+															<hr>
+															<form>
+																<div class="form-group">
+																	<label class="d-block mb-0">Payment Method</label>
+																	<div class="small text-muted mb-3">You have not added a payment method</div>
+																	<button class="btn btn-info" type="button">Add Payment Method</button>
+																</div>
+																<div class="form-group mb-0">
+																	<label class="d-block">Payment History</label>
+																	<div class="border border-gray-500 bg-gray-200 p-3 text-center font-size-sm">You have not made any payment.</div>
+																</div>
+															</form>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 <script type="text/javascript">
 	$(document).ready(function () {
 		$('.pass_show').append('<span class="ptxt">Show</span>');
-      update_subjects();
+	  update_subjects();
 	});
 
 
@@ -356,17 +508,51 @@
 	});
 
    function update_subjects() {
-      {% for subject in tutorProfile.subjects %}
-         var subject_name = "{{subject}}".replace(/\s+/g, '-');
-         var subject_item = `
-            <a href="/subject_tag/`+subject_name+`" style="margin: 0 10px 10px 0;">
-                <dir class="mtgtlDwEfX">
-                  {{ subject }}
-                </dir>
-            </a>
-         `;
-         $( "#list_of_subjects" ).append( subject_item );
-      {% endfor %}
+	  {% for subject in tutorProfile.subjects %}
+		 var subject_name = "{{subject}}".replace(/\s+/g, '-');
+		 var subject_item = `
+			<a href="/subject_tag/`+subject_name+`" style="margin: 0 10px 10px 0;">
+				<dir class="mtgtlDwEfX">
+				  {{ subject }}
+				</dir>
+			</a>
+		 `;
+		 $( "#list_of_subjects" ).append( subject_item );
+	  {% endfor %}
+   }
+
+   function request_delete_code() {
+   	$.ajax({
+			url: '{% url "accounts:request_delete_code" %}',
+			success: function (response) {
+				if(response.status_code == 200) {
+					// var this_comment = eval(response.this_comment)[0];
+					// var number_of_likes = this_comment.fields.likes.length;
+					// var number_of_dislikes = this_comment.fields.dislikes.length;
+
+					$('#request-delete-code').remove();
+					Swal.fire({
+	            		icon: 'success',
+	            		title: "Operation Success!",
+	            		text: response.message
+	            	});
+
+				} else if (response.status_code == 401) {
+	            	Swal.fire({
+	            		icon: 'warning',
+	            		title: "Can't do that!",
+	            		text: response.message
+	            	});
+
+	            } else if (response.status_code == 403) {
+	            	Swal.fire({
+	            		icon: 'error',
+	            		title: "Can't do that!",
+	            		text: response.message
+	            	});
+	            }
+			}
+		});
    }
 </script>
 {% endblock %}
