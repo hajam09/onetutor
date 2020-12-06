@@ -11,3 +11,6 @@ class QuestionAnswer(models.Model):
 	likes = models.ManyToManyField(User, related_name='likes')
 	dislikes = models.ManyToManyField(User, related_name='dislikes')
 	date = models.DateTimeField(default=datetime.now)
+
+	class Meta:
+		verbose_name_plural = "QuestionAnswer"

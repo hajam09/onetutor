@@ -83,20 +83,22 @@ def register(request):
 				return render(request,"accounts/registration.html", context)
 
 			user = User.objects.create_user(username=email, email=email, password=password, first_name=firstname, last_name=lastname)
-			user.is_active = True if settings.DEBUG else False
+			user.is_active = settings.DEBUG
 			user.save()
 
-			current_site = get_current_site(request)
-			email_subject = "Activate your OneTutor Account"
-			message = render_to_string('accounts/activate.html',
-				{"user":user,
-				"domain":current_site.domain,
-				"uid": urlsafe_base64_encode(force_bytes(user.pk)),
-				"token": generate_token.make_token(user)
-				})
+			if not settings.DEBUG:
+				# No need to send an email during debug.
+				current_site = get_current_site(request)
+				email_subject = "Activate your OneTutor Account"
+				message = render_to_string('accounts/activate.html',
+					{"user":user,
+					"domain":current_site.domain,
+					"uid": urlsafe_base64_encode(force_bytes(user.pk)),
+					"token": generate_token.make_token(user)
+					})
 
-			email_message = EmailMessage(email_subject, message, settings.EMAIL_HOST_USER, [email])
-			email_message.send()
+				email_message = EmailMessage(email_subject, message, settings.EMAIL_HOST_USER, [email])
+				email_message.send()
 
 			context = {"activate": "We've sent you an activation link. Please check your email."}
 			return render(request,"accounts/registration.html", context)
@@ -182,8 +184,6 @@ def tutorprofile(request):
 		firstname = request.POST["first_name"].strip()
 		lastname = request.POST["last_name"].strip()
 
-		print(firstname, lastname)
-
 		if "my-file-selector" in request.FILES:
 			if tutorProfile.profilePicture:
 				previousProfileImage = os.path.join(settings.MEDIA_ROOT, tutorProfile.profilePicture.name)
@@ -197,8 +197,15 @@ def tutorprofile(request):
 		user = User.objects.get(pk=(request.user.id))
 		user.first_name = firstname
 		user.last_name = lastname
-		user.save()		
-		return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "countries": countries, "message": "Your personal details has been updated successfully", "alert": "alert-success", "activeAccountTab": True})
+		user.save()
+
+		context = {
+			"tutorProfile": tutorProfile,
+			"countries": countries,
+			"message": "Your personal details has been updated successfully",
+			"alert": "alert-success",
+		}
+		return render(request,"accounts/tutorprofile.html", context)
 
 	if request.method == "POST" and "update_password" in request.POST:
 		currentPassword = request.POST["currentPassword"]
@@ -208,14 +215,32 @@ def tutorprofile(request):
 		user = User.objects.get(pk=(request.user.id))
 
 		if currentPassword and not user.check_password(currentPassword):
-			return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "countries": countries, "message": "Your current password does not match", "alert": "alert-danger", "activeAccountTab": True})
+			context = {
+				"tutorProfile": tutorProfile,
+				"countries": countries,
+				"message": "Your current password does not match",
+				"alert": "alert-danger",
+			}
+			return render(request,"accounts/tutorprofile.html", context)
 
 		if(newPassword and confirmPassword):
 			if(newPassword!=confirmPassword):
-				return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "countries": countries, "message": "Your new password and confirm password does not match", "alert": "alert-danger", "activeAccountTab": True})
+				context = {
+					"tutorProfile": tutorProfile,
+					"countries": countries,
+					"message": "Your new password and confirm password does not match",
+					"alert": "alert-danger",
+				}
+				return render(request,"accounts/tutorprofile.html", context)
 
 			if(len(newPassword)<8 or any(letter.isalpha() for letter in newPassword)==False or any(capital.isupper() for capital in newPassword)==False or any(number.isdigit() for number in newPassword)==False):
-				return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "countries": countries, "message": "Your new password is not strong enough.", "alert": "alert-warning", "activeAccountTab": True})
+				context = {
+					"tutorProfile": tutorProfile,
+					"countries": countries,
+					"message": "Your new password is not strong enough.",
+					"alert": "alert-warning",
+				}
+				return render(request,"accounts/tutorprofile.html", context)
 
 			user.set_password(newPassword)
 		user.save()
@@ -227,19 +252,48 @@ def tutorprofile(request):
 			else:
 				return redirect("accounts:login")
 
-	if request.method == "POST" and "updateAddress" in request.POST:
+	if request.method == "POST" and "notification_settings":
+		login_attempt_notification = True if request.POST.get('login_attempt_notification') else False
+		question_notification = True if request.POST.get('question_notification') else False
+		answer_on_forum = True if request.POST.get('answer_on_forum') else False
+		message_on_chat = True if request.POST.get('message_on_chat') else False
+		# Need to create a Notifications table for each user and add it to event listner.
+
+	if request.method == "POST" and "social_links":
+		twitter = request.POST["twitter"]
+		facebook = request.POST["facebook"]
+		google = request.POST["google"]
+		linkedin = request.POST["linkedin"]
+		# Need to create a Social table for each user.
+
+	if request.method == "POST" and "update_address" in request.POST:
 		address_1 = request.POST["address_1"].strip().title()
 		address_2 = request.POST["address_2"].strip().title()
 		city = request.POST["city"].strip().title()
 		stateProvice = request.POST["stateProvice"].strip().title()
 		postalZip = request.POST["postalZip"].strip().upper()
 		country = Countries.objects.get(alpha=request.POST["country"])
-		location = {"address_1": address_1, "address_2": address_2, "city": city, "stateProvice": stateProvice,
-					"postalZip": postalZip, "country": {"alpha": country.alpha, "name": country.name}}
+
+		location = {
+			"address_1": address_1,
+			"address_2": address_2,
+			"city": city,
+			"stateProvice": stateProvice,
+			"postalZip": postalZip,
+			"country": {"alpha": country.alpha, "name": country.name}
+
+		}
 		TutorProfile.objects.filter(user=request.user.id).update(location=location)
 		tutorProfile = TutorProfile.objects.get(user=request.user.id)
 		tutorProfile.subjects = tutorProfile.subjects.split(",")
-		return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "countries": countries, "message": "Your location has been updated successfully", "alert": "alert-success", "activeAccountTab": True})
+
+		context = {
+			"tutorProfile": tutorProfile,
+			"countries": countries,
+			"message": "Your location has been updated successfully",
+			"alert": "alert-success"
+		}
+		return render(request,"accounts/tutorprofile.html", context)
 	
 	return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "countries": countries, "questionAndAnswers": questionAndAnswers})
 
