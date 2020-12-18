@@ -1,63 +1,67 @@
 from django.shortcuts import render, redirect
-from .models import Community, Forum
+from .models import Category, Community, Forum, Comment
 from datetime import datetime
 from django.core import serializers
 from django.http import HttpResponse
 import json, random
 from django.contrib.auth.models import User
 
-def mainpage(request, page_number):
-	communities = Community.objects.all().order_by('-community_likes')
+def mainpage(request):
+	Category.objects.all().delete()
+	Community.objects.all().delete()
+	Forum.objects.all().delete()
+	Comment.objects.all().delete()
+	# communities = Community.objects.all().order_by('-community_likes')
 
-	if not communities:
-		context = {
-			"message": "Looks like you have to create a new community!.",
-			"alert": "alert-info"
-		}
-		return render(request, "forum/mainpage.html", context)
+	# if not communities:
+	# 	context = {
+	# 		"message": "Looks like you have to create a new community!.",
+	# 		"alert": "alert-info"
+	# 	}
+	# 	return render(request, "forum/mainpage.html", context)
 
-	sub_communities = [communities[i:i + 10] for i in range(0, len(communities), 10)]
+	# sub_communities = [communities[i:i + 10] for i in range(0, len(communities), 10)]
 
-	if int(page_number)<1:
-		return redirect('forum:mainpage', page_number=1)
+	# if int(page_number)<1:
+	# 	return redirect('forum:mainpage', page_number=1)
 
-	if int(page_number) > len(sub_communities):
-		return redirect('forum:mainpage', page_number=len(sub_communities))
+	# if int(page_number) > len(sub_communities):
+	# 	return redirect('forum:mainpage', page_number=len(sub_communities))
 
-	if request.method == "POST" and "create_community" in request.POST:
-		if not request.user.is_authenticated:
-			return redirect('accounts:login')
+	# if request.method == "POST" and "create_community" in request.POST:
+	# 	if not request.user.is_authenticated:
+	# 		return redirect('accounts:login')
 
-		community_title = request.POST["community_title"]
-		community_url = ''.join(e for e in community_title if e.isalnum())
-		community_description = request.POST["community_description"]
-		anonymous = request.POST.get('anonymise_me', False) == 'on'
+	# 	community_title = request.POST["community_title"]
+	# 	community_url = ''.join(e for e in community_title if e.isalnum())
+	# 	community_description = request.POST["community_description"]
+	# 	anonymous = request.POST.get('anonymise_me', False) == 'on'
 
-		if Community.objects.filter(community_url=community_url).exists():
-			context = {
-				"sub_communities": sub_communities[int(page_number)-1],
-				"pages": len(sub_communities),
-				"current_page": page_number,
-				"message": "Hey we think a similar forum already exists to what you're creating.",
-				"url": community_url,
-				"alert": "alert-info"
-			}
-			return render(request, "forum/mainpage.html", context)
+	# 	if Community.objects.filter(community_url=community_url).exists():
+	# 		context = {
+	# 			"sub_communities": sub_communities[int(page_number)-1],
+	# 			"pages": len(sub_communities),
+	# 			"current_page": page_number,
+	# 			"message": "Hey we think a similar forum already exists to what you're creating.",
+	# 			"url": community_url,
+	# 			"alert": "alert-info"
+	# 		}
+	# 		return render(request, "forum/mainpage.html", context)
 
-		Community.objects.create(
-			creator = request.user,
-			community_title = community_title,
-			community_url = community_url,
-			community_description = community_description,
-			anonymous=anonymous
-		)
-		request.session['new_community_message'] = "WOW! It's a new community. Create a sub-forum, upload stuff or do what ever you want. Sky's the limit!"
-		return redirect('forum:communitypage', community_url=community_url, page_number=1)
+	# 	Community.objects.create(
+	# 		creator = request.user,
+	# 		community_title = community_title,
+	# 		community_url = community_url,
+	# 		community_description = community_description,
+	# 		anonymous=anonymous
+	# 	)
+	# 	request.session['new_community_message'] = "WOW! It's a new community. Create a sub-forum, upload stuff or do what ever you want. Sky's the limit!"
+	# 	return redirect('forum:communitypage', community_url=community_url, page_number=1)
 
 	context = {
-		"sub_communities": sub_communities[int(page_number)-1],
-		"pages": len(sub_communities),
-		"current_page": page_number
+		# "sub_communities": sub_communities[int(page_number)-1],
+		# "pages": len(sub_communities),
+		# "current_page": page_number
 	}
 	return render(request, "forum/mainpage.html", context)
 
