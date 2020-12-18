@@ -3,7 +3,7 @@ Feature:
 * Create a form to allow students to create a profile.
 * Allow only students to rate tutors given the tutor has tutored the student.
 * Create a copyright footer for the application.
-* Write Cucumber tests for various Views/
+* Write Cucumber tests for various Views.
 * Create a two factor authentication for more security.
 * List user's recent sessions. Allow user to block/unblock the sessions by using MAC ADDRESS.
 * Store the user's notification on the system and act accordingly.
@@ -12,6 +12,7 @@ Feature:
 
 Bugs / Fixes:
 * Priority: Cannot activate email when regestering.
+* Cannot send an email with the delete code.
 * On login and logout, redirect the user to their previous page if possible.
 * On photo upload trim the photo to reduce size.
 * On tutor profile when no Q&A exists, display a friendly message.

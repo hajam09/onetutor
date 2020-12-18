@@ -47,3 +47,13 @@ class Countries(models.Model):
 
 	def __str__ (self):
 		return str(self.id) + " - " + self.alpha + " - " + self.name
+
+class SocialConnection(models.Model):
+	user = models.OneToOneField(User, on_delete=models.CASCADE)
+	twitter = models.CharField(max_length=128, blank=True)
+	facebook = models.CharField(max_length=128, blank=True)
+	google = models.CharField(max_length=128, blank=True)
+	linkedin = models.CharField(max_length=128, blank=True)
+
+	class Meta:
+		verbose_name_plural = "SocialConnection"

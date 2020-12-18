@@ -1,0 +1,437 @@
+{% extends "accounts/account_base.html" %}
+{% load static %}
+{% block content %}
+<style type="text/css">
+	.ui-w-80{width:100px!important;height:auto}.btn-default{border-color:rgba(24,28,33,.1);background:rgba(0,0,0,0);color:#4e5155}label.btn{margin-bottom:0}.btn-outline-primary{border-color:#26b4ff;background:0 0;color:#26b4ff}.btn{cursor:pointer}.text-light{color:#babbbc!important}.account-settings-fileinput{position:absolute;visibility:hidden;width:1px;height:1px;opacity:0}h6,label{color: black;}
+	@media (min-width: 1200px) {
+		.container {
+			width: 1600px;
+		}
+		.wrapper {
+			width: 75%;
+		}
+	}
+
+	@media (min-width: 972px) and (max-width: 1200px) {
+		.container {
+			width: 1600px;
+		}
+		.wrapper {
+			width: 90%;
+		}
+	}
+
+	@media (min-width: 700px) and (max-width: 959px) {
+		.container {
+			width: 1600px;
+		}
+		.wrapper {
+			width: 90%;
+		}
+		.side-bar-text{display: none}
+		.col-md-3{max-width: 17%}
+	}
+</style>
+<div class="wrapper" style="margin: auto;overflow-x: hidden;">
+	<br>
+	{% if messages %}
+	{% for message in messages %}
+		{% if message.tags == "success" %}
+			<div style="color: black; text-align: center;" class="alert alert-success" role="alert">{{message}}</div>
+		{% elif message.tags == "error" %}
+			<div style="color: black; text-align: center;" class="alert alert-danger" role="alert">{{message}}</div>
+		{% else %}
+			<div style="color: black; text-align: center;" class="alert alert-info" role="alert">{{message}}</div>
+		{% endif %}
+	{% endfor %}
+	{% endif %}
+	<div class="row gutters-sm">
+		<div class="col-md-3 d-none d-md-block">
+			<div class="card">
+				<div class="card-body">
+					<nav class="nav flex-column nav-pills nav-gap-y-1">
+						<a href="#generalinformation" data-toggle="tab" class="nav-item nav-link has-icon nav-link-faded active">
+							<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1">
+								<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+								<circle cx="12" cy="7" r="4"></circle>
+							</svg>
+							&nbsp;&nbsp;
+							<label class="side-bar-text">General</label>
+						</a>
+						<a href="#address" data-toggle="tab" class="nav-item nav-link has-icon nav-link-faded">
+							<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1">
+								<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+								<circle cx="12" cy="10" r="3"></circle>
+							</svg>
+							&nbsp;&nbsp;
+							<label class="side-bar-text">Address</label>
+						</a>
+						<a href="#accountsetting" data-toggle="tab" class="nav-item nav-link has-icon nav-link-faded">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-settings mr-2">
+								<circle cx="12" cy="12" r="3"></circle>
+								<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+							</svg>
+							<label class="side-bar-text">Account</label>
+						</a>
+						<a href="#security" data-toggle="tab" class="nav-item nav-link has-icon nav-link-faded">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shield mr-2">
+								<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+							</svg>
+							<label class="side-bar-text">Security</label>
+						</a>
+						<a href="#notification" data-toggle="tab" class="nav-item nav-link has-icon nav-link-faded">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell mr-2">
+								<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+								<path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+							</svg>
+							<label class="side-bar-text">Notification</label>
+						</a>
+						<a href="#social" data-toggle="tab" class="nav-item nav-link has-icon nav-link-faded">
+							<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1">
+								<circle cx="12" cy="12" r="10"></circle>
+								<line x1="2" y1="12" x2="22" y2="12"></line>
+								<path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+							</svg>
+							&nbsp;&nbsp;
+							<label class="side-bar-text">Social</label>
+						</a>
+					</nav>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-9">
+			<div class="card">
+				<div class="card-header border-bottom mb-3 d-flex d-md-none">
+					<ul class="nav nav-tabs card-header-tabs nav-gap-x-1" role="tablist">
+						<li class="nav-item">
+							<a href="#generalinformation" data-toggle="tab" class="nav-link has-icon active">
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user">
+									<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+									<circle cx="12" cy="7" r="4"></circle>
+								</svg>
+							</a>
+						</li>
+						<li class="nav-item">
+							<a href="#generalinformation" data-toggle="tab" class="nav-link has-icon">
+								<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1">
+									<polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+								</svg>
+							</a>
+						</li>
+						<li class="nav-item">
+							<a href="#accountsetting" data-toggle="tab" class="nav-link has-icon">
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-settings">
+									<circle cx="12" cy="12" r="3"></circle>
+									<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+								</svg>
+							</a>
+						</li>
+						<li class="nav-item">
+							<a href="#security" data-toggle="tab" class="nav-link has-icon">
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shield">
+									<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+								</svg>
+							</a>
+						</li>
+						<li class="nav-item">
+							<a href="#notification" data-toggle="tab" class="nav-link has-icon">
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell">
+									<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+									<path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+								</svg>
+							</a>
+						</li>
+						<li class="nav-item">
+							<a href="#social" data-toggle="tab" class="nav-link has-icon">
+								<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1">
+									<circle cx="12" cy="12" r="10"></circle>
+									<line x1="2" y1="12" x2="22" y2="12"></line>
+									<path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+								</svg>
+							</a>
+						</li>
+						<!-- need to add a list to add icon for address tab -->
+					</ul>
+				</div>
+				<div class="card-body tab-content">
+					<div class="tab-pane active" id="generalinformation">
+						<h6>YOUR GENERAL INFORMATION</h6>
+						<hr>
+						<form method="post" enctype="multipart/form-data">
+							<input type="text" name="update_general_information" hidden>
+							{% csrf_token %}
+							<div class="card-body media align-items-center">
+								{% if request.user.tutorprofile.profilePicture %}
+								<img src="{{ request.user.tutorprofile.profilePicture.url }}" alt="" class="d-block ui-w-80 rounded-circle">
+								{% else %}
+								<img src="https://icon-library.com/images/default-user-icon/default-user-icon-13.jpg" alt="" class="d-block ui-w-80 rounded-circle">
+								{% endif %}
+								<div class="media-body ml-4">
+									<label class="btn btn-danger" for="my-file-selector">
+									<i class="fa fa-paperclip" aria-hidden="true"></i>&nbsp;&nbsp;
+									<input id="my-file-selector" name="my-file-selector" type="file" style="display:none" onchange="$('#upload-file-info').html(this.files[0].name)"> Choose a File
+									</label> &nbsp; <button type="button" class="btn btn-info md-btn-flat">Reset</button> 
+									<div class="text-light small mt-1">Allowed JPG, GIF or PNG. Max size of 800K</div>
+									<div class="text-light small mt-1" id="upload-file-info"></div>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="row">
+									<div class="col">
+										<label for="fullName">First Name</label>
+										<input type="text" class="form-control" id="first_name" name="first_name" placeholder="First Name" value="{{ tutorProfile.user.first_name }}" required>
+									</div>
+									<div class="col">
+										<label for="fullName">Last Name</label>
+										<input type="text" class="form-control" id="last_name" name="last_name" placeholder="Last Name" value="{{ tutorProfile.user.last_name }}" required>
+									</div>
+								</div>
+								<small id="fullNameHelp" class="form-text text-muted">Your name may appear around here where you are mentioned. You can change or remove it at any time.</small>
+							</div>
+							<div class="form-group">
+								<label for="email">Email address</label>
+								<input type="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Email" value="{{ request.user.email }}" disabled>
+								<small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+							</div>
+							<div class="form-group">
+								<label for="url">URL</label>
+								<input type="text" class="form-control" id="url" placeholder="Enter your website address" value="http://localhost:8000/view/tutorprofile/{{ tutorProfile.secondary_key }}/" disabled>
+							</div>
+							<div class="form-group small text-muted">
+								All of the fields on this page are optional and can be deleted at any time, and by filling them out, you're giving us consent to share this data wherever your user profile appears.
+							</div>
+							<button type="submit" class="btn btn-primary">Update Profile</button>
+							<button type="reset" class="btn btn-light">Reset Changes</button>
+						</form>
+					</div>
+					<div class="tab-pane" id="address">
+						<h6>ADDRESS</h6>
+						<hr>
+						<form method="post">
+							{% csrf_token %}
+							<input type="text" name="update_address" hidden>
+							<div class="form-group">
+								<label for="address_1">Address Line 1</label>
+								<input type="text" class="form-control" id="address_1" name="address_1" placeholder="Address Line 1" value="{{tutorProfile.location.address_1}}" required>
+							</div>
+							<div class="form-group">
+								<label for="address_2">Address Line 2</label>
+								<input type="text" class="form-control" id="address_2" name="address_2" placeholder="Address Line 2" value="{{tutorProfile.location.address_2}}">
+							</div>
+							<div class="form-group">
+								<div class="row">
+									<div class="col">
+										<label for="city">City</label>
+										<input type="text" class="form-control" id="city" name="city" placeholder="City" value="{{tutorProfile.location.city}}" required>
+									</div>
+									<div class="col">
+										<label for="stateProvice">State / Province</label>
+										<input type="text" class="form-control" id="stateProvice" name="stateProvice" placeholder="State / Province" value="{{tutorProfile.location.stateProvice}}">
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="row">
+									<div class="col">
+										<label for="postalZip">Postal / Zip Code</label>
+										<input type="text" class="form-control" id="postalZip" name="postalZip" placeholder="Postal / Zip Code" value="{{tutorProfile.location.postalZip}}" required>
+									</div>
+									<div class="col">
+										<label for="country">Country</label>
+										<select class="form-control" id="country" name="country">
+											{% if tutorProfile.location.country %}
+											{% for country in countries %}
+											{% ifequal country.alpha tutorProfile.location.country.alpha %}
+											<option value="{{country.alpha}}" selected="selected">{{country.name}}</option>
+											{% else %}
+											<option value="{{country.alpha}}">{{country.name}}</option>
+											{% endifequal %}
+											{% endfor %}
+											{% else %}
+											{% for country in countries %}
+											{% ifequal country.alpha "GB" %}
+											<option value="{{country.alpha}}" selected="selected">{{country.name}}</option>
+											{% else %}
+											<option value="{{country.alpha}}">{{country.name}}</option>
+											{% endifequal %}
+											{% endfor %}
+											{% endif %}
+										</select>
+									</div>
+								</div>
+							</div>
+							<button type="submit" class="btn btn-primary">Update Address</button>
+							<button type="reset" class="btn btn-light">Reset Changes</button>
+						</form>
+					</div>
+					<div class="tab-pane" id="accountsetting">
+						<h6>ACCOUNT SETTINGS</h6>
+						<hr>
+						<form method="post">
+							{% csrf_token %}
+							<input type="text" name="delete_account" hidden>
+							<button class="btn btn-info" type="button" id="request-delete-code" onclick="request_delete_code()">Request Code</button>
+							<small class="form-text text-muted">We'll send you a code to your email. Copy and Paste the code below.</small>
+							<br>
+							<input type="text" class="form-control" id="delete-code" name="delete-code" placeholder="Enter the code here" required>
+							<br>
+							<div class="form-group">
+								<label class="d-block text-danger">Delete Account</label>
+								<p class="text-muted font-size-sm">Once you delete your account, there is no going back. Please be certain.</p>
+							</div>
+							<button class="btn btn-danger" type="submit" id="delete-account-btn">Delete Account</button>
+						</form>
+					</div>
+					<div class="tab-pane" id="security">
+						<h6>SECURITY SETTINGS</h6>
+						<hr>
+						<form method="post">
+							{% csrf_token %}
+							<input type="text" name="update_password" hidden>
+							<div class="form-group">
+								<label class="d-block">Change Password</label>
+								<input type="password" class="form-control" id="currentPassword" name="currentPassword" placeholder="Enter Current Password" required>
+								<input type="password" class="form-control mt-1" id="newPassword" name="newPassword" placeholder="Enter New Password" required>
+								<input type="password" class="form-control mt-1" id="confirmPassword" name="confirmPassword" placeholder="Enter New Password Again" required>
+							</div>
+							<button type="submit" class="btn btn-primary btn-sm">Update Profile</button>
+							<button type="reset" class="btn btn-light btn-sm">Reset Changes</button>
+						</form>
+						<hr>
+						<form>
+							<div class="form-group">
+								<label class="d-block">Two Factor Authentication</label>
+								<button class="btn btn-info" type="button">Enable two-factor authentication</button>
+								<p class="small text-muted mt-2">Two-factor authentication adds an additional layer of security to your account by requiring more than just a password to log in.</p>
+							</div>
+						</form>
+						<hr>
+						<form>
+							<div class="form-group mb-0">
+								<label class="d-block">Sessions</label>
+								<p class="font-size-sm text-secondary">This is a list of devices that have logged into your account. Revoke any sessions that you do not recognize.</p>
+								<ul class="list-group list-group-sm">
+									<li class="list-group-item has-icon">
+										<div>
+											<h6 class="mb-0">San Francisco City 190.24.335.55</h6>
+											<small class="text-muted">Your current session seen in United States</small>
+										</div>
+										<button class="btn btn-light btn-sm ml-auto" type="button">More info</button>
+									</li>
+								</ul>
+							</div>
+						</form>
+					</div>
+					<div class="tab-pane" id="notification">
+						<h6>NOTIFICATION SETTINGS</h6>
+						<hr>
+						<form method="post">
+							{% csrf_token %}
+							<input type="text" name="notification_settings" hidden>
+							<div class="form-group">
+								<!-- <label class="d-block mb-0">Security Alerts</label> -->
+								<!-- <div class="small text-muted mb-3">Receive security alert notifications via email</div> -->
+								<div class="custom-control custom-checkbox">
+									<input type="checkbox" class="custom-control-input" id="login_attempt_notification" name="login_attempt_notification">
+									<label class="custom-control-label" for="login_attempt_notification">Email me when login attempted on a new device</label>
+								</div>
+								<br>
+								<div class="custom-control custom-checkbox">
+									<input type="checkbox" class="custom-control-input" id="question_notification" name="question_notification">
+									<label class="custom-control-label" for="question_notification">Email me when someone asks me a question.</label>
+								</div>
+								<br>
+								<div class="custom-control custom-checkbox">
+									<input type="checkbox" class="custom-control-input" id="answer_on_forum" name="answer_on_forum">
+									<label class="custom-control-label" for="answer_on_forum">Email me when someone answers on my forum thread</label>
+								</div>
+								<br>
+								<div class="custom-control custom-checkbox">
+									<input type="checkbox" class="custom-control-input" id="message_on_chat" name="message_on_chat">
+									<label class="custom-control-label" for="message_on_chat">Email me when someone messages me on the chat.</label>
+								</div>
+							</div>
+							<hr>
+							<button type="submit" class="btn btn-primary">Update Notification</button>
+							<button type="reset" class="btn btn-light">Reset Changes</button>
+						</form>
+					</div>
+					<div class="tab-pane" id="social">
+						<h6>SOCIAL CONNECTIONS</h6>
+						<hr>
+						<form method="post">
+							{% csrf_token %}
+							<input type="text" name="social_links" hidden>
+							<div class="form-group">
+								<label for="twitter">Twitter</label>
+								<input type="text" class="form-control" id="twitter" name="twitter" value="{{ social_links.twitter }}">
+							</div>
+							<div class="form-group">
+								<label for="facebook">Facebook</label>
+								<input type="text" class="form-control" id="facebook" name="facebook" value="{{ social_links.facebook }}">
+							</div>
+							<div class="form-group">
+								<label for="google">Google +</label>
+								<input type="text" class="form-control" id="google" name="google" value="{{ social_links.google }}">
+							</div>
+							<div class="form-group">
+								<label for="linkedin">LinkedIn</label>
+								<input type="text" class="form-control" id="linkedin" name="linkedin" value="{{ social_links.linkedin }}">
+							</div>
+							<button type="submit" class="btn btn-primary">Update Connections</button>
+							<button type="reset" class="btn btn-light">Reset Changes</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	$(document).ready(function () {
+		$("#delete-account-btn").prop('disabled', true);
+	});
+
+	function request_delete_code() {
+		$.ajax({
+			url: '{% url "accounts:request_delete_code" %}',
+			success: function (response) {
+				if(response.status_code == 200) {
+
+					$('#request-delete-code').remove();
+					$("#delete-account-btn").prop('disabled', false);
+					Swal.fire({
+						icon: 'success',
+						title: "Operation Success!",
+						text: response.message
+					});
+
+				} else if (response.status_code == 401) {
+					Swal.fire({
+						icon: 'warning',
+						title: "Can't do that!",
+						text: response.message
+					});
+
+				} else if (response.status_code == 403) {
+					Swal.fire({
+						icon: 'error',
+						title: "Can't do that!",
+						text: response.message
+					});
+				}
+			}
+		});
+	}
+
+	var onresize = function() {
+		//your code here
+		//this is just an example
+		width = document.body.clientWidth;
+		height = document.body.clientHeight;
+		console.log(width);
+	}
+
+	window.addEventListener("resize", onresize);
+</script>
+{% endblock %}

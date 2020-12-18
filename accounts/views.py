@@ -7,7 +7,7 @@ from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_text, DjangoUnicodeDecodeError
 from .utils import generate_token
-from .models import StudentProfile, TutorProfile, Countries
+from .models import StudentProfile, TutorProfile, Countries, SocialConnection
 from tutoring.models import QuestionAnswer
 from django.core.mail import EmailMessage
 from django.conf import settings
@@ -156,8 +156,6 @@ def createprofile(request):
 	countries = Countries.objects.all()
 	return render(request,"accounts/createprofile.html", {"countries": countries})
 
-
-
 @login_required
 def tutorprofile(request):
 	try:
@@ -170,15 +168,19 @@ def tutorprofile(request):
 
 	questionAndAnswers = QuestionAnswer.objects.filter(answerer=tutorProfile.user).order_by('-id')
 
-	if request.method == "POST" and "delete_account" in request.POST:
-		delete_code = request.POST["delete-code"]
-		if "user_" + str(request.user.id) + "_delete_key" in request.session:
-			if delete_code == request.session["user_" + str(request.user.id) + "_delete_key"]:
-				u = User.objects.get(pk=request.user.id)
-				u.delete()
-				del request.session["user_" + str(request.user.id) + "_delete_key"]
-				messages.add_message(request,messages.SUCCESS,"Account deleted successfully")
-				return redirect('tutoring:mainpage')
+	
+	
+	return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "countries": countries, "questionAndAnswers": questionAndAnswers})
+
+@login_required
+def settings(request):
+	try:
+		tutorProfile = TutorProfile.objects.get(user=request.user.id)
+	except TutorProfile.DoesNotExist:
+		return redirect("accounts:createprofile")
+
+	countries = Countries.objects.all()
+	social_links = SocialConnection.objects.get(user=request.user) if SocialConnection.objects.filter(user=request.user).count() != 0 else None
 
 	if request.method == "POST" and "update_general_information" in request.POST:
 		firstname = request.POST["first_name"].strip()
@@ -199,72 +201,8 @@ def tutorprofile(request):
 		user.last_name = lastname
 		user.save()
 
-		context = {
-			"tutorProfile": tutorProfile,
-			"countries": countries,
-			"message": "Your personal details has been updated successfully",
-			"alert": "alert-success",
-		}
-		return render(request,"accounts/tutorprofile.html", context)
-
-	if request.method == "POST" and "update_password" in request.POST:
-		currentPassword = request.POST["currentPassword"]
-		newPassword = request.POST["newPassword"]
-		confirmPassword = request.POST["confirmPassword"]
-
-		user = User.objects.get(pk=(request.user.id))
-
-		if currentPassword and not user.check_password(currentPassword):
-			context = {
-				"tutorProfile": tutorProfile,
-				"countries": countries,
-				"message": "Your current password does not match",
-				"alert": "alert-danger",
-			}
-			return render(request,"accounts/tutorprofile.html", context)
-
-		if(newPassword and confirmPassword):
-			if(newPassword!=confirmPassword):
-				context = {
-					"tutorProfile": tutorProfile,
-					"countries": countries,
-					"message": "Your new password and confirm password does not match",
-					"alert": "alert-danger",
-				}
-				return render(request,"accounts/tutorprofile.html", context)
-
-			if(len(newPassword)<8 or any(letter.isalpha() for letter in newPassword)==False or any(capital.isupper() for capital in newPassword)==False or any(number.isdigit() for number in newPassword)==False):
-				context = {
-					"tutorProfile": tutorProfile,
-					"countries": countries,
-					"message": "Your new password is not strong enough.",
-					"alert": "alert-warning",
-				}
-				return render(request,"accounts/tutorprofile.html", context)
-
-			user.set_password(newPassword)
-		user.save()
-
-		if(newPassword and confirmPassword):
-			user = authenticate(username=user.username, password=newPassword)
-			if user:
-				auth_login(request, user)
-			else:
-				return redirect("accounts:login")
-
-	if request.method == "POST" and "notification_settings":
-		login_attempt_notification = True if request.POST.get('login_attempt_notification') else False
-		question_notification = True if request.POST.get('question_notification') else False
-		answer_on_forum = True if request.POST.get('answer_on_forum') else False
-		message_on_chat = True if request.POST.get('message_on_chat') else False
-		# Need to create a Notifications table for each user and add it to event listner.
-
-	if request.method == "POST" and "social_links":
-		twitter = request.POST["twitter"]
-		facebook = request.POST["facebook"]
-		google = request.POST["google"]
-		linkedin = request.POST["linkedin"]
-		# Need to create a Social table for each user.
+		messages.add_message(request,messages.SUCCESS,"Your personal details has been updated successfully")
+		return redirect("accounts:settings")
 
 	if request.method == "POST" and "update_address" in request.POST:
 		address_1 = request.POST["address_1"].strip().title()
@@ -287,15 +225,78 @@ def tutorprofile(request):
 		tutorProfile = TutorProfile.objects.get(user=request.user.id)
 		tutorProfile.subjects = tutorProfile.subjects.split(",")
 
-		context = {
-			"tutorProfile": tutorProfile,
-			"countries": countries,
-			"message": "Your location has been updated successfully",
-			"alert": "alert-success"
-		}
-		return render(request,"accounts/tutorprofile.html", context)
+		messages.add_message(request,messages.SUCCESS,"Your location has been updated successfully")
+		return redirect("accounts:settings")
+
+	if request.method == "POST" and "delete_account" in request.POST:
+		delete_code = request.POST["delete-code"]
+		if "user_" + str(request.user.id) + "_delete_key" in request.session:
+			if delete_code == request.session["user_" + str(request.user.id) + "_delete_key"]:
+				u = User.objects.get(pk=request.user.id)
+				u.delete()
+				del request.session["user_" + str(request.user.id) + "_delete_key"]
+				messages.add_message(request,messages.SUCCESS,"Account deleted successfully")
+				return redirect('tutoring:mainpage')
+
+	if request.method == "POST" and "update_password" in request.POST:
+		currentPassword = request.POST["currentPassword"]
+		newPassword = request.POST["newPassword"]
+		confirmPassword = request.POST["confirmPassword"]
+
+		user = User.objects.get(pk=(request.user.id))
+
+		if currentPassword and not user.check_password(currentPassword):
+			messages.add_message(request,messages.ERROR,"Your current password does not match")
+			return redirect("accounts:settings")
+
+		if(newPassword and confirmPassword):
+			if(newPassword!=confirmPassword):
+				messages.add_message(request,messages.ERROR,"Your new password and confirm password does not match")
+				return redirect("accounts:settings")
+
+			if(len(newPassword)<8 or any(letter.isalpha() for letter in newPassword)==False or any(capital.isupper() for capital in newPassword)==False or any(number.isdigit() for number in newPassword)==False):
+				messages.add_message(request,messages.WARNING,"Your new password is not strong enough")
+				return redirect("accounts:settings")
+
+			user.set_password(newPassword)
+		user.save()
+
+		if(newPassword and confirmPassword):
+			user = authenticate(username=user.username, password=newPassword)
+			if user:
+				messages.add_message(request,messages.SUCCESS,"Your password has been updated")
+				auth_login(request, user)
+			else:
+				messages.add_message(request,messages.ERROR,"Error updating your password")
+				return redirect("accounts:login")	
+
+	if request.method == "POST" and "notification_settings" in request.POST:
+		login_attempt_notification = True if request.POST.get('login_attempt_notification') else False
+		question_notification = True if request.POST.get('question_notification') else False
+		answer_on_forum = True if request.POST.get('answer_on_forum') else False
+		message_on_chat = True if request.POST.get('message_on_chat') else False
+		# Need to create a Notifications table for each user and add it to event listner.
+		print("true")
+
+	if request.method == "POST" and "social_links" in request.POST:
+		twitter = request.POST["twitter"]
+		facebook = request.POST["facebook"]
+		google = request.POST["google"]
+		linkedin = request.POST["linkedin"]
+		obj, created = SocialConnection.objects.update_or_create(
+			user=request.user,
+			defaults={'twitter': twitter, 'facebook': facebook, 'google': google, 'linkedin': linkedin},
+		)
+		messages.add_message(request,messages.SUCCESS,"Your social connection has been created/updated successfully")
+		return redirect("accounts:settings")
+
+	context = {
+		"tutorProfile": tutorProfile,
+		"countries": countries,
+		"social_links": social_links
+	}
 	
-	return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "countries": countries, "questionAndAnswers": questionAndAnswers})
+	return render(request, "accounts/settings.html",context)
 
 @login_required
 def tutorprofileedit(request):
