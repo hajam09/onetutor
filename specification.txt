@@ -7,7 +7,6 @@ Feature:
 * Create a two factor authentication for more security.
 * List user's recent sessions. Allow user to block/unblock the sessions by using MAC ADDRESS.
 * Store the user's notification on the system and act accordingly.
-* Store user's social media link.
 * Allow users to authenticate using social media account.
 
 Bugs / Fixes:
