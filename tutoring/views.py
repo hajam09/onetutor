@@ -55,12 +55,6 @@ def viewtutorprofile(request, tutor_secondary_key):
 		return redirect("tutoring:mainpage")
 	
 	tutorProfile.subjects = tutorProfile.subjects.replace(", ", ",").split(",")
-	context = {
-		"tutorProfile": tutorProfile,
-		"subjects": Subject.objects.all()
-	}
-	activeQATab = False
-	activeQuestion = None
 
 	if request.is_ajax():
 		functionality = request.GET.get('functionality', None)
@@ -107,8 +101,11 @@ def viewtutorprofile(request, tutor_secondary_key):
 
 		raise Exception("Unknown functionality viewtutorprofile")
 
-
-	context["questionAndAnswers"] = QuestionAnswer.objects.filter(answerer=tutorProfile.user).order_by('-id')
+	context = {
+		"tutorProfile": tutorProfile,
+		"subjects": Subject.objects.all(),
+		"questionAndAnswers": QuestionAnswer.objects.filter(answerer=tutorProfile.user).order_by('-id')
+	}
 
 	return render(request, "tutoring/tutorprofile.html", context)
 
