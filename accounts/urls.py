@@ -16,5 +16,5 @@ urlpatterns = [
 	path('password_change/<uidb64>/<token>', views.password_change, name='password_change'),
 	path('rules/<slug:rule_type>/', views.rules, name='rules'),
 	path('request_delete_code/', views.request_delete_code, name='request_delete_code'),
-	path('settings/', views.settings, name='settings'),
+	path('user_settings/', views.user_settings, name='user_settings'),
 ]

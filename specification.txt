@@ -11,7 +11,6 @@ Feature:
 
 Bugs / Fixes:
 * Priority: Cannot activate email when regestering.
-* Cannot send an email with the delete code.
 * On login and logout, redirect the user to their previous page if possible.
 * On photo upload trim the photo to reduce size.
 * On tutor profile when no Q&A exists, display a friendly message.

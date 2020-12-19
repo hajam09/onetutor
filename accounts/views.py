@@ -173,7 +173,7 @@ def tutorprofile(request):
 	return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "countries": countries, "questionAndAnswers": questionAndAnswers})
 
 @login_required
-def settings(request):
+def user_settings(request):
 	try:
 		tutorProfile = TutorProfile.objects.get(user=request.user.id)
 	except TutorProfile.DoesNotExist:
@@ -202,7 +202,7 @@ def settings(request):
 		user.save()
 
 		messages.add_message(request,messages.SUCCESS,"Your personal details has been updated successfully")
-		return redirect("accounts:settings")
+		return redirect("accounts:user_settings")
 
 	if request.method == "POST" and "update_address" in request.POST:
 		address_1 = request.POST["address_1"].strip().title()
@@ -226,7 +226,7 @@ def settings(request):
 		tutorProfile.subjects = tutorProfile.subjects.split(",")
 
 		messages.add_message(request,messages.SUCCESS,"Your location has been updated successfully")
-		return redirect("accounts:settings")
+		return redirect("accounts:user_settings")
 
 	if request.method == "POST" and "delete_account" in request.POST:
 		delete_code = request.POST["delete-code"]
@@ -247,16 +247,16 @@ def settings(request):
 
 		if currentPassword and not user.check_password(currentPassword):
 			messages.add_message(request,messages.ERROR,"Your current password does not match")
-			return redirect("accounts:settings")
+			return redirect("accounts:user_settings")
 
 		if(newPassword and confirmPassword):
 			if(newPassword!=confirmPassword):
 				messages.add_message(request,messages.ERROR,"Your new password and confirm password does not match")
-				return redirect("accounts:settings")
+				return redirect("accounts:user_settings")
 
 			if(len(newPassword)<8 or any(letter.isalpha() for letter in newPassword)==False or any(capital.isupper() for capital in newPassword)==False or any(number.isdigit() for number in newPassword)==False):
 				messages.add_message(request,messages.WARNING,"Your new password is not strong enough")
-				return redirect("accounts:settings")
+				return redirect("accounts:user_settings")
 
 			user.set_password(newPassword)
 		user.save()
@@ -287,8 +287,8 @@ def settings(request):
 			user=request.user,
 			defaults={'twitter': twitter, 'facebook': facebook, 'google': google, 'linkedin': linkedin},
 		)
-		messages.add_message(request,messages.SUCCESS,"Your social connection has been created/updated successfully")
-		return redirect("accounts:settings")
+		messages.add_message(request,messages.SUCCESS,"Your social connection has been updated successfully")
+		return redirect("accounts:user_settings")
 
 	context = {
 		"tutorProfile": tutorProfile,
@@ -296,7 +296,7 @@ def settings(request):
 		"social_links": social_links
 	}
 	
-	return render(request, "accounts/settings.html",context)
+	return render(request, "accounts/user_settings.html",context)
 
 @login_required
 def tutorprofileedit(request):

@@ -48,6 +48,7 @@ def mainpage(request):
 	return render(request, "tutoring/mainpage.html", {})
 
 def viewtutorprofile(request, tutor_secondary_key):
+	print(tutor_secondary_key)
 	try:
 		tutorProfile = TutorProfile.objects.get(secondary_key=tutor_secondary_key)
 	except TutorProfile.DoesNotExist:
@@ -61,24 +62,51 @@ def viewtutorprofile(request, tutor_secondary_key):
 	activeQATab = False
 	activeQuestion = None
 
-	if request.method == "POST" and "postQuestion" in request.POST:
-		if not request.user.is_authenticated:
-			return redirect('accounts:login')
-		subjectRelated = request.POST['subject']
-		question = request.POST['question']
-		QuestionAnswer.objects.create(subject=subjectRelated, question=question, answer="Not answered yet.", questioner=request.user, answerer=tutorProfile.user)
-		context["activeQATab"] = True
+	if request.is_ajax():
+		functionality = request.GET.get('functionality', None)
 
-	if request.method == "POST" and "postAnswer" in request.POST:
-		if not request.user.is_authenticated:
-			return redirect('accounts:login')
-		questionId = request.POST['questionId']
-		newAnswer = request.POST['answerText']
-		questionAndAnswers = QuestionAnswer.objects.get(pk=questionId)
-		questionAndAnswers.answer = newAnswer
-		questionAndAnswers.save(update_fields=['answer'])
-		context["activeQATab"] = True
-		context["activeQuestion"] = questionId
+		if functionality == "post_question":
+			if not request.user.is_authenticated:
+				response = {
+					"status_code": 401,
+					"message": "Login to post a question."
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			subject, question = request.GET.get('subject', None), request.GET.get('question', None)
+			new_qa = QuestionAnswer.objects.create(
+				subject=subject,
+				question=question,
+				answer="Not answered yet.",
+				questioner=request.user,
+				answerer=tutorProfile.user
+			)
+			response = {
+					"new_qa": serializers.serialize("json", [new_qa,]),
+					"status_code": HTTPStatus.OK
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+		elif functionality == "post_answer":
+			if not request.user.is_authenticated:
+				response = {
+					"status_code": 401,
+					"message": "Login to post an answer."
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			question_id, new_answer = request.GET.get('question_id', None), request.GET.get('new_answer', None)
+			this_qa = QuestionAnswer.objects.get(pk=int(question_id))
+			this_qa.answer = new_answer
+			this_qa.save(update_fields=['answer'])
+			response = {
+					"this_qa": serializers.serialize("json", [this_qa,]),
+					"status_code": HTTPStatus.OK
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+		raise Exception("Unknown functionality viewtutorprofile")
+
 
 	context["questionAndAnswers"] = QuestionAnswer.objects.filter(answerer=tutorProfile.user).order_by('-id')
 
