@@ -250,7 +250,7 @@
 						</div>
 						<div style="overflow-y: scroll; overflow-x: hidden; height:866px;" id="tutor_questions">
 						{% if questionAndAnswers %} {% for qa in questionAndAnswers %}
-							<div class="container">
+							<div class="container question_answer_container_{{qa.id}}">
 								<div id="question_answer_id_{{qa.id}}">
 									<a href="/subject_tag/{{qa.subject}}" class="mtgtlDwEfX" style="display:inline-block;">{{ qa.subject }}</a>
 									{{ qa.questioner.first_name }} {{ qa.questioner.last_name }} asked a question at
@@ -266,9 +266,9 @@
 								<button id="comment_dislike_id_{{qa.id}}" type="button" class="btn btn-default btn-sm" onclick="dislike_comment('{{qa.id}}')">
 									<i class='far fa-thumbs-down' style='font-size:15px'></i> ({{qa.dislikes.count}})
 								</button><br><br>
-								<span class="badge badge-info" data-toggle="modal" data-target="#answerModal" onclick="updateAnswerModal('{{ qa.id }}');">Answer this question</span>
+								<span class="badge badge-info" data-toggle="modal" data-target="#answerModal" onclick="updateAnswerModal('{{ qa.id }}');">Answer this question</span><hr>
 							</div>
-							<hr>
+							
 						{% endfor %} {% endif %}
 						</div>
 					</div>
@@ -334,6 +334,13 @@
 	            		title: "Can't do that!",
 	            		text: response.message
 	            	});
+	            } else if (response.status_code == 404) {
+	            	Swal.fire({
+	            		icon: 'error',
+	            		title: "Can't do that!",
+	            		text: response.message
+	            	});
+	            	$( ".question_answer_container_"+commentId ).remove();
 	            }
 			}
 		});
@@ -368,6 +375,13 @@
 	            		title: "Can't do that!",
 	            		text: response.message
 	            	});
+	            } else if (response.status_code == 404) {
+	            	Swal.fire({
+	            		icon: 'error',
+	            		title: "Can't do that!",
+	            		text: response.message
+	            	});
+	            	$( ".question_answer_container_"+commentId ).remove();
 	            }
 			}
 		});
@@ -401,7 +415,7 @@
 					var new_qa = eval(response.new_qa)[0];
 
 					var new_question_text = `
-						<div class="container">
+						<div class="container question_answer_container_`+new_qa.pk+`">
 							<div id="question_answer_id_`+new_qa.pk+`">
 								<a href="/subject_tag/`+new_qa.fields.subject+`" class="mtgtlDwEfX" style="display:inline-block;">`+new_qa.fields.subject+`</a>
 								`+response.questioner_first_name+ " " +response.questioner_last_name+` asked a question at
@@ -417,9 +431,8 @@
 							<button id="comment_dislike_id_`+new_qa.pk+`" type="button" class="btn btn-default btn-sm" onclick="dislike_comment('`+new_qa.pk+`')">
 								<i class='far fa-thumbs-down' style='font-size:15px'></i> (`+new_qa.fields.dislikes.length+`)
 							</button><br><br>
-							<span class="badge badge-info" data-toggle="modal" data-target="#answerModal" onclick="updateAnswerModal('`+new_qa.pk+`');">Answer this question</span>
-						</div>
-						<hr>`;
+							<span class="badge badge-info" data-toggle="modal" data-target="#answerModal" onclick="updateAnswerModal('`+new_qa.pk+`');">Answer this question</span><hr>
+						</div>`;
 
 					$( "#tutor_questions" ).prepend( new_question_text );
 
@@ -467,6 +480,13 @@
 	            		text: response.message
 	            	});
 
+	            } else if (response.status_code == 404) {
+	            	Swal.fire({
+	            		icon: 'error',
+	            		title: "Can't do that!",
+	            		text: response.message
+	            	});
+	            	$( ".question_answer_container_"+$('#question_id').val() ).remove();
 	            }
 			}
 		});

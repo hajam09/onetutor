@@ -94,7 +94,16 @@ def viewtutorprofile(request, tutor_secondary_key):
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
 			question_id, new_answer = request.GET.get('question_id', None), request.GET.get('new_answer', None)
-			this_qa = QuestionAnswer.objects.get(pk=int(question_id))
+
+			try:
+				this_qa = QuestionAnswer.objects.get(pk=int(question_id))
+			except QuestionAnswer.DoesNotExist:
+				response = {
+					"status_code": HTTPStatus.NOT_FOUND,
+					"message": "We think this question has been deleted!"
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+				
 			this_qa.answer = new_answer
 			this_qa.save(update_fields=['answer'])
 			response = {
@@ -182,7 +191,16 @@ def like_comment(request):
 
 	commentId = request.GET.get('commentId', None)
 	user = User.objects.get(id=int(request.user.pk))
-	this_comment = QuestionAnswer.objects.get(id=int(commentId))
+
+	try:
+		this_comment = QuestionAnswer.objects.get(id=int(commentId))
+	except QuestionAnswer.DoesNotExist:
+		response = {
+			"status_code": HTTPStatus.NOT_FOUND,
+			"message": "We think this question has been deleted!"
+		}
+		return HttpResponse(json.dumps(response), content_type="application/json")
+
 	list_of_liked = QuestionAnswer.objects.filter(likes__id=user.pk)
 	list_of_disliked = QuestionAnswer.objects.filter(dislikes__id=user.pk)
 
@@ -217,7 +235,16 @@ def dislike_comment(request):
 
 	commentId = request.GET.get('commentId', None)
 	user = User.objects.get(id=int(request.user.pk))
-	this_comment = QuestionAnswer.objects.get(id=int(commentId))
+
+	try:
+		this_comment = QuestionAnswer.objects.get(id=int(commentId))
+	except QuestionAnswer.DoesNotExist:
+		response = {
+			"status_code": HTTPStatus.NOT_FOUND,
+			"message": "We think this question has been deleted!"
+		}
+		return HttpResponse(json.dumps(response), content_type="application/json")
+
 	list_of_liked = QuestionAnswer.objects.filter(likes__id=user.pk)
 	list_of_disliked = QuestionAnswer.objects.filter(dislikes__id=user.pk)
 
