@@ -77,11 +77,11 @@ def viewtutorprofile(request, tutor_secondary_key):
 				answerer=tutorProfile.user
 			)
 			response = {
-					"new_qa": serializers.serialize("json", [new_qa,]),
-					"created_date": vanilla_JS_date_conversion(new_qa.date),
-					"questioner_first_name": new_qa.questioner.first_name,
-					"questioner_last_name": new_qa.questioner.last_name,
-					"status_code": HTTPStatus.OK
+				"new_qa": serializers.serialize("json", [new_qa,]),
+				"created_date": vanilla_JS_date_conversion(new_qa.date),
+				"questioner_first_name": new_qa.questioner.first_name,
+				"questioner_last_name": new_qa.questioner.last_name,
+				"status_code": HTTPStatus.OK
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
 
@@ -98,8 +98,8 @@ def viewtutorprofile(request, tutor_secondary_key):
 			this_qa.answer = new_answer
 			this_qa.save(update_fields=['answer'])
 			response = {
-					"this_qa": serializers.serialize("json", [this_qa,]),
-					"status_code": HTTPStatus.OK
+				"this_qa": serializers.serialize("json", [this_qa,]),
+				"status_code": HTTPStatus.OK
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
 
@@ -129,8 +129,28 @@ def tutor_questions(request):
 			this_qa.answer = new_answer
 			this_qa.save(update_fields=['answer'])
 			response = {
-					"this_qa": serializers.serialize("json", [this_qa,]),
+				"this_qa": serializers.serialize("json", [this_qa,]),
+				"status_code": HTTPStatus.OK
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+		elif functionality == "delete_question":
+			question_id = request.GET.get('question_id', None)
+			try:
+				QuestionAnswer.objects.get(pk=int(question_id)).delete()
+				response = {
 					"status_code": HTTPStatus.OK
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+			except QuestionAnswer.DoesNotExist:
+				response = {
+					"status_code": HTTPStatus.NOT_FOUND
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			response = {
+				"status_code": HTTPStatus.BAD_REQUEST,
+				"message": "Bad Request"
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
 
