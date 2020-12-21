@@ -257,7 +257,7 @@
 									<p style="display:inline-block;" id="tool_tip_date_{{qa.id}}" data-toggle="tooltip" data-placement="top">{{ qa.date }}</p>
 								</div>
 								
-								<div><strong>{{ qa.question|linebreaksbr }}</strong></div>
+								<div><strong id="qa_question_{{qa.id}}">{{ qa.question|linebreaksbr }}</strong></div>
 								<br>
 								<div style="width: 970px;" id="qa_answer_{{qa.id}}">{{ qa.answer|linebreaksbr }}</div><br>
 								<button id="comment_like_id_{{qa.id}}" type="button" class="btn btn-default btn-sm" onclick="like_comment('{{qa.id}}')">
@@ -266,7 +266,7 @@
 								<button id="comment_dislike_id_{{qa.id}}" type="button" class="btn btn-default btn-sm" onclick="dislike_comment('{{qa.id}}')">
 									<i class='far fa-thumbs-down' style='font-size:15px'></i> ({{qa.dislikes.count}})
 								</button><br><br>
-								<span class="badge badge-info" data-toggle="modal" data-target="#answerModal" onclick="updateAnswerModal('{{ qa.id }}', '{{ qa.question|linebreaksbr }}', '{{ qa.answer|linebreaksbr }}');">Answer this question</span>
+								<span class="badge badge-info" data-toggle="modal" data-target="#answerModal" onclick="updateAnswerModal('{{ qa.id }}');">Answer this question</span>
 							</div>
 							<hr>
 						{% endfor %} {% endif %}
@@ -296,7 +296,9 @@
 		{% endfor %}
 	}
 
-	function updateAnswerModal(questionId, questionText, answerText) {
+	function updateAnswerModal(questionId) {
+		var answerText = $('#qa_answer_' + questionId).html();
+		var questionText = $('#qa_question_' + questionId).html();
 		var regex = /<br\s*[\/]?>/gi;
 		document.getElementById('question_id').value = questionId;
 		document.getElementById('question_text').value = questionText.replace(regex, "\n");

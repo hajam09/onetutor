@@ -8,6 +8,7 @@ from django.core import serializers
 from datetime import datetime
 from deprecated import deprecated
 from http import HTTPStatus
+from django.contrib.auth.decorators import login_required
 
 def mainpage(request):
 	if request.method == "POST":
@@ -108,6 +109,34 @@ def viewtutorprofile(request, tutor_secondary_key):
 	}
 
 	return render(request, "tutoring/tutorprofile.html", context)
+
+@login_required
+def tutor_questions(request):
+	try:
+		tutorProfile = TutorProfile.objects.get(user=request.user.id)
+	except TutorProfile.DoesNotExist:
+		return redirect("accounts:createprofile")
+
+	if request.is_ajax():
+		functionality = request.GET.get('functionality', None)
+
+		if functionality == "post_answer":
+			question_id, new_answer = request.GET.get('question_id', None), request.GET.get('new_answer', None)
+			this_qa = QuestionAnswer.objects.get(pk=int(question_id))
+			this_qa.answer = new_answer
+			this_qa.save(update_fields=['answer'])
+			response = {
+					"this_qa": serializers.serialize("json", [this_qa,]),
+					"status_code": HTTPStatus.OK
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+		raise Exception("Unknown functionality tutor_questions")
+
+	context = {
+		"questionAndAnswers": QuestionAnswer.objects.filter(answerer=tutorProfile.user).order_by('-id')
+	}
+	return render(request, "tutoring/tutor_questions.html", context)
 
 def viewstudentprofile(request, studentId):
 	print("bb")

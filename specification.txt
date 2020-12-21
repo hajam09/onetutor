@@ -8,15 +8,17 @@ Feature:
 * List user's recent sessions. Allow user to block/unblock the sessions by using MAC ADDRESS.
 * Store the user's notification on the system and act accordingly.
 * Allow users to authenticate using social media account.
+* On tutorprofile, other users can upvote/downvote questions.
+* On tutorprofile, user can edit their question.
+* On tutorprofile, only the tutor can answer the question.
 
 Bugs / Fixes:
 * Priority: Cannot activate email when regestering.
 * On login and logout, redirect the user to their previous page if possible.
 * On photo upload trim the photo to reduce size.
 * On tutor profile when no Q&A exists, display a friendly message.
-* On tutor profile, display tutor's additional information with more CSS.
 * Test the system with no user data and default seed data.
-* On tutorprofile there is a clash/overlap between availability and subjects.
 * On tutorprofile, when changing first name or last name it does not update the field on submit. User has to refresh again.
+
+
 * Category -> Community -> Forum -> Comment
-* After updating the answer, when updating again, the modal does not have the latest answer.
