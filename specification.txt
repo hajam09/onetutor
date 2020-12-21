@@ -18,7 +18,6 @@ Bugs / Fixes:
 * On photo upload trim the photo to reduce size.
 * On tutor profile when no Q&A exists, display a friendly message.
 * Test the system with no user data and default seed data.
-* On tutorprofile, when changing first name or last name it does not update the field on submit. User has to refresh again.
 
 
 * Category -> Community -> Forum -> Comment
