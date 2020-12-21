@@ -61,10 +61,8 @@
 	function showHidePassword() {
 		var password_1 = $("[name='password']");
 
-		if (password_1.attr("type")=="password")
-			password_1.attr("type","text");
-		else
-			password_1.attr("type","password");
+		password_1.attr("type","text") ? password_1.attr("type")=="password" : password_1.attr("type","password")
+
 	}
 </script>
 {% endblock %}

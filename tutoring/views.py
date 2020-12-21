@@ -78,6 +78,9 @@ def viewtutorprofile(request, tutor_secondary_key):
 			)
 			response = {
 					"new_qa": serializers.serialize("json", [new_qa,]),
+					"created_date": vanilla_JS_date_conversion(new_qa.date),
+					"questioner_first_name": new_qa.questioner.first_name,
+					"questioner_last_name": new_qa.questioner.last_name,
 					"status_code": HTTPStatus.OK
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
@@ -246,11 +249,6 @@ def post_question_for_tutor(request):
 	new_question = QuestionAnswer.objects.create(subject=subject, question=question,
 		answer="Not answered yet.", questioner=request.user, answerer=tutorProfile.user)
 
-	date = new_question.date.strftime("%b. %d, %Y,")
-	time = datetime.strptime( new_question.date.strftime("%H:%M"), "%H:%M")
-	time = time.strftime("%I:%M %p").lower().replace("pm", "p.m.").replace("am", "a.m.")
-	date_time = str(date + " " + time)
-
 	response = {
 		"status_code": 200,
 		"new_question": serializers.serialize("json", [new_question,]),
@@ -258,6 +256,13 @@ def post_question_for_tutor(request):
 		"questioner_last_name": new_question.questioner.last_name,
 		"qa_question": new_question.question,
 		"qa_answer": new_question.answer,
-		"date_time": date_time,
+		"date_time": vanilla_JS_date_conversion(new_question.date),
 	}
 	return HttpResponse(json.dumps(response), content_type="application/json")
+
+def vanilla_JS_date_conversion(python_date):
+	date = python_date.strftime("%b. %d, %Y,")
+	time = datetime.strptime( python_date.strftime("%H:%M"), "%H:%M")
+	time = time.strftime("%I:%M %p").lower().replace("pm", "p.m.").replace("am", "a.m.")
+	date_time = str(date + " " + time)
+	return date_time

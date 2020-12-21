@@ -397,10 +397,31 @@
 			},
 			dataType: 'json',
 			success: function (response) {
-				console.log(response);
 				if (response.status_code == 200) {
 					var new_qa = eval(response.new_qa)[0];
-					// TODO: when question is created, display it on the screen using JS/JQ at the top of the list.
+
+					var new_question_text = `
+						<div class="container">
+							<div id="question_answer_id_`+new_qa.pk+`">
+								<a href="/subject_tag/`+new_qa.fields.subject+`" class="mtgtlDwEfX" style="display:inline-block;">`+new_qa.fields.subject+`</a>
+								`+response.questioner_first_name+ " " +response.questioner_last_name+` asked a question at
+								<p style="display:inline-block;" id="tool_tip_date_`+new_qa.pk+`" data-toggle="tooltip" data-placement="top">`+response.created_date+`</p>
+							</div>
+							
+							<div><strong id="qa_question_`+new_qa.pk+`">`+new_qa.fields.question.replace(/\n\r?/g, '<br />')+`</strong></div>
+							<br>
+							<div style="width: 970px;" id="qa_answer_`+new_qa.pk+`">`+new_qa.fields.answer.replace(/\n\r?/g, '<br />')+`</div><br>
+							<button id="comment_like_id_`+new_qa.pk+`" type="button" class="btn btn-default btn-sm" onclick="like_comment('`+new_qa.pk+`')">
+								<i class='far fa-thumbs-up' style='font-size:15px'></i> (`+new_qa.fields.likes.length+`)
+							</button>
+							<button id="comment_dislike_id_`+new_qa.pk+`" type="button" class="btn btn-default btn-sm" onclick="dislike_comment('`+new_qa.pk+`')">
+								<i class='far fa-thumbs-down' style='font-size:15px'></i> (`+new_qa.fields.dislikes.length+`)
+							</button><br><br>
+							<span class="badge badge-info" data-toggle="modal" data-target="#answerModal" onclick="updateAnswerModal('`+new_qa.pk+`');">Answer this question</span>
+						</div>
+						<hr>`;
+
+					$( "#tutor_questions" ).prepend( new_question_text );
 
 				} else if (response.status_code == 401) {
 	            	Swal.fire({
