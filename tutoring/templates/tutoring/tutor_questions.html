@@ -150,6 +150,13 @@
 	            		text: response.message
 	            	});
 
+	            } else if (response.status_code == 404) {
+	            	Swal.fire({
+	            		icon: 'error',
+	            		title: "Can't do that!",
+	            		text: response.message
+	            	});
+	            	$( ".question_answer_container_"+$('#question_id').val() ).remove();
 	            }
 			}
 		});

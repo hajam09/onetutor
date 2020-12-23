@@ -250,11 +250,25 @@
 						</div>
 						<div style="overflow-y: scroll; overflow-x: hidden; height:866px;" id="tutor_questions">
 						{% if questionAndAnswers %} {% for qa in questionAndAnswers %}
-							<div class="container question_answer_container_{{qa.id}}">
+							<div class="container question_answer_container_{{qa.id}}" style="width: auto;">
 								<div id="question_answer_id_{{qa.id}}">
 									<a href="/subject_tag/{{qa.subject}}" class="mtgtlDwEfX" style="display:inline-block;">{{ qa.subject }}</a>
 									{{ qa.questioner.first_name }} {{ qa.questioner.last_name }} asked a question at
 									<p style="display:inline-block;" id="tool_tip_date_{{qa.id}}" data-toggle="tooltip" data-placement="top">{{ qa.date }}</p>
+									<div class="dropdown pull-right" style="display:inline-block;">
+										    <!--Trigger-->
+										    <a class="btn-floating btn-lg black dropdown-toggle"type="button" id="dropdownMenu3" data-toggle="dropdown"
+										        aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
+										    <br>
+										    <!--Menu-->
+										    <div class="dropdown-menu dropdown-primary">
+										    	{% if qa.questioner.pk == user.pk %}
+										        	<a class="dropdown-item" href="#" onclick="delete_question('{{qa.id}}');"><i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete question</a>
+										        	<a class="dropdown-item" href="#"><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit question</a>
+										        {% endif %}
+										        <a class="dropdown-item" href="#"><i class="fab fa-discourse"></i>&nbsp;&nbsp;Answer in a thread</a>
+										    </div>
+										</div>
 								</div>
 								
 								<div><strong id="qa_question_{{qa.id}}">{{ qa.question|linebreaksbr }}</strong></div>
@@ -488,6 +502,27 @@
 	            	});
 	            	$( ".question_answer_container_"+$('#question_id').val() ).remove();
 	            }
+			}
+		});
+	}
+
+	function delete_question(question_id) {
+		$.ajax({
+			data: {
+				'functionality': 'delete_question',
+				'question_id': question_id
+			},
+			dataType: 'json',
+			success: function (response) {
+				if (response.status_code == 200 || response.status_code == 404) {
+					$( ".question_answer_container_"+question_id ).remove();
+				} else {
+					Swal.fire({
+						icon: 'error',
+						title: "Can't do that!",
+						text: response.message
+					});
+				}
 			}
 		});
 	}

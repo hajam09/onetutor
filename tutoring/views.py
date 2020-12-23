@@ -112,6 +112,26 @@ def viewtutorprofile(request, tutor_secondary_key):
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
 
+		elif functionality == "delete_question":
+			question_id = request.GET.get('question_id', None)
+			try:
+				QuestionAnswer.objects.get(pk=int(question_id)).delete()
+				response = {
+					"status_code": HTTPStatus.OK
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+			except QuestionAnswer.DoesNotExist:
+				response = {
+					"status_code": HTTPStatus.NOT_FOUND
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			response = {
+				"status_code": HTTPStatus.BAD_REQUEST,
+				"message": "Bad Request"
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
 		raise Exception("Unknown functionality viewtutorprofile")
 
 	context = {
@@ -134,7 +154,16 @@ def tutor_questions(request):
 
 		if functionality == "post_answer":
 			question_id, new_answer = request.GET.get('question_id', None), request.GET.get('new_answer', None)
-			this_qa = QuestionAnswer.objects.get(pk=int(question_id))
+
+			try:
+				this_qa = QuestionAnswer.objects.get(pk=int(question_id))
+			except QuestionAnswer.DoesNotExist:
+				response = {
+					"status_code": HTTPStatus.NOT_FOUND,
+					"message": "We think this question has been deleted!"
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+				
 			this_qa.answer = new_answer
 			this_qa.save(update_fields=['answer'])
 			response = {
