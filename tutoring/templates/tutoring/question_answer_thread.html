@@ -265,7 +265,7 @@
 								<hr class="my-3">
 								<!-- post footer begins -->
 								<footer>
-									<button id="comment_like_id_`+new_qa_comment.pk+`" type="button" class="btn btn-default btn-sm" onclick="like_comment(`+new_qa_comment.pk+`')">
+									<button id="comment_like_id_`+new_qa_comment.pk+`" type="button" class="btn btn-default btn-sm" onclick="like_comment('`+new_qa_comment.pk+`')">
 										<i class='far fa-thumbs-up' style='font-size:15px'></i> (`+new_qa_comment.fields.likes.length+`)
 									</button>
 									<button id="comment_dislike_id_`+new_qa_comment.pk+`" type="button" class="btn btn-default btn-sm" onclick="dislike_comment('`+new_qa_comment.pk+`')">
