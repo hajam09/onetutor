@@ -132,6 +132,27 @@ def viewtutorprofile(request, tutor_secondary_key):
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
 
+		elif functionality == "update_question":
+			question_id, new_subject, new_question = request.GET.get('question_id', None), request.GET.get('new_subject', None), request.GET.get('new_question', None)
+
+			try:
+				this_qa = QuestionAnswer.objects.get(pk=int(question_id))
+			except QuestionAnswer.DoesNotExist:
+				response = {
+					"status_code": HTTPStatus.NOT_FOUND,
+					"message": "We think this question has been deleted!"
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			this_qa.subject = new_subject
+			this_qa.question = new_question
+			this_qa.save(update_fields=['subject', 'question'])
+			response = {
+				"this_qa": serializers.serialize("json", [this_qa,]),
+				"status_code": HTTPStatus.OK
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
 		raise Exception("Unknown functionality viewtutorprofile")
 
 	context = {

@@ -248,11 +248,43 @@
 								</div>
 							</div>
 						</div>
+						<!-- TOEDIT -->
+						<div class="modal fade" id="editQuestionModal" tabindex="-1" role="dialog" aria-labelledby="editQuestionModalLabel" aria-hidden="true">
+							<div class="modal-dialog" role="document">
+								<div class="modal-content" style="color: black;">
+									<div class="modal-header">
+										<h3 class="modal-title" id="exampleModalLabel" style="display: inline-block;">Edit your question below.</h3>
+										<button type="button" class="close" data-dismiss="modal" aria-label="Close" style="display: inline-block;">
+											<span aria-hidden="true">&times;</span>
+										</button>
+									</div>
+									<div class="modal-body">
+										<div class="form-group">
+											<label for="subject-related" class="col-form-label pull-left"><b>Select a subject</b></label>
+											<select class="form-control" id="editQuestionSubject" name="subject">
+												<!-- {% for subject in subjects %}
+												<option value="{{subject.name}}">{{subject.name}}</option>
+												{% endfor %} -->
+											</select>
+										</div>
+										<div class="form-group">
+											<label for="question" class="col-form-label pull-left"><b>Question:</b></label>
+											<textarea class="form-control" id="new_question" name="new_question" required></textarea>
+										</div>
+										<input type="text" name="question_id_to_update" id="question_id_to_update" hidden/>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+											<button type="submit" class="btn btn-primary" onclick="update_question();">Update my Question</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
 						<div style="overflow-y: scroll; overflow-x: hidden; height:866px;" id="tutor_questions">
 						{% if questionAndAnswers %} {% for qa in questionAndAnswers %}
 							<div class="container question_answer_container_{{qa.id}}" style="width: auto;">
 								<div id="question_answer_id_{{qa.id}}">
-									<a href="/subject_tag/{{qa.subject}}" class="mtgtlDwEfX" style="display:inline-block;">{{ qa.subject }}</a>
+									<a href="/subject_tag/{{qa.subject}}" class="mtgtlDwEfX" style="display:inline-block;" id="qa_subject_{{qa.id}}">{{ qa.subject }}</a>
 									{{ qa.questioner.first_name }} {{ qa.questioner.last_name }} asked a question at
 									<p style="display:inline-block;" id="tool_tip_date_{{qa.id}}" data-toggle="tooltip" data-placement="top">{{ qa.date }}</p>
 									<div class="dropdown pull-right" style="display:inline-block;">
@@ -264,7 +296,7 @@
 									    <div class="dropdown-menu dropdown-primary">
 									    	{% if qa.questioner.pk == user.pk %}
 									        	<a class="dropdown-item" href="#" onclick="delete_question('{{qa.id}}');"><i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete question</a>
-									        	<a class="dropdown-item" href="#"><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit question</a>
+									        	<a class="dropdown-item" href="#" data-toggle="modal" data-target="#editQuestionModal" onclick="updateEditQuestionModal('{{ qa.id }}');"><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit question</a>
 									        {% endif %}
 									        <a class="dropdown-item" href="#"><i class="fab fa-discourse"></i>&nbsp;&nbsp;Answer in a thread</a>
 									    </div>
@@ -317,6 +349,70 @@
 		document.getElementById('question_id').value = questionId;
 		document.getElementById('question_text').value = questionText.replace(regex, "\n");
 		document.getElementById('answer_text').value = answerText.replace(regex, "\n");
+	}
+
+	function updateEditQuestionModal(questionId) {
+		var subjectText = $('#qa_subject_' + questionId).html();
+		var questionText = $('#qa_question_' + questionId).html();
+		var regex = /<br\s*[\/]?>/gi;
+
+		// display correct subject in the dropdown
+		{% for subject in subjects %}
+			if (subjectText=='{{subject.name}}') {
+				$("#editQuestionSubject").append('<option value="{{subject.name}}" selected>{{subject.name}}</option>');
+			} else {
+				$("#editQuestionSubject").append('<option value="{{subject.name}}">{{subject.name}}</option>');
+			}
+		{% endfor %}
+
+		// display correct question text and question id in the modal
+		document.getElementById('new_question').value = questionText.replace(regex, "\n");
+		document.getElementById('question_id_to_update').value = questionId;
+	}
+
+	function update_question() {
+		var subject = $('#editQuestionSubject').find(":selected").text();
+		var question = $('textarea#new_question').val();
+		question = question.replace(/ +(?= )/g,'');
+		question = question.trim();
+
+
+		if (question && !question.trim() || question.length==0) {
+			alert("Enter a question!");
+			return;
+		}
+
+		// closing the modal and clearing the textarea
+		$("#editQuestionModal").modal('hide');
+		$("textarea#new_question").val("");
+
+		$.ajax({
+			data: {
+				'functionality': 'update_question',
+				'question_id': $('#question_id_to_update').val(),
+				'new_subject': subject,
+				'new_question': question,
+			},
+			dataType: 'json',
+			success: function (response) {
+				if (response.status_code == 200) {
+					var this_qa = eval(response.this_qa)[0];
+					var new_question = this_qa.fields.question;
+					new_question = new_question.replace(/\n\r?/g, '<br />');
+					$('strong#qa_question_'+$('#question_id_to_update').val()).html(new_question);
+					$('#qa_subject_'+$('#question_id_to_update').val()).html(this_qa.fields.subject);
+					$('#qa_subject_'+$('#question_id_to_update').val()).attr("href", "/subject_tag/"+this_qa.fields.subject);
+
+				} else if (response.status_code == 404) {
+	            	Swal.fire({
+	            		icon: 'error',
+	            		title: "Can't do that!",
+	            		text: response.message
+	            	});
+	            	$( ".question_answer_container_"+$('#question_id_to_update').val() ).remove();
+	            }
+			}
+		});
 	}
 
 	function like_comment(commentId) {
@@ -431,7 +527,7 @@
 					var new_question_text = `
 						<div class="container question_answer_container_`+new_qa.pk+`" style="width: auto;">
 							<div id="question_answer_id_`+new_qa.pk+`">
-								<a href="/subject_tag/`+new_qa.fields.subject+`" class="mtgtlDwEfX" style="display:inline-block;">`+new_qa.fields.subject+`</a>
+								<a href="/subject_tag/`+new_qa.fields.subject+`" class="mtgtlDwEfX" style="display:inline-block;" id="qa_subject_`+new_qa.pk+`">`+new_qa.fields.subject+`</a>
 								`+response.questioner_first_name+ " " +response.questioner_last_name+` asked a question at
 								<p style="display:inline-block;" id="tool_tip_date_`+new_qa.pk+`" data-toggle="tooltip" data-placement="top">`+response.created_date+`</p>
 								<div class="dropdown pull-right" style="display:inline-block;">
@@ -440,7 +536,7 @@
 								    <br>
 								    <div class="dropdown-menu dropdown-primary">
 								        <a class="dropdown-item" href="#" onclick="delete_question('`+new_qa.pk+`');"><i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete question</a>
-								        <a class="dropdown-item" href="#"><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit question</a>
+								        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editQuestionModal" onclick="updateEditQuestionModal('`+new_qa.pk+`');"><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit question</a>
 								        <a class="dropdown-item" href="#"><i class="fab fa-discourse"></i>&nbsp;&nbsp;Answer in a thread</a>
 								    </div>
 								</div>
