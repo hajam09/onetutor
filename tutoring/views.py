@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from accounts.models import TutorProfile, Subject
-from .models import QuestionAnswer
+from .models import QuestionAnswer, QAComment
 from django.http import HttpResponse
 import json
 from django.core import serializers
@@ -223,6 +223,127 @@ def tutor_questions(request):
 def viewstudentprofile(request, studentId):
 	print("bb")
 	return render(request, "tutoring/studentprofile.html", {})
+
+def question_answer_thread(request, question_id):
+	qa_object = QuestionAnswer.objects.get(id=question_id)
+
+	if request.is_ajax():
+		functionality = request.GET.get('functionality', None)
+
+		response_message = {
+			"post_comment": "Login to post a comment.",
+			"like_comment": "Login to like the comment.",
+			"dislike_comment": "Login to dislike the comment."
+		}
+
+		if not request.user.is_authenticated:
+			response = {
+				"status_code": 401,
+				"message": response_message[functionality]
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+		if functionality == "post_comment":
+			comment = request.GET.get('comment', None)
+			new_qa_comment = QAComment.objects.create(
+				question_answer = qa_object,
+				creator = request.user,
+				comment = comment,
+			)
+			response = {
+				"new_qa_comment": serializers.serialize("json", [new_qa_comment,]),
+				"status_code": HTTPStatus.OK
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+		elif functionality == "like_comment":
+			commentId = request.GET.get('commentId', None)
+			user = User.objects.get(id=int(request.user.pk))
+
+			try:
+				this_comment = QAComment.objects.get(id=int(commentId))
+			except QAComment.DoesNotExist:
+				response = {
+					"status_code": HTTPStatus.NOT_FOUND,
+					"message": "We think this comment has been deleted!"
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			list_of_liked = QAComment.objects.filter(likes__id=user.pk)
+			list_of_disliked = QAComment.objects.filter(dislikes__id=user.pk)
+
+			if(this_comment not in list_of_liked):
+				user.qacomment_likes.add(this_comment)
+			else:
+				user.qacomment_likes.remove(this_comment)
+
+			if(this_comment in list_of_disliked):
+				user.qacomment_dislikes.remove(this_comment)
+
+			response = {
+				"this_comment": serializers.serialize("json", [this_comment,]),
+				"status_code": HTTPStatus.OK
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+		elif functionality == "dislike_comment":
+			commentId = request.GET.get('commentId', None)
+			user = User.objects.get(id=int(request.user.pk))
+			
+			try:
+				this_comment = QAComment.objects.get(id=int(commentId))
+			except QAComment.DoesNotExist:
+				response = {
+					"status_code": HTTPStatus.NOT_FOUND,
+					"message": "We think this comment has been deleted!"
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			list_of_liked = QAComment.objects.filter(likes__id=user.pk)
+			list_of_disliked = QAComment.objects.filter(dislikes__id=user.pk)
+
+			if(this_comment not in list_of_disliked):
+				user.qacomment_dislikes.add(this_comment)
+			else:
+				user.qacomment_dislikes.remove(this_comment)
+				
+			if(this_comment in list_of_liked):
+				user.qacomment_likes.remove(this_comment)
+
+			response = {
+				"this_comment": serializers.serialize("json", [this_comment,]),
+				"status_code": HTTPStatus.OK
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+		elif functionality == "delete_qa_comment":
+			comment_id = request.GET.get('comment_id', None)
+			try:
+				QAComment.objects.get(pk=int(comment_id)).delete()
+				response = {
+					"status_code": HTTPStatus.OK
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+			except QAComment.DoesNotExist:
+				response = {
+					"status_code": HTTPStatus.NOT_FOUND
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			response = {
+				"status_code": HTTPStatus.BAD_REQUEST,
+				"message": "Bad Request"
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+
+		raise Exception("Unknown functionality question_answer_thread")
+
+	context = {
+		"qa": qa_object,
+		"qa_comments": QAComment.objects.filter(question_answer=qa_object).order_by('-id')
+	}
+	return render(request, "tutoring/question_answer_thread.html", context)
 
 def like_comment(request):
 	if not request.is_ajax():
