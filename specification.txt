@@ -11,6 +11,8 @@ Feature:
 * On tutorprofile, other users can upvote/downvote questions.
 * On tutorprofile, user can edit their question.
 * On tutorprofile, only the tutor can answer the question.
+* For each Q&A, both the questionner and the answerer can upload photo(s).
+* For each Q&A, users can start a thread on a separate page.
 
 Bugs / Fixes:
 * Priority: Cannot activate email when regestering.
@@ -18,6 +20,5 @@ Bugs / Fixes:
 * On photo upload trim the photo to reduce size.
 * On tutor profile when no Q&A exists, display a friendly message.
 * Test the system with no user data and default seed data.
-
-
 * Category -> Community -> Forum -> Comment
+* Fixed navbar: add fixed-top to nav class in base. Add <br><br><br> above {% block content %} in base
