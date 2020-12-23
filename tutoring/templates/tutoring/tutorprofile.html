@@ -256,19 +256,19 @@
 									{{ qa.questioner.first_name }} {{ qa.questioner.last_name }} asked a question at
 									<p style="display:inline-block;" id="tool_tip_date_{{qa.id}}" data-toggle="tooltip" data-placement="top">{{ qa.date }}</p>
 									<div class="dropdown pull-right" style="display:inline-block;">
-										    <!--Trigger-->
-										    <a class="btn-floating btn-lg black dropdown-toggle"type="button" id="dropdownMenu3" data-toggle="dropdown"
-										        aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
-										    <br>
-										    <!--Menu-->
-										    <div class="dropdown-menu dropdown-primary">
-										    	{% if qa.questioner.pk == user.pk %}
-										        	<a class="dropdown-item" href="#" onclick="delete_question('{{qa.id}}');"><i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete question</a>
-										        	<a class="dropdown-item" href="#"><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit question</a>
-										        {% endif %}
-										        <a class="dropdown-item" href="#"><i class="fab fa-discourse"></i>&nbsp;&nbsp;Answer in a thread</a>
-										    </div>
-										</div>
+									    <!--Trigger-->
+									    <a class="btn-floating btn-lg black dropdown-toggle"type="button" id="dropdownMenu3" data-toggle="dropdown"
+									        aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
+									    <br>
+									    <!--Menu-->
+									    <div class="dropdown-menu dropdown-primary">
+									    	{% if qa.questioner.pk == user.pk %}
+									        	<a class="dropdown-item" href="#" onclick="delete_question('{{qa.id}}');"><i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete question</a>
+									        	<a class="dropdown-item" href="#"><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit question</a>
+									        {% endif %}
+									        <a class="dropdown-item" href="#"><i class="fab fa-discourse"></i>&nbsp;&nbsp;Answer in a thread</a>
+									    </div>
+									</div>
 								</div>
 								
 								<div><strong id="qa_question_{{qa.id}}">{{ qa.question|linebreaksbr }}</strong></div>
@@ -429,11 +429,21 @@
 					var new_qa = eval(response.new_qa)[0];
 
 					var new_question_text = `
-						<div class="container question_answer_container_`+new_qa.pk+`">
+						<div class="container question_answer_container_`+new_qa.pk+`" style="width: auto;">
 							<div id="question_answer_id_`+new_qa.pk+`">
 								<a href="/subject_tag/`+new_qa.fields.subject+`" class="mtgtlDwEfX" style="display:inline-block;">`+new_qa.fields.subject+`</a>
 								`+response.questioner_first_name+ " " +response.questioner_last_name+` asked a question at
 								<p style="display:inline-block;" id="tool_tip_date_`+new_qa.pk+`" data-toggle="tooltip" data-placement="top">`+response.created_date+`</p>
+								<div class="dropdown pull-right" style="display:inline-block;">
+								    <a class="btn-floating btn-lg black dropdown-toggle"type="button" id="dropdownMenu3" data-toggle="dropdown"
+								        aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
+								    <br>
+								    <div class="dropdown-menu dropdown-primary">
+								        <a class="dropdown-item" href="#" onclick="delete_question('`+new_qa.pk+`');"><i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete question</a>
+								        <a class="dropdown-item" href="#"><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit question</a>
+								        <a class="dropdown-item" href="#"><i class="fab fa-discourse"></i>&nbsp;&nbsp;Answer in a thread</a>
+								    </div>
+								</div>
 							</div>
 							
 							<div><strong id="qa_question_`+new_qa.pk+`">`+new_qa.fields.question.replace(/\n\r?/g, '<br />')+`</strong></div>
