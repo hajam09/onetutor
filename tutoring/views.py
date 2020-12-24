@@ -350,7 +350,8 @@ def question_answer_thread(request, question_id):
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
 			this_comment.comment = comment_text
-			this_comment.save(update_fields=['comment'])
+			this_comment.edited = True
+			this_comment.save(update_fields=['comment', 'edited'])
 			response = {
 				"this_comment": serializers.serialize("json", [this_comment,]),
 				"status_code": HTTPStatus.OK

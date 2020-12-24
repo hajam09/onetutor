@@ -75,7 +75,7 @@
 									            <a class="text-decoration-none" href="#">
 									                <h2 class="text-capitalize h5 mb-0">{{ qa_c.creator.get_full_name }}</h2>
 									            </a>
-									            <p class="small text-secondary m-0 mt-1">1 day ago</p>
+									            <p class="small text-secondary m-0 mt-1" id="date_and_edited_msg_{{qa_c.id}}">1 day ago {% if qa_c.edited %}(edited){% endif %}</p>
 									        </div>
 									        {% if qa_c.creator.pk == user.pk %}
 									        <div class="dropdown">
@@ -225,6 +225,7 @@
 
 					$('div#update_comment_btn_'+comment_id).remove();
 					$('br#update_comment_br_'+comment_id).remove();
+					$('p#date_and_edited_msg_'+comment_id).text($('p#date_and_edited_msg_'+comment_id).text()+" (edited)");
 
 				} else if (response.status_code == 401) {
 	            	Swal.fire({
@@ -311,7 +312,7 @@
 							            <a class="text-decoration-none" href="#">
 							                <h2 class="text-capitalize h5 mb-0">{{request.user.get_full_name}}</h2>
 							            </a>
-							            <p class="small text-secondary m-0 mt-1">1 day ago</p>
+							            <p class="small text-secondary m-0 mt-1" id="date_and_edited_msg_`+new_qa_comment.pk+`">1 day ago</p>
 							        </div>
 							        <div class="dropdown">
 							            <a class="" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
