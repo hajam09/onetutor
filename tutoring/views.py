@@ -233,7 +233,8 @@ def question_answer_thread(request, question_id):
 		response_message = {
 			"post_comment": "Login to post a comment.",
 			"like_comment": "Login to like the comment.",
-			"dislike_comment": "Login to dislike the comment."
+			"dislike_comment": "Login to dislike the comment.",
+			"update_comment": "Login to update the comment.",
 		}
 
 		if not request.user.is_authenticated:
@@ -336,7 +337,26 @@ def question_answer_thread(request, question_id):
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
 
+		elif functionality == "update_comment":
+			comment_id, comment_text = request.GET.get('comment_id', None), request.GET.get('comment_text', None)
 
+			try:
+				this_comment = QAComment.objects.get(id=int(comment_id))
+			except QAComment.DoesNotExist:
+				response = {
+					"status_code": HTTPStatus.NOT_FOUND,
+					"message": "We think this comment has been deleted!"
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			this_comment.comment = comment_text
+			this_comment.save(update_fields=['comment'])
+			response = {
+				"this_comment": serializers.serialize("json", [this_comment,]),
+				"status_code": HTTPStatus.OK
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+			
 		raise Exception("Unknown functionality question_answer_thread")
 
 	context = {

@@ -83,7 +83,7 @@
 									            <i class="fas fa-chevron-down"></i>
 									            </a>
 									            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-									                <a class="dropdown-item text-primary" href="#">Edit</a>
+									                <a class="dropdown-item text-primary" href="#" onclick="edit_qa_comment_text_area('{{qa_c.id}}');">Edit</a>
 									                <a class="dropdown-item text-primary" href="#" onclick="delete_qa_comment('{{qa_c.id}}');">Delete</a>
 									            </div>
 									        </div>
@@ -91,7 +91,7 @@
 									    </div>
 									    <!-- post body -->
 									    <div class="">
-									    	<p class="my-2">
+									    	<p class="my-2" id="qa_comment_text_{{qa_c.id}}">
 												{{ qa_c.comment|linebreaksbr }}
 											</p>
 										</div>
@@ -188,6 +188,73 @@
 		});
 	}
 
+	function edit_qa_comment_text_area(comment_id) {
+
+		var regex = /<br\s*[\/]?>/gi;
+
+		// converting the p tag where the comment is displayed into a text area so the user can edit their comment.
+		$('p#qa_comment_text_'+comment_id).each(function() {
+			$(this).replaceWith( '<br id="update_comment_br_'+comment_id+'"><textarea class="form-control border p-4" id="edit_comment_box_'+comment_id+'" rows="3">' + $(this).html().replace(regex, "\n").trim() + '</textarea><div id="update_comment_btn_'+comment_id+'" class="pull-right"><br><button type="button" class="btn btn-outline-danger" onclick="cancel_qa_comment_update('+comment_id+');">Cancel</button>&nbsp;&nbsp;<button type="button" class="btn btn-outline-info" onclick="update_qa_comment('+comment_id+');">Update Comment</button><br><br></div>' );
+		});
+	}
+
+	function update_qa_comment(comment_id) {
+		console.log(comment_id);
+		var comment = $("#edit_comment_box_"+comment_id).val();
+		comment = comment.trim();
+
+		if (comment && !comment.trim() || comment.length==0) {
+			alert("Enter a comment!");
+			return;
+		}
+
+		$.ajax({
+			data: {
+				'functionality': 'update_comment',
+				'comment_id': comment_id,
+				'comment_text': comment
+			},
+			dataType: 'json',
+			success: function (response) {
+				if (response.status_code == 200) {
+					var this_comment = eval(response.this_comment)[0];
+
+					$('textarea#edit_comment_box_'+comment_id).each(function() {
+						$(this).replaceWith( '<p class="my-2" id="qa_comment_text_'+comment_id+'"> '+this_comment.fields.comment.replace(/\n\r?/g, '<br />')+' </p>' );
+					});
+
+					$('div#update_comment_btn_'+comment_id).remove();
+					$('br#update_comment_br_'+comment_id).remove();
+
+				} else if (response.status_code == 401) {
+	            	Swal.fire({
+	            		icon: 'warning',
+	            		title: "Can't do that!",
+	            		text: response.message
+	            	});
+
+	            } else if (response.status_code == 404) {
+	            	Swal.fire({
+	            		icon: 'error',
+	            		title: "Can't do that!",
+	            		text: response.message
+	            	});
+	            	$( ".question_answer_comment_container_"+comment_id ).remove();
+	            }
+			}
+		});
+
+	}
+
+	function cancel_qa_comment_update(comment_id) {
+		$('textarea#edit_comment_box_'+comment_id).each(function() {
+			$(this).replaceWith( '<p class="my-2" id="qa_comment_text_'+comment_id+'"> '+$(this).html().replace(/\n\r?/g, '<br />')+' </p>' );
+		});
+
+		$('div#update_comment_btn_'+comment_id).remove();
+		$('br#update_comment_br_'+comment_id).remove();
+	}
+
 	function delete_qa_comment(comment_id) {
 		$.ajax({
 			data: {
@@ -251,14 +318,14 @@
 							            <i class="fas fa-chevron-down"></i>
 							            </a>
 							            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-							                <a class="dropdown-item text-primary" href="#">Edit</a>
+							                <a class="dropdown-item text-primary" href="#" onclick="edit_qa_comment_text_area('`+new_qa_comment.pk+`');">Edit</a>
 							                <a class="dropdown-item text-primary" href="#" onclick="delete_qa_comment('`+new_qa_comment.pk+`');">Delete</a>
 							            </div>
 							        </div>
 							    </div>
 							    <!-- post body -->
 							    <div class="">
-							    	<p class="my-2">
+							    	<p class="my-2" id="qa_comment_text_`+new_qa_comment.pk+`">
 										`+new_qa_comment.fields.comment.replace(/\n\r?/g, '<br />')+`
 									</p>
 								</div>
