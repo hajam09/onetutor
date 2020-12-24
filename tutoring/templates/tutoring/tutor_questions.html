@@ -86,6 +86,7 @@
 										    <!--Menu-->
 										    <div class="dropdown-menu dropdown-primary">
 										        <a class="dropdown-item" href="#" onclick="delete_question('{{qa.id}}');"><i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete question</a>
+										        <a class="dropdown-item" href="{% url 'tutoring:question_answer_thread' qa.id %}" target="_blank"><i class="fab fa-discourse"></i>&nbsp;&nbsp;View thread</a>
 										    </div>
 										</div>
 									</div>

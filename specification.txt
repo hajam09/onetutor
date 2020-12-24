@@ -12,6 +12,7 @@ Feature:
 * On tutorprofile, user can edit their question.
 * On tutorprofile, only the tutor can answer the question.
 * For each Q&A, both the questionner and the answerer can upload photo(s).
+* For each Q&A, users can truncate long comments.
 
 Bugs / Fixes:
 * Priority: Cannot activate email when regestering.
