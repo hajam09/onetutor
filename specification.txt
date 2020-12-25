@@ -55,3 +55,5 @@ Dashboard Metrics:
 * Users by location. showing country, and % of users from that country
 * Bar graph showing servers load in various time range
 * Number of instances created for each models.
+* Count of each HTTP requests.
+* Device source
