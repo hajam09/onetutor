@@ -25,12 +25,18 @@ Bugs / Fixes:
 * Fixed navbar: add fixed-top to nav class in base. Add <br><br><br> above {% block content %} in base
 
 Dashboard Metrics:
-* DB used space.
+* DB used space - Done
+* Number of inactive user (not logged in more than 30 days) - Done
+* Number of members online - Done
+* Number of users logged in today - Done
+* Number of instances created for each models - Done
+* #of tutors and #of students - Done
+* Pie chart showing account email domains - Done
 * Users account with FB, G+, Twitter, and system account
 * Line graph for tasks completed from JIRA
 * Line graph for no. of email sent per notification_settings
 * Users joined in last week/month
-* #of tutors and #of students
+
 * number of file uploads in this week/this month for profile pic and QA pictures
 * Number of page views and display count for each page. /tutoring/mainpage.html
 * Number of AJAX requests called for each functionality
@@ -41,7 +47,6 @@ Dashboard Metrics:
 * Total number of visits
 * Map showing visits from each country (to view traffic)
 * Memory usage of the server
-* Number of members online
 * Bounce rate for the website
 * Number of active members / accounts not logged in for more than 30 days
 * View website traffic for the last 7 days in a table. # of visits for each day for the last 7 days
@@ -50,10 +55,8 @@ Dashboard Metrics:
 * Ring chart showing % of task completed from JIRA
 * No. of open tasks, closed tasks
 * Table for ticket status (open, progress, done), subject, and priority (high, medium, low)
-* Pie chart showing account email domains
 * user (pic), User, Country, payment method, activity (last login time ago), payment status (approved G, pending Y, rejected R)
 * Users by location. showing country, and % of users from that country
 * Bar graph showing servers load in various time range
-* Number of instances created for each models.
 * Count of each HTTP requests.
 * Device source

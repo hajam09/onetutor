@@ -35,6 +35,8 @@ def login(request):
 		user = authenticate(username=username, password=password)
 		if user:
 			auth_login(request, user)
+			if request.user.is_superuser:
+				return redirect('dashboard:template', template="index")
 			return redirect('tutoring:mainpage')
 		else:
 			if cache.get('loginAttempts') == None:
