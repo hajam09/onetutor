@@ -4,52 +4,16 @@ from .models import QuestionAnswer
 from django.contrib.auth.models import User
 from accounts.models import TutorProfile
 import json
-# from accounts.seedDataInstaller import *
+from accounts.seed_data_installer import installTutor
+
+# coverage run --source=tutoring manage.py test tutoring
 
 class TestViewsMainPage(TestCase):
-
-	def create_user(self, u, e, p, f, l):
-		return User.objects.create_user(username=u, email=e, password=p, first_name=f, last_name=l)
-
-	def create_tutor_profile(self, u, s, a, su):
-		location = {
-						"address_1": "24 Cranborne Road",
-						"address_2": "Barking",
-						"city": "London",
-						"stateProvice": "Essex", 
-						"postalZip": "IG11 7XE",
-						"country": { "alpha": "GB", "name": "United Kingdom" }
-					}
-		education = {
-			"education_1": { "school_name": "Imperial College London", "qualification": "Computing (Masters) - 2:1", "year": "2016 - 2020" },
-			"education_2": { "school_name": "Peter Symonds College", "qualification": "A Levels - A*A*AA (Maths, Computing, Further Maths, Physics)", "year": "2014 - 2016" },
-			"education_3": { "school_name": "Perins School", "qualification": "GCSE - 10 x A* ", "year": "2009 - 2014" }
-		}
-
-		availability = {
-			"monday": {"morning": True, "afternoon": False, "evening": False},
-			"tuesday": {"morning": False, "afternoon": True, "evening": False},
-			"wednesday": {"morning": False, "afternoon": False, "evening": False},
-			"thursday": {"morning": False, "afternoon": True, "evening": False},
-			"friday": {"morning": True, "afternoon": False, "evening": False},
-			"saturday": {"morning": False, "afternoon": True, "evening": False},
-			"sunday": {"morning": True, "afternoon": False, "evening": False}
-		}
-		
-		return TutorProfile.objects.create(
-			user=u, userType="TUTOR",
-			summary=s, about=a, location=location,
-			education=education, subjects=su,
-			availability=availability, profilePicture=None
-		)
 
 	def setUp(self):
 		self.client = Client()
 		self.url = reverse('tutoring:mainpage')
-		self.tutor_1 = self.create_user("barry.allen@yahoo.com", "barry.allen@yahoo.com", "RanDomPasWord56", "Barry", "Allen")
-		self.tutor_1_profile = self.create_tutor_profile(self.tutor_1, "summary 1", "about 1", "English, Maths")
-		self.tutor_2 = self.create_user("oliver.queen@yahoo.com", "oliver.queen@yahoo.com", "RanDomPasWord56", "Oliver", "Queen")
-		self.tutor_2_profile = self.create_tutor_profile(self.tutor_2, "summary 2", "about 2", "English, ICT, RE")
+		installTutor() # populates User object and TutorProfile objects from seed-data.
 
 	def test_mainpage_GET(self):
 		response = self.client.get(self.url)
@@ -63,7 +27,9 @@ class TestViewsMainPage(TestCase):
 		}
 		response = self.client.post(self.url, context)
 		self.assertIn("message", response.context)
+		self.assertEquals(response.context["message"], "Search for a tutor again!")
 		self.assertIn("alert", response.context)
+		self.assertEquals(response.context["alert"], "alert-danger")
 		self.assertNotIn("tutorList", response.context)
 		self.assertNotIn("generalQuery", response.context)
 		self.assertNotIn("location", response.context)
@@ -83,7 +49,9 @@ class TestViewsMainPage(TestCase):
 		self.assertIn("tutorList", response.context)
 		self.assertEquals(response.context["tutorList"].count(), 0)
 		self.assertIn("message", response.context)
+		self.assertEquals(response.context["message"], "Sorry, we couldn't find you a tutor for your search. Try entering something broad.")
 		self.assertIn("alert", response.context)
+		self.assertEquals(response.context["alert"], "alert-info")
 		self.assertTemplateUsed(response, "tutoring/mainpage.html")
 
 	def test_mainpage_POST_valid_generalQuery_location(self):
@@ -145,49 +113,20 @@ class TestViewsMainPage(TestCase):
 		self.assertTemplateUsed(response, "tutoring/mainpage.html")
 
 class TestViewsViewTutorProfile(TestCase):
-
-	def create_user(self, u, e, p, f, l):
-		return User.objects.create_user(username=u, email=e, password=p, first_name=f, last_name=l)
-
-	def create_tutor_profile(self, u, s, a, su):
-		location = {
-						"address_1": "24 Cranborne Road",
-						"address_2": "Barking",
-						"city": "London",
-						"stateProvice": "Essex", 
-						"postalZip": "IG11 7XE",
-						"country": { "alpha": "GB", "name": "United Kingdom" }
-					}
-		education = {
-			"education_1": { "school_name": "Imperial College London", "qualification": "Computing (Masters) - 2:1", "year": "2016 - 2020" },
-			"education_2": { "school_name": "Peter Symonds College", "qualification": "A Levels - A*A*AA (Maths, Computing, Further Maths, Physics)", "year": "2014 - 2016" },
-			"education_3": { "school_name": "Perins School", "qualification": "GCSE - 10 x A* ", "year": "2009 - 2014" }
-		}
-
-		availability = {
-			"monday": {"morning": True, "afternoon": False, "evening": False},
-			"tuesday": {"morning": False, "afternoon": True, "evening": False},
-			"wednesday": {"morning": False, "afternoon": False, "evening": False},
-			"thursday": {"morning": False, "afternoon": True, "evening": False},
-			"friday": {"morning": True, "afternoon": False, "evening": False},
-			"saturday": {"morning": False, "afternoon": True, "evening": False},
-			"sunday": {"morning": True, "afternoon": False, "evening": False}
-		}
-		
-		return TutorProfile.objects.create(
-			user=u, userType="TUTOR",
-			summary=s, about=a, location=location,
-			education=education, subjects=su,
-			availability=availability, profilePicture=None
-		)
-
 	def setUp(self):
 		self.client = Client()
-		self.tutor_1 = self.create_user("barry.allen@yahoo.com", "barry.allen@yahoo.com", "RanDomPasWord56", "Barry", "Allen")
-		self.tutor_1_profile = self.create_tutor_profile(self.tutor_1, "summary 1", "about 1", "English, Maths")
-		self.tutor_2 = self.create_user("oliver.queen@yahoo.com", "oliver.queen@yahoo.com", "RanDomPasWord56", "Oliver", "Queen")
-		self.tutor_2_profile = self.create_tutor_profile(self.tutor_2, "summary 2", "about 2", "English, ICT, RE")
+		installTutor() # populates User object and TutorProfile objects from seed-data.
+		self.u1 = User.objects.get(email='barry.allen@yahoo.com')
+		self.u2 = User.objects.get(email='cisco.ramone@hotmail.com')
+		self.tutor_1_profile = TutorProfile.objects.get(user=self.u1)
 		self.url = reverse('tutoring:viewtutorprofile', kwargs={'tutor_secondary_key':self.tutor_1_profile.secondary_key})
+		self.new_question = QuestionAnswer.objects.create(
+			subject="Maths",
+			question="What is the purpose of life?",
+			answer="Not answered yet.",
+			questioner=self.u1,
+			answerer=self.u2
+		)
 
 	def test_viewtutorprofile_does_not_exist(self):
 		"""
@@ -198,128 +137,154 @@ class TestViewsViewTutorProfile(TestCase):
 		self.assertEqual(response.status_code, 302)
 		self.assertRedirects(response, '/')
 
-	def test_viewtutorprofile_postQuestion_not_authenticated(self):
-		"""
-			Searching for a tutor that does exist in the db.
-			The user is not authenticated.
-		"""
-		context = {
-			"postQuestion": "",
-			"subject": "Maths",
-			"question": "What is the question?"
-		}
-		response = self.client.post(self.url, context)
-		self.assertEqual(response.status_code, 302)
-		self.assertRedirects(response, "/accounts/login/")
+	def test_viewtutorprofile_render(self):
+		response = self.client.get(self.url, {})
+		self.assertIn("tutorProfile", response.context)
+		self.assertIn("subjects", response.context)
+		self.assertIn("questionAndAnswers", response.context)
+		self.assertEquals(response.context["tutorProfile"], self.tutor_1_profile)
+		self.assertEquals(list(response.context["questionAndAnswers"]), list(QuestionAnswer.objects.filter(answerer=self.u1).order_by('-id')))
+		self.assertTemplateUsed(response, "tutoring/tutorprofile.html")
 
-	def test_viewtutorprofile_postQuestion_authenticated(self):
-		"""
-			Searching for a tutor that does exist in the db.
-			The user is authenticated.
-			The user is posting a question.
-		"""
-		context = {
-			"postQuestion": "",
-			"subject": "Maths",
-			"question": "What is the question?"
+	def test_viewtutorprofile_post_question_not_authenticated(self):
+		payload = {
+			"functionality": "post_question"
 		}
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertEquals(response.status_code, 200)
+		self.assertIn("status_code", ajax_reponse)
+		self.assertEquals(ajax_reponse["status_code"], 401)
+		self.assertIn("message", ajax_reponse)
+		self.assertEquals(ajax_reponse["message"], 'Login to post a question.')
+
+	def test_viewtutorprofile_post_question_authenticated(self):
 		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
-		count_before = QuestionAnswer.objects.all().count()
-		response = self.client.post(self.url, context)
-		self.assertEqual(response.status_code, 200)
-		self.assertTrue(response.context['request'].user.is_authenticated)
-		self.assertEqual(QuestionAnswer.objects.all().count(), count_before + 1)
-		self.assertIn("activeQATab", response.context)
-		self.assertEquals(response.context["activeQATab"], True)
-		self.assertIn("questionAndAnswers", response.context)
-		self.assertTemplateUsed(response, "tutoring/tutorprofile.html")
-
-	def test_viewtutorprofile_postAnswer_not_authenticated(self):
-		"""
-			Searching for a tutor that does exist in the db.
-			The user is not authenticated.
-		"""
-		context = {
-			"postAnswer": "",
-			"subject": "Maths",
-			"question": "What is the question?"
+		payload = {
+			"functionality": "post_question",
+			"subject": "English",
+			"question": "Some random English question?"
 		}
-		response = self.client.post(self.url, context)
-		self.assertEqual(response.status_code, 302)
-		self.assertRedirects(response, "/accounts/login/")
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertEquals(response.status_code, 200)
+		self.assertIn("new_qa", ajax_reponse)
+		self.assertEquals(ajax_reponse["status_code"], 200)
+		self.assertIn("created_date", ajax_reponse)
+		self.assertEquals(ajax_reponse["questioner_first_name"], 'Barry')
+		self.assertEquals(ajax_reponse["questioner_last_name"], 'Allen')
+		self.assertNotEqual(QuestionAnswer.objects.filter(questioner=User.objects.get(username='barry.allen@yahoo.com')), 0)
 
-	def test_viewtutorprofile_postAnswer_authenticated(self):
-		"""
-			Searching for a tutor that does exist in the db.
-			The user is authenticated.
-			The user is posting the answer.
-		"""
-		self.test_viewtutorprofile_postQuestion_authenticated() # just to login a user.
-		random_question = str(QuestionAnswer.objects.all()[0].pk)
-		context = {
-			"postAnswer": "",
-			"questionId": random_question,
-			"answerText": "Making a reply to the answer"
+	def test_viewtutorprofile_post_answer_not_authenticated(self):
+		payload = {
+			"functionality": "post_answer"
 		}
-		response = self.client.post(self.url, context)
-		self.assertIn("activeQATab", response.context)
-		self.assertEquals(response.context["activeQATab"], True)
-		self.assertIn("activeQuestion", response.context)
-		self.assertEquals(response.context["activeQuestion"], random_question)
-		self.assertIn("questionAndAnswers", response.context)
-		self.assertTemplateUsed(response, "tutoring/tutorprofile.html")
-		self.assertEquals(QuestionAnswer.objects.all()[0].answer, "Making a reply to the answer")
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertEquals(response.status_code, 200)
+		self.assertIn("status_code", ajax_reponse)
+		self.assertEquals(ajax_reponse["status_code"], 401)
+		self.assertIn("message", ajax_reponse)
+		self.assertEquals(ajax_reponse["message"], 'Login to post an answer.')
+
+	def test_viewtutorprofile_post_answer_question_deleted(self):
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		payload = {
+			"functionality": "post_answer",
+			"question_id": self.new_question.pk,
+			"new_answer": "New answer for this question."
+		}
+		self.new_question.delete()
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertEquals(response.status_code, 200)
+		self.assertEquals(ajax_reponse["status_code"], 404)
+		self.assertEquals(ajax_reponse["message"], "We think this question has been deleted!")
+
+	def test_viewtutorprofile_post_answer_success(self):
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		payload = {
+			"functionality": "post_answer",
+			"question_id": self.new_question.pk,
+			"new_answer": "New answer for this question."
+		}
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertEquals(response.status_code, 200)
+		self.assertIn("this_qa", ajax_reponse)
+		self.assertEquals(ajax_reponse["status_code"], 200)
+		self.assertEquals(QuestionAnswer.objects.get(id=self.new_question.id).answer, payload["new_answer"])
+
+	def test_viewtutorprofile_delete_question_success(self):
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		payload = {
+			"functionality": "delete_question",
+			"question_id": self.new_question.pk,
+		}
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertEquals(response.status_code, 200)
+		self.assertEquals(ajax_reponse["status_code"], 200)
+		self.assertEquals(QuestionAnswer.objects.filter(id=self.new_question.id).count(), 0)
+
+	def test_viewtutorprofile_delete_question_not_found(self):
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		payload = {
+			"functionality": "delete_question",
+			"question_id": self.new_question.pk,
+		}
+		self.new_question.delete()
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertEquals(response.status_code, 200)
+		self.assertEquals(ajax_reponse["status_code"], 404)
+		self.assertEquals(QuestionAnswer.objects.filter(id=self.new_question.id).count(), 0)
+
+	def test_viewtutorprofile_update_question_not_found(self):
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		payload = {
+			"functionality": "update_question",
+			"question_id": self.new_question.pk,
+			"new_subject": "Art",
+			"new_question": "This is a new question for this question object"
+		}
+		self.new_question.delete()
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertEquals(response.status_code, 200)
+		self.assertEquals(ajax_reponse["status_code"], 404)
+		self.assertEquals(QuestionAnswer.objects.filter(id=self.new_question.id).count(), 0)
+
+	def test_viewtutorprofile_update_question_success(self):
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		payload = {
+			"functionality": "update_question",
+			"question_id": self.new_question.pk,
+			"new_subject": "Art",
+			"new_question": "This is a new question for this question object"
+		}
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertEquals(response.status_code, 200)
+		self.assertIn("this_qa", ajax_reponse)
+		self.assertEquals(ajax_reponse["status_code"], 200)
+		self.assertEquals(QuestionAnswer.objects.get(id=self.new_question.id).subject, payload["new_subject"])
+		self.assertEquals(QuestionAnswer.objects.get(id=self.new_question.id).question, payload["new_question"])
 
 class TestViewsLikeComment(TestCase):
-
-	def create_user(self, u, e, p, f, l):
-		return User.objects.create_user(username=u, email=e, password=p, first_name=f, last_name=l)
-
-	def create_tutor_profile(self, u, s, a, su):
-		location = {
-						"address_1": "24 Cranborne Road",
-						"address_2": "Barking",
-						"city": "London",
-						"stateProvice": "Essex", 
-						"postalZip": "IG11 7XE",
-						"country": { "alpha": "GB", "name": "United Kingdom" }
-					}
-		education = {
-			"education_1": { "school_name": "Imperial College London", "qualification": "Computing (Masters) - 2:1", "year": "2016 - 2020" },
-			"education_2": { "school_name": "Peter Symonds College", "qualification": "A Levels - A*A*AA (Maths, Computing, Further Maths, Physics)", "year": "2014 - 2016" },
-			"education_3": { "school_name": "Perins School", "qualification": "GCSE - 10 x A* ", "year": "2009 - 2014" }
-		}
-
-		availability = {
-			"monday": {"morning": True, "afternoon": False, "evening": False},
-			"tuesday": {"morning": False, "afternoon": True, "evening": False},
-			"wednesday": {"morning": False, "afternoon": False, "evening": False},
-			"thursday": {"morning": False, "afternoon": True, "evening": False},
-			"friday": {"morning": True, "afternoon": False, "evening": False},
-			"saturday": {"morning": False, "afternoon": True, "evening": False},
-			"sunday": {"morning": True, "afternoon": False, "evening": False}
-		}
-		
-		return TutorProfile.objects.create(
-			user=u, userType="TUTOR",
-			summary=s, about=a, location=location,
-			education=education, subjects=su,
-			availability=availability, profilePicture=None
-		)
 
 	def setUp(self):
 		self.client = Client()
 		self.url = reverse('tutoring:like_comment')
-		self.tutor_1 = self.create_user("barry.allen@yahoo.com", "barry.allen@yahoo.com", "RanDomPasWord56", "Barry", "Allen")
-		self.tutor_1_profile = self.create_tutor_profile(self.tutor_1, "summary 1", "about 1", "English, Maths")
-		self.tutor_2 = self.create_user("oliver.queen@yahoo.com", "oliver.queen@yahoo.com", "RanDomPasWord56", "Oliver", "Queen")
-		self.tutor_2_profile = self.create_tutor_profile(self.tutor_2, "summary 2", "about 2", "English, ICT, RE")
+		installTutor() # populates User object and TutorProfile objects from seed-data.
+		u1 = User.objects.get(email='barry.allen@yahoo.com')
+		u2 = User.objects.get(email='cisco.ramone@hotmail.com')
 		self.new_question = QuestionAnswer.objects.create(
 			subject="Maths",
 			question="What is the purpose of life?",
 			answer="Not answered yet.",
-			questioner=self.tutor_1,
-			answerer=self.tutor_2
+			questioner=u1,
+			answerer=u2
 		)
 
 	def test_like_comment_not_ajax(self):
@@ -370,6 +335,23 @@ class TestViewsLikeComment(TestCase):
 		self.assertEquals(ajax_reponse["status_code"], 200)
 		self.assertIn("this_comment", ajax_reponse)
 
+	def test_like_comment_question_object_deleted(self):
+		"""
+			Making an AJAX request.
+			User is authenticated.
+			QuestionAnswer object is deleted while clicking the button.
+		"""
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		payload = {
+			"commentId": str(self.new_question.pk)
+		}
+		self.new_question.delete()
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertEquals(response.status_code, 200)
+		self.assertEquals(ajax_reponse["status_code"], 404)
+		self.assertEquals(ajax_reponse["message"], "We think this question has been deleted!")
+
 	def test_like_comment_remove_like(self):
 		"""
 			Making an AJAX request.
@@ -416,57 +398,20 @@ class TestViewsLikeComment(TestCase):
 		self.assertEquals(ajax_reponse["status_code"], 200)
 		self.assertIn("this_comment", ajax_reponse)
 
-
 class TestViewsDislikeComment(TestCase):
-
-	def create_user(self, u, e, p, f, l):
-		return User.objects.create_user(username=u, email=e, password=p, first_name=f, last_name=l)
-
-	def create_tutor_profile(self, u, s, a, su):
-		location = {
-						"address_1": "24 Cranborne Road",
-						"address_2": "Barking",
-						"city": "London",
-						"stateProvice": "Essex", 
-						"postalZip": "IG11 7XE",
-						"country": { "alpha": "GB", "name": "United Kingdom" }
-					}
-		education = {
-			"education_1": { "school_name": "Imperial College London", "qualification": "Computing (Masters) - 2:1", "year": "2016 - 2020" },
-			"education_2": { "school_name": "Peter Symonds College", "qualification": "A Levels - A*A*AA (Maths, Computing, Further Maths, Physics)", "year": "2014 - 2016" },
-			"education_3": { "school_name": "Perins School", "qualification": "GCSE - 10 x A* ", "year": "2009 - 2014" }
-		}
-
-		availability = {
-			"monday": {"morning": True, "afternoon": False, "evening": False},
-			"tuesday": {"morning": False, "afternoon": True, "evening": False},
-			"wednesday": {"morning": False, "afternoon": False, "evening": False},
-			"thursday": {"morning": False, "afternoon": True, "evening": False},
-			"friday": {"morning": True, "afternoon": False, "evening": False},
-			"saturday": {"morning": False, "afternoon": True, "evening": False},
-			"sunday": {"morning": True, "afternoon": False, "evening": False}
-		}
-		
-		return TutorProfile.objects.create(
-			user=u, userType="TUTOR",
-			summary=s, about=a, location=location,
-			education=education, subjects=su,
-			availability=availability, profilePicture=None
-		)
 
 	def setUp(self):
 		self.client = Client()
 		self.url = reverse('tutoring:dislike_comment')
-		self.tutor_1 = self.create_user("barry.allen@yahoo.com", "barry.allen@yahoo.com", "RanDomPasWord56", "Barry", "Allen")
-		self.tutor_1_profile = self.create_tutor_profile(self.tutor_1, "summary 1", "about 1", "English, Maths")
-		self.tutor_2 = self.create_user("oliver.queen@yahoo.com", "oliver.queen@yahoo.com", "RanDomPasWord56", "Oliver", "Queen")
-		self.tutor_2_profile = self.create_tutor_profile(self.tutor_2, "summary 2", "about 2", "English, ICT, RE")
+		installTutor() # populates User object and TutorProfile objects from seed-data.
+		u1 = User.objects.get(email='barry.allen@yahoo.com')
+		u2 = User.objects.get(email='cisco.ramone@hotmail.com')
 		self.new_question = QuestionAnswer.objects.create(
 			subject="Maths",
 			question="What is the purpose of life?",
 			answer="Not answered yet.",
-			questioner=self.tutor_1,
-			answerer=self.tutor_2
+			questioner=u1,
+			answerer=u2
 		)
 
 	def test_dislike_comment_not_ajax(self):
@@ -517,6 +462,24 @@ class TestViewsDislikeComment(TestCase):
 		self.assertEquals(ajax_reponse["status_code"], 200)
 		self.assertIn("this_comment", ajax_reponse)
 
+	def test_dislike_comment_question_object_deleted(self):
+		"""
+			Making an AJAX request.
+			User is authenticated.
+			QuestionAnswer object is deleted while clicking the button.
+		"""
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		payload = {
+			"commentId": str(self.new_question.pk)
+		}
+		self.new_question.delete()
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertEquals(response.status_code, 200)
+		self.assertEquals(ajax_reponse["status_code"], 404)
+		self.assertEquals(ajax_reponse["message"], "We think this question has been deleted!")
+
+
 	def test_dislike_comment_remove_dislike(self):
 		"""
 			Making an AJAX request.
@@ -562,3 +525,93 @@ class TestViewsDislikeComment(TestCase):
 		self.assertIn("status_code", ajax_reponse)
 		self.assertEquals(ajax_reponse["status_code"], 200)
 		self.assertIn("this_comment", ajax_reponse)
+
+class TestViewsTutorQuestions(TestCase):
+
+	def setUp(self):
+		self.client = Client()
+		installTutor() # populates User object and TutorProfile objects from seed-data.
+		self.url = reverse('tutoring:tutor_questions')
+		self.u1 = User.objects.get(email='barry.allen@yahoo.com')
+		self.u2 = User.objects.get(email='cisco.ramone@hotmail.com')
+		self.u3 = User.objects.create_user(username="test_uname", email="test_email", password="test_passwordM123", first_name="test_first_name", last_name="test_last_name")
+		self.tutor_1_profile = TutorProfile.objects.get(user=self.u1)
+		self.client.login(username='test_uname', password='test_passwordM123')
+		
+		self.new_question = QuestionAnswer.objects.create(
+			subject="Maths",
+			question="What is the purpose of life?",
+			answer="Not answered yet.",
+			questioner=self.u2,
+			answerer=self.u1
+		)
+
+	def test_tutorquestion_tutor_profile_does_not_exist(self):
+		"""
+			User must be authenticated prior to calling the view.
+			TutorProfile does not exist to the authenticated user.
+		"""
+		response = self.client.post(self.url, {})
+		self.assertEqual(response.status_code, 302)
+		self.assertRedirects(response, '/accounts/createprofile/')
+		self.assertIn('_auth_user_id', self.client.session)
+
+	def test_tutorquestion_render(self):
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		response = self.client.get(self.url, {})
+		self.assertIn("questionAndAnswers", response.context)
+		self.assertEquals(list(response.context["questionAndAnswers"]), list(QuestionAnswer.objects.filter(answerer=self.u1).order_by('-id')))
+		self.assertTemplateUsed(response, "tutoring/tutor_questions.html")
+
+	def test_tutorquestion_post_answer_question_deleted(self):
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		payload = {
+			"functionality": "post_answer",
+			"question_id": self.new_question.pk,
+			"new_answer": "New answer for this question."
+		}
+		self.new_question.delete()
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertEquals(response.status_code, 200)
+		self.assertEquals(ajax_reponse["status_code"], 404)
+		self.assertEquals(ajax_reponse["message"], "We think this question has been deleted!")
+
+	def test_tutorquestion_post_answer_success(self):
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		payload = {
+			"functionality": "post_answer",
+			"question_id": self.new_question.pk,
+			"new_answer": "New answer for this question."
+		}
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertEquals(response.status_code, 200)
+		self.assertIn("this_qa", ajax_reponse)
+		self.assertEquals(ajax_reponse["status_code"], 200)
+		self.assertEquals(QuestionAnswer.objects.get(id=self.new_question.id).answer, payload["new_answer"])
+
+	def test_tutorquestion_delete_question_success(self):
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		payload = {
+			"functionality": "delete_question",
+			"question_id": self.new_question.pk,
+		}
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertEquals(response.status_code, 200)
+		self.assertEquals(ajax_reponse["status_code"], 200)
+		self.assertEquals(QuestionAnswer.objects.filter(id=self.new_question.id).count(), 0)
+
+	def test_tutorquestion_delete_question_not_found(self):
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		payload = {
+			"functionality": "delete_question",
+			"question_id": self.new_question.pk,
+		}
+		self.new_question.delete()
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertEquals(response.status_code, 200)
+		self.assertEquals(ajax_reponse["status_code"], 404)
+		self.assertEquals(QuestionAnswer.objects.filter(id=self.new_question.id).count(), 0)
