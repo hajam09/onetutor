@@ -2,9 +2,10 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from accounts.models import TutorProfile, Countries
+from accounts.models import TutorProfile, Countries, SocialConnection
 from tutoring.models import QuestionAnswer
-
+from django.contrib.messages import get_messages
+# coverage run --source=accounts manage.py test accounts
 class TestViewsLogin(TestCase):
 
 	def create_user(self, u, e, p, f, l):
@@ -195,6 +196,7 @@ class TestViewsCreateProfile(TestCase):
 		self.url = reverse('accounts:createprofile')
 		self.user_1 = self.create_user("barry.allen@yahoo.com", "barry.allen@yahoo.com", "RanDomPasWord56", "Barry", "Allen")
 		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		Countries.objects.create(alpha='GB', name='United Kingdom')
 
 	def test_createprofile_GET(self):
 		"""
@@ -246,7 +248,7 @@ class TestViewsCreateProfile(TestCase):
 		pass
 
 class TestViewsTutorProfile(TestCase):
-	
+
 	def create_user(self, u, e, p, f, l):
 		return User.objects.create_user(username=u, email=e, password=p, first_name=f, last_name=l)
 
@@ -304,153 +306,251 @@ class TestViewsTutorProfile(TestCase):
 		self.assertRedirects(response, '/accounts/createprofile/')
 		self.assertIn('_auth_user_id', self.client.session)
 
-	def test_tutorprofile_update_personal_details(self):
+class TestViewsUserSettings(TestCase):
+
+	def create_user(self, u, e, p, f, l):
+		return User.objects.create_user(username=u, email=e, password=p, first_name=f, last_name=l)
+
+	def create_tutor_profile(self, u, s, a, su):
+		location = {
+						"address_1": "24 Cranborne Road",
+						"address_2": "Barking",
+						"city": "London",
+						"stateProvice": "Essex", 
+						"postalZip": "IG11 7XE",
+						"country": { "alpha": "GB", "name": "United Kingdom" }
+					}
+		education = {
+			"education_1": { "school_name": "Imperial College London", "qualification": "Computing (Masters) - 2:1", "year": "2016 - 2020" },
+			"education_2": { "school_name": "Peter Symonds College", "qualification": "A Levels - A*A*AA (Maths, Computing, Further Maths, Physics)", "year": "2014 - 2016" },
+			"education_3": { "school_name": "Perins School", "qualification": "GCSE - 10 x A* ", "year": "2009 - 2014" }
+		}
+
+		availability = {
+			"monday": {"morning": True, "afternoon": False, "evening": False},
+			"tuesday": {"morning": False, "afternoon": True, "evening": False},
+			"wednesday": {"morning": False, "afternoon": False, "evening": False},
+			"thursday": {"morning": False, "afternoon": True, "evening": False},
+			"friday": {"morning": True, "afternoon": False, "evening": False},
+			"saturday": {"morning": False, "afternoon": True, "evening": False},
+			"sunday": {"morning": True, "afternoon": False, "evening": False}
+		}
+		
+		return TutorProfile.objects.create(
+			user=u, userType="TUTOR",
+			summary=s, about=a, location=location,
+			education=education, subjects=su,
+			availability=availability, profilePicture=None
+		)
+
+	def setUp(self):
+		self.client = Client()
+		self.url = reverse('accounts:user_settings')
+		self.user_1 = self.create_user("barry.allen@yahoo.com", "barry.allen@yahoo.com", "RanDomPasWord56", "Barry", "Allen")
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		self.country = Countries.objects.create(alpha='GB', name='United Kingdom')
+
+	def test_tutorprofile_GET(self):
+		self.user_1_profile = self.create_tutor_profile(self.user_1, "summary 1", "about 1", "English, Maths")
+		response = self.client.get(self.url)
+		self.assertEquals(response.status_code, 200)
+		self.assertTemplateUsed(response, "accounts/user_settings.html")
+
+	def test_tutorprofile_tutor_profile_does_not_exist(self):
+		"""
+			User must be authenticated prior to calling the view.
+			TutorProfile does not exist to the authenticated user.
+		"""
+		response = self.client.post(self.url, {})
+		self.assertEqual(response.status_code, 302)
+		self.assertRedirects(response, '/accounts/createprofile/')
+		self.assertIn('_auth_user_id', self.client.session)
+
+	def test_tutorprofile_tutor_update_general_information(self):
 		"""
 			User must be authenticated prior to calling the view.
 			TutorProfile does exist to the authenticated user.
+			User trying to update their first name, last name and photos
 		"""
+
 		context = {
-			"updatePersonalDetails": "",
-			"first_name": "Adrian",
-			"last_name": "Chase"
+			"first_name": "Cisco",
+			"last_name": "Ramone",
+			"update_general_information": ""
 		}
 		self.user_1_profile = self.create_tutor_profile(self.user_1, "summary 1", "about 1", "English, Maths")
 		response = self.client.post(self.url, context)
-		self.assertEquals(response.status_code, 200)
-		self.assertIn("tutorProfile", response.context)
-		self.assertEquals(response.context["tutorProfile"], TutorProfile.objects.get(user=self.user_1))
-		self.assertIn("countries", response.context)
-		self.assertCountEqual(response.context["countries"], Countries.objects.all())
-		self.assertIn("message", response.context)
-		self.assertEquals(response.context["message"], "Your personal details has been updated successfully")
-		self.assertIn("alert", response.context)
-		self.assertEquals(response.context["alert"], "alert-success")
-		self.assertIn("activeAccountTab", response.context)
-		self.assertEquals(response.context["activeAccountTab"], True)
-		self.assertTemplateUsed(response, "accounts/tutorprofile.html")
+		user = User.objects.get(username="barry.allen@yahoo.com")
+		self.assertEqual(user.first_name, context["first_name"])
+		self.assertEqual(user.last_name, context["last_name"])
+		self.assertEqual(response.status_code, 302)
+		messages = list(get_messages(response.wsgi_request))
+		self.assertEqual(len(messages), 1)
+		self.assertEqual(str(messages[0]), 'Your personal details has been updated successfully')
+		self.assertRedirects(response, '/accounts/user_settings/')
 
-		self.user_1 = User.objects.get(email="barry.allen@yahoo.com")
-		self.assertEquals(self.user_1.first_name, context["first_name"])
-		self.assertEquals(self.user_1.last_name, context["last_name"])
-
-	def test_tutorprofile_update_personal_details_upload_profile_picture(self):
+	def test_tutorprofile_tutor_update_address(self):
 		"""
 			User must be authenticated prior to calling the view.
 			TutorProfile does exist to the authenticated user.
-			Uploading a profile picture for the tutor profile.
+			User trying to update their address from their settings
 		"""
-		pass
 
-	def test_tutorprofile_update_password_mismatch(self):
-		"""
-			User must be authenticated prior to calling the view.
-			TutorProfile does exist to the authenticated user.
-			User current password confirmation not matching.
-		"""
 		context = {
-			"updatePassword": "",
-			"currentPassword": "RanDomPasWord99",
-			"newPassword": "Strong98183",
-			"confirmPassword": "Strong98183"
+			"update_address": "",
+			"address_1": "204 Eversholt Road",
+			"address_2": "Euston",
+			"city": "London",
+			"stateProvice": "Essex",
+			"postalZip": "YM5 2DG",
+			"country": "GB"
 		}
 		self.user_1_profile = self.create_tutor_profile(self.user_1, "summary 1", "about 1", "English, Maths")
 		response = self.client.post(self.url, context)
-		self.assertEquals(response.status_code, 200)
-		self.assertIn("alert", response.context)
-		self.assertEquals(response.context["alert"], "alert-danger")
-		self.assertTemplateUsed(response, "accounts/tutorprofile.html")
-		self.assertIn("tutorProfile", response.context)
-		self.assertEquals(response.context["tutorProfile"], TutorProfile.objects.get(user=self.user_1))
-		self.assertIn("countries", response.context)
-		self.assertCountEqual(response.context["countries"], Countries.objects.all())
-		self.assertIn("message", response.context)
-		self.assertEquals(response.context["message"], "Your current password does not match")
-		self.assertIn("activeAccountTab", response.context)
-		self.assertEquals(response.context["activeAccountTab"], True)
+		tutor_profile = TutorProfile.objects.get(user=self.user_1)
+		new_location = {
+			"address_1": context["address_1"],
+			"address_2": context["address_2"],
+			"city": context["city"],
+			"stateProvice": context["stateProvice"],
+			"postalZip": context["postalZip"],
+			"country": {"alpha": self.country.alpha, "name": self.country.name}
+		}
+		self.assertEqual(tutor_profile.location, new_location)
+		messages = list(get_messages(response.wsgi_request))
+		self.assertEqual(len(messages), 1)
+		self.assertEqual(str(messages[0]), 'Your location has been updated successfully')
+		self.assertEquals(response.status_code, 302)
+		self.assertRedirects(response, '/accounts/user_settings/')
 
-	def test_tutorprofile_update_password_mismatch_2(self):
+	def test_tutorprofile_tutor_delete_account(self):
 		"""
 			User must be authenticated prior to calling the view.
 			TutorProfile does exist to the authenticated user.
-			User current password confirmation does match.
-			User's new password and confirmation password does not match.
+			User trying to delete their account by entering the delete code.
+		"""
+
+		context = {
+			"delete_account": "",
+			"delete-code": "N4nfKJGjkfb"
+		}
+
+		session = self.client.session
+		session["user_" + str(self.user_1.id) + "_delete_key"] = context["delete-code"]
+		session.save()
+
+		self.user_1_profile = self.create_tutor_profile(self.user_1, "summary 1", "about 1", "English, Maths")
+		response = self.client.post(self.url, context)
+		self.assertEqual(User.objects.filter(email="barry.allen@yahoo.com").count(), 0)
+		messages = list(get_messages(response.wsgi_request))
+		self.assertEqual(len(messages), 1)
+		self.assertEqual(str(messages[0]), 'Account deleted successfully')
+		self.assertEquals(response.status_code, 302)
+		self.assertRedirects(response, '/')
+
+	def test_tutorprofile_tutor_update_password_mismatch_password(self):
+		"""
+			User must be authenticated prior to calling the view.
+			User trying to update their password.
+			Users current password does not match with existing password.
+		"""
+
+		context = {
+			"update_password": "",
+			"currentPassword": "MisMatchPassword",
+			"newPassword": "u9EzQfgkgn6K",
+			"confirmPassword": "u9EzQfgkgn6K"
+		}
+		self.user_1_profile = self.create_tutor_profile(self.user_1, "summary 1", "about 1", "English, Maths")
+		response = self.client.post(self.url, context)
+		messages = list(get_messages(response.wsgi_request))
+		self.assertEqual(len(messages), 1)
+		self.assertEqual(str(messages[0]), 'Your current password does not match')
+		self.assertEquals(response.status_code, 302)
+		self.assertRedirects(response, '/accounts/user_settings/')
+
+	def test_tutorprofile_tutor_update_password_newpassword_confirmpassowrd_unmatched(self):
+		"""
+			User must be authenticated prior to calling the view.
+			User trying to update their password.
+			Users new password and confirm password is unmatched
 		"""
 		context = {
-			"updatePassword": "",
+			"update_password": "",
 			"currentPassword": "RanDomPasWord56",
-			"newPassword": "Strong98183",
-			"confirmPassword": "Strong76456"
+			"newPassword": "u9EzQfgkgn6K",
+			"confirmPassword": "r34tgg43gt"
 		}
 		self.user_1_profile = self.create_tutor_profile(self.user_1, "summary 1", "about 1", "English, Maths")
 		response = self.client.post(self.url, context)
-		self.assertEquals(response.status_code, 200)
-		self.assertIn("alert", response.context)
-		self.assertEquals(response.context["alert"], "alert-danger")
-		self.assertTemplateUsed(response, "accounts/tutorprofile.html")
-		self.assertIn("tutorProfile", response.context)
-		self.assertEquals(response.context["tutorProfile"], TutorProfile.objects.get(user=self.user_1))
-		self.assertIn("countries", response.context)
-		self.assertCountEqual(response.context["countries"], Countries.objects.all())
-		self.assertIn("message", response.context)
-		self.assertEquals(response.context["message"], "Your new password and confirm password does not match")
-		self.assertIn("activeAccountTab", response.context)
-		self.assertEquals(response.context["activeAccountTab"], True)
+		messages = list(get_messages(response.wsgi_request))
+		self.assertEqual(len(messages), 1)
+		self.assertEqual(str(messages[0]), 'Your new password and confirm password does not match')
+		self.assertEquals(response.status_code, 302)
+		self.assertRedirects(response, '/accounts/user_settings/')
 
-	def test_tutorprofile_update_weak_password(self):
+	def test_tutorprofile_tutor_update_password_weak_password(self):
 		"""
 			User must be authenticated prior to calling the view.
-			TutorProfile does exist to the authenticated user.
-			User current password confirmation does match.
-			User's new password and confirmation password does match.
-			User's new password is weak.
+			User trying to update their password.
+			Users new password is not strong enough.
 		"""
 		context = {
-			"updatePassword": "",
+			"update_password": "",
 			"currentPassword": "RanDomPasWord56",
 			"newPassword": "123",
 			"confirmPassword": "123"
 		}
 		self.user_1_profile = self.create_tutor_profile(self.user_1, "summary 1", "about 1", "English, Maths")
 		response = self.client.post(self.url, context)
-		self.assertEquals(response.status_code, 200)
-		self.assertIn("alert", response.context)
-		self.assertEquals(response.context["alert"], "alert-warning")
-		self.assertTemplateUsed(response, "accounts/tutorprofile.html")
-		self.assertIn("tutorProfile", response.context)
-		self.assertEquals(response.context["tutorProfile"], TutorProfile.objects.get(user=self.user_1))
-		self.assertIn("countries", response.context)
-		self.assertCountEqual(response.context["countries"], Countries.objects.all())
-		self.assertIn("message", response.context)
-		self.assertEquals(response.context["message"], "Your new password is not strong enough.")
-		self.assertIn("activeAccountTab", response.context)
-		self.assertEquals(response.context["activeAccountTab"], True)
+		messages = list(get_messages(response.wsgi_request))
+		self.assertEqual(len(messages), 1)
+		self.assertEqual(str(messages[0]), 'Your new password is not strong enough')
+		self.assertEquals(response.status_code, 302)
+		self.assertRedirects(response, '/accounts/user_settings/')
 
-	def test_tutorprofile_update_password_authenticate(self):
+	def test_tutorprofile_tutor_update_password_success(self):
 		"""
 			User must be authenticated prior to calling the view.
-			TutorProfile does exist to the authenticated user.
-			User current password confirmation does match.
-			User's new password and confirmation password does match.
-			User's new password is strong.
-			User should be authenticated after changing password.
+			User trying to update their password.
+			Users new password passes all checklist.
 		"""
 		context = {
-			"updatePassword": "",
+			"update_password": "",
 			"currentPassword": "RanDomPasWord56",
-			"newPassword": "RanDomPasWord123",
-			"confirmPassword": "RanDomPasWord123"
+			"newPassword": "u9EzQfgkgn6K",
+			"confirmPassword": "u9EzQfgkgn6K"
 		}
 		self.user_1_profile = self.create_tutor_profile(self.user_1, "summary 1", "about 1", "English, Maths")
 		response = self.client.post(self.url, context)
+		messages = list(get_messages(response.wsgi_request))
+		self.assertEqual(len(messages), 1)
+		self.assertEqual(str(messages[0]), 'Your password has been updated')
 		self.assertEquals(response.status_code, 200)
-		self.assertIn('_auth_user_id', self.client.session)
-		self.assertTemplateUsed(response, "accounts/tutorprofile.html")
-		self.assertIn("tutorProfile", response.context)
-		self.assertEquals(response.context["tutorProfile"], TutorProfile.objects.get(user=self.user_1))
-		self.assertIn("countries", response.context)
-		self.assertCountEqual(response.context["countries"], Countries.objects.all())
-		self.assertIn("questionAndAnswers", response.context)
-		self.assertCountEqual(response.context["questionAndAnswers"], QuestionAnswer.objects.filter(answerer=self.user_1))
+		self.assertTemplateUsed(response, "accounts/user_settings.html")
 
-class TestViewsTutorProfileEdit(TestCase):
-	pass
+	def test_tutorprofile_tutor_add_update_social_links(self):
+		"""
+			User must be authenticated prior to calling the view.
+			User is adding a new or updating their existing social links.
+		"""
+		context = {
+			"social_links": "",
+			"twitter": "twitterlink",
+			"facebook": "facebooklink",
+			"google": "googlelink",
+			"linkedin": "linkedinlink"
+		}
+		self.user_1_profile = self.create_tutor_profile(self.user_1, "summary 1", "about 1", "English, Maths")
+		response = self.client.post(self.url, context)
+		messages = list(get_messages(response.wsgi_request))
+		self.assertEqual(len(messages), 1)
+		self.assertEqual(str(messages[0]), 'Your social connection has been updated successfully')
+		self.assertEquals(response.status_code, 302)
+		self.assertRedirects(response, '/accounts/user_settings/')
+
+		social_account = SocialConnection.objects.get(user=self.user_1)
+		self.assertEquals(social_account.twitter, context["twitter"])
+		self.assertEquals(social_account.facebook, context["facebook"])
+		self.assertEquals(social_account.google, context["google"])
+		self.assertEquals(social_account.linkedin, context["linkedin"])

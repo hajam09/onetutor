@@ -35,8 +35,6 @@ def login(request):
 		user = authenticate(username=username, password=password)
 		if user:
 			auth_login(request, user)
-			if request.user.is_superuser:
-				return redirect('dashboard:template', template="index")
 			return redirect('tutoring:mainpage')
 		else:
 			if cache.get('loginAttempts') == None:
@@ -166,13 +164,7 @@ def tutorprofile(request):
 		return redirect("accounts:createprofile")
 	
 	tutorProfile.subjects = tutorProfile.subjects.replace(", ", ",").split(",")
-	countries = Countries.objects.all()
-
-	questionAndAnswers = QuestionAnswer.objects.filter(answerer=tutorProfile.user).order_by('-id')
-
-	
-	
-	return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile, "countries": countries, "questionAndAnswers": questionAndAnswers})
+	return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile})
 
 @login_required
 def user_settings(request):
@@ -224,9 +216,6 @@ def user_settings(request):
 
 		}
 		TutorProfile.objects.filter(user=request.user.id).update(location=location)
-		tutorProfile = TutorProfile.objects.get(user=request.user.id)
-		tutorProfile.subjects = tutorProfile.subjects.split(",")
-
 		messages.add_message(request,messages.SUCCESS,"Your location has been updated successfully")
 		return redirect("accounts:user_settings")
 

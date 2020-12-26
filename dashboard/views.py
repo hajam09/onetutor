@@ -4,13 +4,17 @@ from django.template import loader
 from django.http import HttpResponse
 from django import template
 from django.contrib.auth.models import User
+from django.db.models import Count
 from django.contrib.sessions.models import Session
 from django.utils import timezone
-import datetime, os, operator
+import datetime, os, operator, psutil
 from django.db.models import Q
 from accounts.models import TutorProfile, StudentProfile, Subject, Countries, SocialConnection
 from forum.models import Category, Community, Forum, Comment
 from tutoring.models import QuestionAnswer, QAComment
+
+CPU_USAGE = [0,0,0,0,0,0,0,0,0,0]
+RAM_USAGE = [0,0,0,0,0,0,0,0,0,0]
 
 @login_required
 def index(request, template="index"):
@@ -39,6 +43,8 @@ def pages(request):
 		return HttpResponse(html_template.render(context, request))
 
 def metric(request):
+	x = get_user_growth_by_month()
+	print(x)
 	return
 
 def get_all_logged_in_users():
@@ -111,3 +117,43 @@ def get_instance_count_for_each_model():
 		"question_answer": QuestionAnswer.objects.count()
 	}
 	return instance_count
+
+def get_gpu_ram_usage():
+	"""
+		create two lists to store percentages of each usage.
+		store 10 values for each usage.
+	"""
+	CPU_USAGE.append(psutil.cpu_percent())
+	RAM_USAGE.append(psutil.virtual_memory().percent)
+	return CPU_USAGE[-10:], RAM_USAGE[-10:]
+
+def get_user_growth_by_month():
+	"""
+		this may be not the best approach for this problem.
+		there is an alternative way which is to group date_joined by month/year
+		users_by_month = User.objects.all().extra({'created': "date(date_joined)"}).values('created').annotate(created_count=Count('id')).order_by('-created')
+		return last 12 month data.
+		data : [[1,10], [2,8], [3,4], [4,13], [5,17], [6,9]]
+		ticks: [[1,'January'], [2,'February'], [3,'March'], [4,'April'], [5,'May'], [6,'June']]
+	"""
+	dates = {}
+	for users in User.objects.all().order_by('date_joined'):
+		year = str(users.date_joined.year)
+		month = "%02d" % (users.date_joined.month,)
+		year_month = year+"/"+month
+		
+		if (year_month not in dates):
+			dates[year_month] = 1
+		else:
+			dates[year_month] += 1
+
+	counter = 1
+	data = []
+	ticks = []
+
+	for k, v in dates.items():
+		data.append([counter, v])
+		ticks.append([counter, k])
+		counter += 1
+
+	return data[-12:], ticks[-12:]

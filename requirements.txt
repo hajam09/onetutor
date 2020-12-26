@@ -2,3 +2,5 @@ Pillow
 Deprecated
 django-jsonfield
 Deprecated
+psutil
+coverage
