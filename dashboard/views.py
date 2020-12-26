@@ -23,24 +23,22 @@ def index(request, template="index"):
 
 @login_required
 def pages(request):
-	print("ss")
-	context = {}
 	# All resource paths end in .html.
 	# Pick out the html file name from the url. And load that template.
 	try:
 		load_template = "dashboard/"+request.path.split('/')[-1]
 		html_template = loader.get_template( load_template )
-		return HttpResponse(html_template.render(context, request))
+		return HttpResponse(html_template.render({}, request))
 		
 	except template.TemplateDoesNotExist:
 
 		html_template = loader.get_template( 'dashboard/page-404.html' )
-		return HttpResponse(html_template.render(context, request))
+		return HttpResponse(html_template.render({}, request))
 
 	except:
 	
-		html_template = loader.get_template( 'page-500.html' )
-		return HttpResponse(html_template.render(context, request))
+		html_template = loader.get_template( 'dashboard/page-500.html' )
+		return HttpResponse(html_template.render({}, request))
 
 def metric(request):
 	x = get_user_growth_by_month()
