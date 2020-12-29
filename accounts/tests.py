@@ -2,9 +2,10 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from accounts.models import TutorProfile, Countries, SocialConnection
+from accounts.models import TutorProfile, Countries, SocialConnection, UserSession
 from tutoring.models import QuestionAnswer
 from django.contrib.messages import get_messages
+import requests
 # coverage run --source=accounts manage.py test accounts
 class TestViewsLogin(TestCase):
 
@@ -12,7 +13,7 @@ class TestViewsLogin(TestCase):
 		return User.objects.create_user(username=u, email=e, password=p, first_name=f, last_name=l)
 
 	def setUp(self):
-		self.client = Client()
+		self.client = Client(HTTP_USER_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36')
 		self.url = reverse('accounts:login')
 		self.user_1 = self.create_user("barry.allen@yahoo.com", "barry.allen@yahoo.com", "RanDomPasWord56", "Barry", "Allen")
 
@@ -28,7 +29,8 @@ class TestViewsLogin(TestCase):
 		"""
 		context = {
 			"username": "nonexistentialuser@gmail.com",
-			"password": "qWeRtY1234"
+			"password": "qWeRtY1234",
+			"browser_type": "Chrome"
 		}
 		for i in range(4):
 			response = self.client.post(self.url, context)
@@ -47,7 +49,8 @@ class TestViewsLogin(TestCase):
 		"""
 		context = {
 			"username": "barry.allen@yahoo.com",
-			"password": "RanDomPasWord56"
+			"password": "RanDomPasWord56",
+			"browser_type": "Chrome"
 		}
 		response = self.client.post(self.url, context)
 		self.assertEqual(response.status_code, 302)
@@ -61,7 +64,8 @@ class TestViewsLogin(TestCase):
 		"""
 		context = {
 			"username": "nonexistentialuser@gmail.com",
-			"password": "qWeRtY1234"
+			"password": "qWeRtY1234",
+			"browser_type": "Chrome"
 		}
 		response = self.client.post(self.url, context)
 		self.assertEquals(response.status_code, 200)
@@ -78,6 +82,30 @@ class TestViewsLogin(TestCase):
 		self.assertEqual(response.status_code, 302)
 		self.assertRedirects(response, '/accounts/login/')
 		self.assertNotIn('_auth_user_id', self.client.session)
+
+	def test_login_ip_address_blocked(self):
+		"""
+			User's credentials are correct.
+			Buts user has blocked this IP address from their UserSession.
+		"""
+		context = {
+			"username": "barry.allen@yahoo.com",
+			"password": "RanDomPasWord56",
+			"browser_type": "Chrome"
+		}
+		self.api_response = requests.get("http://ip-api.com/json").json()
+		self.user_session = UserSession.objects.create(
+			user=User.objects.get(username=context["username"]),
+			device_type="Chrome, Windows",
+			location="Barking, England, United Kingdom",
+			ip_address=self.api_response['query'],
+			allowed=False
+		)
+		# self.test_login_authenticate_valid_user()
+		response = self.client.post(self.url, context)
+		self.assertEquals(response.context["message"], "This IP has been blocked by OneTutor for some reasons. If you think there has been some mistake, please appeal.")
+		self.assertEquals(response.context["username"], "barry.allen@yahoo.com")
+		self.assertTemplateUsed(response, "accounts/login.html")
 
 class TestViewsRegister(TestCase):
 

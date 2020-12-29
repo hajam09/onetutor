@@ -3,6 +3,8 @@
 {% block content %}
 <style type="text/css">
 	.ui-w-80{width:100px!important;height:auto}.btn-default{border-color:rgba(24,28,33,.1);background:rgba(0,0,0,0);color:#4e5155}label.btn{margin-bottom:0}.btn-outline-primary{border-color:#26b4ff;background:0 0;color:#26b4ff}.btn{cursor:pointer}.text-light{color:#babbbc!important}.account-settings-fileinput{position:absolute;visibility:hidden;width:1px;height:1px;opacity:0}h6,label{color: black;}
+
+	.switch{position:relative;display:inline-block;width:40px;height:24px}.switch input{opacity:0;width:0;height:0}.slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#ccc;-webkit-transition:.4s;transition:.4s}.slider:before{position:absolute;content:"";height:17px;width:17px;left:4px;bottom:4px;background-color:#fff;-webkit-transition:.4s;transition:.4s}input+.slider{background-color:#00d162}input:checked+.slider{background-color:red}input:focus+.slider{box-shadow:0 0 1px #2196f3}input:checked+.slider:before{-webkit-transform:translateX(15px);-ms-transform:translateX(15px);transform:translateX(15px)}.slider.round{border-radius:34px}.slider.round:before{border-radius:50%}
 	@media (min-width: 1200px) {
 		.container {
 			width: 1600px;
@@ -311,13 +313,33 @@
 								<label class="d-block">Sessions</label>
 								<p class="font-size-sm text-secondary">This is a list of devices that have logged into your account. Revoke any sessions that you do not recognize.</p>
 								<ul class="list-group list-group-sm">
-									<li class="list-group-item has-icon">
-										<div>
-											<h6 class="mb-0">San Francisco City 190.24.335.55</h6>
-											<small class="text-muted">Your current session seen in United States</small>
-										</div>
-										<button class="btn btn-light btn-sm ml-auto" type="button">More info</button>
-									</li>
+									{% if user_sessions %}
+									{% for session in user_sessions %}
+									<div>
+										<li class="list-group-item has-icon">
+											<div>
+												<h6 class="mb-0">{{session.device_type}} 190.24.335.55</h6>
+												<p style="color: grey;">{{session.location}} at {{session.login_time}}</p>
+											</div>
+											<span class="badge badge-primary">{{session.ip_address}}</span>
+											<p style="color: grey;" class="pull-right">
+												{% if session.allowed %}
+												<label data-toggle="tooltip" data-placement="top" title="Click to block this IP. Note: You won't be able to login into OneTutor with this IP address." class="switch">
+													<input type="checkbox" id="user_session_IP_{{session.id}}" onclick="block_unblock_ip('{{session.id}}');">
+													<span class="slider round"></span>
+												</label>
+												{% else %}
+												<label data-toggle="tooltip" data-placement="top" title="Click to unblock this IP." class="switch">
+													<input type="checkbox" id="user_session_IP_{{session.id}}" onclick="block_unblock_ip('{{session.id}}');" checked>
+													<span class="slider round"></span>
+												</label>
+												{% endif %}
+											</p>
+										</li>
+										<br>
+									</div>
+									{% endfor %}
+									{% endif %}
 								</ul>
 							</div>
 						</form>
@@ -417,6 +439,27 @@
 					Swal.fire({
 						icon: 'error',
 						title: "Can't do that!",
+						text: response.message
+					});
+				}
+			}
+		});
+	}
+
+	function block_unblock_ip(session_id) {
+		var allow = !$('#user_session_IP_'+session_id).prop("checked");
+		$.ajax({
+			data: {
+				'functionality': 'block_unblock_IP',
+				'session_id': session_id,
+				'allow': allow
+			},
+			dataType: 'json',
+			success: function (response) {
+				if(response.status_code == 200) {
+					Swal.fire({
+						icon: 'success',
+						title: "Operation Success!",
 						text: response.message
 					});
 				}

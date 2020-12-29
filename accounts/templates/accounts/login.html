@@ -50,6 +50,7 @@
 				<div class="loginbox-submit">
 					<input type="submit" class="btn btn-primary btn-block" value="Login">
 				</div>
+				<input type="text" name="browser_type" hidden>
 				<div class="loginbox-social">
 					<div class="social-title ">Forgot your password? <a href="{% url 'accounts:password_request' %}">Reset Here</a></div>
 				</div>
@@ -64,5 +65,50 @@
 		password_1.attr("type","text") ? password_1.attr("type")=="password" : password_1.attr("type","password")
 
 	}
+
+	function browser_detection() {
+		// Opera 8.0+
+		var isOpera = (!!window.opr && !!opr.addons) || !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
+		if (isOpera) {
+			$("[name='browser_type']").val("Opera");
+			return;
+		}
+
+		// Firefox 1.0+
+		var isFirefox = typeof InstallTrigger !== 'undefined';
+		if (isFirefox) {
+			$("[name='browser_type']").val("Firefox");
+			return;
+		}
+
+		// Safari 3.0+ "[object HTMLElementConstructor]" 
+		var isSafari = /constructor/i.test(window.HTMLElement) || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!window['safari'] || (typeof safari !== 'undefined' && safari.pushNotification));
+		if (isSafari) {
+			$("[name='browser_type']").val("Safari");
+			return;
+		}
+
+		// Internet Explorer 6-11
+		var isIE = /*@cc_on!@*/false || !!document.documentMode;
+		if (isIE) {
+			$("[name='browser_type']").val("Internet Explorer");
+			return;
+		}
+
+		// Edge 20+
+		var isEdge = !isIE && !!window.StyleMedia;
+		if (isEdge) {
+			$("[name='browser_type']").val("Edge");
+			return;
+		}
+
+		// Chrome 1 - 71
+		var isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime);
+		if (isChrome) {
+			$("[name='browser_type']").val("Chrome");
+			return;
+		}
+	}
+	browser_detection();
 </script>
 {% endblock %}

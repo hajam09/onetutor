@@ -4,3 +4,4 @@ django-jsonfield
 Deprecated
 psutil
 coverage
+requests

@@ -7,14 +7,14 @@ from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_text, DjangoUnicodeDecodeError
 from .utils import generate_token
-from .models import StudentProfile, TutorProfile, Countries, SocialConnection
+from .models import StudentProfile, TutorProfile, Countries, SocialConnection, UserSession
 from tutoring.models import QuestionAnswer
 from django.core.mail import EmailMessage
 from django.conf import settings
 from django.contrib import messages
 from django.core.cache import cache
 from django.http import HttpResponse
-import json, re, os, random, string
+import json, re, os, random, string, requests, datetime
 from .seed_data_installer import *
 from http import HTTPStatus
 
@@ -34,7 +34,11 @@ def login(request):
 
 		user = authenticate(username=username, password=password)
 		if user:
+			if not can_login(request):
+				context = {"message": "This IP has been blocked by OneTutor for some reasons. If you think there has been some mistake, please appeal.", "username": username}
+				return render(request,"accounts/login.html", context)
 			auth_login(request, user)
+			add_user_session(request, request.POST['browser_type'])
 			return redirect('tutoring:mainpage')
 		else:
 			if cache.get('loginAttempts') == None:
@@ -45,6 +49,38 @@ def login(request):
 			context = {"message": "Username or Password did not match!", "username": username}
 			return render(request,"accounts/login.html", context)
 	return render(request,"accounts/login.html", {})
+
+def add_user_session(request, browser_type):
+	response = requests.get("http://ip-api.com/json").json()
+	try:
+		this_session = UserSession.objects.get(ip_address=response['query'])
+		this_hour_now = datetime.datetime.now(tz=None)
+		diff = this_hour_now - this_session.login_time.replace(tzinfo=None)
+		if (diff.total_seconds()/3600 > 12):
+			# with the same ip, the user has logged in 12hrs later.
+			# TODO: update the user session with the new login_time and device type.
+			pass
+	except UserSession.DoesNotExist:
+		user_agent = request.META['HTTP_USER_AGENT']
+		platform = re.sub(r'\W+', '', user_agent.split()[1]) # Windows, Mac, Linux, Android, etc.
+		device_type = "{}, {}".format(browser_type, platform)
+		location="{}, {}, {}".format(response['city'], response['regionName'], response['country'])
+		UserSession.objects.create(
+			user=request.user,
+			device_type=device_type,
+			location=location,
+			ip_address=response['query'],
+		)
+	return
+
+def can_login(request):
+	response = requests.get("http://ip-api.com/json").json()
+	try:
+		this_session = UserSession.objects.get(ip_address=response['query'])
+		return True if this_session.allowed else False
+	except UserSession.DoesNotExist:
+		return True
+	return True
 
 def register(request):
 	if request.method == "POST":
@@ -175,6 +211,7 @@ def user_settings(request):
 
 	countries = Countries.objects.all()
 	social_links = SocialConnection.objects.get(user=request.user) if SocialConnection.objects.filter(user=request.user).count() != 0 else None
+	user_sessions = UserSession.objects.filter(user=request.user)
 
 	if request.method == "POST" and "update_general_information" in request.POST:
 		firstname = request.POST["first_name"].strip()
@@ -281,10 +318,31 @@ def user_settings(request):
 		messages.add_message(request,messages.SUCCESS,"Your social connection has been updated successfully")
 		return redirect("accounts:user_settings")
 
+	if request.is_ajax():
+		functionality = request.GET.get('functionality', None)
+
+		if functionality == "block_unblock_IP":
+			session_id, allow = request.GET.get('session_id', None), request.GET.get('allow', None)
+			allow = True if allow == 'true' else False
+			this_session = UserSession.objects.get(id=session_id)
+			this_session.allowed = allow
+			this_session.save()
+			if allow:
+				message = "{} has been unblocked".format(this_session.ip_address)
+			else:
+				message = "{} has been blocked".format(this_session.ip_address)
+			response = {
+				"status_code": HTTPStatus.OK,
+				"message": message
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+
 	context = {
 		"tutorProfile": tutorProfile,
 		"countries": countries,
-		"social_links": social_links
+		"social_links": social_links,
+		"user_sessions": user_sessions
 	}
 	
 	return render(request, "accounts/user_settings.html",context)
