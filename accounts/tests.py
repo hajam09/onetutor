@@ -5,7 +5,7 @@ from django.core.cache import cache
 from accounts.models import TutorProfile, Countries, SocialConnection, UserSession
 from tutoring.models import QuestionAnswer
 from django.contrib.messages import get_messages
-import requests
+import requests, json
 # coverage run --source=accounts manage.py test accounts
 class TestViewsLogin(TestCase):
 
@@ -582,3 +582,47 @@ class TestViewsUserSettings(TestCase):
 		self.assertEquals(social_account.facebook, context["facebook"])
 		self.assertEquals(social_account.google, context["google"])
 		self.assertEquals(social_account.linkedin, context["linkedin"])
+
+	def test_user_settings_block_IP_address(self):
+		self.ip_response = requests.get("http://ip-api.com/json").json() 
+		self.this_session = UserSession.objects.create(
+			user=self.user_1,
+			device_type="Chrome, Windows",
+			location="Barking, England, United Kingdom",
+			ip_address=self.ip_response['query']
+		)
+		# self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		payload = {
+			"functionality": "block_unblock_IP",
+			"session_id": self.this_session.pk,
+			"allow": "false"
+		}
+		self.user_1_profile = self.create_tutor_profile(self.user_1, "summary 1", "about 1", "English, Maths")
+
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertEquals(response.status_code, 200)
+		self.assertEquals(ajax_reponse["status_code"], 200)
+		self.assertEquals(ajax_reponse["message"], "{} has been blocked".format(self.this_session.ip_address))
+
+	def test_user_settings_unblock_IP_address(self):
+		self.ip_response = requests.get("http://ip-api.com/json").json() 
+		self.this_session = UserSession.objects.create(
+			user=self.user_1,
+			device_type="Chrome, Windows",
+			location="Barking, England, United Kingdom",
+			ip_address=self.ip_response['query']
+		)
+		# self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		payload = {
+			"functionality": "block_unblock_IP",
+			"session_id": self.this_session.pk,
+			"allow": "true"
+		}
+		self.user_1_profile = self.create_tutor_profile(self.user_1, "summary 1", "about 1", "English, Maths")
+
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertEquals(response.status_code, 200)
+		self.assertEquals(ajax_reponse["status_code"], 200)
+		self.assertEquals(ajax_reponse["message"], "{} has been unblocked".format(self.this_session.ip_address))
