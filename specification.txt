@@ -62,3 +62,13 @@ Dashboard Metrics:
 * Total login - on popover( login over 24hrs, 1 weeek, month)
 * Total failed login - on popover( login over 24hrs, 1 weeek, month)
 * Password resets - on popover( login over 24hrs, 1 weeek, month)
+
+
+JIRA PLAN:
+* JIRA page under dropdown.
+* There will be a feature and bug ticket.
+* Each ticket will have url in the format jira/ticket/OneTutor-#
+* There will be a filter options: ALl, Feature and Bug
+* Each ticket will have it's separate page describing the ticket in detail.
+* Columns: Assigne, title, created date, status (open/progress/done/cancelled), priority (high/medium/low).
+* In the ticket page show title, description, reporter story points all the details from above.
