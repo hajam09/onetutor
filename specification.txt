@@ -5,11 +5,9 @@ Feature:
 * Create a copyright footer for the application.
 * Write Cucumber tests for various Views.
 * Create a two factor authentication for more security.
-* List user's recent sessions. Allow user to block/unblock the sessions by using MAC ADDRESS.
-* Store the user's notification on the system and act accordingly.
+* Store the user's notification on the system and add it to event listner.
 * Allow users to authenticate using social media account.
 * On tutorprofile, other users can upvote/downvote questions.
-* On tutorprofile, user can edit their question.
 * On tutorprofile, only the tutor can answer the question.
 * For each Q&A, both the questionner and the answerer can upload photo(s).
 * For each Q&A, users can truncate long comments.
@@ -23,6 +21,7 @@ Bugs / Fixes:
 * Test the system with no user data and default seed data.
 * Category -> Community -> Forum -> Comment
 * Fixed navbar: add fixed-top to nav class in base. Add <br><br><br> above {% block content %} in base
+* Obtaining the IP address for UserSession need to be done in the client login page. Set the IP in the login FORM like browser type.
 
 Dashboard Metrics:
 * DB used space - Done
@@ -42,7 +41,7 @@ Dashboard Metrics:
 * Line graph for no. of email sent per notification_settings
 * number of file uploads in this week/this month for profile pic and QA pictures
 * Number of page views and display count for each page. /tutoring/mainpage.html
-* Number of AJAX requests called for each functionality
+* Number of AJAX requests called for each functionality  - on popover( login over 24hrs, 1 weeek, month)
 * Test results for each app / each views functions
 * Number of likes/dislikes made in comments
 * Graph for number of daily visits
@@ -57,5 +56,9 @@ Dashboard Metrics:
 * Table for ticket status (open, progress, done), subject, and priority (high, medium, low)
 * user (pic), User, Country, payment method, activity (last login time ago), payment status (approved G, pending Y, rejected R)
 * Users by location. showing country, and % of users from that country
-* Count of each HTTP requests
+* Count of each HTTP requests, and a total request count - on popover( login over 24hrs, 1 weeek, month)
 * Device source
+* Table showing online members and their country.
+* Total login - on popover( login over 24hrs, 1 weeek, month)
+* Total failed login - on popover( login over 24hrs, 1 weeek, month)
+* Password resets - on popover( login over 24hrs, 1 weeek, month)

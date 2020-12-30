@@ -34,9 +34,10 @@ def login(request):
 
 		user = authenticate(username=username, password=password)
 		if user:
-			if not can_login(request):
-				context = {"message": "This IP has been blocked by OneTutor for some reasons. If you think there has been some mistake, please appeal.", "username": username}
-				return render(request,"accounts/login.html", context)
+			login_user = authenticate_user(request, user)
+			if login_user != True:
+				return login_user
+
 			auth_login(request, user)
 			add_user_session(request, request.POST['browser_type'])
 			return redirect('tutoring:mainpage')
@@ -49,6 +50,22 @@ def login(request):
 			context = {"message": "Username or Password did not match!", "username": username}
 			return render(request,"accounts/login.html", context)
 	return render(request,"accounts/login.html", {})
+
+def authenticate_user(request, user):
+	response = requests.get("http://ip-api.com/json").json()
+	try:
+		this_session = UserSession.objects.get(ip_address=response['query'])
+	except UserSession.DoesNotExist:
+		return True
+
+	if this_session.allowed:
+		return True
+
+	context = {
+		"message": "This IP has been blocked by OneTutor for some reasons. If you think there has been some mistake, please appeal.",
+		"username": user.username
+	}
+	return render(request,"accounts/login.html", context)
 
 def add_user_session(request, browser_type):
 	response = requests.get("http://ip-api.com/json").json()
@@ -72,15 +89,6 @@ def add_user_session(request, browser_type):
 			ip_address=response['query'],
 		)
 	return
-
-def can_login(request):
-	response = requests.get("http://ip-api.com/json").json()
-	try:
-		this_session = UserSession.objects.get(ip_address=response['query'])
-		return True if this_session.allowed else False
-	except UserSession.DoesNotExist:
-		return True
-	return True
 
 def register(request):
 	if request.method == "POST":
