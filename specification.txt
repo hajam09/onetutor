@@ -1,27 +1,8 @@
-Feature:
-* On my students, create a chat page to allow direct communication between the tutor and the student(s).
-* Create a form to allow students to create a profile.
-* Allow only students to rate tutors given the tutor has tutored the student.
-* Create a copyright footer for the application.
-* Write Cucumber tests for various Views.
-* Create a two factor authentication for more security.
-* Store the user's notification on the system and add it to event listner.
-* Allow users to authenticate using social media account.
-* On tutorprofile, other users can upvote/downvote questions.
-* On tutorprofile, only the tutor can answer the question.
-* For each Q&A, both the questionner and the answerer can upload photo(s).
-* For each Q&A, users can truncate long comments.
-* Create simple JIRA board for admin to add tasks, set status, and other info such as dates, priority.
-
 Bugs / Fixes:
-* Priority: Cannot activate email when regestering.
-* On login and logout, redirect the user to their previous page if possible.
-* On photo upload trim the photo to reduce size.
-* On tutor profile when no Q&A exists, display a friendly message.
+
 * Test the system with no user data and default seed data.
 * Category -> Community -> Forum -> Comment
 * Fixed navbar: add fixed-top to nav class in base. Add <br><br><br> above {% block content %} in base
-* Obtaining the IP address for UserSession need to be done in the client login page. Set the IP in the login FORM like browser type.
 
 Dashboard Metrics:
 * DB used space - Done
@@ -65,10 +46,9 @@ Dashboard Metrics:
 
 
 JIRA PLAN:
-* JIRA page under dropdown.
 * There will be a feature and bug ticket.
 * Each ticket will have url in the format jira/ticket/OneTutor-#
 * There will be a filter options: ALl, Feature and Bug
 * Each ticket will have it's separate page describing the ticket in detail.
-* Columns: Assigne, title, created date, status (open/progress/done/cancelled), priority (high/medium/low).
+* Columns: Assignee, title, created date, status (open/progress/done/cancelled), priority (high/medium/low).
 * In the ticket page show title, description, reporter story points all the details from above.

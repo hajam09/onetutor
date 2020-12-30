@@ -1,7 +1,6 @@
 *.log
 *.pyc
 *.log
-*.sqlite3
 *.coverage
 media/
 htmlcov
