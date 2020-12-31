@@ -90,6 +90,38 @@ def editticket(request, ticket_url):
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
 
+	if request.method == "POST" and "update_ticket_data" in request.POST:
+
+		assignee = request.POST['assignee']
+		description = request.POST['description']
+		issuetype = request.POST['issuetype']
+		points = ticket.points
+		priority = request.POST['priority']
+		reporter = request.POST['reporter']
+		status = request.POST['status']
+		summary = request.POST['summary']
+
+		ticket.assignee=User.objects.get(pk=assignee)
+		ticket.description=description
+		ticket.issue_type=issuetype
+		ticket.points=points
+		ticket.priority=priority
+		ticket.reporter=User.objects.get(pk=reporter)
+		ticket.status=status
+		ticket.summary=summary
+
+		ticket.save(update_fields=['assignee', 'description' ,'issue_type' ,'points' ,'priority' ,'reporter' ,'status' ,'summary'])
+
+		# creating an instance for each attachement for this ticket
+		if "ticket-attachment-files" in request.FILES:
+			attachments = request.FILES.getlist('ticket-attachment-files')
+
+			for files in attachments:
+				TicketImage.objects.create(
+					ticket=ticket,
+					image=files
+				)
+
 	context = {
 		"ticket": ticket,
 		"ticket_images": ticket_images,
