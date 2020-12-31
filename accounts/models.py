@@ -13,7 +13,7 @@ class TutorProfile(models.Model):
 	education = jsonfield.JSONField()
 	subjects = models.CharField(max_length=8192)
 	availability = jsonfield.JSONField()
-	profilePicture = models.ImageField(upload_to='profilepicture', blank=True, null=True)
+	profilePicture = models.ImageField(upload_to='profilepicture', blank=True, null=True, default='profilepicture/defaultimg/default-profile-picture.jpg')
 
 	class Meta:
 		verbose_name_plural = "TutorProfiles"
