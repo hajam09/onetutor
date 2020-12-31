@@ -226,7 +226,7 @@ def user_settings(request):
 		lastname = request.POST["last_name"].strip()
 
 		if "my-file-selector" in request.FILES:
-			if tutorProfile.profilePicture:
+			if tutorProfile.profilePicture and 'profilepicture/defaultimg/' not in tutorProfile.profilePicture.url:
 				previousProfileImage = os.path.join(settings.MEDIA_ROOT, tutorProfile.profilePicture.name)
 				if os.path.exists(previousProfileImage):
 					os.remove(previousProfileImage)
