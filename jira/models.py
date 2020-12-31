@@ -19,3 +19,7 @@ class Ticket(models.Model):
 
 	class Meta:
 		verbose_name_plural = "Ticket"
+
+class TicketImage(models.Model):
+	ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)
+	image = models.ImageField(upload_to='ticketimages/')

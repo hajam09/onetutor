@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.http import HttpResponse
-from .models import Ticket
+from .models import Ticket, TicketImage
 from django.core import serializers
 from http import HTTPStatus
 import json
@@ -40,6 +40,7 @@ def mainpage(request):
 
 def ticketpage(request, ticket_url):
 	ticket = Ticket.objects.get(url=ticket_url)
+	ticket_images = TicketImage.objects.filter(ticket=ticket)
 
 	if request.is_ajax():
 		list_of_watched_tickets = Ticket.objects.filter(watchers__id=request.user.pk)
@@ -60,6 +61,7 @@ def ticketpage(request, ticket_url):
 	list_of_watching_tickets = list(Ticket.objects.filter(watchers__id=request.user.pk).values_list('id', flat=True))
 	context = {
 		"ticket": ticket,
+		"ticket_images": ticket_images,
 		"list_of_watchers": list_of_watching_tickets
 	}
 	return render(request,"jira/ticketpage.html", context)
