@@ -137,7 +137,7 @@
         <tbody>
         	{% for ticket in tickets %}
             <tr>
-                <td>{{ticket.url}}</td>
+                <td><a href="{% url 'jira:ticketpage' ticket.url %}">{{ticket.url}}</a></td>
                 <td>{{ticket.summary}}</td>
                 <td>
                 	{% if ticket.issue_type == "Bug" %}

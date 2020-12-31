@@ -12,8 +12,10 @@ class Ticket(models.Model):
 	description = models.TextField()
 	points = models.IntegerField()
 	created_date = models.DateField(default=datetime.date.today)
+	modified_date = models.DateTimeField(auto_now=True)
 	status = models.CharField(max_length=16, default='None')
 	priority = models.CharField(max_length=16, default='None')
+	watchers = models.ManyToManyField(User, blank=True, related_name='watchers')
 
 	class Meta:
 		verbose_name_plural = "Ticket"

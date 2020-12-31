@@ -1,0 +1,240 @@
+{% extends "accounts/account_base.html" %}
+{% load static %}
+{% block content %}
+<style type="text/css">
+	@media (min-width: 1200px) {
+		.container {
+			width: 1600px;
+		}
+		.wrapper {
+			width: 90%;
+		}
+	}
+
+	@media (min-width: 972px) and (max-width: 1200px) {
+		.container {
+			width: 1600px;
+		}
+		.wrapper {
+			width: 90%;
+		}
+	}
+
+	@media (min-width: 700px) and (max-width: 959px) {
+		.container {
+			width: 1600px;
+		}
+		.wrapper {
+			width: 90%;
+		}
+		
+	}
+</style>
+<div class="wrapper" style="margin: auto;overflow-x: hidden; color: black;">
+    <br>
+    <div class="row gutters-sm">
+    	<div class="col-md-12">
+    		<a href="{% url 'jira:ticketpage' ticket.url %}">{{ticket.project}} / {{ticket.url}}</a>
+    		<div class="col-xs-12" style="height:10px;"></div>
+    		<h3>{{ticket.summary}}</h3>
+    		<button type="button" class="btn btn-secondary"><i class="far fa-edit"></i> Edit</button>
+    		<button type="button" class="btn btn-secondary"><i class="fas fa-paperclip"></i> Attach</button>
+    		<button type="button" class="btn btn-secondary"><i class="fas fa-share-alt-square"></i></button>
+    	</div>
+    	<div style="height:130px;"></div>
+    	<div class="col-md-12">
+    		<div class="row">
+    			<div class="col-12 col-md-8">
+    				<a data-toggle="collapse" href="#details" role="button" aria-expanded="false" aria-controls="details"><i class="fas fa-chevron-circle-down"></i> Details</a>
+    				<div class="collapse" id="details">
+    					<div class="card card-body">
+    						<div class="row">
+    							<div class="col-sm">
+    								<div class="row">
+    									<div class="col-6">
+    										<p>Type:</p>
+    										<p>Priority:</p>
+    									</div>
+    									<div class="col-6">
+    										<p>
+    											{% if ticket.issue_type == "Bug" %}
+    											<img src='{% static "img/bug.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Bug">&nbsp;&nbsp;Bug
+    											{% elif ticket.issue_type == "Improvement" %}
+    											<img src='{% static "img/improvement.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Improvement">&nbsp;&nbsp;Improvement
+    											{% elif ticket.issue_type == "Story" %}
+    											<img src='{% static "img/story.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Story">&nbsp;&nbsp;Story
+    											{% elif ticket.issue_type == "Task" %}
+    											<img src='{% static "img/task.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Task">&nbsp;&nbsp;Task
+    											{% elif ticket.issue_type == "Test" %}
+    											<img src='{% static "img/test.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Test">&nbsp;&nbsp;Test
+    											{% elif ticket.issue_type == "Epic" %}
+    											<img src='{% static "img/epic.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Epic">&nbsp;&nbsp;Epic
+    											{% else %}
+    											<img src='' width="20" height="20">
+    											{% endif %}
+    										</p>
+    										<p>
+    											{% if ticket.priority == "Low" %}
+    											<span class="badge badge-success">{{ticket.priority}}</span>
+    											{% elif ticket.priority == "Medium" %}
+    											<span class="badge badge-warning">{{ticket.priority}}</span>
+    											{% elif ticket.priority == "High" %}
+							                	<span class="badge badge-danger">{{ticket.priority}}</span>
+							                	{% else %}
+							                	<span class="badge badge-secondary">{{ticket.priority}}</span>
+							                	{% endif %}
+    										</p>
+    									</div>
+    								</div>
+    							</div>
+    							<div class="col-sm">
+    								<div class="row">
+    									<div class="col-6">
+    										<p>Status:</p>
+    										<p>Resolution:</p>
+    									</div>
+    									<div class="col-6">
+    										<p>
+    											{% if ticket.status == "Open" %}
+							                	<span class="badge badge-info">{{ticket.status}}</span>
+							                	{% elif ticket.status == "Progress" %}
+							                	<span class="badge badge-warning">{{ticket.status}}</span>
+							                	{% elif ticket.status == "Done" %}
+							                	<span class="badge badge-success">{{ticket.status}}</span>
+							                	{% elif ticket.status == "Cancelled" %}
+							                	<span class="badge badge-danger">{{ticket.status}}</span>
+							                	{% else %}
+							                	<span class="badge badge-secondary">{{ticket.status}}</span>
+							                	{% endif %}
+    										</p>
+    										<p>
+    											{% if ticket.status == "Done" %}
+    											Resolved
+    											{% else %}
+    											Unresolved
+    											{% endif %}
+    										</p>
+    									</div>
+    								</div>
+    							</div>
+    						</div>
+    					</div>
+    				</div>
+    				<div class="col-xs-12" style="height:30px;"></div>
+    				<a data-toggle="collapse" href="#description" role="button" aria-expanded="false" aria-controls="description"><i class="fas fa-chevron-circle-down"></i> Description</a>
+    				<div class="collapse" id="description">
+    					<div class="card card-body">
+    						{{ ticket.description|linebreaksbr }}
+    					</div>
+    				</div>
+    				<div class="col-xs-12" style="height:30px;"></div>
+    				<a data-toggle="collapse" href="#attachments" role="button" aria-expanded="false" aria-controls="attachments"><i class="fas fa-chevron-circle-down"></i> Attachments</a>
+    				<div class="collapse" id="attachments">
+    					<div class="card card-body">
+    						Photots
+    					</div>
+    				</div>
+    				<div class="col-xs-12" style="height:30px;"></div>
+    				<a data-toggle="collapse" href="#comments" role="button" aria-expanded="false" aria-controls="comments"><i class="fas fa-chevron-circle-down"></i> Comments</a>
+    				<div class="collapse" id="comments">
+    					<div class="card card-body">
+    						Comments
+    					</div>
+    				</div>
+    			</div>
+    			<div class="col-6 col-md-4">
+    				<a data-toggle="collapse" href="#people" role="button" aria-expanded="false" aria-controls="people"><i class="fas fa-chevron-circle-down"></i> People</a>
+    				<div class="collapse" id="people">
+    					<div class="card card-body">
+    						<div class="row">
+								<div class="col-6 col-md-auto">
+									<p>Assignee:</p>
+									<p>Reporter:</p>
+									<p>Watchers:</p>
+								</div>
+								<div class="col-6 col-md-auto">
+									<p>
+										{% if ticket.assignee.tutorprofile.profilePicture %}
+										<img height="24px" width="24px" src="{{ ticket.assignee.tutorprofile.profilePicture.url }}" class="rounded">&nbsp;&nbsp;
+										{% endif %}
+										{% if ticket.assignee.get_full_name %}
+										{{ticket.assignee.get_full_name}}
+										{% else %}
+										{{ticket.assignee}}
+										{% endif %}
+									</p>
+									<p>
+										{% if ticket.reporter.tutorprofile.profilePicture %}
+										<img height="24px" width="24px" src="{{ ticket.reporter.tutorprofile.profilePicture.url }}" class="rounded">&nbsp;&nbsp;
+										{% endif %}
+										{% if ticket.reporter.get_full_name %}
+										{{ticket.reporter.get_full_name}}
+										{% else %}
+										{{ticket.reporter}}
+										{% endif %}
+									</p>
+									<p id="ticket_watcher">{{ticket.watchers.count}}</p>
+								</div>
+							</div>
+    					</div>
+    				</div>
+    				<div class="col-xs-12" style="height:30px;"></div>
+    				<a data-toggle="collapse" href="#dates" role="button" aria-expanded="false" aria-controls="dates"><i class="fas fa-chevron-circle-down"></i> Dates</a>
+    				<div class="collapse" id="dates">
+    					<div class="card card-body">
+    						<div class="row">
+								<div class="col-6 col-md-auto">
+									<p>Created:</p>
+									<p>Updated:</p>
+								</div>
+								<div class="col-6 col-md-auto">
+									<p>{{ticket.created_date}}</p>
+									<p>{{ticket.modified_date}}</p>
+								</div>
+							</div>
+    					</div>
+    				</div>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+</div>
+<script type="text/javascript">
+	$('#details,#description,#attachments,#people,#dates').collapse({
+		toggle: true
+	})
+
+	function watchers(this_ticket_pk, list_of_this_users_watching_tickets, watchers_count) {
+		if (list_of_this_users_watching_tickets.includes(this_ticket_pk)) {
+
+			var ticket_watcher_text = `<span onclick="watch_unwatch_issue();" class="badge badge-pill badge-primary" data-toggle="tooltip" data-placement="top" title="You are watching this issue. Click to stop watching this issue.">`+watchers_count+`</span>`
+			$('p#ticket_watcher').html(ticket_watcher_text);
+
+		} else {
+
+			var ticket_watcher_text = `<span onclick="watch_unwatch_issue();" class="badge badge-pill badge-secondary" data-toggle="tooltip" data-placement="top" title="You are not watching this issue. Click to watch this issue.">`+watchers_count+`</span>`
+			$('p#ticket_watcher').html(ticket_watcher_text);
+
+		}
+	}
+	watchers(eval('{{ticket.pk}}'), eval('{{list_of_watchers}}'), eval('{{ticket.watchers.count}}'));
+
+	function watch_unwatch_issue() {
+		$.ajax({
+			data: {
+				'functionality': 'watch_unwatch_issue'
+			},
+			dataType: 'json',
+			success: function (response) {
+				if (response.status_code == 200) {
+					var this_ticket_pk = eval('{{ticket.pk}}');
+					var list_of_this_users_watching_tickets = response.updated_watching_ticket;
+					var watchers_count = response.new_watch_count_for_this_ticket;
+					watchers(this_ticket_pk, list_of_this_users_watching_tickets, watchers_count);
+				}
+			}
+		});
+	}
+
+</script>
+{% endblock %}
