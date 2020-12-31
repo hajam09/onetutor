@@ -37,7 +37,7 @@
     		<a href="{% url 'jira:ticketpage' ticket.url %}">{{ticket.project}} / {{ticket.url}}</a>
     		<div class="col-xs-12" style="height:10px;"></div>
     		<h3>{{ticket.summary}}</h3>
-    		<button type="button" class="btn btn-secondary"><i class="far fa-edit"></i> Edit</button>
+            <a class="btn btn-secondary" href="{% url 'jira:editticket' ticket.url %}" role="button"><i class="far fa-edit"></i> Edit</a>
     		<button type="button" class="btn btn-secondary"><i class="fas fa-paperclip"></i> Attach</button>
     		<button type="button" class="btn btn-secondary"><i class="fas fa-share-alt-square"></i></button>
     	</div>
@@ -158,33 +158,37 @@
     				<div class="collapse" id="people">
     					<div class="card card-body">
     						<div class="row">
-								<div class="col-6 col-md-auto">
-									<p>Assignee:</p>
-									<p>Reporter:</p>
-									<p>Watchers:</p>
-								</div>
-								<div class="col-6 col-md-auto">
-									<p>
-										{% if ticket.assignee.tutorprofile.profilePicture %}
-										<img height="24px" width="24px" src="{{ ticket.assignee.tutorprofile.profilePicture.url }}" class="rounded">&nbsp;&nbsp;
-										{% endif %}
-										{% if ticket.assignee.get_full_name %}
-										{{ticket.assignee.get_full_name}}
-										{% else %}
-										{{ticket.assignee}}
-										{% endif %}
-									</p>
-									<p>
-										{% if ticket.reporter.tutorprofile.profilePicture %}
-										<img height="24px" width="24px" src="{{ ticket.reporter.tutorprofile.profilePicture.url }}" class="rounded">&nbsp;&nbsp;
-										{% endif %}
-										{% if ticket.reporter.get_full_name %}
-										{{ticket.reporter.get_full_name}}
-										{% else %}
-										{{ticket.reporter}}
-										{% endif %}
-									</p>
-									<p id="ticket_watcher">{{ticket.watchers.count}}</p>
+								<div class="col-12">
+                                    <div class="row">
+                                        <div class="col-md-auto">Assignee:</div>
+                                        <div class="col-md-auto"><p>
+                                        {% if ticket.assignee.tutorprofile.profilePicture %}
+                                        <img height="24px" width="24px" src="{{ ticket.assignee.tutorprofile.profilePicture.url }}" class="rounded">&nbsp;&nbsp;
+                                        {% endif %}
+                                        {% if ticket.assignee.get_full_name %}
+                                        {{ticket.assignee.get_full_name}}
+                                        {% else %}
+                                        {{ticket.assignee}}
+                                        {% endif %}
+                                    </p></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-auto">Reporter:</div>
+                                        <div class="col-md-auto"><p>
+                                        {% if ticket.reporter.tutorprofile.profilePicture %}
+                                        <img height="24px" width="24px" src="{{ ticket.reporter.tutorprofile.profilePicture.url }}" class="rounded">&nbsp;&nbsp;
+                                        {% endif %}
+                                        {% if ticket.reporter.get_full_name %}
+                                        {{ticket.reporter.get_full_name}}
+                                        {% else %}
+                                        {{ticket.reporter}}
+                                        {% endif %}
+                                    </p></div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-auto">Watchers:</div>
+                                        <div class="col-md-auto"><p id="ticket_watcher">{{ticket.watchers.count}}</p></div>
+                                    </div>
 								</div>
 							</div>
     					</div>
