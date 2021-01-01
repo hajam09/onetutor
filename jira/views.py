@@ -17,10 +17,15 @@ def mainpage(request):
 		description = request.POST['description']
 		points = request.POST['points']
 
+		if "Jira" in project:
+			prefix = "Jira-"
+		else:
+			prefix = "OneTutor-"
+
 		try:
-			url = "OneTutor-" + str(Ticket.objects.last().pk)
+			url = prefix + str(Ticket.objects.last().pk)
 		except Exception as e:
-			url = "OneTutor-0"
+			url = prefix+"0"
 
 		Ticket.objects.create(
 			url=url,
