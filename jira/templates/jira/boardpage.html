@@ -1,0 +1,244 @@
+{% extends "accounts/account_base.html" %}
+{% load static %}
+{% block content %}
+<style type="text/css">
+	@media (min-width: 1200px) {
+		.container {
+			width: 1600px;
+		}
+		.wrapper {
+			width: 80%;
+		}
+	}
+
+	@media (min-width: 972px) and (max-width: 1200px) {
+		.container {
+			width: 1600px;
+		}
+		.wrapper {
+			width: 90%;
+		}
+	}
+
+	@media (min-width: 700px) and (max-width: 959px) {
+		.container {
+			width: 1600px;
+		}
+		.wrapper {
+			width: 90%;
+		}
+		
+	}
+
+	.tickets {
+		background-color: #f1f1f1;
+		border: 1px solid #d3d3d3;
+		width: 100%;
+	}
+
+	.card {
+	    position: relative;
+	    display: flex;
+	    flex-direction: column;
+	    min-width: 0;
+	    word-wrap: break-word;
+	    background-color: #fff;
+	    background-clip: border-box;
+	    border: 0 solid transparent;
+	    border-radius: 0;
+	}
+
+	ul { list-style-type: none; margin: 0; padding: 0; margin-bottom: 10px; }
+</style>
+<div class="col-xs-12" style="height:10px;"></div>
+<div class="wrapper" style="margin: auto;overflow-x: hidden;">
+    <br>
+    <div class="row gutters-sm">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body tab-content" style="color: black;">
+                	<h3>One Tutor</h3>
+                	<hr>
+
+                	<div class="row">
+                		<div class="col">
+                			<div class="row">TO DO</div>
+                			<ul class="tickets connectedSortable" id="sortable_1">
+                				{% for ticket in todo_tickets %}
+							    <li class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
+							        <div class="card card-body">
+							            <p id="ticket_url" style="color: grey;">{{ticket.url}}</p>
+							            <h6 class="note-title text-truncate w-75 mb-0" data-noteheading="Book a Ticket for Movie">Book a Ticket for Movie </h6>
+							            <br>
+							            <div>
+							            	{% if ticket.issue_type == "Bug" %}
+						                	<p hidden>Bug</p><img src='{% static "img/bug.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Bug">
+						                	{% elif ticket.issue_type == "Improvement" %}
+						                	<p hidden>Improvement</p><img src='{% static "img/improvement.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Improvement">
+						                	{% elif ticket.issue_type == "Story" %}
+						                	<p hidden>Story</p><img src='{% static "img/story.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Story">
+						                	{% elif ticket.issue_type == "Task" %}
+						                	<p hidden>Task</p><img src='{% static "img/task.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Task">
+						                	{% elif ticket.issue_type == "Test" %}
+						                	<p hidden>Test</p><img src='{% static "img/test.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Test">
+						                	{% elif ticket.issue_type == "Epic" %}
+						                	<p hidden>Epic</p><img src='{% static "img/epic.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Epic">
+						                	{% else %}
+						                	<p hidden></p><img src='' width="20" height="20">
+						                	{% endif %}
+
+						                	<span class="badge badge-pill badge-secondary">{{ticket.points}}</span>
+							            </div>
+							        </div>
+							    </li>
+							    {% endfor %}
+                			</ul>
+                		</div>
+                		<div class="col">
+                			<div class="row">IN PROGRESS</div>
+                			<ul class="tickets connectedSortable" id="sortable_2">
+                				{% for ticket in prog_tickets %}
+							    <li class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
+							        <div class="card card-body">
+							            <p id="ticket_url" style="color: grey;">{{ticket.url}}</p>
+							            <h6 class="note-title text-truncate w-75 mb-0" data-noteheading="Book a Ticket for Movie">Book a Ticket for Movie </h6>
+							            <br>
+							            <div>
+							            	{% if ticket.issue_type == "Bug" %}
+						                	<p hidden>Bug</p><img src='{% static "img/bug.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Bug">
+						                	{% elif ticket.issue_type == "Improvement" %}
+						                	<p hidden>Improvement</p><img src='{% static "img/improvement.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Improvement">
+						                	{% elif ticket.issue_type == "Story" %}
+						                	<p hidden>Story</p><img src='{% static "img/story.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Story">
+						                	{% elif ticket.issue_type == "Task" %}
+						                	<p hidden>Task</p><img src='{% static "img/task.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Task">
+						                	{% elif ticket.issue_type == "Test" %}
+						                	<p hidden>Test</p><img src='{% static "img/test.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Test">
+						                	{% elif ticket.issue_type == "Epic" %}
+						                	<p hidden>Epic</p><img src='{% static "img/epic.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Epic">
+						                	{% else %}
+						                	<p hidden></p><img src='' width="20" height="20">
+						                	{% endif %}
+
+						                	<span class="badge badge-pill badge-secondary">{{ticket.points}}</span>
+							            </div>
+							        </div>
+							    </li>
+							    {% endfor %}
+                			</ul>
+                		</div>
+                		<div class="col">
+                			<div class="row">DONE</div>
+                			<ul class="tickets connectedSortable" id="sortable_3">
+                				{% for ticket in done_tickets %}
+							    <li class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
+							        <div class="card card-body">
+							            <p id="ticket_url" style="color: grey;">{{ticket.url}}</p>
+							            <h6 class="note-title text-truncate w-75 mb-0" data-noteheading="Book a Ticket for Movie">Book a Ticket for Movie </h6>
+							            <br>
+							            <div>
+							            	{% if ticket.issue_type == "Bug" %}
+						                	<p hidden>Bug</p><img src='{% static "img/bug.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Bug">
+						                	{% elif ticket.issue_type == "Improvement" %}
+						                	<p hidden>Improvement</p><img src='{% static "img/improvement.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Improvement">
+						                	{% elif ticket.issue_type == "Story" %}
+						                	<p hidden>Story</p><img src='{% static "img/story.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Story">
+						                	{% elif ticket.issue_type == "Task" %}
+						                	<p hidden>Task</p><img src='{% static "img/task.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Task">
+						                	{% elif ticket.issue_type == "Test" %}
+						                	<p hidden>Test</p><img src='{% static "img/test.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Test">
+						                	{% elif ticket.issue_type == "Epic" %}
+						                	<p hidden>Epic</p><img src='{% static "img/epic.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Epic">
+						                	{% else %}
+						                	<p hidden></p><img src='' width="20" height="20">
+						                	{% endif %}
+
+						                	<span class="badge badge-pill badge-secondary">{{ticket.points}}</span>
+							            </div>
+							        </div>
+							    </li>
+							    {% endfor %}
+                			</ul>
+                		</div>
+                	</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+</div>
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script type="text/javascript">
+	$( function() {
+		$( "#sortable_1, #sortable_2, #sortable_3" ).sortable({
+			// revert: true
+			connectWith: ".connectedSortable"
+		}).disableSelection();
+
+		$( "#draggable" ).draggable({
+			connectToSortable: "#sortable",
+			helper: "clone",
+			revert: "invalid"
+		});
+		$( "ul, li" ).disableSelection();
+	});
+
+	$("#sortable_1").on('DOMNodeInserted', function(e) {
+		// ticket moved to: TO DO
+		var p_element = e.target.querySelector('p');
+
+		if (p_element != null) {
+			var moved_ticket_url = p_element.innerHTML;
+
+			$.ajax({
+				data: {
+					'functionality': 'update_ticket_status',
+					'moved_ticket_url': moved_ticket_url,
+					'new_status': 'None'//or TO DO? change it in the backend based on appropriate decision.
+				},
+				dataType: 'json',
+				success: function (response) {}
+			});
+		}
+	});
+
+	$("#sortable_2").on('DOMNodeInserted', function(e) {
+		// ticket moved to: IN PROGRESS
+		var p_element = e.target.querySelector('p');
+
+		if (p_element != null) {
+			var moved_ticket_url = p_element.innerHTML;
+
+			$.ajax({
+				data: {
+					'functionality': 'update_ticket_status',
+					'moved_ticket_url': moved_ticket_url,
+					'new_status': 'Progress'
+				},
+				dataType: 'json',
+				success: function (response) {}
+			});
+		}
+	});
+
+	$("#sortable_3").on('DOMNodeInserted', function(e) {
+		// ticket moved to: IN DONE
+		var p_element = e.target.querySelector('p');
+
+		if (p_element != null) {
+			var moved_ticket_url = p_element.innerHTML;
+
+			$.ajax({
+				data: {
+					'functionality': 'update_ticket_status',
+					'moved_ticket_url': moved_ticket_url,
+					'new_status': 'Done'
+				},
+				dataType: 'json',
+				success: function (response) {}
+			});
+		}
+	});
+</script>
+{% endblock %}

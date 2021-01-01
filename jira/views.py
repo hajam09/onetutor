@@ -44,6 +44,31 @@ def mainpage(request):
 	}
 	return render(request,"jira/mainpage.html", context)
 
+def boardpage(request):
+
+	if request.is_ajax():
+		functionality = request.GET.get('functionality', None)
+
+		if functionality == "update_ticket_status":
+			moved_ticket_url, new_status = request.GET.get('moved_ticket_url', None), request.GET.get('new_status', None)
+
+			ticket = Ticket.objects.get(url=moved_ticket_url)
+			ticket.status = new_status
+			ticket.save()
+
+			response = {
+				"status_code": HTTPStatus.OK
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+
+	context = {
+		"todo_tickets": Ticket.objects.filter(status="None"),#status=open?
+		"prog_tickets": Ticket.objects.filter(status="Progress"),
+		"done_tickets": Ticket.objects.filter(status="Done"),
+	}
+	return render(request,"jira/boardpage.html", context)
+
 def ticketpage(request, ticket_url):
 	ticket = Ticket.objects.get(url=ticket_url)
 	ticket_images = TicketImage.objects.filter(ticket=ticket)
