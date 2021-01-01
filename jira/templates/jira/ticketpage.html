@@ -38,7 +38,6 @@
     		<div class="col-xs-12" style="height:10px;"></div>
     		<h3>{{ticket.summary}}</h3>
             <a class="btn btn-secondary" href="{% url 'jira:editticket' ticket.url %}" role="button"><i class="far fa-edit"></i> Edit</a>
-    		<button type="button" class="btn btn-secondary"><i class="fas fa-paperclip"></i> Attach</button>
     		<button type="button" class="btn btn-secondary"><i class="fas fa-share-alt-square"></i></button>
     	</div>
     	<div style="height:130px;"></div>
@@ -54,6 +53,7 @@
     									<div class="col-6">
     										<p>Type:</p>
     										<p>Priority:</p>
+                                            <p>Story Points:</p>
     									</div>
     									<div class="col-6">
     										<p>
@@ -84,6 +84,9 @@
 							                	<span class="badge badge-secondary">{{ticket.priority}}</span>
 							                	{% endif %}
     										</p>
+                                            <p>
+                                                {{ticket.points}}
+                                            </p>
     									</div>
     								</div>
     							</div>
@@ -153,7 +156,7 @@
     					</div>
     				</div>
     			</div>
-    			<div class="col-6 col-md-4">
+    			<div class="col">
     				<a data-toggle="collapse" href="#people" role="button" aria-expanded="false" aria-controls="people"><i class="fas fa-chevron-circle-down"></i> People</a>
     				<div class="collapse" id="people">
     					<div class="card card-body">
@@ -197,16 +200,14 @@
     				<a data-toggle="collapse" href="#dates" role="button" aria-expanded="false" aria-controls="dates"><i class="fas fa-chevron-circle-down"></i> Dates</a>
     				<div class="collapse" id="dates">
     					<div class="card card-body">
-    						<div class="row">
-								<div class="col-6 col-md-auto">
-									<p>Created:</p>
-									<p>Updated:</p>
-								</div>
-								<div class="col-6 col-md-auto">
-									<p>{{ticket.created_date}}</p>
-									<p>{{ticket.modified_date}}</p>
-								</div>
-							</div>
+                            <div class="row">
+                                <div class="col col-md-auto">Created:</div>
+                                <div class="col col-md-auto">{{ticket.created_date}}</div>
+                            </div>
+                            <div class="row">
+                                <div class="col col-md-auto">Updated:</div>
+                                <div class="col col-md-auto">{{ticket.modified_date}}</div>
+                            </div>
     					</div>
     				</div>
     			</div>

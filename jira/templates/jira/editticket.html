@@ -59,10 +59,7 @@
 								<div class="row">
 									<div class="col-sm">
 										<div class="row">
-											<div class="col-6">
-												<p>Type:</p>
-												<p>Priority:</p>
-											</div>
+											<div class="col-6">Type:</div>
 											<div class="col-6">
 												<p>
 													<select class="form-control" name="issuetype" id="issuetype">
@@ -74,6 +71,11 @@
 														<option value="Epic">Epic</option>
 													</select>
 												</p>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-6">Priority:</div>
+											<div class="col-6">
 												<p>
 													<select class="form-control" name="priority" id="priority">
 														<option value="Low">Low</option>
@@ -84,13 +86,18 @@
 												</p>
 											</div>
 										</div>
+										<div class="row">
+											<div class="col-6">Story Points:</div>
+											<div class="col-6">
+												<p>
+													<input class="form-control" type="text" name="points" value="{{ticket.points}}">
+												</p>
+											</div>
+										</div>
 									</div>
 									<div class="col-sm">
 										<div class="row">
-											<div class="col-6">
-												<p>Status:</p>
-												<p>Resolution:</p>
-											</div>
+											<div class="col-6">Status:</div>
 											<div class="col-6">
 												<p>
 													<select class="form-control" name="status" id="status">
@@ -101,6 +108,11 @@
 														<option value="None">None</option>
 													</select>
 												</p>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-6">Resolution:</div>
+											<div class="col-6">
 												<p>
 													{% if ticket.status == "Done" %}
 													Resolved
@@ -142,15 +154,15 @@
 							</div>
 						</div>
 					</div>
-					<div class="col-6 col-md-4">
+					<div class="col">
 						<a data-toggle="collapse" href="#people" role="button" aria-expanded="false" aria-controls="people"><i class="fas fa-chevron-circle-down"></i> People</a>
 						<div class="collapse" id="people">
 							<div class="card card-body">
 								<div class="row">
 									<div class="col-12 col-md-auto">
 										<div class="row">
-											<div class="col">Assignee:</div>
-											<div class="col">
+											<div class="col-md-auto">Assignee:</div>
+											<div class="col-md-auto">
 												<p>
 													<select class="form-control" name="assignee" id="assignee">
 														{% for users in superusers %}
@@ -165,8 +177,8 @@
 											</div>
 										</div>
 										<div class="row">
-											<div class="col">Reporter:</div>
-											<div class="col">
+											<div class="col-md-auto">Reporter:</div>
+											<div class="col-md-auto">
 												<p>
 													<select class="form-control" name="reporter" id="reporter">
 														{% for users in superusers %}

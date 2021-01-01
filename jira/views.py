@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from .models import Ticket, TicketImage
@@ -95,7 +95,7 @@ def editticket(request, ticket_url):
 		assignee = request.POST['assignee']
 		description = request.POST['description']
 		issuetype = request.POST['issuetype']
-		points = ticket.points
+		points = request.POST['points']
 		priority = request.POST['priority']
 		reporter = request.POST['reporter']
 		status = request.POST['status']
@@ -121,6 +121,8 @@ def editticket(request, ticket_url):
 					ticket=ticket,
 					image=files
 				)
+
+		return redirect('jira:ticketpage', ticket_url=ticket_url)
 
 	context = {
 		"ticket": ticket,
