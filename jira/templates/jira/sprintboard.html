@@ -57,7 +57,7 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-body tab-content" style="color: black;">
-                	<h3>One Tutor</h3>
+                	<h3>One Tutor ({{active_sprint.start_date}} - {{active_sprint.end_date}})</h3>
                 	<hr>
                 	<div class="row">
                 		<div class="col">
@@ -100,7 +100,7 @@
 							    <li class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
 							        <div class="card card-body">
 							            <a id="ticket_url" href="{% url 'jira:ticketpage' ticket.url %}" style="color: grey;">{{ticket.url}}</a>
-							            <h6 class="note-title text-truncate w-75 mb-0" data-noteheading="Book a Ticket for Movie">Book a Ticket for Movie </h6>
+							            <h6 class="note-title text-truncate w-75 mb-0" data-noteheading="Book a Ticket for Movie">{{ticket.summary}} </h6>
 							            <br>
 							            <div>
 							            	{% if ticket.issue_type == "Bug" %}
@@ -133,7 +133,7 @@
 							    <li class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
 							        <div class="card card-body">
 							            <a id="ticket_url" href="{% url 'jira:ticketpage' ticket.url %}" style="color: grey;">{{ticket.url}}</a>
-							            <h6 class="note-title text-truncate w-75 mb-0" data-noteheading="Book a Ticket for Movie">Book a Ticket for Movie </h6>
+							            <h6 class="note-title text-truncate w-75 mb-0" data-noteheading="Book a Ticket for Movie">{{ticket.summary}} </h6>
 							            <br>
 							            <div>
 							            	{% if ticket.issue_type == "Bug" %}

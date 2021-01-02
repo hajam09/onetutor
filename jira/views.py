@@ -45,6 +45,7 @@ def sprintboard(request, sprint_url):
 
 
 	context = {
+		"active_sprint": active_sprint,
 		"todo_tickets": Ticket.objects.filter(status="Open", sprint=active_sprint),
 		"prog_tickets": Ticket.objects.filter(status="Progress", sprint=active_sprint),
 		"done_tickets": Ticket.objects.filter(status="Done", sprint=active_sprint),
