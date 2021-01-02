@@ -68,6 +68,7 @@ def backlog(request):
 	if request.method == "POST" and "create_ticket" in request.POST:
 		project = request.POST['project']
 		issuetype = request.POST['issuetype']
+		priority = request.POST['priority']
 		reporter = request.POST['reporter']
 		assignee = request.POST['assignee']
 		summary = request.POST['summary']
@@ -92,7 +93,8 @@ def backlog(request):
 			assignee=User.objects.get(pk=assignee),
 			summary=summary,
 			description=description,
-			points=points
+			points=points,
+			priority=priority
 		)
 		return redirect('jira:backlog')
 
