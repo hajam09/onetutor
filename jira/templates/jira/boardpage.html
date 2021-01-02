@@ -67,7 +67,7 @@
                 				{% for ticket in todo_tickets %}
 							    <li class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
 							        <div class="card card-body">
-							            <p id="ticket_url" style="color: grey;">{{ticket.url}}</p>
+							        	<a id="ticket_url" href="{% url 'jira:ticketpage' ticket.url %}" style="color: grey;">{{ticket.url}}</a>
 							            <h6 class="note-title text-truncate w-75 mb-0" data-noteheading="Book a Ticket for Movie">Book a Ticket for Movie </h6>
 							            <br>
 							            <div>
@@ -100,7 +100,7 @@
                 				{% for ticket in prog_tickets %}
 							    <li class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
 							        <div class="card card-body">
-							            <p id="ticket_url" style="color: grey;">{{ticket.url}}</p>
+							            <a id="ticket_url" href="{% url 'jira:ticketpage' ticket.url %}" style="color: grey;">{{ticket.url}}</a>
 							            <h6 class="note-title text-truncate w-75 mb-0" data-noteheading="Book a Ticket for Movie">Book a Ticket for Movie </h6>
 							            <br>
 							            <div>
@@ -133,7 +133,7 @@
                 				{% for ticket in done_tickets %}
 							    <li class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
 							        <div class="card card-body">
-							            <p id="ticket_url" style="color: grey;">{{ticket.url}}</p>
+							            <a id="ticket_url" href="{% url 'jira:ticketpage' ticket.url %}" style="color: grey;">{{ticket.url}}</a>
 							            <h6 class="note-title text-truncate w-75 mb-0" data-noteheading="Book a Ticket for Movie">Book a Ticket for Movie </h6>
 							            <br>
 							            <div>
@@ -186,7 +186,7 @@
 
 	$("#sortable_1").on('DOMNodeInserted', function(e) {
 		// ticket moved to: TO DO
-		var p_element = e.target.querySelector('p');
+		var p_element = e.target.querySelector('a');
 
 		if (p_element != null) {
 			var moved_ticket_url = p_element.innerHTML;
@@ -205,7 +205,7 @@
 
 	$("#sortable_2").on('DOMNodeInserted', function(e) {
 		// ticket moved to: IN PROGRESS
-		var p_element = e.target.querySelector('p');
+		var p_element = e.target.querySelector('a');
 
 		if (p_element != null) {
 			var moved_ticket_url = p_element.innerHTML;
@@ -224,7 +224,7 @@
 
 	$("#sortable_3").on('DOMNodeInserted', function(e) {
 		// ticket moved to: IN DONE
-		var p_element = e.target.querySelector('p');
+		var p_element = e.target.querySelector('a');
 
 		if (p_element != null) {
 			var moved_ticket_url = p_element.innerHTML;
