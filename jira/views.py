@@ -1,13 +1,69 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.http import HttpResponse
-from .models import Ticket, TicketImage
+from .models import Sprint, Ticket, TicketImage
 from django.core import serializers
 from http import HTTPStatus
 from django.conf import settings
-import json, os
+import json, os, datetime
+from deprecated import deprecated
 
 def mainpage(request):
+
+	today = datetime.date.today()
+	try:
+		active_sprint = Sprint.objects.get(start_date__lte=today, end_date__gte=today)
+	except Sprint.DoesNotExist:
+		active_sprint = None
+
+	if active_sprint != None:
+		return redirect('jira:sprintboard', sprint_url=active_sprint.url)
+	return redirect('jira:backlog')
+
+def sprintboard(request, sprint_url):
+
+	try:
+		active_sprint = Sprint.objects.get(url=sprint_url)
+	except Sprint.DoesNotExist:
+		# redirect to sprint does not exists page
+		pass
+
+	if request.is_ajax():
+		functionality = request.GET.get('functionality', None)
+
+		if functionality == "update_ticket_status":
+			moved_ticket_url, new_status = request.GET.get('moved_ticket_url', None), request.GET.get('new_status', None)
+
+			ticket = Ticket.objects.get(url=moved_ticket_url)
+			ticket.status = new_status
+			ticket.save()
+
+			response = {
+				"status_code": HTTPStatus.OK
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+
+	context = {
+		"todo_tickets": Ticket.objects.filter(status="Open", sprint=active_sprint),
+		"prog_tickets": Ticket.objects.filter(status="Progress", sprint=active_sprint),
+		"done_tickets": Ticket.objects.filter(status="Done", sprint=active_sprint),
+	}
+	return render(request,"jira/sprintboard.html", context)
+
+def backlog(request):
+
+	today = datetime.date.today()
+
+	try:
+		active_sprint = Sprint.objects.get(start_date__lte=today, end_date__gte=today)
+	except Sprint.DoesNotExist:
+		active_sprint = None
+
+	if request.method == "POST" and "start_sprint" in request.POST:
+		startsprint()
+		return redirect('jira:backlog')
+
 	if request.method == "POST" and "create_ticket" in request.POST:
 		project = request.POST['project']
 		issuetype = request.POST['issuetype']
@@ -37,23 +93,17 @@ def mainpage(request):
 			description=description,
 			points=points
 		)
-
-	context = {
-		"tickets": Ticket.objects.all(),
-		"superusers": User.objects.filter(is_superuser=True)
-	}
-	return render(request,"jira/mainpage.html", context)
-
-def boardpage(request):
+		return redirect('jira:backlog')
 
 	if request.is_ajax():
 		functionality = request.GET.get('functionality', None)
 
-		if functionality == "update_ticket_status":
-			moved_ticket_url, new_status = request.GET.get('moved_ticket_url', None), request.GET.get('new_status', None)
+		if functionality == "move_ticket_to_active_sprint":
+			moved_ticket_url = request.GET.get('moved_ticket_url', None)
 
 			ticket = Ticket.objects.get(url=moved_ticket_url)
-			ticket.status = new_status
+			ticket.status = "Open"
+			ticket.sprint = active_sprint
 			ticket.save()
 
 			response = {
@@ -61,13 +111,32 @@ def boardpage(request):
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
 
+		elif functionality == "update_ticket_status":
+			# moving the ticket from active sprint to backlog
+			moved_ticket_url, new_status = request.GET.get('moved_ticket_url', None), request.GET.get('new_status', None)
+
+			ticket = Ticket.objects.get(url=moved_ticket_url)
+			ticket.status = new_status
+			ticket.sprint = None
+			ticket.save()
+
+			response = {
+				"status_code": HTTPStatus.OK
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
 
 	context = {
-		"todo_tickets": Ticket.objects.filter(status="None"),#status=open?
-		"prog_tickets": Ticket.objects.filter(status="Progress"),
-		"done_tickets": Ticket.objects.filter(status="Done"),
+		"bug_tickets": Ticket.objects.filter(status="None", issue_type="Bug"),
+		"improvment_tickets": Ticket.objects.filter(status="None", issue_type="Improvement"),
+		"story_tickets": Ticket.objects.filter(status="None", issue_type="Story"),
+		"task_tickets": Ticket.objects.filter(status="None", issue_type="Task"),
+		"test_tickets": Ticket.objects.filter(status="None", issue_type="Test"),
+		"epic_tickets": Ticket.objects.filter(status="None", issue_type="Epic"),
+		"superusers": User.objects.filter(is_superuser=True),
+		"sprint_tickets": Ticket.objects.filter(sprint=active_sprint).exclude(status="None"),
+		"active_sprint": active_sprint
 	}
-	return render(request,"jira/boardpage.html", context)
+	return render(request,"jira/backlog.html", context)
 
 def ticketpage(request, ticket_url):
 	ticket = Ticket.objects.get(url=ticket_url)
@@ -160,3 +229,49 @@ def editticket(request, ticket_url):
 		"superusers": User.objects.all(), #User.objects.filter(is_superuser=True)
 	}
 	return render(request,"jira/editticket.html", context)
+
+def startsprint():
+	today = datetime.date.today()
+	try:
+		Sprint.objects.get(start_date__lte=today, end_date__gte=today)
+		# already a sprint exists as of today. No need to create another.
+	except Sprint.DoesNotExist:
+		prefix = "sprint-"
+		try:
+			last_sprint = Sprint.objects.last()
+			url = prefix + str(last_sprint.pk)
+			Sprint.objects.create(
+				url=url,
+				start_date=today,
+				end_date=today+datetime.timedelta(days=14)
+			)
+			print(today, today+datetime.timedelta(days=14))
+		except Exception as e:
+			url = prefix+"0"
+			Sprint.objects.create(url=url)
+	return
+
+@deprecated(version='1.2.1', reason="Rather than creating sprint on a recurring task. Let the user create the sprint.")
+def createsprint():
+	today = datetime.date.today()
+
+	try:
+		Sprint.objects.get(start_date__lte=today, end_date__gte=today)
+	except Sprint.DoesNotExist:
+		prefix = "sprint-"
+		try:
+			last_sprint = Sprint.objects.last()
+			url = prefix + str(last_sprint.pk)
+			end_of_last_sprint = last_sprint.end_date
+			new_sprint_date = end_of_last_sprint + datetime.timedelta(days=1)
+			Sprint.objects.create(
+				url=url,
+				start_date=new_sprint_date,
+				end_date=new_sprint_date+datetime.timedelta(days=14)
+			)
+			return True
+		except Exception as e:
+			url = prefix+"0"
+		Sprint.objects.create(url=url)
+		return True
+	return False

@@ -59,7 +59,6 @@
                 <div class="card-body tab-content" style="color: black;">
                 	<h3>One Tutor</h3>
                 	<hr>
-
                 	<div class="row">
                 		<div class="col">
                 			<div class="row">TO DO</div>
@@ -68,7 +67,7 @@
 							    <li class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
 							        <div class="card card-body">
 							        	<a id="ticket_url" href="{% url 'jira:ticketpage' ticket.url %}" style="color: grey;">{{ticket.url}}</a>
-							            <h6 class="note-title text-truncate w-75 mb-0" data-noteheading="Book a Ticket for Movie">Book a Ticket for Movie </h6>
+							            <h6 class="note-title text-truncate w-75 mb-0" data-noteheading="Book a Ticket for Movie">{{ticket.summary}} </h6>
 							            <br>
 							            <div>
 							            	{% if ticket.issue_type == "Bug" %}
@@ -168,7 +167,7 @@
     <br>
 </div>
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script type="text/javascript">
 	$( function() {
 		$( "#sortable_1, #sortable_2, #sortable_3" ).sortable({
@@ -195,7 +194,7 @@
 				data: {
 					'functionality': 'update_ticket_status',
 					'moved_ticket_url': moved_ticket_url,
-					'new_status': 'None'//or TO DO? change it in the backend based on appropriate decision.
+					'new_status': 'Open'
 				},
 				dataType: 'json',
 				success: function (response) {}

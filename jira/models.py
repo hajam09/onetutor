@@ -2,6 +2,14 @@ from django.db import models
 from django.contrib.auth.models import User
 import datetime
 
+class Sprint(models.Model):
+	url = models.CharField(max_length=1024)
+	start_date = models.DateField(default=datetime.date.today)
+	end_date = models.DateField(default=datetime.datetime.now()+datetime.timedelta(days=14))
+
+	class Meta:
+		verbose_name_plural = "Sprint"
+
 class Ticket(models.Model):
 	url = models.CharField(max_length=1024)
 	project = models.CharField(max_length=1024)
@@ -16,6 +24,7 @@ class Ticket(models.Model):
 	status = models.CharField(max_length=16, default='None')
 	priority = models.CharField(max_length=16, default='None')
 	watchers = models.ManyToManyField(User, blank=True, related_name='watchers')
+	sprint = models.ForeignKey(Sprint, models.SET_NULL, blank=True, null=True)
 
 	class Meta:
 		verbose_name_plural = "Ticket"
@@ -23,3 +32,6 @@ class Ticket(models.Model):
 class TicketImage(models.Model):
 	ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)
 	image = models.ImageField(upload_to='ticketimages/')
+
+	class Meta:
+		verbose_name_plural = "TicketImage"
