@@ -212,7 +212,18 @@ def editticket(request, ticket_url):
 		ticket.status=status
 		ticket.summary=summary
 
-		ticket.save(update_fields=['assignee', 'description' ,'issue_type' ,'points' ,'priority' ,'reporter' ,'status' ,'summary'])
+		if status != "None":
+			# dev has changed the status to open, progress, done..
+			if ticket.sprint == None:
+				# if a sprint is not set to this ticket when status is changed,
+				# it will not show up on any sprintboard nor in the backlog.
+				to_sprint = request.POST['sprint']
+				ticket.sprint = Sprint.objects.get(url=to_sprint)
+		else:
+			# when status is set to none, the ticket is sent to backlog. Set the sprint to none.
+			ticket.sprint = None
+
+		ticket.save(update_fields=['assignee', 'description' ,'issue_type' ,'points' ,'priority' ,'reporter' , 'sprint', 'status' ,'summary'])
 
 		# creating an instance for each attachement for this ticket
 		if "ticket-attachment-files" in request.FILES:
@@ -230,6 +241,7 @@ def editticket(request, ticket_url):
 		"ticket": ticket,
 		"ticket_images": ticket_images,
 		"superusers": User.objects.all(), #User.objects.filter(is_superuser=True)
+		"incomplete_sprints": Sprint.objects.filter(end_date__gte=datetime.date.today()).order_by('start_date')
 	}
 	return render(request,"jira/editticket.html", context)
 

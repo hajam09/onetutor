@@ -168,6 +168,9 @@
     								<div class="row">
     									<div class="col-6">
     										<p>Status:</p>
+                                            {% if ticket.status != 'None' %}
+                                            <p>Sprint:</p>
+                                            {% endif %}
     										<p>Resolution:</p>
     									</div>
     									<div class="col-6">
@@ -184,6 +187,11 @@
 							                	<span class="badge badge-secondary">{{ticket.status}}</span>
 							                	{% endif %}
     										</p>
+                                            {% if ticket.status != 'None' %}
+                                            <p>
+                                                <a href="{% url 'jira:sprintboard' ticket.sprint.url %}" style="text-transform: capitalize;">{{ticket.sprint.url}}</a>
+                                            </p>
+                                            {% endif %}
     										<p>
     											{% if ticket.status == "Done" %}
     											Resolved
