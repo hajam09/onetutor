@@ -1,8 +1,6 @@
 Bugs / Fixes:
 
-* Test the system with no user data and default seed data.
 * Category -> Community -> Forum -> Comment
-* Fixed navbar: add fixed-top to nav class in base. Add <br><br><br> above {% block content %} in base
 
 Dashboard Metrics:
 * DB used space - Done
