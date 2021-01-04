@@ -35,3 +35,15 @@ class TicketImage(models.Model):
 
 	class Meta:
 		verbose_name_plural = "TicketImage"
+
+class TicketComment(models.Model):
+	ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)
+	creator = models.ForeignKey(User, on_delete=models.CASCADE)
+	comment = models.TextField()
+	ticket_comment_likes = models.ManyToManyField(User, related_name='ticket_comment_likes')
+	ticket_comment_dislikes = models.ManyToManyField(User, related_name='ticket_comment_dislikes')
+	date = models.DateTimeField(default=datetime.datetime.now)
+	edited = models.BooleanField(default=False)
+
+	class Meta:
+		verbose_name_plural = "TicketComment"

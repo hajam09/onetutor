@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.http import HttpResponse
-from .models import Sprint, Ticket, TicketImage
+from .models import Sprint, Ticket, TicketComment, TicketImage
 from django.core import serializers
 from http import HTTPStatus
 from django.conf import settings
@@ -144,27 +144,89 @@ def backlog(request):
 def ticketpage(request, ticket_url):
 	ticket = Ticket.objects.get(url=ticket_url)
 	ticket_images = TicketImage.objects.filter(ticket=ticket)
+	ticket_comments = TicketComment.objects.filter(ticket=ticket).order_by('-id')
 
 	if request.is_ajax():
-		list_of_watched_tickets = Ticket.objects.filter(watchers__id=request.user.pk)
+		functionality = request.GET.get('functionality', None)
 
-		if(ticket not in list_of_watched_tickets):
-			request.user.watchers.add(ticket)
-		else:
-			request.user.watchers.remove(ticket)
+		if functionality == "watch_unwatch_issue":
+			list_of_watched_tickets = Ticket.objects.filter(watchers__id=request.user.pk)
 
-		updated_watching_ticket = list(Ticket.objects.filter(watchers__id=request.user.pk).values_list('id', flat=True))
-		response = {
-			"updated_watching_ticket": updated_watching_ticket,
-			"new_watch_count_for_this_ticket": Ticket.objects.get(url=ticket_url).watchers.count(),
-			"status_code": HTTPStatus.OK
-		}
-		return HttpResponse(json.dumps(response), content_type="application/json")
+			if(ticket not in list_of_watched_tickets):
+				request.user.watchers.add(ticket)
+			else:
+				request.user.watchers.remove(ticket)
+
+			updated_watching_ticket = list(Ticket.objects.filter(watchers__id=request.user.pk).values_list('id', flat=True))
+			response = {
+				"updated_watching_ticket": updated_watching_ticket,
+				"new_watch_count_for_this_ticket": Ticket.objects.get(url=ticket_url).watchers.count(),
+				"status_code": HTTPStatus.OK
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+		elif functionality == "post_comment_on_ticket":
+			comment = request.GET.get('comment', None)
+			new_ticket_comment = TicketComment.objects.create(
+				ticket = ticket,
+				creator = request.user,
+				comment = comment,
+			)
+			response = {
+				"new_ticket_comment": serializers.serialize("json", [new_ticket_comment,]),
+				"status_code": HTTPStatus.OK
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+		elif functionality == "update_ticket_comment":
+			comment_id, comment_text = request.GET.get('comment_id', None), request.GET.get('comment_text', None)
+
+			try:
+				this_comment = TicketComment.objects.get(id=int(comment_id))
+			except TicketComment.DoesNotExist:
+				response = {
+					"status_code": HTTPStatus.NOT_FOUND,
+					"message": "We think this comment has been deleted!"
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			this_comment.comment = comment_text
+			this_comment.edited = True
+			this_comment.save(update_fields=['comment', 'edited'])
+			response = {
+				"this_comment": serializers.serialize("json", [this_comment,]),
+				"status_code": HTTPStatus.OK
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+		elif functionality == "delete_ticket_comment":
+			comment_id = request.GET.get('comment_id', None)
+
+			try:
+				TicketComment.objects.get(pk=int(comment_id)).delete()
+				response = {
+					"status_code": HTTPStatus.OK
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+			except TicketComment.DoesNotExist:
+				response = {
+					"status_code": HTTPStatus.NOT_FOUND
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			response = {
+				"status_code": HTTPStatus.BAD_REQUEST,
+				"message": "Bad Request"
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+		raise Exception("Unknown functionality ticketpage")
 
 	list_of_watching_tickets = list(Ticket.objects.filter(watchers__id=request.user.pk).values_list('id', flat=True))
 	context = {
 		"ticket": ticket,
 		"ticket_images": ticket_images,
+		"ticket_comments": ticket_comments,
 		"list_of_watchers": list_of_watching_tickets
 	}
 	return render(request,"jira/ticketpage.html", context)

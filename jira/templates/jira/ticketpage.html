@@ -231,7 +231,61 @@
     				<a data-toggle="collapse" href="#comments" role="button" aria-expanded="false" aria-controls="comments"><i class="fas fa-chevron-circle-down"></i> Comments</a>
     				<div class="collapse" id="comments">
     					<div class="card card-body">
-    						Comments
+    						<div class="form-group">
+                                <textarea class="form-control" id="comment_box" placeholder="Write comment here..." rows="4"></textarea><br>
+                                <button type="button" class="btn btn-outline-primary pull-right" onclick="post_comment();">Submit</button>
+                            </div>
+                            <hr>
+                            <div id="ticket_comments_container">
+                                {% if ticket_comments %} {% for tik_com in ticket_comments %}
+                                <div class="ticket_comment_container_{{tik_com.id}}">
+                                    <div class="border p-4">
+                                        <!-- post header -->
+                                        <div class="row m-0">
+                                            <div class="">
+                                                <a class="text-decoration-none" href="#">
+                                                <img class="" src="https://cdn3.iconfinder.com/data/icons/avatars-round-flat/33/avat-01-512.png" width="50" height="50" alt="...">
+                                                </a>
+                                            </div>
+                                            <div class="flex-grow-1 pl-2">
+                                                <a class="text-decoration-none" href="#">
+                                                    <h2 class="text-capitalize h5 mb-0">{{ tik_com.creator.get_full_name }}</h2>
+                                                </a>
+                                                <p class="small text-secondary m-0 mt-1" id="date_and_edited_msg_{{tik_com.id}}">1 day ago {% if tik_com.edited %}(edited){% endif %}</p>
+                                            </div>
+                                            {% if tik_com.creator.pk == user.pk %}
+                                            <div class="dropdown">
+                                                <a class="" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <i class="fas fa-chevron-down"></i>
+                                                </a>
+                                                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                                    <a class="dropdown-item text-primary" href="#" onclick="edit_ticket_comment_text_area('{{tik_com.id}}');">Edit</a>
+                                                    <a class="dropdown-item text-primary" href="#" onclick="delete_ticket_comment('{{tik_com.id}}');">Delete</a>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        <!-- post body -->
+                                        <div class="">
+                                            <p class="my-2" id="ticket_comment_text_{{tik_com.id}}">
+                                                {{ tik_com.comment|linebreaksbr }}
+                                            </p>
+                                        </div>
+                                        <hr class="my-3">
+                                        <!-- post footer begins -->
+                                        <footer>
+                                            <button id="ticket_comment_like_id_{{tik_com.id}}" type="button" class="btn btn-default btn-sm" onclick="like_comment('{{tik_com.id}}')">
+                                                <i class='far fa-thumbs-up' style='font-size:15px'></i> ({{tik_com.ticket_comment_likes.count}})
+                                            </button>
+                                            <button id="ticket_comment_dislike_id_{{tik_com.id}}" type="button" class="btn btn-default btn-sm" onclick="dislike_comment('{{tik_com.id}}')">
+                                                <i class='far fa-thumbs-down' style='font-size:15px'></i> ({{tik_com.ticket_comment_dislikes.count}})
+                                            </button>
+                                        </footer>
+                                    </div>
+                                    <br>
+                                </div>
+                                {% endfor %} {% endif %}
+                            </div>
     					</div>
     				</div>
     			</div>
@@ -295,7 +349,7 @@
     </div>
 </div>
 <script type="text/javascript">
-	$('#details,#description,#attachments,#people,#dates').collapse({
+	$('#details,#description,#attachments,#people,#dates,#comments').collapse({
 		toggle: true
 	})
 
@@ -344,6 +398,161 @@
             modal.style.display = "none";
         }
         // $("#carousel_current_image").attr("src",image_url);
+    }
+
+    function edit_ticket_comment_text_area(comment_id) {
+
+        var regex = /<br\s*[\/]?>/gi;
+
+        // converting the p tag where the comment is displayed into a text area so the user can edit their comment.
+        $('p#ticket_comment_text_'+comment_id).each(function() {
+            $(this).replaceWith( '<br id="update_comment_br_'+comment_id+'"><textarea class="form-control border p-4" id="edit_comment_box_'+comment_id+'" rows="3">' + $(this).html().replace(regex, "\n").trim() + '</textarea><div id="update_comment_btn_'+comment_id+'" class="pull-right"><br><button type="button" class="btn btn-outline-danger" onclick="cancel_ticket_comment_update('+comment_id+');">Cancel</button>&nbsp;&nbsp;<button type="button" class="btn btn-outline-info" onclick="update_ticket_comment('+comment_id+');">Update Comment</button><br><br></div>' );
+        });
+
+    }
+
+    function update_ticket_comment(comment_id) {
+        var comment = $("#edit_comment_box_"+comment_id).val();
+        comment = comment.trim();
+
+        if (comment && !comment.trim() || comment.length==0) {
+            alert("Enter a comment!");
+            return;
+        }
+
+        $.ajax({
+            data: {
+                'functionality': 'update_ticket_comment',
+                'comment_id': comment_id,
+                'comment_text': comment
+            },
+            dataType: 'json',
+            success: function (response) {
+                if (response.status_code == 200) {
+                    var this_comment = eval(response.this_comment)[0];
+
+                    $('textarea#edit_comment_box_'+comment_id).each(function() {
+                        $(this).replaceWith( '<p class="my-2" id="ticket_comment_text_'+comment_id+'"> '+this_comment.fields.comment.replace(/\n\r?/g, '<br />')+' </p>' );
+                    });
+
+                    $('div#update_comment_btn_'+comment_id).remove();
+                    $('br#update_comment_br_'+comment_id).remove();
+                    $('p#date_and_edited_msg_'+comment_id).text($('p#date_and_edited_msg_'+comment_id).text()+" (edited)");
+
+                } else if (response.status_code == 404) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: "Can't do that!",
+                        text: response.message
+                    });
+                    $( ".ticket_comment_container_"+comment_id ).remove();
+                }
+            }
+        });
+
+    }
+
+    function cancel_ticket_comment_update(comment_id) {
+        $('textarea#edit_comment_box_'+comment_id).each(function() {
+            $(this).replaceWith( '<p class="my-2" id="ticket_comment_text_'+comment_id+'"> '+$(this).html().replace(/\n\r?/g, '<br />')+' </p>' );
+        });
+
+        $('div#update_comment_btn_'+comment_id).remove();
+        $('br#update_comment_br_'+comment_id).remove();
+    }
+
+    function delete_ticket_comment(comment_id) {
+        $.ajax({
+            data: {
+                'functionality': 'delete_ticket_comment',
+                'comment_id': comment_id
+            },
+            dataType: 'json',
+            success: function (response) {
+                if (response.status_code == 200 || response.status_code == 404) {
+                    $( ".ticket_comment_container_"+comment_id ).remove();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: "Can't do that!",
+                        text: response.message
+                    });
+                }
+            }
+        });
+    }
+
+    function post_comment() {
+        var comment = $("#comment_box").val();
+        comment = comment.trim();
+
+        if (comment && !comment.trim() || comment.length==0) {
+            alert("Enter a comment!");
+            return;
+        }
+
+        $("#comment_box").val("");
+
+        $.ajax({
+            data: {
+                'functionality': 'post_comment_on_ticket',
+                'comment': comment
+            },
+            dataType: 'json',
+            success: function (response) {
+                if (response.status_code == 200) {
+                    var new_ticket_comment = eval(response.new_ticket_comment)[0];
+                    var new_ticket_comment_text = `
+                        <div class="ticket_comment_container_`+new_ticket_comment.pk+`">
+                            <div class="border p-4">
+                                <!-- post header -->
+                                <div class="row m-0">
+                                    <div class="">
+                                        <a class="text-decoration-none" href="#">
+                                        <img class="" src="https://cdn3.iconfinder.com/data/icons/avatars-round-flat/33/avat-01-512.png" width="50" height="50" alt="...">
+                                        </a>
+                                    </div>
+                                    <div class="flex-grow-1 pl-2">
+                                        <a class="text-decoration-none" href="#">
+                                            <h2 class="text-capitalize h5 mb-0">{{request.user.get_full_name}}</h2>
+                                        </a>
+                                        <p class="small text-secondary m-0 mt-1" id="date_and_edited_msg_`+new_ticket_comment.pk+`">1 day ago {% if tik_com.edited %}(edited){% endif %}</p>
+                                    </div>
+                                    {% if tik_com.creator.pk == user.pk %}
+                                    <div class="dropdown">
+                                        <a class="" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fas fa-chevron-down"></i>
+                                        </a>
+                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                            <a class="dropdown-item text-primary" href="#" onclick="edit_ticket_comment_text_area('`+new_ticket_comment.pk+`');">Edit</a>
+                                            <a class="dropdown-item text-primary" href="#" onclick="delete_ticket_comment('`+new_ticket_comment.pk+`');">Delete</a>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <!-- post body -->
+                                <div class="">
+                                    <p class="my-2" id="ticket_comment_text_`+new_ticket_comment.pk+`">
+                                        `+new_ticket_comment.fields.comment.replace(/\n\r?/g, '<br />')+`
+                                    </p>
+                                </div>
+                                <hr class="my-3">
+                                <!-- post footer begins -->
+                                <footer>
+                                    <button id="ticket_comment_like_id_`+new_ticket_comment.pk+`" type="button" class="btn btn-default btn-sm" onclick="like_comment('`+new_ticket_comment.pk+`')">
+                                        <i class='far fa-thumbs-up' style='font-size:15px'></i> (`+new_ticket_comment.fields.ticket_comment_likes.length+`)
+                                    </button>
+                                    <button id="ticket_comment_dislike_id_`+new_ticket_comment.pk+`" type="button" class="btn btn-default btn-sm" onclick="dislike_comment('`+new_ticket_comment.pk+`')">
+                                        <i class='far fa-thumbs-down' style='font-size:15px'></i> (`+new_ticket_comment.fields.ticket_comment_dislikes.length+`)
+                                    </button>
+                                </footer>
+                            </div>
+                            <br>
+                        </div>`;
+                    $('#ticket_comments_container').prepend( new_ticket_comment_text );
+                }
+            }
+        });
     }
 
 </script>
