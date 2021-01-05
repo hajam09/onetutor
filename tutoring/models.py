@@ -2,6 +2,17 @@ from django.db import models
 from django.contrib.auth.models import User
 from datetime import datetime
 
+# class BaseComment(models.Model):
+# 	creator = models.ForeignKey(User, on_delete=models.CASCADE)
+# 	comment = models.TextField()
+# 	likes = models.ManyToManyField(User, related_name='likes')
+# 	dislikes = models.ManyToManyField(User, related_name='dislikes')
+# 	date = models.DateTimeField(default=datetime.now)
+# 	edited = models.BooleanField(default=False)
+
+# 	class Meta:
+# 		verbose_name_plural = "BaseComment"
+
 class QuestionAnswer(models.Model):
 	subject = models.CharField(max_length=1024)
 	question = models.TextField()
