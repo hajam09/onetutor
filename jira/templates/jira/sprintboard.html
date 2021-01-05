@@ -157,6 +157,36 @@
 							        </div>
 							    </li>
 							    {% endfor %}
+
+							    <!-- Cancelled Tickets -->
+							    {% for ticket in canc_tickets %}
+							    <li class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
+							        <div class="card card-body">
+							            <a id="ticket_url" href="{% url 'jira:ticketpage' ticket.url %}" style="color: grey;">{{ticket.url}}</a>
+							            <h6 class="note-title text-truncate w-75 mb-0" data-noteheading="Book a Ticket for Movie">{{ticket.summary}} </h6>
+							            <br>
+							            <div>
+							            	{% if ticket.issue_type == "Bug" %}
+						                	<p hidden>Bug</p><img src='{% static "img/bug.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Bug">
+						                	{% elif ticket.issue_type == "Improvement" %}
+						                	<p hidden>Improvement</p><img src='{% static "img/improvement.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Improvement">
+						                	{% elif ticket.issue_type == "Story" %}
+						                	<p hidden>Story</p><img src='{% static "img/story.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Story">
+						                	{% elif ticket.issue_type == "Task" %}
+						                	<p hidden>Task</p><img src='{% static "img/task.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Task">
+						                	{% elif ticket.issue_type == "Test" %}
+						                	<p hidden>Test</p><img src='{% static "img/test.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Test">
+						                	{% elif ticket.issue_type == "Epic" %}
+						                	<p hidden>Epic</p><img src='{% static "img/epic.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Epic">
+						                	{% else %}
+						                	<p hidden></p><img src='' width="20" height="20">
+						                	{% endif %}
+
+						                	<span class="badge badge-pill badge-secondary">{{ticket.points}}</span>
+							            </div>
+							        </div>
+							    </li>
+							    {% endfor %}
                 			</ul>
                 		</div>
                 	</div>

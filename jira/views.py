@@ -8,6 +8,8 @@ from django.conf import settings
 import json, os, datetime
 from deprecated import deprecated
 
+# ONLY SUPER USER IS ALLOWED!
+
 def mainpage(request):
 
 	today = datetime.date.today()
@@ -49,6 +51,7 @@ def sprintboard(request, sprint_url):
 		"todo_tickets": Ticket.objects.filter(status="Open", sprint=active_sprint),
 		"prog_tickets": Ticket.objects.filter(status="Progress", sprint=active_sprint),
 		"done_tickets": Ticket.objects.filter(status="Done", sprint=active_sprint),
+		"canc_tickets": Ticket.objects.filter(status="Cancelled", sprint=active_sprint),
 	}
 	return render(request,"jira/sprintboard.html", context)
 
