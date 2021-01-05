@@ -220,6 +220,66 @@ def ticketpage(request, ticket_url):
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
 
+		elif functionality == "like_ticket_comment":
+			commentId = request.GET.get('commentId', None)
+			user = User.objects.get(id=int(request.user.pk))
+
+			try:
+				this_ticket = TicketComment.objects.get(id=int(commentId))
+			except TicketComment.DoesNotExist:
+				response = {
+					"status_code": HTTPStatus.NOT_FOUND,
+					"message": "We think this comment has been deleted!"
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			list_of_liked = TicketComment.objects.filter(ticket_comment_likes__id=user.pk)
+			list_of_disliked = TicketComment.objects.filter(ticket_comment_dislikes__id=user.pk)
+
+			if(this_ticket not in list_of_liked):
+				user.ticket_comment_likes.add(this_ticket)
+			else:
+				user.ticket_comment_likes.remove(this_ticket)
+
+			if(this_ticket in list_of_disliked):
+				user.ticket_comment_dislikes.remove(this_ticket)
+
+			response = {
+				"this_ticket": serializers.serialize("json", [this_ticket,]),
+				"status_code": HTTPStatus.OK
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+		elif functionality == "dislike_ticket_comment":
+			commentId = request.GET.get('commentId', None)
+			user = User.objects.get(id=int(request.user.pk))
+
+			try:
+				this_ticket = TicketComment.objects.get(id=int(commentId))
+			except TicketComment.DoesNotExist:
+				response = {
+					"status_code": HTTPStatus.NOT_FOUND,
+					"message": "We think this comment has been deleted!"
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			list_of_liked = TicketComment.objects.filter(ticket_comment_likes__id=user.pk)
+			list_of_disliked = TicketComment.objects.filter(ticket_comment_dislikes__id=user.pk)
+
+			if(this_ticket not in list_of_disliked):
+				user.ticket_comment_dislikes.add(this_ticket)
+			else:
+				user.ticket_comment_dislikes.remove(this_ticket)
+				
+			if(this_ticket in list_of_liked):
+				user.ticket_comment_likes.remove(this_ticket)
+
+			response = {
+				"this_ticket": serializers.serialize("json", [this_ticket,]),
+				"status_code": HTTPStatus.OK
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
 		raise Exception("Unknown functionality ticketpage")
 
 	list_of_watching_tickets = list(Ticket.objects.filter(watchers__id=request.user.pk).values_list('id', flat=True))
