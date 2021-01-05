@@ -1,7 +1,3 @@
-Bugs / Fixes:
-
-* Category -> Community -> Forum -> Comment
-
 Dashboard Metrics:
 * DB used space - Done
 * Number of inactive user (not logged in more than 30 days) - Done

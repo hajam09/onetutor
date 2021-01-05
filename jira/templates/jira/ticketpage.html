@@ -30,7 +30,7 @@
 	}
 
     /* The Modal (background) */
-    .modal {
+    #myModal {
         display: none;
         position: fixed;
         z-index: 1;
@@ -113,6 +113,105 @@
     		<h3>{{ticket.summary}}</h3>
             <a class="btn btn-secondary" href="{% url 'jira:editticket' ticket.url %}" role="button"><i class="far fa-edit"></i> Edit</a>
     		<button type="button" class="btn btn-secondary"><i class="fas fa-share-alt-square"></i></button>
+            <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target=".bd-example-modal-lg">Create sub tasks</button>
+            <div>
+                <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle">Create Sub Task</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <input type="text" name="create_sub_task" hidden>
+                                    <div class="form-group row">
+                                        <label for="project" class="col-sm-2 col-form-label"><b>Project</b></label>
+                                        <div class="col-sm-10">
+                                            <select class="form-control" name="project">
+                                                <option>OneTutor (OT)</option>
+                                                <option>Jira</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="issuetype" class="col-sm-2 col-form-label"><b>Issue Type</b></label>
+                                        <div class="col-sm-10">
+                                            <select class="form-control" name="issuetype">
+                                                <option>Bug</option>
+                                                <option>Improvement</option>
+                                                <option>Story</option>
+                                                <option>Task</option>
+                                                <option>Test</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="priority" class="col-sm-2 col-form-label"><b>Priority</b></label>
+                                        <div class="col-sm-10">
+                                            <select class="form-control" name="priority">
+                                                <option>Low</option>
+                                                <option>Medium</option>
+                                                <option>High</option>
+                                                <option>None</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="form-group row">
+                                        <label for="reporter" class="col-sm-2 col-form-label"><b>Reporter</b></label>
+                                        <div class="col-sm-10">
+                                            <select class="form-control" name="reporter">
+                                                <!-- TODO: If more superusers, then selected will be this user. -->
+                                                {% for superuser in superusers %}
+                                                <option value="{{superuser.id}}">{{superuser}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="assignee" class="col-sm-2 col-form-label"><b>Assignee</b></label>
+                                        <div class="col-sm-10">
+                                            <select class="form-control" name="assignee">
+                                                {% for superuser in superusers %}
+                                                <option value="{{superuser.id}}">{{superuser}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="form-group row">
+                                        <label for="summary" class="col-sm-2 col-form-label"><b>Summary</b></label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" id="summary" name="summary" placeholder="Add issue summary here" required>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="description" class="col-sm-2 col-form-label"><b>Description</b></label>
+                                        <div class="col-sm-10">
+                                            <textarea class="form-control" id="description" name="description" rows="5" placeholder="Add issue description here" required></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label for="points" class="col-sm-2 col-form-label"><b>Issue Points</b></label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" id="points" name="points" placeholder="Add issue points here" required>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-outline-danger" data-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-success">Create Issue</button>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
     	</div>
     	<div style="height:130px;"></div>
     	<div class="col-md-12">
@@ -128,6 +227,7 @@
     										<p>Type:</p>
     										<p>Priority:</p>
                                             <p>Story Points:</p>
+                                            {% if epic_link %}<p>Epic Link: </p>{% endif %}
     									</div>
     									<div class="col-6">
     										<p>
@@ -160,6 +260,11 @@
     										</p>
                                             <p>
                                                 {{ticket.points}}
+                                            </p>
+                                            <p>
+                                                {% if epic_link %}
+                                                <a href="{% url 'jira:ticketpage' epic_link.url %}">{{epic_link.url}} / {{epic_link.summary}}</a>
+                                                {% endif %}
                                             </p>
     									</div>
     								</div>
@@ -212,6 +317,17 @@
     						{{ ticket.description|linebreaksbr }}
     					</div>
     				</div>
+                    {% if sub_tasks %}
+                    <div class="col-xs-12" style="height:30px;"></div>
+                    <a data-toggle="collapse" href="#sub_task" role="button" aria-expanded="false" aria-controls="sub_task"><i class="fas fa-chevron-circle-down"></i> Sub Tasks</a>
+                    <div class="collapse" id="sub_task">
+                        <div class="card card-body">
+                            {% for sub_task in sub_tasks %}
+                            <a href="{% url 'jira:ticketpage' sub_task.url %}">{{sub_task.url}} / {{sub_task.summary}}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
     				<div class="col-xs-12" style="height:30px;"></div>
     				<a data-toggle="collapse" href="#attachments" role="button" aria-expanded="false" aria-controls="attachments"><i class="fas fa-chevron-circle-down"></i> Attachments</a>
     				<div class="collapse" id="attachments">
@@ -349,7 +465,7 @@
     </div>
 </div>
 <script type="text/javascript">
-	$('#details,#description,#attachments,#people,#dates,#comments').collapse({
+	$('#details,#description,#attachments,#people,#dates,#comments,#sub_task').collapse({
 		toggle: true
 	})
 

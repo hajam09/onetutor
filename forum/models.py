@@ -3,12 +3,15 @@ from django.contrib.auth.models import User
 from datetime import datetime
 
 class Category(models.Model):
-	# Art, Learning, News, Science, Sport...
 	name = models.CharField(max_length=512)
 	# Once created, it should not be deleted.
 
 	class Meta:
 		verbose_name_plural = "Categories"
+		ordering = ('name',)
+
+	def __str__(self):
+		return self.name
 
 class Community(models.Model):
 	creator = models.ForeignKey(User, on_delete=models.CASCADE)

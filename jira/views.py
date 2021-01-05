@@ -285,12 +285,49 @@ def ticketpage(request, ticket_url):
 
 		raise Exception("Unknown functionality ticketpage")
 
+	if request.method == "POST" and "create_sub_task" in request.POST:
+		project = request.POST['project']
+		issuetype = request.POST['issuetype']
+		priority = request.POST['priority']
+		reporter = request.POST['reporter']
+		assignee = request.POST['assignee']
+		summary = request.POST['summary']
+		description = request.POST['description']
+		points = request.POST['points']
+
+		if "Jira" in project:
+			prefix = "Jira-"
+		else:
+			prefix = "OneTutor-"
+
+		try:
+			url = prefix + str(Ticket.objects.last().pk)
+		except Exception as e:
+			url = prefix+"0"
+
+		new_subtask = Ticket.objects.create(
+			url=url,
+			project=project,
+			issue_type=issuetype,
+			reporter=User.objects.get(pk=reporter),
+			assignee=User.objects.get(pk=assignee),
+			summary=summary,
+			description=description,
+			points=points,
+			priority=priority
+		)
+		ticket.sub_task.add(new_subtask)
+		return redirect('jira:ticketpage', ticket_url=ticket_url)
+
 	list_of_watching_tickets = list(Ticket.objects.filter(watchers__id=request.user.pk).values_list('id', flat=True))
 	context = {
 		"ticket": ticket,
 		"ticket_images": ticket_images,
 		"ticket_comments": ticket_comments,
-		"list_of_watchers": list_of_watching_tickets
+		"list_of_watchers": list_of_watching_tickets,
+		"superusers": User.objects.filter(is_superuser=True),
+		"sub_tasks": ticket.sub_task.all(),
+		"epic_link": Ticket.objects.filter(sub_task__in=[ticket]).first()
 	}
 	return render(request,"jira/ticketpage.html", context)
 

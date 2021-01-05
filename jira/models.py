@@ -25,6 +25,7 @@ class Ticket(models.Model):
 	priority = models.CharField(max_length=16, default='None')
 	watchers = models.ManyToManyField(User, blank=True, related_name='watchers')
 	sprint = models.ForeignKey(Sprint, models.SET_NULL, blank=True, null=True)
+	sub_task = models.ManyToManyField('Ticket', blank=True, related_name='sub_tasks')
 
 	class Meta:
 		verbose_name_plural = "Ticket"
