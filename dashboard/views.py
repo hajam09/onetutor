@@ -10,7 +10,7 @@ from django.utils import timezone
 import datetime, os, operator, psutil
 from django.db.models import Q
 from accounts.models import TutorProfile, StudentProfile, Subject, Countries, SocialConnection
-from forum.models import Category, Community, Forum, Comment
+from forum.models import Category, Community, Forum, ForumComment
 from tutoring.models import QuestionAnswer, QAComment
 
 CPU_USAGE = [0,0,0,0,0,0,0,0,0,0]
@@ -108,7 +108,7 @@ def get_instance_count_for_each_model():
 		"social_connection": SocialConnection.objects.count(),
 		"subjects":  Subject.objects.count(),
 		"categories": Category.objects.count(),
-		"forum_comments": Comment.objects.count(),
+		"forum_comments": ForumComment.objects.count(),
 		"communities": Community.objects.count(),
 		"forums": Forum.objects.count(),
 		"qa_comments": QAComment.objects.count(),

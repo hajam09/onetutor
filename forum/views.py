@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Category, Community, Forum, Comment
+from .models import Category, Community, Forum, ForumComment
 from datetime import datetime
 from django.core import serializers
 from django.http import HttpResponse
@@ -10,7 +10,7 @@ def mainpage(request):
 	Category.objects.all().delete()
 	Community.objects.all().delete()
 	Forum.objects.all().delete()
-	Comment.objects.all().delete()
+	ForumComment.objects.all().delete()
 	# communities = Community.objects.all().order_by('-community_likes')
 
 	# if not communities:
