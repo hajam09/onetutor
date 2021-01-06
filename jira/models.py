@@ -5,7 +5,7 @@ import datetime
 class Sprint(models.Model):
 	url = models.CharField(max_length=1024)
 	start_date = models.DateField(default=datetime.date.today)
-	end_date = models.DateField(default=datetime.datetime.now()+datetime.timedelta(days=14))
+	end_date = models.DateField(default=datetime.date.today)
 
 	class Meta:
 		verbose_name_plural = "Sprint"

@@ -425,7 +425,11 @@ def startsprint():
 			print(today, today+datetime.timedelta(days=14))
 		except Exception as e:
 			url = prefix+"0"
-			Sprint.objects.create(url=url)
+			Sprint.objects.create(
+				url=url,
+				start_date=today,
+				end_date=today+datetime.timedelta(days=14)
+			)
 	return
 
 @deprecated(version='1.2.1', reason="Rather than creating sprint on a recurring task. Let the user create the sprint.")
@@ -449,6 +453,10 @@ def createsprint():
 			return True
 		except Exception as e:
 			url = prefix+"0"
-		Sprint.objects.create(url=url)
+		Sprint.objects.create(
+			url=url,
+			start_date=new_sprint_date,
+			end_date=new_sprint_date+datetime.timedelta(days=14)
+		)
 		return True
 	return False
