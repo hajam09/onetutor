@@ -7,10 +7,10 @@ import json, random
 from django.contrib.auth.models import User
 
 def mainpage(request):
-	Category.objects.all().delete()
-	Community.objects.all().delete()
-	Forum.objects.all().delete()
-	ForumComment.objects.all().delete()
+	# Category.objects.all().delete()
+	# Community.objects.all().delete()
+	# Forum.objects.all().delete()
+	# ForumComment.objects.all().delete()
 	# communities = Community.objects.all().order_by('-community_likes')
 
 	# if not communities:
