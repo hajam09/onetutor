@@ -72,32 +72,52 @@
                             </li>
                         </ul>
                     </div>
+                    <br>
+                    <button type="button" class="btn btn-primary btn-sm btn-block" data-toggle="modal" data-target="#newCommunity">
+                        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg> &nbsp;&nbsp;NEW COMMUNITY
+                    </button>
                 </div>
                 <div class="col-sm-9 col-md-9">
-                    <div class="modal fade" id="threadModal" tabindex="-1" role="dialog" aria-labelledby="threadModalLabel" aria-hidden="true">
+                    <div class="modal fade" id="newCommunity" tabindex="-1" role="dialog" aria-labelledby="threadModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-lg" role="document">
                             <div class="modal-content">
-                                <form>
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <input type="name" name="create_community" hidden>
                                     <div class="modal-header d-flex align-items-center bg-primary text-white">
-                                        <h6 class="modal-title mb-0" id="threadModalLabel">New Discussion</h6>
+                                        <h6 class="modal-title mb-0" id="threadModalLabel">New Community</h6>
                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                         <span aria-hidden="true">×</span>
                                         </button>
                                     </div>
                                     <div class="modal-body">
                                         <div class="form-group">
-                                            <label for="threadTitle">Title</label>
-                                            <input type="text" class="form-control" id="threadTitle" placeholder="Enter title" autofocus="" />
+                                            <select class="form-control" name="studyLevel" required>
+                                                <option value="">(Study level)</option>
+                                                <optgroup label="Study Help level tags">
+                                                    {% for c in category %}
+                                                        <option >{{c.name}}</option>
+                                                    {% endfor %}
+                                                </optgroup>
+                                            </select>
                                         </div>
-                                        <textarea class="form-control summernote" style="display: none;"></textarea>
-                                        <div class="custom-file form-control-sm mt-3" style="max-width: 300px;">
-                                            <input type="file" class="custom-file-input" id="customFile" multiple="" />
-                                            <label class="custom-file-label" for="customFile">Attachment</label>
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" id="title" name="title" placeholder="Enter title" autofocus="" required />
                                         </div>
+                                        <div class="form-group">
+                                            <textarea class="form-control summernote" id="description" name="description" placeholder="Enter description" rows="5" autofocus="" required></textarea>
+                                        </div>
+<!--                                         <div class="custom-file form-control-sm mt-3" style="max-width: 300px;">
+                                            <input type="file" class="custom-file-input" id="community-logo" multiple="" />
+                                            <label class="custom-file-label" for="community-logo">Attachment</label>
+                                        </div> -->
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
-                                        <button type="button" class="btn btn-primary">Post</button>
+                                        <button type="submit" class="btn btn-primary">Create</button>
                                     </div>
                                 </form>
                             </div>
@@ -253,15 +273,17 @@
     </div>
 </div>
 <script type="text/javascript">
-	 window.onresize = displayWindowSize;
+    window.onresize = displayWindowSize;
     window.onload = displayWindowSize;
 
     function displayWindowSize() {
         myWidth = window.innerWidth;
         myHeight = window.innerHeight;
-        // your size calculation code here
-        console.log(myWidth);
-        
+        // console.log(myWidth);
     };
+
+    // setInterval(function() {
+    //     console.log("aa");
+    // }, 1000);
 </script>
 {% endblock %}

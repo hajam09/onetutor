@@ -1,12 +1,45 @@
-from django.shortcuts import render, redirect
 from .models import Category, Community, Forum, ForumComment
 from datetime import datetime
+from django.contrib.auth.models import User
 from django.core import serializers
 from django.http import HttpResponse
+from django.shortcuts import render, redirect
 import json, random
-from django.contrib.auth.models import User
 
 def mainpage(request):
+
+	if request.method == "POST" and "create_community" in request.POST:
+		if not request.user.is_authenticated:
+			return redirect('accounts:login')
+		studyLevel = request.POST['studyLevel']
+		category = Category.objects.get(name=studyLevel)
+		title = request.POST['title']
+		description = request.POST['description']
+		community_url = "n/a"
+
+		new_community = Community.objects.create(
+			creator = request.user,
+			community_title = title,
+			community_url = community_url,
+			community_description = description,
+		)
+	context = {
+		"category": Category.objects.all()
+	}
+	return render(request, "forum/mainpage.html", context)
+
+def communitypage(request, community_id):
+	try:
+		community = Community.objects.get(pk=community_id)
+	except Community.DoesNotExist:
+		# redirect to 404 page
+		pass
+	context = {
+		"community": community
+	}
+	return render(request, "forum/communitypage.html", context)
+
+def mainpage_legacy(request):
 	# Category.objects.all().delete()
 	# Community.objects.all().delete()
 	# Forum.objects.all().delete()
@@ -65,7 +98,7 @@ def mainpage(request):
 	}
 	return render(request, "forum/mainpage.html", context)
 
-def communitypage(request, community_url, page_number):
+def communitypage_legacy(request, community_url, page_number):
 	community = Community.objects.get(community_url=community_url)
 	forums_all = Forum.objects.filter(community=community).order_by('-id')
 	forums = [forums_all[i:i + 10] for i in range(0, len(forums_all), 10)]

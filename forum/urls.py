@@ -4,6 +4,7 @@ app_name = "forum"
 
 urlpatterns = [
 	path('', views.mainpage, name='mainpage'),
+	path('c/<slug:community_id>/', views.communitypage, name='communitypage')
 	# path('community/<slug:community_url>/<slug:page_number>/', views.communitypage, name='communitypage'),
 	# path('vote/upvote_community/', views.upvote_community, name='upvote_community'),
 	# path('vote/downvote_community/', views.downvote_community, name='downvote_community'),
