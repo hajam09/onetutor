@@ -42,7 +42,48 @@
 				</div>
 				<div class="col-6">
 					<h2 style="padding-top: 17px;" id="community_title">{{community.community_title}}</h2>
-					<button type="button" class="btn btn-primary" style="border-radius: 16px;padding: 5px 40px;">Join</button>
+					<div id="join_leave_community">
+						{% if in_community %}
+						<button type="button" class="btn btn-danger" style="border-radius: 16px;padding: 5px 40px;" onclick="leaveCommunity();">Leave</button>
+						{% else %}
+						<button type="button" class="btn btn-primary" style="border-radius: 16px;padding: 5px 40px;" onclick="joinCommunity();">Join</button>
+						{% endif %}
+						<button type="button" class="btn btn-primary" style="border-radius: 16px;padding: 5px 40px;" data-toggle="modal" data-target="#newForumThread">Start a Forum</button>
+					</div>
+					<div>
+						<div class="modal fade" id="newForumThread" tabindex="-1" role="dialog" aria-labelledby="threadModalLabel" aria-hidden="true">
+	                        <div class="modal-dialog modal-lg" role="document">
+	                            <div class="modal-content">
+	                                <form method="post" enctype="multipart/form-data">
+	                                    {% csrf_token %}
+	                                    <input type="name" name="create_forum" hidden>
+	                                    <div class="modal-header d-flex align-items-center bg-primary text-white">
+	                                        <h6 class="modal-title mb-0" id="threadModalLabel">New Forum</h6>
+	                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	                                        <span aria-hidden="true">×</span>
+	                                        </button>
+	                                    </div>
+	                                    <div class="modal-body">
+	                                    	<div class="form-group">
+	                                    		<input type="text" class="form-control" placeholder="Forum Title" name="forum_title" required>
+	                                        </div>
+	                                        <div class="form-group">
+	                                            <textarea class="form-control summernote" id="description" name="description" placeholder="Enter something..." rows="5" autofocus=""></textarea>
+	                                        </div>
+											<div class="custom-file form-control-sm mt-3" style="max-width: 300px;">
+												<input type="file" class="custom-file-input" id="forum_image" name="forum_image" />
+												<label class="custom-file-label" for="forum_image">Attachment</label>
+											</div>
+	                                    </div>
+	                                    <div class="modal-footer">
+	                                        <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+	                                        <button type="submit" class="btn btn-primary">Create</button>
+	                                    </div>
+	                                </form>
+	                            </div>
+	                        </div>
+	                    </div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -50,237 +91,70 @@
 	{% endif %}
 </div>
 <div class="wrapper" style="margin: auto;overflow-x: hidden; color: black;">
-	<div style="height:50px;"></div>
-	<div class="row gutters-sm">
-		<div class="col-md-12">
-			<div class="row">
-				<div class="col-12 col-md-10">
-					<a data-toggle="collapse" href="#details" role="button" aria-expanded="false" aria-controls="details"><i class="fas fa-chevron-circle-down"></i> Details</a>
-					<div class="collapse" id="details">
-					</div>
-				</div>
-				<div class="col">
-					<a class="card text-white bg-primary p-2 mb-3" data-toggle="collapse" href="#people" role="button" aria-expanded="false" aria-controls="people">People<!-- <i class="fas fa-chevron-circle-down"></i> --></a>
-					<div class="collapse" id="people">
-						<div class="card card-body">
-							<div class="row">
-								<div class="col-12">
-									<div class="row">
-										<div class="col-md-auto">Assignee:</div>
-										<div class="col-md-auto"><p>
-										{% if ticket.assignee.tutorprofile.profilePicture %}
-										<img height="24px" width="24px" src="{{ ticket.assignee.tutorprofile.profilePicture.url }}" class="rounded">&nbsp;&nbsp;
-										{% endif %}
-										{% if ticket.assignee.get_full_name %}
-										{{ticket.assignee.get_full_name}}
-										{% else %}
-										{{ticket.assignee}}
-										{% endif %}
-									</p></div>
-									</div>
-									<div class="row">
-										<div class="col-md-auto">Reporter:</div>
-										<div class="col-md-auto"><p>
-										{% if ticket.reporter.tutorprofile.profilePicture %}
-										<img height="24px" width="24px" src="{{ ticket.reporter.tutorprofile.profilePicture.url }}" class="rounded">&nbsp;&nbsp;
-										{% endif %}
-										{% if ticket.reporter.get_full_name %}
-										{{ticket.reporter.get_full_name}}
-										{% else %}
-										{{ticket.reporter}}
-										{% endif %}
-									</p></div>
-									</div>
-									<div class="row">
-										<div class="col-md-auto">Watchers:</div>
-										<div class="col-md-auto"><p id="ticket_watcher">{{ticket.watchers.count}}</p></div>
-									</div>
-								</div>
+    <div class="col-xs-12" style="height:100px;"></div>
+    <div class="row gutters-sm">
+    	<div style="height:130px;"></div>
+    	<div class="col-md-12">
+    		<div class="row">
+    			<div class="col-12 col-md-8">
+    				<!-- Forum div here... -->
+    				ss
+    			</div>
+    			<div class="col">
+    				<div class="card card-header bg-secondary text-white">About this Community</div>
+    				<div class="card card-body">
+						<div class="row">
+							<div class="col-12">
+                                <div class="row">
+                                    <div class="col">{{community.community_description}}</div>
+                                </div>
 							</div>
 						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+    					</div>
+    				<div class="col-xs-12" style="height:30px;"></div>
+    			</div>
+    		</div>
+    	</div>
+    </div>
 </div>
 <script type="text/javascript">
 	var random_banner_colours = ['bg-primary', 'bg-secondary', 'bg-success', 'bg-danger', 'bg-warning', 'bg-info' ]
-	// $( "div#random_banner_colour" ).addClass( random_banner_colours[Math.floor(Math.random() * random_banner_colours.length)] );
-	var hex = '#'+(Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0')
-	$( "div#random_banner_colour" ).css( "background-color", hex );
-	$( "h2#community_title" ).css( "color", invertColor(hex) );
+	$( "div#random_banner_colour" ).addClass( random_banner_colours[1] );
 
-	function invertColor(hex) {
-		if (hex.indexOf('#') === 0) {
-			hex = hex.slice(1);
-		}
-		// convert 3-digit hex to 6-digits.
-		if (hex.length === 3) {
-			hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
-		}
-		if (hex.length !== 6) {
-			throw new Error('Invalid HEX color.');
-		}
-		// invert color components
-		var r = (255 - parseInt(hex.slice(0, 2), 16)).toString(16),
-			g = (255 - parseInt(hex.slice(2, 4), 16)).toString(16),
-			b = (255 - parseInt(hex.slice(4, 6), 16)).toString(16);
-		// pad each with zeros and return
-		return '#' + padZero(r) + padZero(g) + padZero(b);
+	function joinCommunity() {
+		$.ajax({
+			data: {
+				'functionality': 'join_community'
+			},
+			dataType: 'json',
+			success: function (response) {
+				if (response.status_code == 200) {
+					$('#join_leave_community').find('button').first().remove();
+					$("#join_leave_community").prepend('<button type="button" class="btn btn-danger" style="border-radius: 16px;padding: 5px 40px;" onclick="leaveCommunity();">Leave</button>');
+				} else if (response.status_code == 401) {
+					Swal.fire({
+						icon: 'warning',
+						title: "Can't do that!",
+						text: response.message
+					});
+				}
+			}
+		});
 	}
 
-	function padZero(str, len) {
-		len = len || 2;
-		var zeros = new Array(len).join('0');
-		return (zeros + str).slice(-len);
+	function leaveCommunity() {
+		$.ajax({
+			data: {
+				'functionality': 'leave_community'
+			},
+			dataType: 'json',
+			success: function (response) {
+				if (response.status_code == 200) {
+					$('#join_leave_community').find('button').first().remove();
+					$("#join_leave_community").prepend('<button type="button" class="btn btn-primary" style="border-radius: 16px;padding: 5px 40px;" onclick="joinCommunity();">Join</button>');
+				}
+			}
+		});
 	}
 </script>
-<!-- <style type="text/css">
-	.mYuVCoYkae{border-radius:4px;border:2px solid #8f9685;padding:20px;width:65%;height:auto}.tMyWLFVFbi{position:relative;top:-1px;display:inline-block;padding-left:13px;vertical-align:middle}.downvote,.upvote{background-color:#ebebeb;border:none;text-align:center;text-decoration:none;display:inline-block}.upvote:hover{color:green;background-color:#fff}.downvote:hover{color:red;background-color:#fff}.center{text-align:center}.pagination{display:inline-block}.pagination a{color:#000;float:left;padding:8px 16px;text-decoration:none;transition:background-color .3s;border:1px solid #ddd;margin:0 4px}.pagination a.active{background-color:#4caf50;color:#fff;border:1px solid #4caf50}
-</style> -->
-<!-- <div class="container">
-	<div class="jumbotron">
-		<h1>{{community.community_title}}</h1>
-		<p>{{community.community_description}}</p>
-	</div>
-	<div class="modal fade" id="forumModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header text-center">
-					<h3 class="modal-title" id="exampleModalLabel" style="display: inline-block;">Create a forum in {{community.community_title}}</h3>
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close" style="display: inline-block;">
-						<span aria-hidden="true">&times;</span>
-					</button>
-				</div>
-				<div class="modal-body">
-					<form method="post" enctype="multipart/form-data">
-						{% csrf_token %}
-						<div class="form-group">
-							<label for="forum_title" class="col-form-label pull-left">What's the Forum title?</label>
-							<input name="forum_title" type="text" id="forum_title" class="form-control validate" placeholder="Forum Title" required>
-						</div>
-						<div class="form-group">
-							<label for="forum_description" class="col-form-label pull-left">Give it a description:</label>
-							<textarea class="form-control" id="forum_description" name="forum_description" required></textarea>
-						</div>
-						<div class="form-group">
-							<label class="btn btn-danger" for="my-file-selector">
-								<span class="glyphicon glyphicon-paperclip"></span>&nbsp;&nbsp;
-								<input id="my-file-selector" name="my-file-selector" type="file" style="display:none" onchange="$('#upload-file-info').html(this.files[0].name)"> Choose a File
-							</label>
-							<span class='label label-info' id="upload-file-info"></span>
-						</div>
-						<div>
-							<strong>Anonymous Me</strong>
-							<label class="switch"><input type="checkbox" name="anonymise_me"><span class="slider round"></span></label>
-						</div>
-						<input type="text" name="create_forum" hidden />
-						<div class="modal-footer">
-							<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-							<button type="submit" class="btn btn-success">Create</button>
-						</div>
-					</form>
-				</div>
-			</div>
-		</div>
-	</div>
-	<button type="button" class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#forumModal">Start a Forum in this Community</button>
-	{% if new_community_message %} {% if alert %}
-		<div style="color: black; text-align: center;" class="alert {{alert}}" role="alert">{{new_community_message}}</div>
-	{% endif %} {% endif %}
-	<br><br><br>
-	{% if forums %}
-	{% for forums in forums %}
-		<div>
-			<div class="container mYuVCoYkae">
-				<div class="col-sm-1" style="margin: 0px -18px 10px; display: inline-block;">
-					<div class="row">
-						<button type="button" class="btn btn-default btn-sm upvote" onclick="upvote_forum('{{forums.id}}')">
-							<span class="glyphicon glyphicon-arrow-up"></span>
-						</button>
-					</div>
-					<div class="row">
-						<div id="forums_votes_{{forums.id}}" class="tMyWLFVFbi"></div>
-					</div>
-					<div class="row">
-						<button type="button" class="btn btn-default btn-sm downvote" onclick="downvote_forum('{{forums.id}}')">
-							<span class="glyphicon glyphicon-arrow-down"></span>
-						</button>
-					</div>
-				</div>
-				<div class="col-sm-11" style="display: inline-block;">
-					<div class="row" style="margin-left: 5px; margin-top: -13px;">
-						Posted by <a href="#">{{forums.creator.first_name}}</a> at {{forums.created_at}}
-					</div>
-					<div class="row" style="margin-left: 5px; margin-bottom: 40px;"><p>{{forums.forum_title}}</p></div>
-					<div class="row" style="margin-left: 5px;">B</div>
-				</div>
-			</div>
-		</div>
-		<br><br>
-	{% endfor %}
-	<div class="center">
-		<div class="pagination">
-			<a href="{% url 'forum:communitypage' community_url current_page|add:'-1' %}" id="previous_page">&laquo;</a>
-			<a href="{% url 'forum:communitypage' community_url current_page|add:'1' %}" id="next_page">&raquo;</a>
-		</div>
-	</div>
-	{% else %}
-	<div style="color: black; text-align: center;" class="alert alert-info" role="alert">Oops! Looks like there no forum created in this community yet. Why don't you do it?</div>
-	{% endif %}
-	
-</div> -->
-<!-- <script type="text/javascript">
-	// window.onload = function() {
-	// 	if ("{{ forums }}") {
-	// 		"{% for forums in forums %}"
-	// 			$('#forums_votes_{{forums.id}}').html( parseInt('{{forums.forum_likes.count}}') - parseInt('{{forums.forum_dislikes.count}}') );
-	// 		"{% endfor %}"
-	// 	}
-
-	// 	// Pagination
-	// 	var list_of_pages = [];
-	// 	for (var i = 1; i <= {{pages}}; i++) {
-	// 		list_of_pages.push(i);
-	// 	}
-	// 	console.log(list_of_pages);
-
-	// 	var displaying_pages = [];
-	// 	if (list_of_pages.length <7) {
-	// 		displaying_pages = list_of_pages;
-	// 	} else {
-	// 		displaying_pages = list_of_pages.slice({{current_page}}-3, {{current_page}}+3);
-	// 	}
-
-
-	// 	while(displaying_pages.length==0){
-	// 		displaying_pages = list_of_pages.slice({{current_page}}-2, {{current_page}}+4);
-
-	// 		if ({{current_page}} == 1) {
-	// 			displaying_pages = list_of_pages.slice(0, 6);
-	// 		}
-	// 		break;
-	// 	}
-
-	// 	for (var i = 0; i < displaying_pages.length; i++) {
-	// 		var new_tag = null;
-	// 		if (displaying_pages[i] == {{current_page}}) {
-	// 			new_tag = '<a href=/forum/community/{{community_url}}/'+displaying_pages[i]+'/ class="active">'+displaying_pages[i]+'</a>';
-	// 		} else {
-	// 			new_tag = '<a  href=/forum/community/{{community_url}}/'+displaying_pages[i]+'>'+displaying_pages[i]+'</a>';
-	// 		}
-	// 		$( new_tag ).insertBefore( "#next_page" );
-	// 	}
-
-	// 	if (displaying_pages.includes(1)) {
-	// 		$("#previous_page").hide();
-	// 	}
-
-	// 	if (displaying_pages.includes(list_of_pages.slice(-1)[0])) {
-	// 		$("#next_page").hide();
-	// 	}
-	// }
-
-</script> -->
 {% endblock %}

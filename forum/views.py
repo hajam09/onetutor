@@ -5,6 +5,7 @@ from django.core import serializers
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 import json, random
+from http import HTTPStatus
 
 def mainpage(request):
 
@@ -23,6 +24,8 @@ def mainpage(request):
 			community_url = community_url,
 			community_description = description,
 		)
+
+		return redirect('forum:communitypage', community_id=new_community.pk)
 	context = {
 		"category": Category.objects.all()
 	}
@@ -34,8 +37,61 @@ def communitypage(request, community_id):
 	except Community.DoesNotExist:
 		# redirect to 404 page
 		pass
+
+
+	if request.method == "POST" and "create_forum" in request.POST:
+		forum_title = request.POST['forum_title']
+		description = request.POST['description']
+
+		if not description and not "forum_image" in request.FILES:
+			return redirect('forum:communitypage', community_id=community_id)
+
+		try:
+			forum_image = request.FILES["forum_image"]
+		except KeyError as e:
+			forum_image = None
+
+		newForum = Forum.objects.create(
+			community = community,
+			creator = request.user,
+			forum_title = forum_title,
+			forum_url = 'n/a',
+			forum_description = description,
+			forum_image = forum_image,
+		)
+		return redirect('forum:communitypage', community_id=community_id)
+
+	if request.is_ajax():
+		functionality = request.GET.get('functionality', None)
+
+		if functionality == "join_community":
+			if not request.user.is_authenticated:
+				response = {
+					"status_code": 401,
+					"message": "Login to join this community."
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			community.community_members.add(request.user)
+
+			response = {
+				"status_code": HTTPStatus.OK
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+		if functionality == "leave_community":
+			community.community_members.remove(request.user)
+			response = {
+				"status_code": HTTPStatus.OK
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+		raise Exception("Unknown functionality communitypage")
+
 	context = {
-		"community": community
+		"community": community,
+		"forums": Forum.objects.filter(community=community),
+		"in_community": True if request.user in community.community_members.all() else False
 	}
 	return render(request, "forum/communitypage.html", context)
 

@@ -22,6 +22,7 @@ class Community(models.Model):
 	community_dislikes = models.ManyToManyField(User, related_name='community_dislikes')
 	community_banner = models.ImageField(upload_to='communitybanner/', blank=True, null=True)
 	community_logo = models.ImageField(upload_to='communitylogo/', blank=True, null=True, default='communitylogo/defaultimg/default-community-logo.jpg')
+	community_members = models.ManyToManyField(User, related_name='community_members')
 
 	class Meta:
 		verbose_name_plural = "Communities"
@@ -31,7 +32,7 @@ class Forum(models.Model):
 	creator = models.ForeignKey(User, on_delete=models.CASCADE)
 	forum_title = models.TextField()
 	forum_url = models.CharField(max_length=512)# deprecate it in the next migration 
-	forum_description = models.TextField()
+	forum_description = models.TextField(blank=True, null=True)
 	created_at = models.DateTimeField(default=datetime.now)
 	anonymous = models.BooleanField(default=False)
 	forum_likes = models.ManyToManyField(User, related_name='forum_likes')
