@@ -37,10 +37,10 @@
 	<div id="random_banner_colour" class="p-3 mb-2 text-white" style="height:180px;">
 		<div class="container" style="padding-top: 110px;">
 			<div class="row">
-				<div class="col-6 col-md-auto">
+				<div class="col-3 col-md-auto">
 					<img src="https://icon-library.com/images/default-user-icon/default-user-icon-13.jpg" alt="" class="d-block ui-w-80 rounded-circle">
 				</div>
-				<div class="col-6">
+				<div class="col-9">
 					<h2 style="padding-top: 17px;" id="community_title">{{community.community_title}}</h2>
 					<div id="join_leave_community">
 						{% if in_community %}
@@ -91,14 +91,44 @@
 	{% endif %}
 </div>
 <div class="wrapper" style="margin: auto;overflow-x: hidden; color: black;">
-    <div class="col-xs-12" style="height:100px;"></div>
-    <div class="row gutters-sm">
-    	<div style="height:130px;"></div>
+    <div class="gutters-sm">
+    	<div style="height:70px;"></div>
     	<div class="col-md-12">
     		<div class="row">
-    			<div class="col-12 col-md-8">
+    			<div class="col-12 col-md-8" id="list_of_forums">
     				<!-- Forum div here... -->
-    				ss
+    				{% if not forums %}
+    				<div class="alert alert-info " role="alert" style="text-align: center;"> This forum is empty. Why don't you start one. </div>
+    				{% endif %}
+    				{% for f in forums %}
+    				<div class="row border border-secondary">
+    					<div class="col-md-auto text-center border-right border-primary" style="padding-bottom: 10px; padding-top: 10px;">
+    						<button type="button" class="btn btn-success"><i class='far fa-thumbs-up' style='font-size:15px'></i></button><br>
+    						<span>0</span>
+    						<br><button type="button" class="btn btn-danger"><i class='far fa-thumbs-down' style='font-size:15px'></i></button>
+    					</div>
+    					<div class="col" style="padding-bottom: 10px; padding-top: 10px;">
+    						<div style="max-height: 500px;text-overflow: ellipsis;overflow: hidden;">
+	    						<span class="text-secondary">Post by {{f.creator.get_full_name}} at {{f.created_at}}</span>
+	    						<h3>{{f.forum_title}}</h3>
+	    						{% if f.forum_image %}
+	    						<img class="mx-auto d-block" src="{{ f.forum_image.url }}" style="max-width:100%;max-height:420px;">
+	    						<!-- change max-height to auto if problem persists -->
+	    						{% else %}
+	    						<p>{{f.forum_description|linebreaksbr}}</p>
+	    						{% endif %}
+    						</div>
+    						<div>
+								<a href="#"><i class='far fa-comment-alt' style='font-size:15px'></i> {{f.forumcomment_set.all|length}} Comments</a>
+								&nbsp;&nbsp;
+								<a href="#"><i class='fas fa-share' style='font-size:15px'></i> Share</a>
+								&nbsp;&nbsp;
+								<a href="#"><i class='fas fa-flag' style='font-size:15px'></i> Report</a>
+							</div>
+    					</div>
+    				</div>
+    				<div style="height:20px;"></div>
+    				{% endfor %}
     			</div>
     			<div class="col">
     				<div class="card card-header bg-secondary text-white">About this Community</div>
