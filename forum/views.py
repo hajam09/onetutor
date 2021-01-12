@@ -90,7 +90,7 @@ def communitypage(request, community_id):
 
 	context = {
 		"community": community,
-		"forums": Forum.objects.filter(community=community),
+		"forums": Forum.objects.filter(community=community).order_by('-id'),
 		"in_community": True if request.user in community.community_members.all() else False
 	}
 	return render(request, "forum/communitypage.html", context)
