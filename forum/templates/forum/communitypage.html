@@ -3,6 +3,7 @@
 {% block content %}
 <style type="text/css">
 	.ui-w-80{width:100px!important;height:auto}
+	#buttons_in_footer{display: none;}
 	@media (min-width: 1200px) {
 		.container {
 			width: 1600px;
@@ -28,6 +29,11 @@
 		.wrapper {
 			width: 90%;
 		}
+	}
+
+	@media (max-width: 767px) {
+		#buttons_in_sidebar{display:none;}
+		#buttons_in_footer{display:inline;}
 	}
 </style>
 <div>
@@ -102,7 +108,7 @@
     				{% endif %}
     				{% for f in forums %}
     				<div class="row border border-secondary">
-    					<div class="col-md-auto text-center border-right border-primary" style="padding-bottom: 10px; padding-top: 10px;">
+    					<div class="col-md-auto text-center border-right border-primary" style="padding-bottom: 10px; padding-top: 10px;" id="buttons_in_sidebar">
     						<button type="button" class="btn btn-success"><i class='far fa-thumbs-up' style='font-size:15px'></i></button><br>
     						<span>0</span>
     						<br><button type="button" class="btn btn-danger"><i class='far fa-thumbs-down' style='font-size:15px'></i></button>
@@ -124,6 +130,12 @@
 								<a href="#"><i class='fas fa-share' style='font-size:15px'></i> Share</a>
 								&nbsp;&nbsp;
 								<a href="#"><i class='fas fa-flag' style='font-size:15px'></i> Report</a>
+								&nbsp;&nbsp;
+								<span id="buttons_in_footer">
+									<button type="button" class="btn btn-success" style="padding: 2px 2px;"><i class='far fa-thumbs-up' style='font-size:15px;'></i></button>
+									<span>0</span>
+									<button type="button" class="btn btn-danger" style="padding: 2px 2px;"><i class='far fa-thumbs-down' style='font-size:15px;'></i></button>
+								</span>
 							</div>
     					</div>
     				</div>
