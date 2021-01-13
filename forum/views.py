@@ -31,7 +31,9 @@ def mainpage(request):
 	}
 	return render(request, "forum/mainpage.html", context)
 
-def communitypage(request, community_id):
+def communitypage(request, community_id, page_number=1):
+	if int(page_number)<1:
+		return redirect('forum:communitypage', community_id=community_id, page_number=1)
 	try:
 		community = Community.objects.get(pk=community_id)
 	except Community.DoesNotExist:
@@ -88,9 +90,17 @@ def communitypage(request, community_id):
 
 		raise Exception("Unknown functionality communitypage")
 
+	all_forums = Forum.objects.filter(community=community).order_by('-id')
+	forums_split = [all_forums[i:i + 15] for i in range(0, len(all_forums), 15)]
+
+	if int(page_number) > len(forums_split):
+		return redirect('forum:communitypage', community_id=community_id, page_number=len(forums_split))
+
 	context = {
 		"community": community,
-		"forums": Forum.objects.filter(community=community).order_by('-id'),
+		"forums": forums_split[int(page_number)-1],
+		"current_page": page_number,
+		"last_page": len(forums_split),
 		"in_community": True if request.user in community.community_members.all() else False
 	}
 	return render(request, "forum/communitypage.html", context)
