@@ -32,9 +32,9 @@ def mainpage(request):
 	}
 	return render(request, "forum/mainpage.html", context)
 
-def communitypage(request, community_id, page_number=1):
-	if int(page_number)<1:
-		return redirect('forum:communitypage', community_id=community_id, page_number=1)
+def communitypage(request, community_id):#, page_number=1):
+	# if int(page_number)<1:
+	# 	return redirect('forum:communitypage', community_id=community_id, page_number=1)
 	try:
 		community = Community.objects.get(pk=community_id)
 	except Community.DoesNotExist:
@@ -63,6 +63,9 @@ def communitypage(request, community_id, page_number=1):
 			forum_image = forum_image,
 		)
 		return redirect('forum:communitypage', community_id=community_id)
+
+	all_forums = Forum.objects.filter(community=community).order_by('-id')
+	forums_split = [all_forums[i:i + 15] for i in range(0, len(all_forums), 15)]
 
 	if request.is_ajax():
 		functionality = request.GET.get('functionality', None)
@@ -161,19 +164,45 @@ def communitypage(request, community_id, page_number=1):
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
 
+		if functionality == "fetch_forums":
+			next_index = request.GET.get('next_index', None)
+			forum_json = []
+			try:
+				next_forum = forums_split[int(next_index)]
+			except IndexError:
+				next_forum = []
+			for e in next_forum:
+				print(e.forum_image)
+				forum_json.append({
+						'forumId': e.id,
+						'forumVotes': e.forum_likes.count() - e.forum_dislikes.count(),
+						'forumCreatorFullName': e.creator.get_full_name(),
+						'forumCreatedDate': vanilla_JS_date_conversion(e.created_at),
+						'forumTitle': e.forum_title,
+						'forumImage': str(e.forum_image),
+						# 'forumImageUrl': e.forum_image.url,
+						'forumDescription': e.forum_description,
+						'forumCommentCount': ForumComment.objects.filter(forum=e).count()
+					})
+			response = {
+				"status_code": HTTPStatus.OK,
+				"forum_json": forum_json
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+
 		raise Exception("Unknown functionality communitypage")
 
-	all_forums = Forum.objects.filter(community=community).order_by('-id')
-	forums_split = [all_forums[i:i + 15] for i in range(0, len(all_forums), 15)]
+	# forums_split = [all_forums[i:i + 15] for i in range(0, len(all_forums), 15)]
 
-	if int(page_number) > len(forums_split):
-		return redirect('forum:communitypage', community_id=community_id, page_number=len(forums_split))
+	# if int(page_number) > len(forums_split):
+	# 	return redirect('forum:communitypage', community_id=community_id, page_number=len(forums_split))
 
 	context = {
 		"community": community,
-		"forums": forums_split[int(page_number)-1],
-		"current_page": page_number,
-		"last_page": len(forums_split),
+		"forums": forums_split[0],
+		# "current_page": page_number,
+		# "last_page": len(forums_split),
 		"in_community": True if request.user in community.community_members.all() else False
 	}
 	return render(request, "forum/communitypage.html", context)
@@ -429,3 +458,10 @@ def downvote_forum(request):
 		"status_code": 200
 	}
 	return HttpResponse(json.dumps(response), content_type="application/json")
+
+def vanilla_JS_date_conversion(python_date):
+	date = python_date.strftime("%b. %d, %Y,")
+	time = datetime.strptime( python_date.strftime("%H:%M"), "%H:%M")
+	time = time.strftime("%I:%M %p").lower().replace("pm", "p.m.").replace("am", "a.m.")
+	date_time = str(date + " " + time)
+	return date_time

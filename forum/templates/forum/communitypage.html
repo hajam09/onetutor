@@ -124,24 +124,7 @@
 			</div>
 		</div>
 	</div>
-	<div class="d-flex justify-content-center">
-		<nav aria-label="Page navigation example">
-			<ul class="pagination">
-				<li class="page-item" id="previous_page">
-					<a class="page-link" href="{% url 'forum:communitypage' community.pk current_page|add:'-1' %}" aria-label="Previous">
-					<span aria-hidden="true">«</span>
-					<span class="sr-only">Previous</span>
-					</a> 
-				</li>
-				<li class="page-item" id="next_page">
-					<a class="page-link" href="{% url 'forum:communitypage' community.pk current_page|add:'1' %}" aria-label="Next">
-						<span aria-hidden="true">»</span>
-						<span class="sr-only">Next</span>
-					</a>
-				</li>
-			</ul>
-		</nav>
-	</div>
+	
 </div>
 <script type="text/javascript">
 	var random_banner_colours = ['bg-primary', 'bg-secondary', 'bg-success', 'bg-danger', 'bg-warning', 'bg-info' ]
@@ -185,7 +168,7 @@
 
 	$(document).ready(function () {
 		display_forums();
-		display_pagination();
+		// display_pagination();
 	});
 
 	function display_forums() {
@@ -323,34 +306,75 @@
 		return range;
 	}
 
-	function display_pagination() {
-		var list_of_pages = generatePagination(parseInt("{{current_page}}"), parseInt("{{last_page}}"));
-		console.log(list_of_pages);
-		
-		for (let i = 0; i<list_of_pages.length; i++) {
-			var new_tag = null;
-			var index = null;
-			var href_url = null;
+	var NEXT_INDEX = 1;
 
-			if ( list_of_pages[i] == '...' ) {
-				index = '#';
-				href_url = '#';
-			}
-			else {
-				index = list_of_pages[i];
-				href_url = '/forum/c/{{community.pk}}/'+index+'/';
-			}
+	window.onscroll = function(ev) {
+		if ((window.innerHeight + window.pageYOffset) >= document.body.offsetHeight) {
+			
+			$.ajax({
+				data: {
+					'functionality': 'fetch_forums',
+					'next_index': NEXT_INDEX
+				},
+				dataType: 'json',
+				success: function (response) {
+					if(response.status_code == 200) {
 
-			if (list_of_pages[i] == {{current_page}}) {
-				new_tag = '<li class="page-item active"><a class="page-link" href="'+href_url+'">'+list_of_pages[i]+'</a></li>';
-			} else {
-				if ( list_of_pages[i] != '...' )
-					new_tag = '<li class="page-item"><a class="page-link" href="'+href_url+'">'+list_of_pages[i]+'</a></li>';
-				else
-					new_tag = '<li class="page-item"><a class="page-link" href="'+href_url+'" onclick="return false;">'+list_of_pages[i]+'</a></li>';
-			}
-			$( new_tag ).insertBefore( "#next_page" );
+						var this_forum = response.forum_json;
+
+						for (var i = 0; i<this_forum.length; i++) {
+							display_forum_container(this_forum[i].forumId, this_forum[i].forumVotes, this_forum[i].forumCreatorFullName,  this_forum[i].forumCreatedDate, this_forum[i].forumTitle, this_forum[i].forumDescription, this_forum[i].forumCommentCount, this_forum[i].forumImage);
+						}
+
+						NEXT_INDEX = NEXT_INDEX + 1;
+					}
+				}
+			});
 		}
+	};
+
+	function display_forum_container(forumId, forumVotes, forumCreatorFullName, forumCreatedDate, forumTitle, forumDescription, forumCommentCount, forumImage) {
+		var image_tab = null;
+		forumDescription = forumDescription.replace(/\n/g, '<br>\n');
+		if (forumImage) {
+			image_tab = '<img class="mx-auto d-block" src="../../../media/'+forumImage+'" style="max-width:100%;max-height:420px;">';
+		} else {
+			image_tab = '<p>'+forumDescription+'</p>';
+		}
+		
+
+		var forum_div_container = `
+		<div class="row border border-secondary" id="container_`+forumId+`">
+			<div class="col-md-auto text-center border-right border-primary" style="padding-bottom: 10px; padding-top: 10px;" id="buttons_in_sidebar">
+				<button type="button" class="btn btn-success" onclick="upvote_forum('`+forumId+`');"><i class='far fa-thumbs-up' style='font-size:15px'></i></button><br>
+				<span class='forum_vote_`+forumId+`'>`+forumVotes+`</span>
+				<br><button type="button" class="btn btn-danger" onclick="downvote_forum('`+forumId+`');"><i class='far fa-thumbs-down' style='font-size:15px'></i></button>
+			</div>
+			<div class="col" style="padding-bottom: 10px; padding-top: 10px;">
+				<div style="max-height: 500px;text-overflow: ellipsis;overflow: hidden;">
+					<span class="text-secondary">Post by `+forumCreatorFullName+` at `+forumCreatedDate+`</span>
+					`+image_tab+`
+				</div>
+				<div>
+					<a href="#"><i class='far fa-comment-alt' style='font-size:15px'></i> `+forumCommentCount+` Comments</a>
+					&nbsp;&nbsp;
+					<a href="#"><i class='fas fa-share' style='font-size:15px'></i> Share</a>
+					&nbsp;&nbsp;
+					<a href="#"><i class='fas fa-flag' style='font-size:15px'></i> Report</a>
+					&nbsp;&nbsp;
+					<span id="buttons_in_footer">
+						<button type="button" class="btn btn-success" style="padding: 2px 2px;" onclick="upvote_forum('`+forumId+`');"><i class='far fa-thumbs-up' style='font-size:15px;'></i></button>
+						<span class='forum_vote_`+forumId+`'>`+forumVotes+`</span>
+						<button type="button" class="btn btn-danger" style="padding: 2px 2px;" onclick="downvote_forum('`+forumId+`');"><i class='far fa-thumbs-down' style='font-size:15px;'></i></button>
+					</span>
+				</div>
+			</div>
+		</div>
+		<div style="height:20px;"></div>`;
+
+		$('#list_of_forums').append(forum_div_container);
+
 	}
+	
 </script>
 {% endblock %}
