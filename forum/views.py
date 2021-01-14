@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.core import serializers
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from deprecated import deprecated
 import json, random
 from http import HTTPStatus
 
@@ -357,6 +358,7 @@ def downvote_community(request):
 	}
 	return HttpResponse(json.dumps(response), content_type="application/json")
 
+@deprecated(reason="Implemented as part of the view that serves the HTML page.")
 def upvote_forum(request):
 	if not request.is_ajax():
 		response = {
@@ -392,6 +394,7 @@ def upvote_forum(request):
 	}
 	return HttpResponse(json.dumps(response), content_type="application/json")
 
+@deprecated(reason="Implemented as part of the view that serves the HTML page.")
 def downvote_forum(request):
 	if not request.is_ajax():
 		response = {

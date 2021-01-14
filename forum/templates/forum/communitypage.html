@@ -192,7 +192,7 @@
 		{% for f in forums %}
 
 		var forum_div_container = `
-		<div class="row border border-secondary">
+		<div class="row border border-secondary" id="container_{{f.id}}">
 			<div class="col-md-auto text-center border-right border-primary" style="padding-bottom: 10px; padding-top: 10px;" id="buttons_in_sidebar">
 				<button type="button" class="btn btn-success" onclick="upvote_forum('{{f.id}}');"><i class='far fa-thumbs-up' style='font-size:15px'></i></button><br>
 				<span class='forum_vote_{{f.id}}'>{{f.forum_likes.count}}</span>
