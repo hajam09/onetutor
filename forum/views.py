@@ -88,6 +88,78 @@ def communitypage(request, community_id, page_number=1):
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
 
+		if functionality == "upvote_forum":
+			if not request.user.is_authenticated:
+				response = {
+					"status_code": 401,
+					"message": "Login to up vote this forum."
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			forum_id = request.GET.get('forum_id', None)
+
+			try:
+				this_forum = Forum.objects.get(id=int(forum_id))
+			except Forum.DoesNotExist:
+				response = {
+					"status_code": HTTPStatus.NOT_FOUND,
+					"message": "We think this forum has been deleted!"
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			list_of_liked = Forum.objects.filter(forum_likes__id=request.user.pk)
+			list_of_disliked = Forum.objects.filter(forum_dislikes__id=request.user.pk)
+
+			if(this_forum not in list_of_liked):
+				this_forum.forum_likes.add(request.user)
+			else:
+				this_forum.forum_likes.remove(request.user)
+
+			if(this_forum in list_of_disliked):
+				this_forum.forum_dislikes.remove(request.user)
+
+			response = {
+				"status_code": HTTPStatus.OK,
+				"this_forum": serializers.serialize("json", [this_forum,]),
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+		if functionality == "downvote_forum":
+			if not request.user.is_authenticated:
+				response = {
+					"status_code": 401,
+					"message": "Login to down vote this forum."
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			forum_id = request.GET.get('forum_id', None)
+
+			try:
+				this_forum = Forum.objects.get(id=int(forum_id))
+			except Forum.DoesNotExist:
+				response = {
+					"status_code": HTTPStatus.NOT_FOUND,
+					"message": "We think this forum has been deleted!"
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			list_of_liked = Forum.objects.filter(forum_likes__id=request.user.pk)
+			list_of_disliked = Forum.objects.filter(forum_dislikes__id=request.user.pk)
+
+			if(this_forum not in list_of_disliked):
+				this_forum.forum_dislikes.add(request.user)
+			else:
+				this_forum.forum_dislikes.remove(request.user)
+				
+			if(this_forum in list_of_liked):
+				this_forum.forum_likes.remove(request.user)
+
+			response = {
+				"status_code": HTTPStatus.OK,
+				"this_forum": serializers.serialize("json", [this_forum,]),
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
 		raise Exception("Unknown functionality communitypage")
 
 	all_forums = Forum.objects.filter(community=community).order_by('-id')

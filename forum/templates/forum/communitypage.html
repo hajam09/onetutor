@@ -107,41 +107,6 @@
 					{% if not forums %}
 					<div class="alert alert-info " role="alert" style="text-align: center;"> This forum is empty. Why don't you start one. </div>
 					{% endif %}
-					{% for f in forums %}
-					<div class="row border border-secondary">
-						<div class="col-md-auto text-center border-right border-primary" style="padding-bottom: 10px; padding-top: 10px;" id="buttons_in_sidebar">
-							<button type="button" class="btn btn-success"><i class='far fa-thumbs-up' style='font-size:15px'></i></button><br>
-							<span>0</span>
-							<br><button type="button" class="btn btn-danger"><i class='far fa-thumbs-down' style='font-size:15px'></i></button>
-						</div>
-						<div class="col" style="padding-bottom: 10px; padding-top: 10px;">
-							<div style="max-height: 500px;text-overflow: ellipsis;overflow: hidden;">
-								<span class="text-secondary">Post by {{f.creator.get_full_name}} at {{f.created_at}}</span>
-								<h3>{{f.forum_title}}</h3>
-								{% if f.forum_image %}
-								<img class="mx-auto d-block" src="{{ f.forum_image.url }}" style="max-width:100%;max-height:420px;">
-								<!-- change max-height to auto if problem persists -->
-								{% else %}
-								<p>{{f.forum_description|linebreaksbr}}</p>
-								{% endif %}
-							</div>
-							<div>
-								<a href="#"><i class='far fa-comment-alt' style='font-size:15px'></i> {{f.forumcomment_set.all|length}} Comments</a>
-								&nbsp;&nbsp;
-								<a href="#"><i class='fas fa-share' style='font-size:15px'></i> Share</a>
-								&nbsp;&nbsp;
-								<a href="#"><i class='fas fa-flag' style='font-size:15px'></i> Report</a>
-								&nbsp;&nbsp;
-								<span id="buttons_in_footer">
-									<button type="button" class="btn btn-success" style="padding: 2px 2px;"><i class='far fa-thumbs-up' style='font-size:15px;'></i></button>
-									<span>0</span>
-									<button type="button" class="btn btn-danger" style="padding: 2px 2px;"><i class='far fa-thumbs-down' style='font-size:15px;'></i></button>
-								</span>
-							</div>
-						</div>
-					</div>
-					<div style="height:20px;"></div>
-					{% endfor %}
 				</div>
 				<div class="col">
 					<div class="card card-header bg-secondary text-white">About this Community</div>
@@ -219,19 +184,119 @@
 	}
 
 	$(document).ready(function () {
-		fetch_default_forums();
+		display_forums();
 		display_pagination();
 	});
 
-	function fetch_default_forums() {
+	function display_forums() {
+		{% for f in forums %}
+
+		var forum_div_container = `
+		<div class="row border border-secondary">
+			<div class="col-md-auto text-center border-right border-primary" style="padding-bottom: 10px; padding-top: 10px;" id="buttons_in_sidebar">
+				<button type="button" class="btn btn-success" onclick="upvote_forum('{{f.id}}');"><i class='far fa-thumbs-up' style='font-size:15px'></i></button><br>
+				<span class='forum_vote_{{f.id}}'>{{f.forum_likes.count}}</span>
+				<br><button type="button" class="btn btn-danger" onclick="downvote_forum('{{f.id}}');"><i class='far fa-thumbs-down' style='font-size:15px'></i></button>
+			</div>
+			<div class="col" style="padding-bottom: 10px; padding-top: 10px;">
+				<div style="max-height: 500px;text-overflow: ellipsis;overflow: hidden;">
+					<span class="text-secondary">Post by {{f.creator.get_full_name}} at {{f.created_at}}</span>
+					<h3>{{f.forum_title}}</h3>
+					{% if f.forum_image %}
+					<img class="mx-auto d-block" src="{{ f.forum_image.url }}" style="max-width:100%;max-height:420px;">
+					<!-- change max-height to auto if problem persists -->
+					{% else %}
+					<p>{{f.forum_description|linebreaksbr}}</p>
+					{% endif %}
+				</div>
+				<div>
+					<a href="#"><i class='far fa-comment-alt' style='font-size:15px'></i> {{f.forumcomment_set.all|length}} Comments</a>
+					&nbsp;&nbsp;
+					<a href="#"><i class='fas fa-share' style='font-size:15px'></i> Share</a>
+					&nbsp;&nbsp;
+					<a href="#"><i class='fas fa-flag' style='font-size:15px'></i> Report</a>
+					&nbsp;&nbsp;
+					<span id="buttons_in_footer">
+						<button type="button" class="btn btn-success" style="padding: 2px 2px;" onclick="upvote_forum('{{f.id}}');"><i class='far fa-thumbs-up' style='font-size:15px;'></i></button>
+						<span class='forum_vote_{{f.id}}'>{{f.forum_likes.count}}</span>
+						<button type="button" class="btn btn-danger" style="padding: 2px 2px;" onclick="downvote_forum('{{f.id}}');"><i class='far fa-thumbs-down' style='font-size:15px;'></i></button>
+					</span>
+				</div>
+			</div>
+		</div>
+		<div style="height:20px;"></div>`;
+
+		$('#list_of_forums').append(forum_div_container);
+
+		{% endfor %}
+	}
+
+	function upvote_forum(forum_id) {
 		$.ajax({
 			data: {
-				'functionality': 'default_forums'
+				'functionality': 'upvote_forum',
+				'forum_id': forum_id
 			},
+			dataType: 'json',
 			success: function (response) {
-				if (response.status_code == 200) {
-					var forums = eval(response.forums);
-				}
+				if(response.status_code == 200) {
+					var this_forum = eval(response.this_forum)[0];
+					var number_of_likes = this_forum.fields.forum_likes.length;
+					var number_of_dislikes = this_forum.fields.forum_dislikes.length;
+
+					$('.forum_vote_'+forum_id).text(number_of_likes-number_of_dislikes);
+
+				} else if (response.status_code == 401) {
+	            	Swal.fire({
+	            		icon: 'warning',
+	            		title: "Can't do that!",
+	            		text: response.message
+	            	});
+
+	            } else if (response.status_code == 404) {
+	            	Swal.fire({
+	            		icon: 'error',
+	            		title: "Can't do that!",
+	            		text: response.message
+	            	});
+	            	// TODO: Remove the forum div.
+	            	// $( ".question_answer_comment_container_"+commentId ).remove();
+	            }
+			}
+		});
+	}
+
+	function downvote_forum(forum_id) {
+		$.ajax({
+			data: {
+				'functionality': 'downvote_forum',
+				'forum_id': forum_id
+			},
+			dataType: 'json',
+			success: function (response) {
+				if(response.status_code == 200) {
+					var this_forum = eval(response.this_forum)[0];
+					var number_of_likes = this_forum.fields.forum_likes.length;
+					var number_of_dislikes = this_forum.fields.forum_dislikes.length;
+
+					$('.forum_vote_'+forum_id).text(number_of_likes-number_of_dislikes);
+
+				} else if (response.status_code == 401) {
+	            	Swal.fire({
+	            		icon: 'warning',
+	            		title: "Can't do that!",
+	            		text: response.message
+	            	});
+
+	            } else if (response.status_code == 404) {
+	            	Swal.fire({
+	            		icon: 'error',
+	            		title: "Can't do that!",
+	            		text: response.message
+	            	});
+	            	// TODO: Remove the forum div.
+	            	// $( ".question_answer_comment_container_"+commentId ).remove();
+	            }
 			}
 		});
 	}
