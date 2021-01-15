@@ -90,6 +90,7 @@ def communitypage(request, community_id):
 			return HttpResponse(json.dumps(response), content_type="application/json")
 
 		if functionality == "upvote_forum":
+			# TODO: Get the forum object from the list. Manual test the implementation.
 			if not request.user.is_authenticated:
 				response = {
 					"status_code": 401,
@@ -101,6 +102,9 @@ def communitypage(request, community_id):
 
 			try:
 				this_forum = Forum.objects.get(id=int(forum_id))
+				# next((x for x in test_list if x.value == value), None)
+				# This gets the first item from the list that matches the condition, and returns None if no item matches.
+				# Get the Forum object from all_forums list.
 			except Forum.DoesNotExist:
 				response = {
 					"status_code": HTTPStatus.NOT_FOUND,
@@ -108,15 +112,23 @@ def communitypage(request, community_id):
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
-			list_of_liked = Forum.objects.filter(forum_likes__id=request.user.pk)
-			list_of_disliked = Forum.objects.filter(forum_dislikes__id=request.user.pk)
+			# list_of_liked = Forum.objects.filter(forum_likes__id=request.user.pk)
+			# list_of_disliked = Forum.objects.filter(forum_dislikes__id=request.user.pk)
 
-			if(this_forum not in list_of_liked):
+			# if(this_forum not in list_of_liked):
+			# 	this_forum.forum_likes.add(request.user)
+			# else:
+			# 	this_forum.forum_likes.remove(request.user)
+
+			# if(this_forum in list_of_disliked):
+			# 	this_forum.forum_dislikes.remove(request.user)
+
+			if(request.user not in this_forum.forum_likes.all()):
 				this_forum.forum_likes.add(request.user)
 			else:
 				this_forum.forum_likes.remove(request.user)
 
-			if(this_forum in list_of_disliked):
+			if(request.user in this_forum.forum_dislikes.all()):
 				this_forum.forum_dislikes.remove(request.user)
 
 			response = {
@@ -126,6 +138,7 @@ def communitypage(request, community_id):
 			return HttpResponse(json.dumps(response), content_type="application/json")
 
 		if functionality == "downvote_forum":
+			# TODO: Get the forum object from the list. Manual test the implementation.
 			if not request.user.is_authenticated:
 				response = {
 					"status_code": 401,
@@ -137,6 +150,9 @@ def communitypage(request, community_id):
 
 			try:
 				this_forum = Forum.objects.get(id=int(forum_id))
+				# next((x for x in test_list if x.value == value), None)
+				# This gets the first item from the list that matches the condition, and returns None if no item matches.
+				# Get the Forum object from all_forums list.
 			except Forum.DoesNotExist:
 				response = {
 					"status_code": HTTPStatus.NOT_FOUND,
@@ -144,15 +160,23 @@ def communitypage(request, community_id):
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
-			list_of_liked = Forum.objects.filter(forum_likes__id=request.user.pk)
-			list_of_disliked = Forum.objects.filter(forum_dislikes__id=request.user.pk)
+			# list_of_liked = Forum.objects.filter(forum_likes__id=request.user.pk)
+			# list_of_disliked = Forum.objects.filter(forum_dislikes__id=request.user.pk)
 
-			if(this_forum not in list_of_disliked):
+			# if(this_forum not in list_of_disliked):
+			# 	this_forum.forum_dislikes.add(request.user)
+			# else:
+			# 	this_forum.forum_dislikes.remove(request.user)
+				
+			# if(this_forum in list_of_liked):
+			# 	this_forum.forum_likes.remove(request.user)
+
+			if(request.user not in this_forum.forum_dislikes.all()):
 				this_forum.forum_dislikes.add(request.user)
 			else:
 				this_forum.forum_dislikes.remove(request.user)
-				
-			if(this_forum in list_of_liked):
+
+			if(request.user in this_forum.forum_likes.all()):
 				this_forum.forum_likes.remove(request.user)
 
 			response = {
@@ -285,65 +309,63 @@ def forumpage(request, community_id, forum_id):
 	}
 	return render(request, "forum/forumpage.html", context)
 
+@deprecated(reason="Legacy")
 def mainpage_legacy(request):
-	# Category.objects.all().delete()
-	# Community.objects.all().delete()
-	# Forum.objects.all().delete()
-	# ForumComment.objects.all().delete()
-	# communities = Community.objects.all().order_by('-community_likes')
+	communities = Community.objects.all().order_by('-community_likes')
 
-	# if not communities:
-	# 	context = {
-	# 		"message": "Looks like you have to create a new community!.",
-	# 		"alert": "alert-info"
-	# 	}
-	# 	return render(request, "forum/mainpage.html", context)
+	if not communities:
+		context = {
+			"message": "Looks like you have to create a new community!.",
+			"alert": "alert-info"
+		}
+		return render(request, "forum/mainpage.html", context)
 
-	# sub_communities = [communities[i:i + 10] for i in range(0, len(communities), 10)]
+	sub_communities = [communities[i:i + 10] for i in range(0, len(communities), 10)]
 
-	# if int(page_number)<1:
-	# 	return redirect('forum:mainpage', page_number=1)
+	if int(page_number)<1:
+		return redirect('forum:mainpage', page_number=1)
 
-	# if int(page_number) > len(sub_communities):
-	# 	return redirect('forum:mainpage', page_number=len(sub_communities))
+	if int(page_number) > len(sub_communities):
+		return redirect('forum:mainpage', page_number=len(sub_communities))
 
-	# if request.method == "POST" and "create_community" in request.POST:
-	# 	if not request.user.is_authenticated:
-	# 		return redirect('accounts:login')
+	if request.method == "POST" and "create_community" in request.POST:
+		if not request.user.is_authenticated:
+			return redirect('accounts:login')
 
-	# 	community_title = request.POST["community_title"]
-	# 	community_url = ''.join(e for e in community_title if e.isalnum())
-	# 	community_description = request.POST["community_description"]
-	# 	anonymous = request.POST.get('anonymise_me', False) == 'on'
+		community_title = request.POST["community_title"]
+		community_url = ''.join(e for e in community_title if e.isalnum())
+		community_description = request.POST["community_description"]
+		anonymous = request.POST.get('anonymise_me', False) == 'on'
 
-	# 	if Community.objects.filter(community_url=community_url).exists():
-	# 		context = {
-	# 			"sub_communities": sub_communities[int(page_number)-1],
-	# 			"pages": len(sub_communities),
-	# 			"current_page": page_number,
-	# 			"message": "Hey we think a similar forum already exists to what you're creating.",
-	# 			"url": community_url,
-	# 			"alert": "alert-info"
-	# 		}
-	# 		return render(request, "forum/mainpage.html", context)
+		if Community.objects.filter(community_url=community_url).exists():
+			context = {
+				"sub_communities": sub_communities[int(page_number)-1],
+				"pages": len(sub_communities),
+				"current_page": page_number,
+				"message": "Hey we think a similar forum already exists to what you're creating.",
+				"url": community_url,
+				"alert": "alert-info"
+			}
+			return render(request, "forum/mainpage.html", context)
 
-	# 	Community.objects.create(
-	# 		creator = request.user,
-	# 		community_title = community_title,
-	# 		community_url = community_url,
-	# 		community_description = community_description,
-	# 		anonymous=anonymous
-	# 	)
-	# 	request.session['new_community_message'] = "WOW! It's a new community. Create a sub-forum, upload stuff or do what ever you want. Sky's the limit!"
-	# 	return redirect('forum:communitypage', community_url=community_url, page_number=1)
+		Community.objects.create(
+			creator = request.user,
+			community_title = community_title,
+			community_url = community_url,
+			community_description = community_description,
+			anonymous=anonymous
+		)
+		request.session['new_community_message'] = "WOW! It's a new community. Create a sub-forum, upload stuff or do what ever you want. Sky's the limit!"
+		return redirect('forum:communitypage', community_url=community_url, page_number=1)
 
 	context = {
-		# "sub_communities": sub_communities[int(page_number)-1],
-		# "pages": len(sub_communities),
-		# "current_page": page_number
+		"sub_communities": sub_communities[int(page_number)-1],
+		"pages": len(sub_communities),
+		"current_page": page_number
 	}
 	return render(request, "forum/mainpage.html", context)
 
+@deprecated(reason="Legacy")
 def communitypage_legacy(request, community_url, page_number):
 	community = Community.objects.get(community_url=community_url)
 	forums_all = Forum.objects.filter(community=community).order_by('-id')
@@ -394,7 +416,7 @@ def communitypage_legacy(request, community_url, page_number):
 
 	return render(request, "forum/communitypage.html", context)
 
-
+@deprecated(reason="Implemented as part of the view that serves the HTML page.")
 def upvote_community(request):
 	if not request.is_ajax():
 		response = {
@@ -430,6 +452,7 @@ def upvote_community(request):
 	}
 	return HttpResponse(json.dumps(response), content_type="application/json")
 
+@deprecated(reason="Implemented as part of the view that serves the HTML page.")
 def downvote_community(request):
 	if not request.is_ajax():
 		response = {
