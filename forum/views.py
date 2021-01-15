@@ -172,7 +172,6 @@ def communitypage(request, community_id):#, page_number=1):
 			except IndexError:
 				next_forum = []
 			for e in next_forum:
-				print(e.forum_image)
 				forum_json.append({
 						'forumId': e.id,
 						'forumVotes': e.forum_likes.count() - e.forum_dislikes.count(),
@@ -180,7 +179,6 @@ def communitypage(request, community_id):#, page_number=1):
 						'forumCreatedDate': vanilla_JS_date_conversion(e.created_at),
 						'forumTitle': e.forum_title,
 						'forumImage': str(e.forum_image),
-						# 'forumImageUrl': e.forum_image.url,
 						'forumDescription': e.forum_description,
 						'forumCommentCount': ForumComment.objects.filter(forum=e).count()
 					})

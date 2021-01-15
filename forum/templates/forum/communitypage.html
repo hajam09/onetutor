@@ -173,44 +173,9 @@
 
 	function display_forums() {
 		{% for f in forums %}
-
-		var forum_div_container = `
-		<div class="row border border-secondary" id="container_{{f.id}}">
-			<div class="col-md-auto text-center border-right border-primary" style="padding-bottom: 10px; padding-top: 10px;" id="buttons_in_sidebar">
-				<button type="button" class="btn btn-success" onclick="upvote_forum('{{f.id}}');"><i class='far fa-thumbs-up' style='font-size:15px'></i></button><br>
-				<span class='forum_vote_{{f.id}}'>{{f.forum_likes.count}}</span>
-				<br><button type="button" class="btn btn-danger" onclick="downvote_forum('{{f.id}}');"><i class='far fa-thumbs-down' style='font-size:15px'></i></button>
-			</div>
-			<div class="col" style="padding-bottom: 10px; padding-top: 10px;">
-				<div style="max-height: 500px;text-overflow: ellipsis;overflow: hidden;">
-					<span class="text-secondary">Post by {{f.creator.get_full_name}} at {{f.created_at}}</span>
-					<h3>{{f.forum_title}}</h3>
-					{% if f.forum_image %}
-					<img class="mx-auto d-block" src="{{ f.forum_image.url }}" style="max-width:100%;max-height:420px;">
-					<!-- change max-height to auto if problem persists -->
-					{% else %}
-					<p>{{f.forum_description|linebreaksbr}}</p>
-					{% endif %}
-				</div>
-				<div>
-					<a href="#"><i class='far fa-comment-alt' style='font-size:15px'></i> {{f.forumcomment_set.all|length}} Comments</a>
-					&nbsp;&nbsp;
-					<a href="#"><i class='fas fa-share' style='font-size:15px'></i> Share</a>
-					&nbsp;&nbsp;
-					<a href="#"><i class='fas fa-flag' style='font-size:15px'></i> Report</a>
-					&nbsp;&nbsp;
-					<span id="buttons_in_footer">
-						<button type="button" class="btn btn-success" style="padding: 2px 2px;" onclick="upvote_forum('{{f.id}}');"><i class='far fa-thumbs-up' style='font-size:15px;'></i></button>
-						<span class='forum_vote_{{f.id}}'>{{f.forum_likes.count}}</span>
-						<button type="button" class="btn btn-danger" style="padding: 2px 2px;" onclick="downvote_forum('{{f.id}}');"><i class='far fa-thumbs-down' style='font-size:15px;'></i></button>
-					</span>
-				</div>
-			</div>
-		</div>
-		<div style="height:20px;"></div>`;
-
-		$('#list_of_forums').append(forum_div_container);
-
+		var forumVotes = '{{f.forum_likes.count}}' - '{{f.forum_dislikes.count}}';
+		var forumDescription = '{{f.forum_description|linebreaksbr}}'.replace(/\n\r?/g, '<br />');
+		display_forum_container('{{f.id}}', forumVotes, '{{f.creator.get_full_name}}', '{{f.created_at}}', '{{f.forum_title}}', forumDescription, '{{f.forumcomment_set.all|length}}', '{{ f.forum_image }}')
 		{% endfor %}
 	}
 
@@ -353,6 +318,7 @@
 			<div class="col" style="padding-bottom: 10px; padding-top: 10px;">
 				<div style="max-height: 500px;text-overflow: ellipsis;overflow: hidden;">
 					<span class="text-secondary">Post by `+forumCreatorFullName+` at `+forumCreatedDate+`</span>
+					<h3>`+forumTitle+`</h3>
 					`+image_tab+`
 				</div>
 				<div>
