@@ -32,9 +32,7 @@ def mainpage(request):
 	}
 	return render(request, "forum/mainpage.html", context)
 
-def communitypage(request, community_id):#, page_number=1):
-	# if int(page_number)<1:
-	# 	return redirect('forum:communitypage', community_id=community_id, page_number=1)
+def communitypage(request, community_id):
 	try:
 		community = Community.objects.get(pk=community_id)
 	except Community.DoesNotExist:
@@ -191,19 +189,36 @@ def communitypage(request, community_id):#, page_number=1):
 
 		raise Exception("Unknown functionality communitypage")
 
-	# forums_split = [all_forums[i:i + 15] for i in range(0, len(all_forums), 15)]
-
-	# if int(page_number) > len(forums_split):
-	# 	return redirect('forum:communitypage', community_id=community_id, page_number=len(forums_split))
-
 	context = {
 		"community": community,
 		"forums": forums_split[0],
-		# "current_page": page_number,
-		# "last_page": len(forums_split),
 		"in_community": True if request.user in community.community_members.all() else False
 	}
 	return render(request, "forum/communitypage.html", context)
+
+def forumpage(request, community_id, forum_id):
+	try:
+		forum = Forum.objects.get(pk=forum_id)
+	except Forum.DoesNotExist:
+		# redirect to the community page or 404 page
+		pass
+
+	try:
+		community = Community.objects.get(pk=community_id)
+	except Community.DoesNotExist:
+		# although forum exists, the community does not match from the url.
+		# redirect to 404 page
+		pass
+
+	if forum.community != community:
+		# Forum's community is not the same as the expected community from url.
+		# return bad request?
+		pass
+
+	context = {
+
+	}
+	return render(request, "forum/forumpage.html", context)
 
 def mainpage_legacy(request):
 	# Category.objects.all().delete()
