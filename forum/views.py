@@ -2,7 +2,7 @@ from .models import Category, Community, Forum, ForumComment
 from datetime import datetime
 from django.contrib.auth.models import User
 from django.core import serializers
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
 from deprecated import deprecated
 import json, random
@@ -36,8 +36,7 @@ def communitypage(request, community_id):
 	try:
 		community = Community.objects.get(pk=community_id)
 	except Community.DoesNotExist:
-		# redirect to 404 page
-		pass
+		raise Http404
 
 
 	if request.method == "POST" and "create_forum" in request.POST:
@@ -191,7 +190,7 @@ def communitypage(request, community_id):
 
 	context = {
 		"community": community,
-		"forums": forums_split[0],
+		"forums": forums_split[0] if len(forums_split)>0 else [],
 		"in_community": True if request.user in community.community_members.all() else False
 	}
 	return render(request, "forum/communitypage.html", context)
@@ -200,23 +199,89 @@ def forumpage(request, community_id, forum_id):
 	try:
 		forum = Forum.objects.get(pk=forum_id)
 	except Forum.DoesNotExist:
-		# redirect to the community page or 404 page
-		pass
+		raise Http404
 
 	try:
 		community = Community.objects.get(pk=community_id)
 	except Community.DoesNotExist:
-		# although forum exists, the community does not match from the url.
-		# redirect to 404 page
-		pass
-
+		raise Http404
+		
 	if forum.community != community:
 		# Forum's community is not the same as the expected community from url.
 		# return bad request?
 		pass
 
-	context = {
+	if request.is_ajax():
+		functionality = request.GET.get('functionality', None)
 
+		if functionality == "join_community":
+			if not request.user.is_authenticated:
+				response = {
+					"status_code": 401,
+					"message": "Login to join this community."
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			community.community_members.add(request.user)
+			response = {
+				"status_code": HTTPStatus.OK
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+		if functionality == "leave_community":
+			community.community_members.remove(request.user)
+			response = {
+				"status_code": HTTPStatus.OK
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+		if functionality == "upvote_forum":
+			if not request.user.is_authenticated:
+				response = {
+					"status_code": 401,
+					"message": "Login to up vote this forum."
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			if(request.user not in forum.forum_likes.all()):
+				forum.forum_likes.add(request.user)
+			else:
+				forum.forum_likes.remove(request.user)
+
+			if(request.user in forum.forum_dislikes.all()):
+				forum.forum_dislikes.remove(request.user)
+
+			response = {
+				"status_code": HTTPStatus.OK,
+				"this_forum": serializers.serialize("json", [forum,]),
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+		if functionality == "downvote_forum":
+			if not request.user.is_authenticated:
+				response = {
+					"status_code": 401,
+					"message": "Login to down vote this forum."
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			if(request.user not in forum.forum_dislikes.all()):
+				forum.forum_dislikes.add(request.user)
+			else:
+				forum.forum_dislikes.remove(request.user)
+
+			if(request.user in forum.forum_likes.all()):
+				forum.forum_likes.remove(request.user)
+
+			response = {
+				"status_code": HTTPStatus.OK,
+				"this_forum": serializers.serialize("json", [forum,]),
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+	context = {
+		"forum": forum,
+		"in_community": True if request.user in community.community_members.all() else False
 	}
 	return render(request, "forum/forumpage.html", context)
 

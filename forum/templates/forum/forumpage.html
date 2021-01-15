@@ -1,0 +1,215 @@
+{% extends "accounts/account_base.html" %}
+{% load static %}
+{% block content %}
+<style type="text/css">
+	.ui-w-80{width:100px!important;height:auto}
+	/*#buttons_in_footer{display: none;}*/
+	.pagination>li>a { border-radius: 50% !important;margin: 0 5px;}
+	@media (min-width: 1200px) {
+		.container {
+			width: 1600px;
+		}
+		.wrapper {
+			width: 75%;
+		}
+	}
+
+	@media (min-width: 972px) and (max-width: 1200px) {
+		.container {
+			width: 1600px;
+		}
+		.wrapper {
+			width: 90%;
+		}
+	}
+
+	@media (min-width: 700px) and (max-width: 959px) {
+		.container {
+			width: 1600px;
+		}
+		.wrapper {
+			width: 90%;
+		}
+	}
+
+	@media (max-width: 767px) {
+		/*#buttons_in_sidebar{display:none;}*/
+		/*#buttons_in_footer{display:inline;}*/
+	}
+</style>
+<div class="wrapper" style="margin: auto;overflow-x: hidden; color: black;">
+	<div class="gutters-sm">
+		<div style="height:70px;"></div>
+		<div class="col-md-12">
+			<div class="row">
+				<div class="col-12 col-md-8" id="forum_container">
+					<div class="row border border-secondary" id="container_{{forum.id}}">
+						<div class="col-md-auto text-center border-right border-primary" style="padding-bottom: 10px; padding-top: 10px;" id="buttons_in_sidebar">
+							<button type="button" class="btn btn-success" onclick="upvote_forum('{{forum.id}}');"><i class='far fa-thumbs-up' style='font-size:15px'></i></button><br>
+							<span class='forum_vote_{{forum.id}}'></span>
+							<br><button type="button" class="btn btn-danger" onclick="downvote_forum('{{forum.id}}');"><i class='far fa-thumbs-down' style='font-size:15px'></i></button>
+						</div>
+						<div class="col" style="padding-bottom: 10px; padding-top: 10px;">
+							<div style="max-height: 500px;text-overflow: ellipsis;overflow: hidden;">
+								<span class="text-secondary">Post by {{forum.creator.get_full_name}} at {{forum.created_at}}</span>
+								<h3>{{forum.forum_title}}</h3>
+								{% if forum.forum_image %}
+								<img class="mx-auto d-block" src="{{ forum.forum_image.url }}" style="max-width:100%;max-height:420px;">
+								<!-- change max-height to auto if problem persists -->
+								{% else %}
+								<p>{{forum.forum_description|linebreaksbr}}</p>
+								{% endif %}
+							</div>
+							<div>
+								<a href="#"><i class='far fa-comment-alt' style='font-size:15px'></i> {{forum.forumcomment_set.all|length}} Comments</a>
+								&nbsp;&nbsp;
+								<a href="#"><i class='fas fa-share' style='font-size:15px'></i> Share</a>
+								&nbsp;&nbsp;
+								<a href="#"><i class='fas fa-flag' style='font-size:15px'></i> Report</a>
+								&nbsp;&nbsp;
+								<span id="buttons_in_footer">
+									<button type="button" class="btn btn-success" style="padding: 2px 2px;" onclick="upvote_forum('{{forum.id}}');"><i class='far fa-thumbs-up' style='font-size:15px;'></i></button>
+									<span class='forum_vote_{{forum.id}}'></span>
+									<button type="button" class="btn btn-danger" style="padding: 2px 2px;" onclick="downvote_forum('{{forum.id}}');"><i class='far fa-thumbs-down' style='font-size:15px;'></i></button>
+								</span>
+							</div>
+						</div>
+					</div>
+					<div style="height:20px;"></div>
+				</div>
+				<div class="col">
+					<div class="card card-header bg-secondary text-white">About this Community</div>
+					<div class="card card-body">
+						<div class="row">
+							<div class="col-12">
+								<div class="row">
+									<div class="col">{{forum.community.community_description}}</div>
+								</div>
+								<div class="row">
+									<div class="col"><hr></div>
+								</div>
+								<div class="row">
+									<div class="col">Created at {{forum.community.created_at}}</div>
+								</div>
+								<div class="row">
+									<div class="col">
+										<div id="join_leave_community">
+											{% if in_community %}
+											<button type="button" class="btn btn-danger" style="border-radius: 16px;padding: 5px 40px;width: 100%;" onclick="leaveCommunity();">Leave</button>
+											{% else %}
+											<button type="button" class="btn btn-primary" style="border-radius: 16px;padding: 5px 40px;width: 100%;" onclick="joinCommunity();">Join</button>
+											{% endif %}
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						</div>
+					<div class="col-xs-12" style="height:30px;"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+
+	$(document).ready(function () {
+		update_forum_votes();
+	});
+
+	function update_forum_votes() {
+		var forumVotes = '{{forum.forum_likes.count}}' - '{{forum.forum_dislikes.count}}';
+		$('.forum_vote_{{forum.pk}}').text(forumVotes);
+	}
+
+	function joinCommunity() {
+		$.ajax({
+			data: {
+				'functionality': 'join_community'
+			},
+			dataType: 'json',
+			success: function (response) {
+				if (response.status_code == 200) {
+					$('#join_leave_community').empty();
+					$("#join_leave_community").append('<button type="button" class="btn btn-danger" style="border-radius: 16px;padding: 5px 40px;width: 100%;" onclick="leaveCommunity();">Leave</button>');
+				} else if (response.status_code == 401) {
+					Swal.fire({
+						icon: 'warning',
+						title: "Can't do that!",
+						text: response.message
+					});
+				}
+			}
+		});
+
+	}
+
+	function leaveCommunity() {
+		$.ajax({
+			data: {
+				'functionality': 'leave_community'
+			},
+			dataType: 'json',
+			success: function (response) {
+				if (response.status_code == 200) {
+					$('#join_leave_community').empty();
+					$("#join_leave_community").append('<button type="button" class="btn btn-primary" style="border-radius: 16px;padding: 5px 40px;width: 100%;" onclick="joinCommunity();">Join</button>');
+				}
+			}
+		});
+	}
+
+	function upvote_forum(forum_id) {
+		$.ajax({
+			data: {
+				'functionality': 'upvote_forum'
+			},
+			dataType: 'json',
+			success: function (response) {
+				if(response.status_code == 200) {
+					var this_forum = eval(response.this_forum)[0];
+					var number_of_likes = this_forum.fields.forum_likes.length;
+					var number_of_dislikes = this_forum.fields.forum_dislikes.length;
+
+					$('.forum_vote_'+forum_id).text(number_of_likes-number_of_dislikes);
+
+				} else if (response.status_code == 401) {
+	            	Swal.fire({
+	            		icon: 'warning',
+	            		title: "Can't do that!",
+	            		text: response.message
+	            	});
+
+	            }
+			}
+		});
+	}
+
+	function downvote_forum(forum_id) {
+		$.ajax({
+			data: {
+				'functionality': 'downvote_forum'
+			},
+			dataType: 'json',
+			success: function (response) {
+				if(response.status_code == 200) {
+					var this_forum = eval(response.this_forum)[0];
+					var number_of_likes = this_forum.fields.forum_likes.length;
+					var number_of_dislikes = this_forum.fields.forum_dislikes.length;
+
+					$('.forum_vote_'+forum_id).text(number_of_likes-number_of_dislikes);
+
+				} else if (response.status_code == 401) {
+	            	Swal.fire({
+	            		icon: 'warning',
+	            		title: "Can't do that!",
+	            		text: response.message
+	            	});
+
+	            }
+			}
+		});
+	}
+
+</script>
+{% endblock %}
