@@ -45,13 +45,13 @@ def sprintboard(request, sprint_url):
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
 
-
+	sprint_tickets = Ticket.objects.filter(sprint=active_sprint)
 	context = {
 		"active_sprint": active_sprint,
-		"todo_tickets": Ticket.objects.filter(status="Open", sprint=active_sprint),
-		"prog_tickets": Ticket.objects.filter(status="Progress", sprint=active_sprint),
-		"done_tickets": Ticket.objects.filter(status="Done", sprint=active_sprint),
-		"canc_tickets": Ticket.objects.filter(status="Cancelled", sprint=active_sprint),
+		"todo_tickets": [i for i in sprint_tickets if i.status=="Open"],
+		"prog_tickets": [i for i in sprint_tickets if i.status=="Progress"],
+		"done_tickets": [i for i in sprint_tickets if i.status=="Done"],
+		"canc_tickets": [i for i in sprint_tickets if i.status=="Cancelled"],
 	}
 	return render(request,"jira/sprintboard.html", context)
 
@@ -131,13 +131,14 @@ def backlog(request):
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
 
+	backlog_tickets = Ticket.objects.filter(status="None")
 	context = {
-		"bug_tickets": Ticket.objects.filter(status="None", issue_type="Bug"),
-		"improvment_tickets": Ticket.objects.filter(status="None", issue_type="Improvement"),
-		"story_tickets": Ticket.objects.filter(status="None", issue_type="Story"),
-		"task_tickets": Ticket.objects.filter(status="None", issue_type="Task"),
-		"test_tickets": Ticket.objects.filter(status="None", issue_type="Test"),
-		"epic_tickets": Ticket.objects.filter(status="None", issue_type="Epic"),
+		"bug_tickets": [i for i in backlog_tickets if i.issue_type=="Bug"],
+		"improvment_tickets": [i for i in backlog_tickets if i.issue_type=="Improvement"],
+		"story_tickets": [i for i in backlog_tickets if i.issue_type=="Story"],
+		"task_tickets": [i for i in backlog_tickets if i.issue_type=="Task"],
+		"test_tickets": [i for i in backlog_tickets if i.issue_type=="Test"],
+		"epic_tickets": [i for i in backlog_tickets if i.issue_type=="Epic"],
 		"superusers": User.objects.filter(is_superuser=True),
 		"sprint_tickets": Ticket.objects.filter(sprint=active_sprint).exclude(status="None"),
 		"active_sprint": active_sprint
