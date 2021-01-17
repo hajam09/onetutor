@@ -469,37 +469,36 @@
 		toggle: true
 	})
 
-	function watchers(this_ticket_pk, list_of_this_users_watching_tickets, watchers_count) {
-		if (list_of_this_users_watching_tickets.includes(this_ticket_pk)) {
+	function watchers(is_watching, watchers_count) {
+        if (is_watching) {
 
-			var ticket_watcher_text = `<span onclick="watch_unwatch_issue();" class="badge badge-pill badge-primary" data-toggle="tooltip" data-placement="top" title="You are watching this issue. Click to stop watching this issue.">`+watchers_count+`</span>`
-			$('p#ticket_watcher').html(ticket_watcher_text);
+            var ticket_watcher_text = `<span onclick="watch_unwatch_issue();" class="badge badge-pill badge-primary" data-toggle="tooltip" data-placement="top" title="You are watching this issue. Click to stop watching this issue.">`+watchers_count+`</span>`
+            $('p#ticket_watcher').html(ticket_watcher_text);
 
-		} else {
+        } else {
 
-			var ticket_watcher_text = `<span onclick="watch_unwatch_issue();" class="badge badge-pill badge-secondary" data-toggle="tooltip" data-placement="top" title="You are not watching this issue. Click to watch this issue.">`+watchers_count+`</span>`
-			$('p#ticket_watcher').html(ticket_watcher_text);
+            var ticket_watcher_text = `<span onclick="watch_unwatch_issue();" class="badge badge-pill badge-secondary" data-toggle="tooltip" data-placement="top" title="You are not watching this issue. Click to watch this issue.">`+watchers_count+`</span>`
+            $('p#ticket_watcher').html(ticket_watcher_text);
 
-		}
-	}
-	watchers(eval('{{ticket.pk}}'), eval('{{list_of_watchers}}'), eval('{{ticket.watchers.count}}'));
+        }
+    }
+	watchers(eval('{{is_watching}}'.toLowerCase()), eval('{{ticket.watchers.count}}'));
 
 	function watch_unwatch_issue() {
-		$.ajax({
-			data: {
-				'functionality': 'watch_unwatch_issue'
-			},
-			dataType: 'json',
-			success: function (response) {
-				if (response.status_code == 200) {
-					var this_ticket_pk = eval('{{ticket.pk}}');
-					var list_of_this_users_watching_tickets = response.updated_watching_ticket;
-					var watchers_count = response.new_watch_count_for_this_ticket;
-					watchers(this_ticket_pk, list_of_this_users_watching_tickets, watchers_count);
-				}
-			}
-		});
-	}
+        $.ajax({
+            data: {
+                'functionality': 'watch_unwatch_issue'
+            },
+            dataType: 'json',
+            success: function (response) {
+                if (response.status_code == 200) {
+                    var watchers_count = response.new_watch_count_for_this_ticket;
+                    var is_watching = response.is_watching;
+                    watchers(is_watching, watchers_count);
+                }
+            }
+        });
+    }
 
     function image_modal_popup(image_url) {
         // Get the modal

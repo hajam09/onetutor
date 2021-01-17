@@ -163,13 +163,14 @@ def ticketpage(request, ticket_url):
 
 			if(request.user not in ticket.watchers.all()):
 				ticket.watchers.add(request.user)
+				is_watching = True
 			else:
 				ticket.watchers.remove(request.user)
+				is_watching = False
 
-			updated_watching_ticket = list(Ticket.objects.filter(watchers__id=request.user.pk).values_list('id', flat=True))
 			response = {
-				"updated_watching_ticket": updated_watching_ticket,
-				"new_watch_count_for_this_ticket": Ticket.objects.get(url=ticket_url).watchers.count(),
+				"is_watching": is_watching,
+				"new_watch_count_for_this_ticket": ticket.watchers.count(),
 				"status_code": HTTPStatus.OK
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
@@ -232,7 +233,6 @@ def ticketpage(request, ticket_url):
 			return HttpResponse(json.dumps(response), content_type="application/json")
 
 		elif functionality == "like_ticket_comment":
-			# TODO: Manual test the implementation.
 			commentId = request.GET.get('commentId', None)
 
 			try:
@@ -271,7 +271,6 @@ def ticketpage(request, ticket_url):
 			return HttpResponse(json.dumps(response), content_type="application/json")
 
 		elif functionality == "dislike_ticket_comment":
-			# TODO: Manual test the implementation.
 			commentId = request.GET.get('commentId', None)
 
 			try:
@@ -345,12 +344,11 @@ def ticketpage(request, ticket_url):
 		ticket.sub_task.add(new_subtask)
 		return redirect('jira:ticketpage', ticket_url=ticket_url)
 
-	list_of_watching_tickets = list(Ticket.objects.filter(watchers__id=request.user.pk).values_list('id', flat=True))
 	context = {
 		"ticket": ticket,
 		"ticket_images": ticket_images,
 		"ticket_comments": ticket_comments,
-		"list_of_watchers": list_of_watching_tickets,
+		"is_watching": True if request.user in ticket.watchers.all() else False,
 		"superusers": User.objects.filter(is_superuser=True),
 		"sub_tasks": ticket.sub_task.all(),
 		"epic_link": Ticket.objects.filter(sub_task__in=[ticket]).first()
