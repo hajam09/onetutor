@@ -232,8 +232,7 @@ def forumpage(request, community_id, forum_id):
 		
 	if forum.community != community:
 		# Forum's community is not the same as the expected community from url.
-		# return bad request?
-		pass
+		return HttpResponse("<h1>Bad Request. Looks like you are messing with the url.</h1>")
 
 	if request.is_ajax():
 		functionality = request.GET.get('functionality', None)
