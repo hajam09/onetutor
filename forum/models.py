@@ -43,11 +43,12 @@ class Forum(models.Model):
 		verbose_name_plural = "Forums"
 
 class ForumComment(models.Model):
-	forum = models.ForeignKey(Forum, on_delete=models.CASCADE)
+	forum = models.ForeignKey(Forum, on_delete=models.CASCADE, related_name='forums')
 	creator = models.ForeignKey(User, on_delete=models.CASCADE)
 	comment_description = models.TextField()
 	created_at = models.DateTimeField(default=datetime.now)
 	anonymous = models.BooleanField(default=False)
+	edited = models.BooleanField(default=False)
 	reply = models.ForeignKey('ForumComment', null=True, blank=True, related_name='replies', on_delete=models.CASCADE)
 	forum_comment_likes = models.ManyToManyField(User, related_name='forum_comment_likes')
 	forum_comment_dislikes = models.ManyToManyField(User, related_name='forum_comment_dislikes')

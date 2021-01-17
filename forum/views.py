@@ -302,6 +302,19 @@ def forumpage(request, community_id, forum_id):
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
 
+		if functionality == "post_comment":
+			comment = request.GET.get('comment', None)
+			forum_comment = ForumComment.objects.create(
+				forum = forum,
+				creator = request.user,
+				comment_description = comment,
+			)
+			response = {
+				"forum_comment": serializers.serialize("json", [forum_comment,]),
+				"status_code": HTTPStatus.OK
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
 	context = {
 		"forum": forum,
 		"in_community": True if request.user in community.community_members.all() else False

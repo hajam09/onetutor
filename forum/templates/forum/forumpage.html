@@ -73,6 +73,27 @@
 								</span>
 							</div>
 						</div>
+						<div class="container">
+							<div style="height:20px;"></div>
+							{% if request.user.is_authenticated %}
+							<textarea class="form-control border p-4" id="comment_box" placeholder="write a comment..." rows="3"></textarea>
+							<br>
+							<div class="pull-right">
+								<button type="button" class="btn btn-outline-primary btn-sm" onclick="post_comment();">Post Comment</button>
+							</div>
+							{% else %}
+							<div class="alert alert-warning" role="alert"> Log in or sign up to leave a comment
+								<div class="pull-right">
+									<a class="btn btn-primary btn-sm" href="{% url 'accounts:login' %}" role="button">Login</a>
+									<a class="btn btn-secondary btn-sm" href="{% url 'accounts:register' %}" role="button">Signup</a>
+								</div>
+							</div>
+							{% endif %}
+						</div>
+						<div style="height:20px;"></div>
+						<div id="forum_comment_master_container">
+							<!--  -->
+						</div>						
 					</div>
 					<div style="height:20px;"></div>
 				</div>
@@ -114,11 +135,71 @@
 
 	$(document).ready(function () {
 		update_forum_votes();
+		view_comments();
 	});
 
 	function update_forum_votes() {
 		var forumVotes = '{{forum.forum_likes.count}}' - '{{forum.forum_dislikes.count}}';
 		$('.forum_vote_{{forum.pk}}').text(forumVotes);
+	}
+
+	function view_comments() {
+		{% for f in forum.forums.all %}
+
+		var forum_comment_div = `
+			<div class="forum_comment_container_{{f.id}}">
+				<div class="container">
+					<div class="row m-0">
+						<div class="">
+							<a class="text-decoration-none" href="#">
+								<img class="" src="https://cdn3.iconfinder.com/data/icons/avatars-round-flat/33/avat-01-512.png" width="25" height="25" alt="...">
+							</a>
+						</div>
+						<div class="flex-grow-1 pl-2">
+							<a class="text-decoration-none" href="#">
+								<span class="text-capitalize mb-0">{{ f.creator.get_full_name }}</span>
+								<span class="small text-secondary m-0 mt-1" id="date_and_edited_msg_{{qa_c.id}}">1 day ago {% if f.edited %}(edited){% endif %}</span>
+							</a>
+						</div>
+						{% if f.creator.pk == user.pk %}
+							<div class="dropdown">
+								<a class="" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								<i class="fas fa-chevron-down"></i>
+								</a>
+								<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+									<a class="dropdown-item text-primary" href="#" onclick="edit_forum_comment_text_area('{{f.id}}');">Edit</a>
+									<a class="dropdown-item text-primary" href="#" onclick="delete_forum_comment('{{f.id}}');">Delete</a>
+								</div>
+							</div>
+						{% endif %}
+					</div>
+					<div class="">
+						<p class="my-2" id="forum_comment_text_{{f.id}}">
+							{{ f.comment_description|linebreaksbr }}
+						</p>
+					</div>
+					<footer>
+						<span id="comment_like_id_{{f.id}}" type="button" class="btn btn-default btn-sm" onclick="like_comment('{{f.id}}')">
+							<i class='far fa-thumbs-up' style='font-size:15px'></i> ({{f.forum_comment_likes.count}})
+						</span>
+						<span id="comment_dislike_id_{{f.id}}" type="button" class="btn btn-default btn-sm" onclick="dislike_comment('{{f.id}}')">
+							<i class='far fa-thumbs-down' style='font-size:15px'></i> ({{f.forum_comment_dislikes.count}})
+						</span>
+						&nbsp;&nbsp;
+						<a href="#"><i class='far fa-comment-alt' style='font-size:15px'></i> Reply</a>
+					</footer>
+					<hr>
+					<div class="branch_of_forum_{{f.id}}"></div>
+				</div>
+			</div>`;
+
+		{% if f.reply %}
+			$('.branch_of_forum_{{f.reply.pk}}').append( forum_comment_div );
+		{% else %}
+			$('#forum_comment_master_container').append( forum_comment_div );
+		{% endif %}
+
+		{% endfor %}
 	}
 
 	function joinCommunity() {
@@ -173,13 +254,13 @@
 					$('.forum_vote_'+forum_id).text(number_of_likes-number_of_dislikes);
 
 				} else if (response.status_code == 401) {
-	            	Swal.fire({
-	            		icon: 'warning',
-	            		title: "Can't do that!",
-	            		text: response.message
-	            	});
+					Swal.fire({
+						icon: 'warning',
+						title: "Can't do that!",
+						text: response.message
+					});
 
-	            }
+				}
 			}
 		});
 	}
@@ -199,13 +280,38 @@
 					$('.forum_vote_'+forum_id).text(number_of_likes-number_of_dislikes);
 
 				} else if (response.status_code == 401) {
-	            	Swal.fire({
-	            		icon: 'warning',
-	            		title: "Can't do that!",
-	            		text: response.message
-	            	});
+					Swal.fire({
+						icon: 'warning',
+						title: "Can't do that!",
+						text: response.message
+					});
 
-	            }
+				}
+			}
+		});
+	}
+
+	function post_comment() {
+		var comment = $("#comment_box").val();
+		comment = comment.trim();
+
+		if (comment && !comment.trim() || comment.length==0) {
+			alert("Enter a comment!");
+			return;
+		}
+
+		$("#comment_box").val("");
+
+		$.ajax({
+			data: {
+				'functionality': 'post_comment',
+				'comment': comment
+			},
+			dataType: 'json',
+			success: function (response) {
+				if (response.status_code == 200) {
+
+				}
 			}
 		});
 	}
