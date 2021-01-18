@@ -55,3 +55,4 @@ class ForumComment(models.Model):
 
 	class Meta:
 		verbose_name_plural = "ForumComment"
+		ordering = ('-created_at',)
