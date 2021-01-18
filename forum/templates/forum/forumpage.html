@@ -204,7 +204,7 @@
 
 	$(document).ready(function () {
 		update_forum_votes();
-		view_comments();
+		collect_comments();
 	});
 
 	function update_forum_votes() {
@@ -212,12 +212,44 @@
 		$('.forum_vote_{{forum.pk}}').text(forumVotes);
 	}
 
-	function view_comments() {
-		child_comment_container = [];
+	function collect_comments() {
+		comment_container = [];
 		{% for f in forum.forums.all %}
 
-		var forum_comment_div = `
-			<div class="forum_comment_container_{{f.id}}">
+		comment_container.push({
+			'pk': '{{f.id}}',
+			'full_name': '{{ f.creator.get_full_name }}',
+			'edited': '{{f.edited}}' ? true : false,
+			'comment': '{{ f.comment_description|linebreaksbr }}',
+			'like_count': eval('{{f.forum_comment_likes.count}}'),
+			'dislike_count': eval('{{f.forum_comment_dislikes.count}}'),
+			'can_edit': '{{f.creator.pk}}' == '{{user.pk}}' ? true : false,
+			'master_comment': '{{f.reply}}' ? '{{f.reply.pk}}' : null,
+		});
+
+		{% endfor %}
+
+		comment_display_rec(comment_container);
+	}
+
+	function comment_display_rec(list) {
+		if (list.length==0) {
+			return;
+		}
+
+		var unidentified_list = [];
+
+		for (var i = 0; i<list.length; i++) {
+
+			var edit_delete = '';
+			if (list[i].can_edit)
+				edit_delete = `
+					<a href="#" onclick="edit_forum_comment_text_area(`+list[i].pk+`);"><i class='far fa-edit' style='font-size:15px'></i> Edit</a>
+					&nbsp;
+					<a href="#" onclick="delete_forum_comment(`+list[i].pk+`);"><i class='far fa-trash-alt' style='font-size:15px'></i> Delete</a>`;
+
+			var forum_comment_div = `
+			<div class="forum_comment_container_`+list[i].pk+`">
 				<div class="container">
 					<div class="row m-0">
 						<div class="">
@@ -227,62 +259,47 @@
 						</div>
 						<div class="flex-grow-1 pl-2">
 							<a class="text-decoration-none" href="#">
-								<span class="text-capitalize mb-0">{{ f.creator.get_full_name }}</span>
-								<span class="small text-secondary m-0 mt-1" id="date_and_edited_msg_{{f.id}}">1 day ago {% if f.edited %}(edited){% endif %}</span>
+								<span class="text-capitalize mb-0">`+list[i].full_name+`</span>
+								<span class="small text-secondary m-0 mt-1" id="date_and_edited_msg_`+list[i].pk+`">1 day ago {% if f.edited %}(edited){% endif %}</span>
 							</a>
 						</div>
 					</div>
 					<div class="">
-						<p class="my-2" id="forum_comment_text_{{f.id}}">
-							{{ f.comment_description|linebreaksbr }}
+						<p class="my-2" id="forum_comment_text_`+list[i].pk+`">
+							`+list[i].comment+`
 						</p>
 					</div>
 					<footer>
-						<span id="comment_like_id_{{f.id}}" type="button" class="btn btn-default btn-sm" onclick="like_comment('{{f.id}}')">
-							<i class='far fa-thumbs-up' style='font-size:15px'></i> ({{f.forum_comment_likes.count}})
+						<span id="comment_like_id_`+list[i].pk+`" type="button" class="btn btn-default btn-sm" onclick="like_comment(`+list[i].pk+`)">
+							<i class='far fa-thumbs-up' style='font-size:15px'></i> (`+list[i].like_count+`)
 						</span>
-						<span id="comment_dislike_id_{{f.id}}" type="button" class="btn btn-default btn-sm" onclick="dislike_comment('{{f.id}}')">
-							<i class='far fa-thumbs-down' style='font-size:15px'></i> ({{f.forum_comment_dislikes.count}})
+						<span id="comment_dislike_id_`+list[i].pk+`" type="button" class="btn btn-default btn-sm" onclick="dislike_comment(`+list[i].pk+`)">
+							<i class='far fa-thumbs-down' style='font-size:15px'></i> (`+list[i].dislike_count+`)
 						</span>
 						&nbsp;
 						<a href="#"><i class='far fa-comment-alt' style='font-size:15px'></i> Reply</a>
 						&nbsp;
-						{% if f.creator.pk == user.pk %}
-						<a href="#" onclick="edit_forum_comment_text_area('{{f.id}}');"><i class='far fa-edit' style='font-size:15px'></i> Edit</a>
-						&nbsp;
-						<a href="#" onclick="delete_forum_comment('{{f.id}}');"><i class='far fa-trash-alt' style='font-size:15px'></i> Delete</a>
-						{% endif %}
+						`+edit_delete+`
 					</footer>
 					<hr>
-					<div class="branch_of_forum_{{f.id}}"></div>
+					<div class="branch_of_forum_`+list[i].pk+`"></div>
 				</div>
 			</div>`;
 
-		{% if f.reply %}
-			// Only appending comments that do not have master comment object.
-			var can_edit = false;
-			'{% if f.creator.pk == user.pk %}'
-			can_edit = true;
-			'{% endif %}'
+			if(!list[i].master_comment) {
+				// master comment. reply field is null.
+				$('#forum_comment_master_container').append( forum_comment_div );
+			} else {
+				// this comment does have a master comment. Needs to be under appropriate comment object.
+				if( $('.branch_of_forum_'+list[i].master_comment)[0] )
+					$('.branch_of_forum_'+list[i].master_comment).append( forum_comment_div );
+				else
+					unidentified_list.push(list[i]);
+			}
 
-			child_comment_container.push({
-				'pk': '{{f.id}}',
-				'full_name': '{{ f.creator.get_full_name }}',
-				'edited': '{{f.edited}}' ? true : false,
-				'comment': '{{ f.comment_description|linebreaksbr }}',
-				'like_count': eval('{{f.forum_comment_likes.count}}'),
-				'dislike_count': eval('{{f.forum_comment_dislikes.count}}'),
-				'can_edit': can_edit,
-				'master_comment': '{{f.reply.pk}}',
-			});
-			// $('.branch_of_forum_{{f.reply.pk}}').append( forum_comment_div );
-		{% else %}	
-			$('#forum_comment_master_container').append( forum_comment_div );
-		{% endif %}
+		}
 
-		{% endfor %}
-
-		child_comment_displayer(child_comment_container);
+		return comment_display_rec(unidentified_list);
 	}
 
 	function child_comment_displayer(comment_list) {
