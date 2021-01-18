@@ -381,6 +381,27 @@ def forumpage(request, community_id, forum_id):
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
 
+		if functionality == "delete_forum_comment":
+			comment_id = request.GET.get('comment_id', None)
+
+			try:
+				ForumComment.objects.get(pk=int(comment_id)).delete()
+				response = {
+					"status_code": HTTPStatus.OK
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+			except ForumComment.DoesNotExist:
+				response = {
+					"status_code": HTTPStatus.NOT_FOUND
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			response = {
+				"status_code": HTTPStatus.BAD_REQUEST,
+				"message": "Bad Request"
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
 	context = {
 		"forum": forum,
 		"in_community": True if request.user in community.community_members.all() else False

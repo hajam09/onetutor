@@ -246,7 +246,7 @@
 				edit_delete = `
 					<a href="#" onclick="edit_forum_comment_text_area(`+list[i].pk+`);"><i class='far fa-edit' style='font-size:15px'></i> Edit</a>
 					&nbsp;
-					<a href="#" onclick="delete_forum_comment(`+list[i].pk+`);"><i class='far fa-trash-alt' style='font-size:15px'></i> Delete</a>`;
+					<a href="#" onclick="delete_forum_comment(`+list[i].pk+`);return false;"><i class='far fa-trash-alt' style='font-size:15px'></i> Delete</a>`;
 
 			var forum_comment_div = `
 			<div class="forum_comment_container_`+list[i].pk+`">
@@ -299,6 +299,30 @@
 		}
 
 		return comment_display_rec(unidentified_list);
+	}
+
+	function delete_forum_comment(comment_id) {
+		if(!confirm('Are you sure you want to delete it?')){
+			return;
+		}
+		$.ajax({
+			data: {
+				'functionality': 'delete_forum_comment',
+				'comment_id': comment_id
+			},
+			dataType: 'json',
+			success: function (response) {
+				if (response.status_code == 200 || response.status_code == 404) {
+					location.reload();
+				} else {
+					Swal.fire({
+						icon: 'error',
+						title: "Can't do that!",
+						text: response.message
+					});
+				}
+			}
+		});
 	}
 
 	function joinCommunity() {
