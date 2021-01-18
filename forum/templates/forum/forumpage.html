@@ -61,11 +61,11 @@
 							</div>
 							<div>
 								<a href="#"><i class='far fa-comment-alt' style='font-size:15px'></i> {{forum.forumcomment_set.all|length}} Comments</a>
-								&nbsp;&nbsp;
+								&nbsp;
 								<a href="#"><i class='fas fa-share' style='font-size:15px'></i> Share</a>
-								&nbsp;&nbsp;
+								&nbsp;
 								<a href="#"><i class='fas fa-flag' style='font-size:15px'></i> Report</a>
-								&nbsp;&nbsp;
+								&nbsp;
 								<span id="buttons_in_footer">
 									<button type="button" class="btn btn-success" style="padding: 2px 2px;" onclick="upvote_forum('{{forum.id}}');"><i class='far fa-thumbs-up' style='font-size:15px;'></i></button>
 									<span class='forum_vote_{{forum.id}}'></span>
@@ -132,6 +132,75 @@
 	</div>
 </div>
 <script type="text/javascript">
+	function like_comment(commentId) {
+		$.ajax({
+			data: {
+				'commentId': commentId,
+				'functionality': 'like_comment'
+			},
+			dataType: 'json',
+			success: function (response) {
+				if(response.status_code == 200) {
+					var this_comment = eval(response.this_comment)[0];
+					var number_of_likes = this_comment.fields.forum_comment_likes.length;
+					var number_of_dislikes = this_comment.fields.forum_comment_dislikes.length;
+
+					$('#comment_like_id_'+commentId).html('<i class="far fa-thumbs-up" style="font-size:15px"></i> ('+ number_of_likes +')');
+					$('#comment_dislike_id_'+commentId).html('<i class="far fa-thumbs-down" style="font-size:15px"></i> ('+ number_of_dislikes +')');
+
+				} else if (response.status_code == 401) {
+	            	Swal.fire({
+	            		icon: 'warning',
+	            		title: "Can't do that!",
+	            		text: response.message
+	            	});
+
+	            } else if (response.status_code == 404) {
+	            	Swal.fire({
+	            		icon: 'error',
+	            		title: "Can't do that!",
+	            		text: response.message
+	            	});
+	            	$( ".forum_comment_container_"+commentId ).remove();
+	            }
+			}
+		});
+	}
+
+	function dislike_comment(commentId) {
+		$.ajax({
+			data: {
+				'commentId': commentId,
+				'functionality': 'dislike_comment'
+			},
+			dataType: 'json',
+			success: function (response) {
+				if(response.status_code == 200) {
+					var this_comment = eval(response.this_comment)[0];
+					var number_of_likes = this_comment.fields.forum_comment_likes.length;
+					var number_of_dislikes = this_comment.fields.forum_comment_dislikes.length;
+
+					$('#comment_like_id_'+commentId).html('<i class="far fa-thumbs-up" style="font-size:15px"></i> ('+ number_of_likes +')');
+					$('#comment_dislike_id_'+commentId).html('<i class="far fa-thumbs-down" style="font-size:15px"></i> ('+ number_of_dislikes +')');
+
+				} else if (response.status_code == 401) {
+	            	Swal.fire({
+	            		icon: 'warning',
+	            		title: "Can't do that!",
+	            		text: response.message
+	            	});
+
+	            } else if (response.status_code == 404) {
+	            	Swal.fire({
+	            		icon: 'error',
+	            		title: "Can't do that!",
+	            		text: response.message
+	            	});
+	            	$( ".forum_comment_container_"+commentId ).remove();
+	            }
+			}
+		});
+	}
 
 	$(document).ready(function () {
 		update_forum_votes();
@@ -161,17 +230,6 @@
 								<span class="small text-secondary m-0 mt-1" id="date_and_edited_msg_{{qa_c.id}}">1 day ago {% if f.edited %}(edited){% endif %}</span>
 							</a>
 						</div>
-						{% if f.creator.pk == user.pk %}
-							<div class="dropdown">
-								<a class="" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-								<i class="fas fa-chevron-down"></i>
-								</a>
-								<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-									<a class="dropdown-item text-primary" href="#" onclick="edit_forum_comment_text_area('{{f.id}}');">Edit</a>
-									<a class="dropdown-item text-primary" href="#" onclick="delete_forum_comment('{{f.id}}');">Delete</a>
-								</div>
-							</div>
-						{% endif %}
 					</div>
 					<div class="">
 						<p class="my-2" id="forum_comment_text_{{f.id}}">
@@ -185,8 +243,14 @@
 						<span id="comment_dislike_id_{{f.id}}" type="button" class="btn btn-default btn-sm" onclick="dislike_comment('{{f.id}}')">
 							<i class='far fa-thumbs-down' style='font-size:15px'></i> ({{f.forum_comment_dislikes.count}})
 						</span>
-						&nbsp;&nbsp;
+						&nbsp;
 						<a href="#"><i class='far fa-comment-alt' style='font-size:15px'></i> Reply</a>
+						&nbsp;
+						{% if f.creator.pk == user.pk %}
+						<a href="#" onclick="edit_forum_comment_text_area('{{f.id}}');"><i class='far fa-edit' style='font-size:15px'></i> Edit</a>
+						&nbsp;
+						<a href="#" onclick="delete_forum_comment('{{f.id}}');"><i class='far fa-trash-alt' style='font-size:15px'></i> Delete</a>
+						{% endif %}
 					</footer>
 					<hr>
 					<div class="branch_of_forum_{{f.id}}"></div>

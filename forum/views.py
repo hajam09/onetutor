@@ -315,6 +315,72 @@ def forumpage(request, community_id, forum_id):
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
 
+		if functionality == "like_comment":
+			if not request.user.is_authenticated:
+				response = {
+					"status_code": 401,
+					"message": "Login to like the question and answer. "
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			commentId = request.GET.get('commentId', None)
+
+			try:
+				this_comment = ForumComment.objects.get(id=int(commentId))
+			except ForumComment.DoesNotExist:
+				response = {
+					"status_code": HTTPStatus.NOT_FOUND,
+					"message": "We think this comment has been deleted!"
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			if(request.user not in this_comment.forum_comment_likes.all()):
+				this_comment.forum_comment_likes.add(request.user)
+			else:
+				this_comment.forum_comment_likes.remove(request.user)
+
+			if(request.user in this_comment.forum_comment_dislikes.all()):
+				this_comment.forum_comment_dislikes.remove(request.user)
+
+			response = {
+				"this_comment": serializers.serialize("json", [this_comment,]),
+				"status_code": HTTPStatus.OK
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+		if functionality == "dislike_comment":
+			if not request.user.is_authenticated:
+				response = {
+					"status_code": 401,
+					"message": "Login to like the question and answer. "
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			commentId = request.GET.get('commentId', None)
+			
+			try:
+				this_comment = ForumComment.objects.get(id=int(commentId))
+			except ForumComment.DoesNotExist:
+				response = {
+					"status_code": HTTPStatus.NOT_FOUND,
+					"message": "We think this comment has been deleted!"
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			if(request.user not in this_comment.forum_comment_dislikes.all()):
+				this_comment.forum_comment_dislikes.add(request.user)
+			else:
+				this_comment.forum_comment_dislikes.remove(request.user)
+
+			if(request.user in this_comment.forum_comment_likes.all()):
+				this_comment.forum_comment_likes.remove(request.user)
+
+			response = {
+				"this_comment": serializers.serialize("json", [this_comment,]),
+				"status_code": HTTPStatus.OK
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
 	context = {
 		"forum": forum,
 		"in_community": True if request.user in community.community_members.all() else False
