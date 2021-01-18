@@ -296,82 +296,9 @@
 				else
 					unidentified_list.push(list[i]);
 			}
-
 		}
 
 		return comment_display_rec(unidentified_list);
-	}
-
-	function child_comment_displayer(comment_list) {
-		if (comment_list.length==0) {
-			return;
-		}
-
-		var unidentified_list = [];
-
-		for (var i = 0; i<comment_list.length; i++) {
-
-			var edit_delete = '';
-			if (comment_list[i].can_edit)
-				edit_delete = `
-					<a href="#" onclick="edit_forum_comment_text_area(`+comment_list[i].pk+`);"><i class='far fa-edit' style='font-size:15px'></i> Edit</a>
-					&nbsp;
-					<a href="#" onclick="delete_forum_comment(`+comment_list[i].pk+`);"><i class='far fa-trash-alt' style='font-size:15px'></i> Delete</a>`;
-
-			var forum_comment_div = `
-			<div class="forum_comment_container_`+comment_list[i].pk+`">
-				<div class="container">
-					<div class="row m-0">
-						<div class="">
-							<a class="text-decoration-none" href="#">
-								<img class="" src="https://cdn3.iconfinder.com/data/icons/avatars-round-flat/33/avat-01-512.png" width="25" height="25" alt="...">
-							</a>
-						</div>
-						<div class="flex-grow-1 pl-2">
-							<a class="text-decoration-none" href="#">
-								<span class="text-capitalize mb-0">`+comment_list[i].full_name+`</span>
-								<span class="small text-secondary m-0 mt-1" id="date_and_edited_msg_`+comment_list[i].pk+`">1 day ago {% if f.edited %}(edited){% endif %}</span>
-							</a>
-						</div>
-					</div>
-					<div class="">
-						<p class="my-2" id="forum_comment_text_`+comment_list[i].pk+`">
-							`+comment_list[i].comment+`
-						</p>
-					</div>
-					<footer>
-						<span id="comment_like_id_`+comment_list[i].pk+`" type="button" class="btn btn-default btn-sm" onclick="like_comment(`+comment_list[i].pk+`)">
-							<i class='far fa-thumbs-up' style='font-size:15px'></i> (`+comment_list[i].like_count+`)
-						</span>
-						<span id="comment_dislike_id_`+comment_list[i].pk+`" type="button" class="btn btn-default btn-sm" onclick="dislike_comment(`+comment_list[i].pk+`)">
-							<i class='far fa-thumbs-down' style='font-size:15px'></i> (`+comment_list[i].dislike_count+`)
-						</span>
-						&nbsp;
-						<a href="#"><i class='far fa-comment-alt' style='font-size:15px'></i> Reply</a>
-						&nbsp;
-						`+edit_delete+`
-					</footer>
-					<hr>
-					<div class="branch_of_forum_`+comment_list[i].pk+`"></div>
-				</div>
-			</div>`;
-
-			if( $('.branch_of_forum_'+comment_list[i].master_comment)[0] )
-				$('.branch_of_forum_'+comment_list[i].master_comment).append( forum_comment_div );
-			else
-				unidentified_list.push({
-				'pk': comment_list[i].pk,
-				'full_name': comment_list[i].full_name,
-				'edited': comment_list[i].edited,
-				'comment': comment_list[i].comment,
-				'like_count': comment_list[i].like_count,
-				'dislike_count': comment_list[i].dislike_count,
-				'can_edit': comment_list[i].can_edit,
-				'master_comment': comment_list[i].master_comment,
-			});			
-		}
-
-		return child_comment_displayer(unidentified_list);
 	}
 
 	function joinCommunity() {
