@@ -288,7 +288,7 @@
 
 			if(!list[i].master_comment) {
 				// master comment. reply field is null.
-				$('#forum_comment_master_container').append( forum_comment_div );
+				$('#forum_comment_master_container').prepend( forum_comment_div );
 			} else {
 				// this comment does have a master comment. Needs to be under appropriate comment object.
 				if( $('.branch_of_forum_'+list[i].master_comment)[0] )
@@ -433,7 +433,20 @@
 			dataType: 'json',
 			success: function (response) {
 				if (response.status_code == 200) {
+					var forum_comment = eval(response.forum_comment)[0];
 
+					list = [{
+						'pk': forum_comment.pk,
+						'full_name': '{{request.user.get_full_name}}',
+						'edited': forum_comment.fields.edited,
+						'comment': forum_comment.fields.comment_description.replace(/\n\r?/g, '<br />'),
+						'like_count': forum_comment.fields.forum_comment_likes.length,
+						'dislike_count': forum_comment.fields.forum_comment_dislikes.length,
+						'can_edit': true,
+						'master_comment': forum_comment.fields.reply,
+					}];
+
+					comment_display_rec(list)
 				}
 			}
 		});
