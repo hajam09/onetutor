@@ -115,6 +115,20 @@
 								<div class="row">
 									<div class="col">{{community.community_description}}</div>
 								</div>
+								<div class="col-xs-12" style="height:15px;"></div>
+								<div class="row">
+									<div class="col" id="community_members">
+										<br><p style="font-size: 14px; font-weight: 500; line-height: 16px; display: inline-block; word-break: break-word;">Member(s)</p>
+									</div>
+									<div class="col">0
+										<br><p style="font-size: 14px; font-weight: 500; line-height: 16px; display: inline-block; word-break: break-word;">Online</p></div>
+								</div>
+								<div class="row">
+									<div class="col"><hr></div>
+								</div>
+								<div class="row">
+									<div class="col">Created at {{community.created_at}}</div>
+								</div>
 							</div>
 						</div>
 						</div>
@@ -167,6 +181,7 @@
 
 	$(document).ready(function () {
 		display_forums();
+		update_community_info();
 	});
 
 	function display_forums() {
@@ -315,6 +330,22 @@
 		<div style="height:20px;"></div>`;
 
 		$('#list_of_forums').append(forum_div_container);
+	}
+
+	function update_community_info() {
+		var member_count = parseInt('{{community.community_members.all|length}}');
+		$('#community_members').prepend(intCompromise(member_count));
+	}
+
+	function intCompromise(value) {
+		var suffixes = ["", "k", "m", "b","t"];
+		var suffixNum = Math.floor((""+value).length/3);
+		var shortValue = parseFloat((suffixNum != 0 ? (value / Math.pow(1000,suffixNum)) : value).toPrecision(2));
+
+		if (shortValue % 1 != 0)
+			shortValue = shortValue.toFixed(1);
+
+		return shortValue+suffixes[suffixNum];
 	}
 	
 </script>
