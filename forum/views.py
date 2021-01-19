@@ -304,10 +304,16 @@ def forumpage(request, community_id, forum_id):
 
 		if functionality == "post_comment":
 			comment = request.GET.get('comment', None)
+			master_comment = request.GET.get('master_comment', None)
+
+			if master_comment is not None:
+				master_comment = ForumComment.objects.get(id=int(master_comment))
+
 			forum_comment = ForumComment.objects.create(
 				forum = forum,
 				creator = request.user,
 				comment_description = comment,
+				reply = master_comment,
 			)
 			response = {
 				"forum_comment": serializers.serialize("json", [forum_comment,]),

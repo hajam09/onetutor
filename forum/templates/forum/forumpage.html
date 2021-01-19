@@ -36,6 +36,30 @@
 		#buttons_in_footer{display:inline;}
 	}
 </style>
+<div>
+	<div class="modal fade" id="replyModal" tabindex="-1" role="dialog" aria-labelledby="replyModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content" style="color: black;">
+			<div class="modal-header">
+				<h3 class="modal-title" id="exampleModalLabel" style="display: inline-block;">Reply to the comment below.</h3>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close" style="display: inline-block;">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+					<div class="form-group">
+						<textarea class="form-control" id="reply_text" name="reply_text" required></textarea>
+					</div>
+					<input type="text" name="master_comment_id" id="master_comment_id" hidden/>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+						<button type="submit" class="btn btn-success" onclick="reply_to_comment();">Reply</button>
+					</div>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
 <div class="wrapper" style="margin: auto;overflow-x: hidden; color: black;">
 	<div class="gutters-sm">
 		<div style="height:70px;"></div>
@@ -277,7 +301,7 @@
 							<i class='far fa-thumbs-down' style='font-size:15px'></i> (`+list[i].dislike_count+`)
 						</span>
 						&nbsp;
-						<a href="#"><i class='far fa-comment-alt' style='font-size:15px'></i> Reply</a>
+						<a href="#"  data-toggle="modal" data-target="#replyModal" onclick="updateReplyModal(`+list[i].pk+`);return false;"><i class='far fa-comment-alt' style='font-size:15px'></i> Reply</a>
 						&nbsp;
 						`+edit_delete+`
 					</footer>
@@ -429,6 +453,51 @@
 			data: {
 				'functionality': 'post_comment',
 				'comment': comment
+			},
+			dataType: 'json',
+			success: function (response) {
+				if (response.status_code == 200) {
+					var forum_comment = eval(response.forum_comment)[0];
+
+					list = [{
+						'pk': forum_comment.pk,
+						'full_name': '{{request.user.get_full_name}}',
+						'edited': forum_comment.fields.edited,
+						'comment': forum_comment.fields.comment_description.replace(/\n\r?/g, '<br />'),
+						'like_count': forum_comment.fields.forum_comment_likes.length,
+						'dislike_count': forum_comment.fields.forum_comment_dislikes.length,
+						'can_edit': true,
+						'master_comment': forum_comment.fields.reply,
+					}];
+
+					comment_display_rec(list)
+				}
+			}
+		});
+	}
+
+	function updateReplyModal(parent_comment_id) {
+
+		document.getElementById('master_comment_id').value = parent_comment_id;
+	}
+
+	function reply_to_comment() {
+		var new_reply = $('textarea#reply_text').val();
+		new_reply = new_reply.trim();
+
+		if (new_reply && !new_reply.trim() || new_reply.length==0) {
+			alert("Enter a reply!");
+			return;
+		}
+
+		$("#replyModal").modal('hide');
+		$("textarea#reply_text").val("");
+
+		$.ajax({
+			data: {
+				'functionality': 'post_comment',
+				'comment': new_reply,
+				'master_comment': $('#master_comment_id').val(),
 			},
 			dataType: 'json',
 			success: function (response) {
