@@ -4,6 +4,7 @@
 <style type="text/css">
 	.ui-w-80{width:100px!important;height:auto}
 	#buttons_in_footer{display: none;}
+	.QMwdLfHioF{ cursor: pointer; }
 	@media (min-width: 1200px) {
 		.container {
 			width: 1600px;
@@ -300,8 +301,8 @@
 		
 
 		var forum_div_container = `
-		<div class="row border border-secondary" id="container_`+forumId+`">
-			<div class="col-md-auto text-center border-right border-primary" style="padding-bottom: 10px; padding-top: 10px;" id="buttons_in_sidebar">
+		<div class="row border border-secondary QMwdLfHioF" id="container_`+forumId+`" urlpattern='`+forumId+`'>
+			<div class="col-md-auto text-center border-right border-secondary" style="padding-bottom: 10px; padding-top: 10px;" id="buttons_in_sidebar">
 				<button type="button" class="btn btn-success" onclick="upvote_forum('`+forumId+`');"><i class='far fa-thumbs-up' style='font-size:15px'></i></button><br>
 				<span class='forum_vote_`+forumId+`'>`+forumVotes+`</span>
 				<br><button type="button" class="btn btn-danger" onclick="downvote_forum('`+forumId+`');"><i class='far fa-thumbs-down' style='font-size:15px'></i></button>
@@ -347,6 +348,29 @@
 
 		return shortValue+suffixes[suffixNum];
 	}
-	
+
+	window.onclick = e => {
+		redirectToForumPage(e.target);
+	}
+
+	function redirectToForumPage(e) {
+
+		if(e.nodeName == 'BUTTON' || e.nodeName == 'A')
+			return;
+
+		try {
+
+			if (e.hasAttribute("urlpattern")) {
+				document.location.href = 'f/' + e.getAttribute("urlpattern");
+			}
+
+			return redirectToForumPage(e.parentElement);
+
+		} catch(err) {
+			return;
+		}
+
+		return;
+	}	
 </script>
 {% endblock %}
