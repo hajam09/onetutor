@@ -198,6 +198,7 @@
 			'description': '{{f.forum_description|linebreaksbr}}',
 			'comment_count': '{{f.forumcomment_set.all|length}}',
 			'image': '{{ f.forum_image }}',
+			'can_edit': '{{ user.id }}' == '{{f.creator.id}}' ? true : false,
 		});
 
 		{% endfor %}
@@ -216,6 +217,10 @@
 				image_tab = '<p>'+list[i].description+'</p>';
 			}
 
+			edit_forum = '';
+			if (list[i].can_edit)
+				edit_forum = "<a href='#'><i class='far fa-edit' style='font-size:15px'></i> Edit</a> &nbsp;";
+
 			var forum_div_container = `
 			<div class="row border border-secondary QMwdLfHioF" id="container_`+list[i].pk+`" urlpattern='`+list[i].pk+`'>
 				<div class="col-md-auto text-center border-right border-secondary" style="padding-bottom: 10px; padding-top: 10px;" id="buttons_in_sidebar">
@@ -231,11 +236,12 @@
 					</div>
 					<div>
 						<a href="#"><i class='far fa-comment-alt' style='font-size:15px'></i> `+list[i].comment_count+` Comments</a>
-						&nbsp;&nbsp;
+						&nbsp;
 						<a href="#"><i class='fas fa-share' style='font-size:15px'></i> Share</a>
-						&nbsp;&nbsp;
+						&nbsp;
 						<a href="#"><i class='fas fa-flag' style='font-size:15px'></i> Report</a>
-						&nbsp;&nbsp;
+						&nbsp;
+						`+edit_forum+`
 						<span id="buttons_in_footer">
 							<button type="button" class="btn btn-success" style="padding: 2px 2px;" onclick="upvote_forum('`+list[i].pk+`');"><i class='far fa-thumbs-up' style='font-size:15px;'></i></button>
 							<span class='forum_vote_`+list[i].pk+`'>`+list[i].votes+`</span>
@@ -348,6 +354,7 @@
 								'description': this_forum[i].forumDescription,
 								'comment_count': this_forum[i].forumCommentCount,
 								'image': this_forum[i].forumImage,
+								'can_edit': this_forum[i].forumEdit,
 							});
 						}
 

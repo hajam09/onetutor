@@ -205,7 +205,8 @@ def communitypage(request, community_id):
 						'forumTitle': e.forum_title,
 						'forumImage': str(e.forum_image),
 						'forumDescription': e.forum_description,
-						'forumCommentCount': ForumComment.objects.filter(forum=e).count()
+						'forumCommentCount': ForumComment.objects.filter(forum=e).count(),
+						'forumEdit': True if e.creator.id == request.user.pk else False,
 					})
 			response = {
 				"status_code": HTTPStatus.OK,
