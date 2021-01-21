@@ -181,16 +181,73 @@
 	}
 
 	$(document).ready(function () {
-		display_forums();
+		collect_forums();
 		update_community_info();
 	});
 
-	function display_forums() {
+	function collect_forums() {
+		forum_container = [];
 		{% for f in forums %}
-		var forumVotes = '{{f.forum_likes.count}}' - '{{f.forum_dislikes.count}}';
-		var forumDescription = '{{f.forum_description|linebreaksbr}}'.replace(/\n\r?/g, '<br />');
-		display_forum_container('{{f.id}}', forumVotes, '{{f.creator.get_full_name}}', '{{f.created_at}}', '{{f.forum_title}}', forumDescription, '{{f.forumcomment_set.all|length}}', '{{ f.forum_image }}')
+
+		forum_container.push({
+			'pk': '{{f.id}}',
+			'votes': '{{f.forum_likes.count}}' - '{{f.forum_dislikes.count}}',
+			'full_name': '{{f.creator.get_full_name}}',
+			'date': '{{f.created_at}}',
+			'title': '{{f.forum_title}}',
+			'description': '{{f.forum_description|linebreaksbr}}',
+			'comment_count': '{{f.forumcomment_set.all|length}}',
+			'image': '{{ f.forum_image }}',
+		});
+
 		{% endfor %}
+
+		parse_collected_forums(forum_container);
+	}
+
+	function parse_collected_forums(list) {
+
+		for (var i = 0; i<list.length; i++) {
+
+			var image_tab = null;
+			if (list[i].image) {
+				image_tab = '<img class="mx-auto d-block" src="../../../media/'+list[i].image+'" style="max-width:100%;max-height:420px;">';
+			} else {
+				image_tab = '<p>'+list[i].description+'</p>';
+			}
+
+			var forum_div_container = `
+			<div class="row border border-secondary QMwdLfHioF" id="container_`+list[i].pk+`" urlpattern='`+list[i].pk+`'>
+				<div class="col-md-auto text-center border-right border-secondary" style="padding-bottom: 10px; padding-top: 10px;" id="buttons_in_sidebar">
+					<button type="button" class="btn btn-success" onclick="upvote_forum('`+list[i].pk+`');"><i class='far fa-thumbs-up' style='font-size:15px'></i></button><br>
+					<span class='forum_vote_`+list[i].pk+`'>`+list[i].votes+`</span>
+					<br><button type="button" class="btn btn-danger" onclick="downvote_forum('`+list[i].pk+`');"><i class='far fa-thumbs-down' style='font-size:15px'></i></button>
+				</div>
+				<div class="col" style="padding-bottom: 10px; padding-top: 10px;">
+					<div style="max-height: 500px;text-overflow: ellipsis;overflow: hidden;">
+						<span class="text-secondary">Post by `+list[i].full_name+` at `+list[i].date+`</span>
+						<h3>`+list[i].title+`</h3>
+						`+image_tab+`
+					</div>
+					<div>
+						<a href="#"><i class='far fa-comment-alt' style='font-size:15px'></i> `+list[i].comment_count+` Comments</a>
+						&nbsp;&nbsp;
+						<a href="#"><i class='fas fa-share' style='font-size:15px'></i> Share</a>
+						&nbsp;&nbsp;
+						<a href="#"><i class='fas fa-flag' style='font-size:15px'></i> Report</a>
+						&nbsp;&nbsp;
+						<span id="buttons_in_footer">
+							<button type="button" class="btn btn-success" style="padding: 2px 2px;" onclick="upvote_forum('`+list[i].pk+`');"><i class='far fa-thumbs-up' style='font-size:15px;'></i></button>
+							<span class='forum_vote_`+list[i].pk+`'>`+list[i].votes+`</span>
+							<button type="button" class="btn btn-danger" style="padding: 2px 2px;" onclick="downvote_forum('`+list[i].pk+`');"><i class='far fa-thumbs-down' style='font-size:15px;'></i></button>
+						</span>
+					</div>
+				</div>
+			</div>
+			<div style="height:20px;"></div>`;
+
+			$('#list_of_forums').append(forum_div_container);
+		}
 	}
 
 	function upvote_forum(forum_id) {
@@ -278,10 +335,23 @@
 					if(response.status_code == 200) {
 
 						var this_forum = response.forum_json;
+						var forum_container = [];
 
 						for (var i = 0; i<this_forum.length; i++) {
-							display_forum_container(this_forum[i].forumId, this_forum[i].forumVotes, this_forum[i].forumCreatorFullName,  this_forum[i].forumCreatedDate, this_forum[i].forumTitle, this_forum[i].forumDescription, this_forum[i].forumCommentCount, this_forum[i].forumImage);
+
+							forum_container.push({
+								'pk': this_forum[i].forumId,
+								'votes': this_forum[i].forumVotes,
+								'full_name': this_forum[i].forumCreatorFullName,
+								'date': this_forum[i].forumCreatedDate,
+								'title': this_forum[i].forumTitle,
+								'description': this_forum[i].forumDescription,
+								'comment_count': this_forum[i].forumCommentCount,
+								'image': this_forum[i].forumImage,
+							});
 						}
+
+						parse_collected_forums(forum_container);
 
 						NEXT_INDEX = NEXT_INDEX + 1;
 					}
@@ -289,49 +359,6 @@
 			});
 		}
 	};
-
-	function display_forum_container(forumId, forumVotes, forumCreatorFullName, forumCreatedDate, forumTitle, forumDescription, forumCommentCount, forumImage) {
-		var image_tab = null;
-		forumDescription = forumDescription.replace(/\n/g, '<br>\n');
-		if (forumImage) {
-			image_tab = '<img class="mx-auto d-block" src="../../../media/'+forumImage+'" style="max-width:100%;max-height:420px;">';
-		} else {
-			image_tab = '<p>'+forumDescription+'</p>';
-		}
-		
-
-		var forum_div_container = `
-		<div class="row border border-secondary QMwdLfHioF" id="container_`+forumId+`" urlpattern='`+forumId+`'>
-			<div class="col-md-auto text-center border-right border-secondary" style="padding-bottom: 10px; padding-top: 10px;" id="buttons_in_sidebar">
-				<button type="button" class="btn btn-success" onclick="upvote_forum('`+forumId+`');"><i class='far fa-thumbs-up' style='font-size:15px'></i></button><br>
-				<span class='forum_vote_`+forumId+`'>`+forumVotes+`</span>
-				<br><button type="button" class="btn btn-danger" onclick="downvote_forum('`+forumId+`');"><i class='far fa-thumbs-down' style='font-size:15px'></i></button>
-			</div>
-			<div class="col" style="padding-bottom: 10px; padding-top: 10px;">
-				<div style="max-height: 500px;text-overflow: ellipsis;overflow: hidden;">
-					<span class="text-secondary">Post by `+forumCreatorFullName+` at `+forumCreatedDate+`</span>
-					<h3>`+forumTitle+`</h3>
-					`+image_tab+`
-				</div>
-				<div>
-					<a href="#"><i class='far fa-comment-alt' style='font-size:15px'></i> `+forumCommentCount+` Comments</a>
-					&nbsp;&nbsp;
-					<a href="#"><i class='fas fa-share' style='font-size:15px'></i> Share</a>
-					&nbsp;&nbsp;
-					<a href="#"><i class='fas fa-flag' style='font-size:15px'></i> Report</a>
-					&nbsp;&nbsp;
-					<span id="buttons_in_footer">
-						<button type="button" class="btn btn-success" style="padding: 2px 2px;" onclick="upvote_forum('`+forumId+`');"><i class='far fa-thumbs-up' style='font-size:15px;'></i></button>
-						<span class='forum_vote_`+forumId+`'>`+forumVotes+`</span>
-						<button type="button" class="btn btn-danger" style="padding: 2px 2px;" onclick="downvote_forum('`+forumId+`');"><i class='far fa-thumbs-down' style='font-size:15px;'></i></button>
-					</span>
-				</div>
-			</div>
-		</div>
-		<div style="height:20px;"></div>`;
-
-		$('#list_of_forums').append(forum_div_container);
-	}
 
 	function update_community_info() {
 		var member_count = parseInt('{{community.community_members.all|length}}');
