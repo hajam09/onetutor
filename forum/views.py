@@ -40,6 +40,10 @@ def communitypage(request, community_id):
 
 
 	if request.method == "POST" and "create_forum" in request.POST:
+
+		if not request.user.is_authenticated:
+			return redirect('accounts:login')
+			
 		forum_title = request.POST['forum_title']
 		description = request.POST['description']
 

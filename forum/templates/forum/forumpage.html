@@ -73,7 +73,7 @@
 							<br><button type="button" class="btn btn-danger" onclick="downvote_forum('{{forum.id}}');"><i class='far fa-thumbs-down' style='font-size:15px'></i></button>
 						</div>
 						<div class="col" style="padding-bottom: 10px; padding-top: 10px;">
-							<div style="max-height: 500px;text-overflow: ellipsis;overflow: hidden;">
+							<div style="text-overflow: ellipsis;overflow: hidden;">
 								<span class="text-secondary"><a href="{% url 'forum:communitypage' forum.community.pk %}">c/{{forum.community.community_title}}</a> Post by {{forum.creator.get_full_name}} at {{forum.created_at}}</span>
 								<h3>{{forum.forum_title}}</h3>
 								{% if forum.forum_image %}
