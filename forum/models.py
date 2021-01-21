@@ -38,6 +38,7 @@ class Forum(models.Model):
 	forum_likes = models.ManyToManyField(User, related_name='forum_likes')
 	forum_dislikes = models.ManyToManyField(User, related_name='forum_dislikes')
 	forum_image = models.ImageField(upload_to='forumimage/', blank=True, null=True)
+	watchers = models.ManyToManyField(User, blank=True, related_name='forum_watchers')
 
 	class Meta:
 		verbose_name_plural = "Forums"

@@ -90,6 +90,8 @@
 								&nbsp;
 								<a href="#"><i class='fas fa-flag' style='font-size:15px'></i> Report</a>
 								&nbsp;
+								<span id="forum_watcher"></span>
+								&nbsp;
 								{% if forum.creator.id == user.pk %}
 								<a href='#'><i class='far fa-edit' style='font-size:15px'></i> Edit</a> &nbsp;
 								&nbsp;
@@ -233,6 +235,7 @@
 	$(document).ready(function () {
 		update_forum_votes();
 		collect_comments();
+		watchers(eval('{{is_watching}}'.toLowerCase()), eval('{{forum.watchers.count}}'));
 	});
 
 	function update_forum_votes() {
@@ -525,5 +528,40 @@
 		});
 	}
 
+	function watchers(is_watching, watchers_count) {
+        if (is_watching) {
+
+        	var forum_watch_text = `<span onclick="watch_unwatch_forum();" data-toggle="tooltip" data-placement="top" title="You are watching this issue. Click to stop watching this issue."><i class='far fa-eye' style='font-size:15px'></i> (`+watchers_count+`) Unwatch</span>`;
+        	$('span#forum_watcher').html(forum_watch_text);
+
+        } else {
+
+        	var forum_watch_text = `<span onclick="watch_unwatch_forum();" data-toggle="tooltip" data-placement="top" title="You are not watching this issue. Click to watch this issue."><i class='far fa-eye' style='font-size:15px'></i> (`+watchers_count+`) Watch</span>`;
+        	$('span#forum_watcher').html(forum_watch_text);
+        }
+    }
+
+    function watch_unwatch_forum() {
+    	$.ajax({
+            data: {
+                'functionality': 'watch_unwatch_forum'
+            },
+            dataType: 'json',
+            success: function (response) {
+                if (response.status_code == 200) {
+                    var watchers_count = response.watch_count;
+                    var is_watching = response.is_watching;
+                    watchers(is_watching, watchers_count);
+
+                } else if (response.status_code == 401) {
+	            	Swal.fire({
+	            		icon: 'warning',
+	            		title: "Can't do that!",
+	            		text: response.message
+	            	});
+	            }
+            }
+        });
+    }
 </script>
 {% endblock %}

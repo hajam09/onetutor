@@ -28,7 +28,8 @@ def mainpage(request):
 
 		return redirect('forum:communitypage', community_id=new_community.pk)
 	context = {
-		"category": Category.objects.all()
+		"category": Category.objects.all(),
+		'posts': GetPopularPosts(),
 	}
 	return render(request, "forum/mainpage.html", context)
 
@@ -413,9 +414,32 @@ def forumpage(request, community_id, forum_id):
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
 
+		if functionality == "watch_unwatch_forum":
+			if not request.user.is_authenticated:
+				response = {
+					"status_code": 401,
+					"message": "Login to watch this forum. "
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+				
+			if(request.user not in forum.watchers.all()):
+				forum.watchers.add(request.user)
+				is_watching = True
+			else:
+				forum.watchers.remove(request.user)
+				is_watching = False
+
+			response = {
+				"is_watching": is_watching,
+				"watch_count": forum.watchers.count(),
+				"status_code": HTTPStatus.OK
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
 	context = {
 		"forum": forum,
-		"in_community": True if request.user in community.community_members.all() else False
+		"in_community": True if request.user in community.community_members.all() else False,
+		"is_watching": True if request.user in forum.watchers.all() else False,
 	}
 	return render(request, "forum/forumpage.html", context)
 
@@ -676,3 +700,13 @@ def vanilla_JS_date_conversion(python_date):
 	time = time.strftime("%I:%M %p").lower().replace("pm", "p.m.").replace("am", "a.m.")
 	date_time = str(date + " " + time)
 	return date_time
+
+def GetPopularPosts():
+	"""
+		Return the most popular posts created on a community.
+		Attributes to determine the popularity:
+			forum vote, comment count, watch count and creation date is today (future).
+	"""
+
+	# forums_split = [all_forums[i:i + 15] for i in range(0, len(all_forums), 15)]
+	return []
