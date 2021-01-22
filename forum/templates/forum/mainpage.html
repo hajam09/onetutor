@@ -1,310 +1,270 @@
 {% extends "accounts/account_base.html" %}
 {% load static %}
 {% block content %}
-<!-- Display random forum from random communities or the most viewed forum-->
 <style type="text/css">
-	body{color:#1a202c;text-align:left;background-color:#e2e8f0}.inner-wrapper{position:relative;height:calc(100vh - 3.5rem);transition:transform .3s}@media (min-width:992px){.sticky-navbar .inner-wrapper{height:calc(100vh - 3.5rem - 48px)}}.inner-main,.inner-sidebar{top:0;bottom:0;display:flex;flex-direction:column}.inner-sidebar{left:0;width:235px;border-right:1px solid #cbd5e0;background-color:#fff;z-index:1}.inner-main-footer,.inner-main-header,.inner-sidebar-footer,.inner-sidebar-header{height:3.5rem;border-bottom:1px solid #cbd5e0;display:flex;align-items:center;padding:0 1rem;flex-shrink:0}.inner-main-body,.inner-sidebar-body{padding:1rem;position:relative;flex:1 1 auto}.inner-main-body .sticky-top,.inner-sidebar-body .sticky-top{z-index:999}.inner-main-footer,.inner-main-header{background-color:#fff}.inner-main-footer,.inner-sidebar-footer{border-top:1px solid #cbd5e0;border-bottom:0;height:auto;min-height:3.5rem}@media (max-width:767.98px){.inner-sidebar{left:-235px}.inner-main{left:0}.inner-expand .main-body{overflow:hidden}.inner-expand .inner-wrapper{transform:translate3d(235px,0,0)}}.nav .show>.nav-link.nav-link-faded,.nav-link.nav-link-faded.active,.nav-link.nav-link-faded:active,.nav-pills .nav-link.nav-link-faded.active,.navbar-nav .show>.nav-link.nav-link-faded{color:#3367b5;background-color:#c9d8f0}.nav-pills .nav-link.active,.nav-pills .show>.nav-link{color:#fff;background-color:#467bcb}.nav-link.has-icon{display:flex;align-items:center}.nav-link.active{color:#467bcb}.nav-pills .nav-link{border-radius:.25rem}.nav-link{color:#4a5568}.card{box-shadow:0 1px 3px 0 rgba(0,0,0,.1),0 1px 2px 0 rgba(0,0,0,.06)}.card{position:relative;display:flex;flex-direction:column;min-width:0;word-wrap:break-word;background-color:#fff;background-clip:border-box;border:0 solid rgba(0,0,0,.125);border-radius:.25rem}.card-body{flex:1 1 auto;min-height:1px;padding:1rem}@media (min-width:1200px){.wrapper{width:75%}}
+    .ui-w-80{width:100px!important;height:auto}
+    #buttons_in_footer{display: none;}
+    .QMwdLfHioF{ cursor: pointer; }
+    @media (min-width: 1200px) {
+        .container {
+            width: 1600px;
+        }
+        .wrapper {
+            width: 75%;
+        }
+    }
 
-	@media only screen and (max-width: 958px) {
-		.communities-tab {
-			display: none !important;
-			}
-			.wrapper{width:134%}
-		}
+    @media (min-width: 972px) and (max-width: 1200px) {
+        .container {
+            width: 1600px;
+        }
+        .wrapper {
+            width: 90%;
+        }
+    }
 
-	@media only screen and (max-width: 575px) {
-		.communities-tab {
-			display: none !important;
-			}
-			.wrapper{width:100%}
-		}
+    @media (min-width: 700px) and (max-width: 959px) {
+        .container {
+            width: 1600px;
+        }
+        .wrapper {
+            width: 90%;
+        }
+    }
+
+    @media (max-width: 767px) {
+        #buttons_in_sidebar{display:none;}
+        #buttons_in_footer{display:inline;}
+    }
 </style>
 
-<div style="margin-top: 20px;">
-    <div class="wrapper" style="margin: auto;">
-        <div class="container-fluid">
+<div class="wrapper" style="margin: auto;overflow-x: hidden; color: black;">
+    <div class="gutters-sm">
+        <div style="height:70px;"></div>
+        <div class="col-md-12">
             <div class="row">
-                <div class="col-sm-3 col-md-3 communities-tab">
-                    <div class="card mt-3">
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-                                <h6 class="mb-0">Top X Communities</h6>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-                                <h6 class="mb-0">Website</h6>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-                                <h6 class="mb-0">Website</h6>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-                                <h6 class="mb-0">Website</h6>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-                                <h6 class="mb-0">Website</h6>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-                                <h6 class="mb-0">Website</h6>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-                                <button type="button" class="btn btn-success btn-sm btn-block" style="border-radius: 20px;">View All</button>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="card mt-3">
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-                                <h6 class="mb-0">Trending Communities</h6>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-                                <h6 class="mb-0">Website</h6>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-                                <h6 class="mb-0">Website</h6>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-                                <h6 class="mb-0">Website</h6>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-                                <h6 class="mb-0">Website</h6>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-                                <h6 class="mb-0">Website</h6>
-                            </li>
-                        </ul>
-                    </div>
-                    <br>
-                    <button type="button" class="btn btn-primary btn-sm btn-block" data-toggle="modal" data-target="#newCommunity">
-                        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1">
-                            <line x1="12" y1="5" x2="12" y2="19"></line>
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                        </svg> &nbsp;&nbsp;NEW COMMUNITY
-                    </button>
+                <div class="col-12 col-lg-8 col-md-12" id="list_of_forums">
+                    <!-- Forum div here... -->
+                    {% if not forums %}
+                    <div class="alert alert-info " role="alert" style="text-align: center;"> This forum is empty. Why don't you start one. </div>
+                    {% endif %}
                 </div>
-                <div class="col-sm-9 col-md-9">
-                    <div class="modal fade" id="newCommunity" tabindex="-1" role="dialog" aria-labelledby="threadModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-lg" role="document">
-                            <div class="modal-content">
-                                <form method="post">
-                                    {% csrf_token %}
-                                    <input type="name" name="create_community" hidden>
-                                    <div class="modal-header d-flex align-items-center bg-primary text-white">
-                                        <h6 class="modal-title mb-0" id="threadModalLabel">New Community</h6>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">×</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="form-group">
-                                            <select class="form-control" name="studyLevel" required>
-                                                <option value="">(Study level)</option>
-                                                <optgroup label="Study Help level tags">
-                                                    {% for c in category %}
-                                                        <option >{{c.name}}</option>
-                                                    {% endfor %}
-                                                </optgroup>
-                                            </select>
-                                        </div>
-                                        <div class="form-group">
-                                            <input type="text" class="form-control" id="title" name="title" placeholder="Enter title" autofocus="" required />
-                                        </div>
-                                        <div class="form-group">
-                                            <textarea class="form-control summernote" id="description" name="description" placeholder="Enter description" rows="5" autofocus="" required></textarea>
-                                        </div>
-<!--                                         <div class="custom-file form-control-sm mt-3" style="max-width: 300px;">
-                                            <input type="file" class="custom-file-input" id="community-logo" multiple="" />
-                                            <label class="custom-file-label" for="community-logo">Attachment</label>
-                                        </div> -->
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
-                                        <button type="submit" class="btn btn-primary">Create</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="inner-main">
-                        <!-- <div class="inner-main-header">
-                            <div class="col-sm-9">
-                                <input type="text" class="form-control form-control-sm bg-gray-200 border-gray-200 shadow-none mb-4 mt-4" placeholder="Search forum" />
-                            </div>
-                            <div class="col-sm-3">
-                                <button type="button" class="btn btn-primary btn-sm btn-block" data-toggle="modal" data-target="#threadModal">
-                                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1">
-                                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                                    </svg>
-                                    &nbsp;&nbsp;NEW COMMUNITY
-                                </button>
-                            </div> 
-                        </div> -->
-                        <div class="inner-main-body p-2 p-sm-3 collapse forum-content show">
-                            <div class="card mb-2">
-                                <div class="card-body p-2 p-sm-3">
-                                    <div class="media forum-item">
-                                        <a href="#" data-toggle="collapse" data-target=".forum-content"><img src="https://bootdey.com/img/Content/avatar/avatar1.png" class="mr-3 rounded-circle" width="50" alt="User" /></a>
-                                        <div class="media-body">
-                                            <h6><a href="#" data-toggle="collapse" data-target=".forum-content" class="text-body">Realtime fetching data</a></h6>
-                                            <p class="text-secondary">
-                                                lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet
-                                            </p>
-                                            <p class="text-muted"><a href="javascript:void(0)">drewdan</a> replied <span class="text-secondary font-weight-bold">13 minutes ago</span></p>
-                                        </div>
-                                        <div class="text-muted small text-center align-self-center">
-                                            <span class="d-none d-sm-inline-block"><i class="far fa-eye"></i> 19</span>
-                                            <span><i class="far fa-comment ml-2"></i> 3</span>
-                                        </div>
-                                    </div>
+                <div class="col-0 col-lg-4" id="sidebar_container">
+                    <div class="card card-header bg-secondary text-white">Top X Communities</div>
+                    <div class="card card-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="row">
+                                    <div class="col">{{community.community_description}}</div>
                                 </div>
-                            </div>
-                            <div class="card mb-2">
-                                <div class="card-body p-2 p-sm-3">
-                                    <div class="media forum-item">
-                                        <a href="#" data-toggle="collapse" data-target=".forum-content"><img src="https://bootdey.com/img/Content/avatar/avatar2.png" class="mr-3 rounded-circle" width="50" alt="User" /></a>
-                                        <div class="media-body">
-                                            <h6><a href="#" data-toggle="collapse" data-target=".forum-content" class="text-body">Laravel 7 database backup</a></h6>
-                                            <p class="text-secondary">
-                                                lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet
-                                            </p>
-                                            <p class="text-muted"><a href="javascript:void(0)">jlrdw</a> replied <span class="text-secondary font-weight-bold">3 hours ago</span></p>
-                                        </div>
-                                        <div class="text-muted small text-center align-self-center">
-                                            <span class="d-none d-sm-inline-block"><i class="far fa-eye"></i> 18</span>
-                                            <span><i class="far fa-comment ml-2"></i> 1</span>
-                                        </div>
+                                <div class="col-xs-12" style="height:15px;"></div>
+                                <div class="row">
+                                    <div class="col" id="community_members">
+                                        <br><p style="font-size: 14px; font-weight: 500; line-height: 16px; display: inline-block; word-break: break-word;">Member(s)</p>
                                     </div>
+                                    <div class="col">0
+                                        <br><p style="font-size: 14px; font-weight: 500; line-height: 16px; display: inline-block; word-break: break-word;">Online</p></div>
                                 </div>
-                            </div>
-                            <div class="card mb-2">
-                                <div class="card-body p-2 p-sm-3">
-                                    <div class="media forum-item">
-                                        <a href="#" data-toggle="collapse" data-target=".forum-content"><img src="https://bootdey.com/img/Content/avatar/avatar3.png" class="mr-3 rounded-circle" width="50" alt="User" /></a>
-                                        <div class="media-body">
-                                            <h6><a href="#" data-toggle="collapse" data-target=".forum-content" class="text-body">Http client post raw content</a></h6>
-                                            <p class="text-secondary">
-                                                lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet
-                                            </p>
-                                            <p class="text-muted"><a href="javascript:void(0)">ciungulete</a> replied <span class="text-secondary font-weight-bold">7 hours ago</span></p>
-                                        </div>
-                                        <div class="text-muted small text-center align-self-center">
-                                            <span class="d-none d-sm-inline-block"><i class="far fa-eye"></i> 32</span>
-                                            <span><i class="far fa-comment ml-2"></i> 2</span>
-                                        </div>
-                                    </div>
+                                <div class="row">
+                                    <div class="col"><hr></div>
                                 </div>
-                            </div>
-                            <div class="card mb-2">
-                                <div class="card-body p-2 p-sm-3">
-                                    <div class="media forum-item">
-                                        <a href="#" data-toggle="collapse" data-target=".forum-content"><img src="https://bootdey.com/img/Content/avatar/avatar4.png" class="mr-3 rounded-circle" width="50" alt="User" /></a>
-                                        <div class="media-body">
-                                            <h6><a href="#" data-toggle="collapse" data-target=".forum-content" class="text-body">Top rated filter not working</a></h6>
-                                            <p class="text-secondary">
-                                                lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet
-                                            </p>
-                                            <p class="text-muted"><a href="javascript:void(0)">bugsysha</a> replied <span class="text-secondary font-weight-bold">11 hours ago</span></p>
-                                        </div>
-                                        <div class="text-muted small text-center align-self-center">
-                                            <span class="d-none d-sm-inline-block"><i class="far fa-eye"></i> 49</span>
-                                            <span><i class="far fa-comment ml-2"></i> 9</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card mb-2">
-                                <div class="card-body p-2 p-sm-3">
-                                    <div class="media forum-item">
-                                        <a href="#" data-toggle="collapse" data-target=".forum-content"><img src="https://bootdey.com/img/Content/avatar/avatar5.png" class="mr-3 rounded-circle" width="50" alt="User" /></a>
-                                        <div class="media-body">
-                                            <h6><a href="#" data-toggle="collapse" data-target=".forum-content" class="text-body">Create a delimiter field</a></h6>
-                                            <p class="text-secondary">
-                                                lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet
-                                            </p>
-                                            <p class="text-muted"><a href="javascript:void(0)">jackalds</a> replied <span class="text-secondary font-weight-bold">12 hours ago</span></p>
-                                        </div>
-                                        <div class="text-muted small text-center align-self-center">
-                                            <span class="d-none d-sm-inline-block"><i class="far fa-eye"></i> 65</span>
-                                            <span><i class="far fa-comment ml-2"></i> 10</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card mb-2">
-                                <div class="card-body p-2 p-sm-3">
-                                    <div class="media forum-item">
-                                        <a href="#" data-toggle="collapse" data-target=".forum-content"><img src="https://bootdey.com/img/Content/avatar/avatar1.png" class="mr-3 rounded-circle" width="50" alt="User" /></a>
-                                        <div class="media-body">
-                                            <h6><a href="#" data-toggle="collapse" data-target=".forum-content" class="text-body">One model 4 tables</a></h6>
-                                            <p class="text-secondary">
-                                                lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet
-                                            </p>
-                                            <p class="text-muted"><a href="javascript:void(0)">bugsysha</a> replied <span class="text-secondary font-weight-bold">14 hours ago</span></p>
-                                        </div>
-                                        <div class="text-muted small text-center align-self-center">
-                                            <span class="d-none d-sm-inline-block"><i class="far fa-eye"></i> 45</span>
-                                            <span><i class="far fa-comment ml-2"></i> 4</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card mb-2">
-                                <div class="card-body p-2 p-sm-3">
-                                    <div class="media forum-item">
-                                        <a href="#" data-toggle="collapse" data-target=".forum-content"><img src="https://bootdey.com/img/Content/avatar/avatar1.png" class="mr-3 rounded-circle" width="50" alt="User" /></a>
-                                        <div class="media-body">
-                                            <h6><a href="#" data-toggle="collapse" data-target=".forum-content" class="text-body">Auth attempt returns false</a></h6>
-                                            <p class="text-secondary">
-                                                lorem ipsum dolor sit amet lorem ipsum dolor sit amet lorem ipsum dolor sit amet
-                                            </p>
-                                            <p class="text-muted"><a href="javascript:void(0)">michaeloravec</a> replied <span class="text-secondary font-weight-bold">18 hours ago</span></p>
-                                        </div>
-                                        <div class="text-muted small text-center align-self-center">
-                                            <span class="d-none d-sm-inline-block"><i class="far fa-eye"></i> 70</span>
-                                            <span><i class="far fa-comment ml-2"></i> 3</span>
-                                        </div>
-                                    </div>
+                                <div class="row">
+                                    <div class="col">Created at {{community.created_at}}</div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                        </div>
+                    <div class="col-xs-12" style="height:30px;"></div>
                 </div>
             </div>
         </div>
     </div>
+    
 </div>
 <script type="text/javascript">
-    window.onresize = displayWindowSize;
-    window.onload = displayWindowSize;
 
-    function displayWindowSize() {
-        myWidth = window.innerWidth;
-        myHeight = window.innerHeight;
-        // console.log(myWidth);
-    };
+    $(document).ready(function () {
+        CollectForums();
+    });
 
-    // $(document).ready(function () {
-    //     bindHeight();
+    function CollectForums() {
+        forum_container = [];
+        {% for f in forums %}
 
-    //     // run immediatly to setup tacker
-    //     UpdateTracker();
+        forum_container.push({
+            'pk': '{{f.id}}',
+            'community_pk': '{{f.community.id}}',
+            'votes': '{{f.forum_likes.count}}' - '{{f.forum_dislikes.count}}',
+            'full_name': '{{f.creator.get_full_name}}',
+            'date': '{{f.created_at}}',
+            'title': '{{f.forum_title|linebreaksbr}}',
+            'description': '{{f.forum_description|linebreaksbr}}',
+            'comment_count': '{{f.forumcomment_set.all|length}}',
+            'image': '{{ f.forum_image }}',
+            'can_edit': '{{ user.id }}' == '{{f.creator.id}}' ? true : false,
+        });
 
-    //     // run on loop
-    //     trackerTimerId = setInterval(UpdateTracker, 30000);
+        {% endfor %}
 
-    //     if ($('.FactsSliderWrapper').length) {
-    //         $('.factsSliderContainer').slick({
-    //             autoplay: true,
-    //             autoplaySpeed: 10000,
-    //             infinite: true,
-    //             slidesToShow: 1,
-    //             slidesToScroll: 1,
-    //             useTransform: false
-    //         });
-    //         setTimeout(function () {
-    //             $('.FactsSliderWrapper').addClass('active');
-    //         }, 1000);
-    //     }
-    // });
+        ParseCollectedForums(forum_container);
+    }
+
+    function ParseCollectedForums(list) {
+
+        for (var i = 0; i<list.length; i++) {
+
+            var image_tab = null;
+            if (list[i].image) {
+                image_tab = '<img class="mx-auto d-block" src="../../../media/'+list[i].image+'" style="max-width:100%;max-height:420px;">';
+            } else {
+                image_tab = '<p>'+list[i].description+'</p>';
+            }
+
+            edit_forum = '';
+            if (list[i].can_edit)
+                edit_forum = "<a href='#'><i class='far fa-edit' style='font-size:15px'></i> Edit</a> &nbsp;";
+
+            var forum_div_container = `
+            <div class="row border border-secondary QMwdLfHioF" id="container_`+list[i].pk+`" communityurl='`+list[i].community_pk+`' forumurl='`+list[i].pk+`'>
+                <div class="col-md-auto text-center border-right border-secondary" style="padding-bottom: 10px; padding-top: 10px;" id="buttons_in_sidebar">
+                    <button type="button" class="btn btn-success" onclick="upvote_forum(`+list[i].community_pk+`,`+list[i].pk+`);"><i class='far fa-thumbs-up' style='font-size:15px'></i></button><br>
+                    <span class='forum_vote_`+list[i].pk+`'>`+list[i].votes+`</span>
+                    <br><button type="button" class="btn btn-danger" onclick="downvote_forum(`+list[i].community_pk+`,`+list[i].pk+`);"><i class='far fa-thumbs-down' style='font-size:15px'></i></button>
+                </div>
+                <div class="col" style="padding-bottom: 10px; padding-top: 10px;">
+                    <div style="max-height: 500px;text-overflow: ellipsis;overflow: hidden;">
+                        <span class="text-secondary">Post by `+list[i].full_name+` at `+list[i].date+`</span>
+                        <h3>`+list[i].title+`</h3>
+                        `+image_tab+`
+                    </div>
+                    <div>
+                        <a href="#"><i class='far fa-comment-alt' style='font-size:15px'></i> `+list[i].comment_count+` Comments</a>
+                        &nbsp;
+                        <a href="#"><i class='fas fa-share' style='font-size:15px'></i> Share</a>
+                        &nbsp;
+                        <a href="#"><i class='fas fa-flag' style='font-size:15px'></i> Report</a>
+                        &nbsp;
+                        `+edit_forum+`
+                        <span id="buttons_in_footer">
+                            <button type="button" class="btn btn-success" style="padding: 2px 2px;" "upvote_forum(`+list[i].community_pk+`,`+list[i].pk+`);"><i class='far fa-thumbs-up' style='font-size:15px;'></i></button>
+                            <span class='forum_vote_`+list[i].pk+`'>`+list[i].votes+`</span>
+                            <button type="button" class="btn btn-danger" style="padding: 2px 2px;" onclick="downvote_forum(`+list[i].community_pk+`,`+list[i].pk+`);"><i class='far fa-thumbs-down' style='font-size:15px;'></i></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div style="height:20px;"></div>`;
+
+            $('#list_of_forums').append(forum_div_container);
+        }
+    }
+
+    function upvote_forum(community_pk, forum_id) {
+        $.ajax({
+            data: {
+                'functionality': 'upvote_forum',
+                'forum_id': forum_id
+            },
+            url: '/forum/c/'+community_pk,
+            dataType: 'json',
+            success: function (response) {
+                if(response.status_code == 200) {
+                    var this_forum = eval(response.this_forum)[0];
+                    var number_of_likes = this_forum.fields.forum_likes.length;
+                    var number_of_dislikes = this_forum.fields.forum_dislikes.length;
+
+                    $('.forum_vote_'+forum_id).text(intCompromise(number_of_likes-number_of_dislikes));
+
+                } else if (response.status_code == 401) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: "Can't do that!",
+                        text: response.message
+                    });
+
+                } else if (response.status_code == 404) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: "Can't do that!",
+                        text: response.message
+                    });
+                    // TODO: Remove the forum div.
+                    // $( ".question_answer_comment_container_"+commentId ).remove();
+                }
+            }
+        });
+    }
+
+    function downvote_forum(community_pk, forum_id) {
+        $.ajax({
+            data: {
+                'functionality': 'downvote_forum',
+                'forum_id': forum_id
+            },
+            url: '/forum/c/'+community_pk,
+            dataType: 'json',
+            success: function (response) {
+                if(response.status_code == 200) {
+                    var this_forum = eval(response.this_forum)[0];
+                    var number_of_likes = this_forum.fields.forum_likes.length;
+                    var number_of_dislikes = this_forum.fields.forum_dislikes.length;
+
+                    $('.forum_vote_'+forum_id).text(intCompromise(number_of_likes-number_of_dislikes));
+
+                } else if (response.status_code == 401) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: "Can't do that!",
+                        text: response.message
+                    });
+
+                } else if (response.status_code == 404) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: "Can't do that!",
+                        text: response.message
+                    });
+                    // TODO: Remove the forum div.
+                    // $( ".question_answer_comment_container_"+commentId ).remove();
+                }
+            }
+        });
+    }
+
+    function intCompromise(value) {
+        var suffixes = ["", "k", "m", "b","t"];
+        var suffixNum = Math.floor((""+value).length/3);
+        var shortValue = parseFloat((suffixNum != 0 ? (value / Math.pow(1000,suffixNum)) : value).toPrecision(2));
+
+        if (shortValue % 1 != 0)
+            shortValue = shortValue.toFixed(1);
+
+        return shortValue+suffixes[suffixNum];
+    }
+
+    window.onclick = e => {
+        redirectToForumPage(e.target);
+    }
+
+    function redirectToForumPage(e) {
+
+        if(e.nodeName == 'BUTTON' || e.nodeName == 'A')
+            return;
+
+        try {
+
+            if (e.hasAttribute("forumurl") && e.hasAttribute("communityurl")) {
+                document.location.href = 'c/' +  e.getAttribute("communityurl") + '/f/' + e.getAttribute("forumurl");
+            }
+
+            return redirectToForumPage(e.parentElement);
+
+        } catch(err) {
+            return;
+        }
+
+        return;
+    }
 
 </script>
 {% endblock %}
