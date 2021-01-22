@@ -5,7 +5,8 @@ from django.core import serializers
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
 from deprecated import deprecated
-import json, random
+from sklearn.preprocessing import MinMaxScaler
+import json, random, pandas as pd
 from http import HTTPStatus
 
 def mainpage(request):
@@ -27,9 +28,38 @@ def mainpage(request):
 		)
 
 		return redirect('forum:communitypage', community_id=new_community.pk)
+
+	popular_forums = GetPopularPosts()
+	forums_split = [popular_forums[i:i + 15] for i in range(0, len(popular_forums), 15)]
+
+	if request.is_ajax():
+		functionality = request.GET.get('functionality', None)
+
+		if functionality == "fetch_forums":
+			next_index = request.GET.get('next_index', None)
+			forum_json = []
+
+			try:
+				next_forum = forums_split[int(next_index)]
+			except IndexError:
+				next_forum = []
+
+			for e in next_forum:
+				forum_json.append({
+					'forumId': e.id,
+					'forumTitle': e.forum_title,
+					'forumDescription': e.forum_description,
+				})
+
+			response = {
+				"status_code": HTTPStatus.OK,
+				"forum_json": forum_json
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
 	context = {
 		"category": Category.objects.all(),
-		'posts': GetPopularPosts(),
+		"forums": forums_split[0] if len(forums_split)>0 else [],
 	}
 	return render(request, "forum/mainpage.html", context)
 
@@ -703,10 +733,30 @@ def vanilla_JS_date_conversion(python_date):
 
 def GetPopularPosts():
 	"""
-		Return the most popular posts created on a community.
+		Return the most popular posts created on any community.
 		Attributes to determine the popularity:
 			forum vote, comment count, watch count and creation date is today (future).
 	"""
+	all_forums_obj = Forum.objects.all()
 
-	# forums_split = [all_forums[i:i + 15] for i in range(0, len(all_forums), 15)]
-	return []
+	forum_list = [{
+		'id': e.pk,
+		'forum_vote': e.forum_likes.count() - e.forum_dislikes.count(),
+		'comment_count': e.forums.all().count(),
+		'watch_count': e.watchers.all().count()
+		} for e in all_forums_obj]
+
+	df = pd.DataFrame(forum_list)
+	scaling = MinMaxScaler()
+	divedent = 100/3
+
+	forum_scaled = scaling.fit_transform(df[['forum_vote', 'comment_count', 'watch_count']])
+	forum_normalized = pd.DataFrame(forum_scaled, columns=['forum_vote', 'comment_count', 'watch_count'])
+
+	df[['normalized_forum_vote','normalized_comment_count','normalized_watch_count']]= forum_normalized
+	df['score'] = df['normalized_forum_vote'] * divedent+ df['normalized_comment_count'] * divedent + df['normalized_watch_count'] * divedent
+
+	forum_scored_df = df.sort_values(['score'], ascending=False)
+	forum_id = list(forum_scored_df['id'])
+	# all_forums = [all_forums_obj[i-1] for i in forum_id] use when pk is in order.
+	return [j for i in forum_id for j in all_forums_obj if i == j.pk]
