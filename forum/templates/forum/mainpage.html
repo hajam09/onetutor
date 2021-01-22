@@ -91,6 +91,8 @@
         forum_container = [];
         {% for f in forums %}
 
+        var watchers = '{{ f.watchers.all|join:", " }}'.replace(", ", ",").split(",");
+
         forum_container.push({
             'pk': '{{f.id}}',
             'community_pk': '{{f.community.id}}',
@@ -102,6 +104,8 @@
             'comment_count': '{{f.forumcomment_set.all|length}}',
             'image': '{{ f.forum_image }}',
             'can_edit': '{{ user.id }}' == '{{f.creator.id}}' ? true : false,
+            'is_watching': watchers.includes('{{user.email}}') ? true: false,
+            'watchers_count': '{{f.watchers.all|length}}',
         });
 
         {% endfor %}
@@ -119,6 +123,11 @@
             } else {
                 image_tab = '<p>'+list[i].description+'</p>';
             }
+
+            if (list[i].is_watching)
+                var forum_watch_text = `<span onclick="watch_unwatch_forum(`+list[i].community_pk+`,`+list[i].pk+`);" data-toggle="tooltip" data-placement="top" title="You are watching this issue. Click to stop watching this issue."><i class='far fa-eye' style='font-size:15px'></i> (`+list[i].watchers_count+`) Unwatch</span>`;
+            else
+                var forum_watch_text = `<span onclick="watch_unwatch_forum(`+list[i].community_pk+`,`+list[i].pk+`);" data-toggle="tooltip" data-placement="top" title="You are not watching this issue. Click to watch this issue."><i class='far fa-eye' style='font-size:15px'></i> (`+list[i].watchers_count+`) Watch</span>`;
 
             edit_forum = '';
             if (list[i].can_edit)
@@ -144,6 +153,8 @@
                         &nbsp;
                         <a href="#"><i class='fas fa-flag' style='font-size:15px'></i> Report</a>
                         &nbsp;
+                        <a href="#" onclick='return false;' id="forum_watcher`+list[i].pk+`">`+forum_watch_text+`</a>
+                        &nbsp;
                         `+edit_forum+`
                         <span id="buttons_in_footer">
                             <button type="button" class="btn btn-success" style="padding: 2px 2px;" "upvote_forum(`+list[i].community_pk+`,`+list[i].pk+`);"><i class='far fa-thumbs-up' style='font-size:15px;'></i></button>
@@ -157,6 +168,41 @@
 
             $('#list_of_forums').append(forum_div_container);
         }
+    }
+
+    function UpdateWatchers(is_watching, watchers_count, community_pk, forum_id) {
+        if (is_watching)
+            var forum_watch_text = `<span onclick="watch_unwatch_forum(`+community_pk+`,`+forum_id+`);" data-toggle="tooltip" data-placement="top" title="You are watching this issue. Click to stop watching this issue."><i class='far fa-eye' style='font-size:15px'></i> (`+watchers_count+`) Unwatch</span>`;
+        else
+            var forum_watch_text = `<span onclick="watch_unwatch_forum(`+community_pk+`,`+forum_id+`);" data-toggle="tooltip" data-placement="top" title="You are not watching this issue. Click to watch this issue."><i class='far fa-eye' style='font-size:15px'></i> (`+watchers_count+`) Watch</span>`;
+
+        $('a#forum_watcher'+forum_id).html(forum_watch_text);
+    }
+
+    function watch_unwatch_forum(community_pk, forum_id) {
+         $.ajax({
+            data: {
+                'functionality': 'watch_unwatch_forum',
+            },
+             url: '/forum/c/'+community_pk+'/f/'+forum_id,
+             dataType: 'json',
+             success: function (response) {
+                if(response.status_code == 200) {
+                    var watchers_count = response.watch_count;
+                    var is_watching = response.is_watching;
+
+                    UpdateWatchers(is_watching, watchers_count, community_pk, forum_id)
+
+                } else if (response.status_code == 401) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: "Can't do that!",
+                        text: response.message
+                    });
+
+                }
+             }
+         });
     }
 
     function upvote_forum(community_pk, forum_id) {
