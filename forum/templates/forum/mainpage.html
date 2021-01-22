@@ -231,6 +231,48 @@
         });
     }
 
+    var NEXT_INDEX = 1;
+
+    window.onscroll = function(ev) {
+        if ((window.innerHeight + window.pageYOffset) >= document.body.offsetHeight) {
+            
+            $.ajax({
+                data: {
+                    'functionality': 'fetch_forums',
+                    'next_index': NEXT_INDEX
+                },
+                dataType: 'json',
+                success: function (response) {
+                    if(response.status_code == 200) {
+
+                        var this_forum = response.forum_json;
+                        var forum_container = [];
+
+                        for (var i = 0; i<this_forum.length; i++) {
+
+                            forum_container.push({
+                                'pk': this_forum[i].forumId,
+                                'community_pk': this_forum[i].forumCommunityId,
+                                'votes': this_forum[i].forumVotes,
+                                'full_name': this_forum[i].forumCreatorFullName,
+                                'date': this_forum[i].forumCreatedDate,
+                                'title': this_forum[i].forumTitle,
+                                'description': this_forum[i].forumDescription,
+                                'comment_count': this_forum[i].forumCommentCount,
+                                'image': this_forum[i].forumImage,
+                                'can_edit': this_forum[i].forumEdit,
+                            });
+                        }
+
+                        ParseCollectedForums(forum_container);
+
+                        NEXT_INDEX = NEXT_INDEX + 1;
+                    }
+                }
+            });
+        }
+    };
+
     function intCompromise(value) {
         var suffixes = ["", "k", "m", "b","t"];
         var suffixNum = Math.floor((""+value).length/3);

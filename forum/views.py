@@ -47,8 +47,15 @@ def mainpage(request):
 			for e in next_forum:
 				forum_json.append({
 					'forumId': e.id,
+					'forumCommunityId': e.community.id,
+					'forumVotes': e.forum_likes.count() - e.forum_dislikes.count(),
+					'forumCreatorFullName': e.creator.get_full_name(),
+					'forumCreatedDate': vanilla_JS_date_conversion(e.created_at),
 					'forumTitle': e.forum_title,
+					'forumImage': str(e.forum_image),
 					'forumDescription': e.forum_description,
+					'forumCommentCount': ForumComment.objects.filter(forum=e).count(),
+					'forumEdit': True if e.creator.id == request.user.pk else False,
 				})
 
 			response = {
