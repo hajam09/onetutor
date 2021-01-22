@@ -87,8 +87,10 @@
 									</div>
 								</div>
 							</div>
+							{% if user.pk != tutorProfile.user.pk %}
 							<button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#questionModal">Ask a Question</button>
 							<button type="button" class="btn btn-danger btn-sm">Message</button>
+							{% endif %}
 						</div>
 					</div>
 				</div>
