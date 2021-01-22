@@ -351,7 +351,7 @@
 								'full_name': this_forum[i].forumCreatorFullName,
 								'date': this_forum[i].forumCreatedDate,
 								'title': this_forum[i].forumTitle,
-								'description': this_forum[i].forumDescription,
+								'description': this_forum[i].forumDescription.replace(/\n\r?/g, '<br />'),
 								'comment_count': this_forum[i].forumCommentCount,
 								'image': this_forum[i].forumImage,
 								'can_edit': this_forum[i].forumEdit,
