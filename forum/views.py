@@ -56,6 +56,8 @@ def mainpage(request):
 					'forumDescription': e.forum_description,
 					'forumCommentCount': ForumComment.objects.filter(forum=e).count(),
 					'forumEdit': True if e.creator.id == request.user.pk else False,
+					'forumWatching': True if request.user in e.watchers.all() else False,
+					'forumWatchCount': e.watchers.count(),
 				})
 
 			response = {
