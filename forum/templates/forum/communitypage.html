@@ -269,7 +269,7 @@
 					var number_of_likes = this_forum.fields.forum_likes.length;
 					var number_of_dislikes = this_forum.fields.forum_dislikes.length;
 
-					$('.forum_vote_'+forum_id).text(number_of_likes-number_of_dislikes);
+					$('.forum_vote_'+forum_id).text(intCompromise(number_of_likes-number_of_dislikes));
 
 				} else if (response.status_code == 401) {
 	            	Swal.fire({
@@ -304,7 +304,7 @@
 					var number_of_likes = this_forum.fields.forum_likes.length;
 					var number_of_dislikes = this_forum.fields.forum_dislikes.length;
 
-					$('.forum_vote_'+forum_id).text(number_of_likes-number_of_dislikes);
+					$('.forum_vote_'+forum_id).text(intCompromise(number_of_likes-number_of_dislikes));
 
 				} else if (response.status_code == 401) {
 	            	Swal.fire({
