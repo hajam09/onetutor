@@ -306,7 +306,7 @@ class TestViewsTutorProfile(TestCase):
 		}
 		
 		return TutorProfile.objects.create(
-			user=u, userType="TUTOR",
+			user=u,
 			summary=s, about=a, location=location,
 			education=education, subjects=su,
 			availability=availability, profilePicture=None
@@ -365,7 +365,7 @@ class TestViewsUserSettings(TestCase):
 		}
 		
 		return TutorProfile.objects.create(
-			user=u, userType="TUTOR",
+			user=u,
 			summary=s, about=a, location=location,
 			education=education, subjects=su,
 			availability=availability, profilePicture=None

@@ -6,7 +6,6 @@ from datetime import datetime
 class TutorProfile(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
 	secondary_key = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-	userType = models.CharField(max_length=8)
 	summary = models.CharField(max_length=128)
 	about = models.TextField()
 	location = jsonfield.JSONField()
@@ -20,7 +19,6 @@ class TutorProfile(models.Model):
 
 class StudentProfile(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
-	userType = models.CharField(max_length=8)
 	location = jsonfield.JSONField()# not implemented at the moment
 	subjects = models.CharField(max_length=8192)
 	profilePicture = models.ImageField(upload_to='profilepicture', blank=True, null=True)# not implemented at the moment
