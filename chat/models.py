@@ -12,3 +12,4 @@ class Message(models.Model):
 	message = models.TextField()
 	date = models.DateTimeField(default=datetime.datetime.now)
 	deleted = models.BooleanField(default=False)
+	seen = models.BooleanField(default=False)

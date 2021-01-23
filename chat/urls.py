@@ -4,4 +4,5 @@ app_name = "chat"
 
 urlpatterns = [
 	path('', views.chatpage, name='chatpage'),
+	path('startmessage/', views.startmessage, name='startmessage'),
 ]

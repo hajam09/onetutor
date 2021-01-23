@@ -89,7 +89,7 @@
 							</div>
 							{% if user.pk != tutorProfile.user.pk %}
 							<button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#questionModal">Ask a Question</button>
-							<button type="button" class="btn btn-danger btn-sm">Message</button>
+							<button type="button" class="btn btn-danger btn-sm" onclick="StartMessage();">Message</button>
 							{% endif %}
 						</div>
 					</div>
@@ -631,6 +631,36 @@
 						text: response.message
 					});
 				}
+			}
+		});
+	}
+
+	function StartMessage() {
+		$.ajax({
+			data: {
+				'functionality': 'start_message',
+				'participant_id': '{{ tutorProfile.user.id }}',
+			},
+			url: '{% url "chat:startmessage" %}',
+			dataType: 'json',
+			success: function (response) {
+				if (response.status_code == 200) {
+
+					document.location.href = '{% url "chat:chatpage" %}';
+
+				} else if (response.status_code == 401) {
+					Swal.fire({
+						icon: 'error',
+						title: "Can't do that!",
+						text: response.message
+					});
+				} else {
+	            	Swal.fire({
+	            		icon: 'warning',
+	            		title: "Can't do that!",
+	            		text: response.message
+	            	});
+	            }
 			}
 		});
 	}
