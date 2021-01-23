@@ -5,6 +5,7 @@ from http import HTTPStatus
 from .models import Room, Message
 import json
 from django.db.models import Count
+from django.http import JsonResponse
 
 
 def chatpage(request):
@@ -28,7 +29,54 @@ def chatpage(request):
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
 
-	return render(request, "chat/chatpage.html", {})
+		if functionality == 'new_message':
+			message, room = request.GET.get('message', None), request.GET.get('room', None)
+			
+			new_msg_obj = Message.objects.create(
+				room = Room.objects.get(id=room),
+				creator = request.user,
+				message = message,
+			)
+
+			response = {
+				"status_code": HTTPStatus.OK,
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+		if functionality == 'fetch_chat':
+			
+			"""
+			For each room, get other participant's online status.
+			For each room's message container, receive the latest message object pk.
+			Use the pk to get other message objects that belongs to this room and have greater pk.
+			"""
+
+			data = request.GET.getlist('lst_msg_room[]', [])
+
+			render_msg = []
+
+			for item in data:
+				e_room = json.loads(item)
+				room_id =  e_room['room_id']
+				latest_msg = e_room['msg_id']
+
+				this_room = Room.objects.get(id=room_id)
+				new_msg_objs = Message.objects.filter(room=this_room, pk__gt=latest_msg).values()
+
+
+				render_msg.append({
+					"room": room_id,
+					"new_msg_objs": list(new_msg_objs),
+				})
+
+			response = {
+				"status_code": HTTPStatus.OK,
+				"new_msg_all_room": render_msg,
+			}
+			return JsonResponse(response)
+			
+	user_rooms = Room.objects.filter(participant__in=[request.user])
+	return render(request, "chat/chatpage.html", {'room': user_rooms})
 
 def startmessage(request):
 	if request.is_ajax():

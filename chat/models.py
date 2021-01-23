@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-import datetime
 
 class Room(models.Model):
 	name = models.CharField(max_length=1024)
@@ -10,6 +9,6 @@ class Message(models.Model):
 	room = models.ForeignKey(Room, on_delete=models.CASCADE)
 	creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="message_creator")
 	message = models.TextField()
-	date = models.DateTimeField(default=datetime.datetime.now)
+	date = models.TimeField(auto_now_add=True)
 	deleted = models.BooleanField(default=False)
 	seen = models.BooleanField(default=False)
