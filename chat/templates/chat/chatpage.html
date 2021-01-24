@@ -29,7 +29,7 @@
 		}
 	}
 
-	.chat-online{color:#34ce57}.chat-offline{color:#e4606d}.chat-messages{display:flex;flex-direction:column;max-height:800px;overflow-y:scroll}.chat-message-left,.chat-message-right{display:flex;flex-shrink:0}.chat-message-left{margin-right:auto}.chat-message-right{flex-direction:row-reverse;margin-left:auto}.py-3{padding-top:1rem!important;padding-bottom:1rem!important}.px-4{padding-right:1.5rem!important;padding-left:1.5rem!important}.flex-grow-0{flex-grow:0!important}.border-top{border-top:1px solid #dee2e6!important}
+	.chat-online{color:#34ce57}.chat-offline{color:#e4606d}.chat-messages{display:flex;flex-direction:column;max-height:750px;overflow-y:scroll}.chat-message-left,.chat-message-right{display:flex;flex-shrink:0}.chat-message-left{margin-right:auto}.chat-message-right{flex-direction:row-reverse;margin-left:auto}.py-3{padding-top:1rem!important;padding-bottom:1rem!important}.px-4{padding-right:1.5rem!important;padding-left:1.5rem!important}.flex-grow-0{flex-grow:0!important}.border-top{border-top:1px solid #dee2e6!important}
 </style>
 
 <div class="wrapper" style="margin: auto;overflow-x: hidden; color: black;">
@@ -444,7 +444,7 @@
                     <div class="flex-grow-1 ml-3">
                         <span>`+messagerName+`</span>
                         <div class="badge bg-success">5</div>
-                        <div class="small"><span class="fas fa-circle chat-online"></span> Online</div>
+                        <div class="small" id='msg_room_{{r.id}}_online'></div>
                     </div>
                 </div>
             </a>`;
@@ -587,7 +587,15 @@
 
             var room_no = new_msg_all_room[i].room;
             var new_msg_ary =  new_msg_all_room[i].new_msg_objs
+            var is_online = new_msg_all_room[i].is_online;
             var latest_msg_for_this_room = null;
+
+            if (is_online)
+                var status = '<span class="fas fa-circle chat-online"></span> Online'
+            else
+                var status = '<span class="fas fa-circle chat-offline"></span> Offline';
+
+            $('#msg_room_'+room_no+'_online').html(status);
 
             for (var j = 0; j < new_msg_ary.length; j++) {
                 // for new mesages in each room

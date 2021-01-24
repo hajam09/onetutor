@@ -61,12 +61,15 @@ def chatpage(request):
 				latest_msg = e_room['msg_id']
 
 				this_room = Room.objects.get(id=room_id)
+				participants = this_room.participant.all()
+				other_participant = participants[1] if participants[0] == request.user else participants[0]
 				new_msg_objs = Message.objects.filter(room=this_room, pk__gt=latest_msg).values()
 
 
 				render_msg.append({
 					"room": room_id,
 					"new_msg_objs": list(new_msg_objs),
+					"is_online": True if other_participant in request.online_now else False
 				})
 
 			response = {

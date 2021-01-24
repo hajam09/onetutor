@@ -55,6 +55,8 @@ def get_all_logged_in_users():
 		data = session.get_decoded()
 		user_id_list.append(data.get('_auth_user_id', None))
 
+	## request.online_now.count
+
 	return User.objects.filter(id__in=user_id_list).exclude(is_superuser=True)
 
 def get_all_inactive_users():
