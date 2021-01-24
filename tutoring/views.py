@@ -19,18 +19,18 @@ def mainpage(request):
 		tutorList = None
 		# user may want to find a particular tutor by name(s).
 		if generalQuery and location:
-			tutorList = TutorProfile.objects.filter(summary__icontains=generalQuery, location__icontains=location) | \
-						TutorProfile.objects.filter(subjects__icontains=generalQuery, location__icontains=location)
+			tutorList = TutorProfile.objects.filter(summary__icontains=generalQuery, location__icontains=location).select_related('user') | \
+						TutorProfile.objects.filter(subjects__icontains=generalQuery, location__icontains=location).select_related('user')
 			context["generalQuery"] = generalQuery
 			context["location"] = location
 
 		elif generalQuery:
-			tutorList = TutorProfile.objects.filter(summary__icontains=generalQuery) | \
-						TutorProfile.objects.filter(subjects__icontains=generalQuery)
+			tutorList = TutorProfile.objects.filter(summary__icontains=generalQuery).select_related('user') | \
+						TutorProfile.objects.filter(subjects__icontains=generalQuery).select_related('user')
 			context["generalQuery"] = generalQuery
 
 		elif location:
-			tutorList = TutorProfile.objects.filter(location__icontains=location)
+			tutorList = TutorProfile.objects.filter(location__icontains=location).select_related('user')
 			context["location"] = location
 
 		else:
