@@ -157,7 +157,7 @@ def viewtutorprofile(request, tutor_secondary_key):
 	context = {
 		"tutorProfile": tutorProfile,
 		"subjects": Subject.objects.all(),
-		"questionAndAnswers": QuestionAnswer.objects.filter(answerer=tutorProfile.user).order_by('-id')
+		"questionAndAnswers": QuestionAnswer.objects.filter(answerer=tutorProfile.user).select_related('questioner', 'answerer').prefetch_related('likes', 'dislikes').order_by('-id')
 	}
 
 	return render(request, "tutoring/tutorprofile.html", context)
@@ -215,7 +215,7 @@ def tutor_questions(request):
 		raise Exception("Unknown functionality tutor_questions")
 
 	context = {
-		"questionAndAnswers": QuestionAnswer.objects.filter(answerer=tutorProfile.user).order_by('-id')
+		"questionAndAnswers": QuestionAnswer.objects.filter(answerer=tutorProfile.user).select_related('questioner', 'answerer').prefetch_related('likes', 'dislikes').order_by('-id')
 	}
 	return render(request, "tutoring/tutor_questions.html", context)
 
@@ -224,7 +224,7 @@ def viewstudentprofile(request, studentId):
 	return render(request, "tutoring/studentprofile.html", {})
 
 def question_answer_thread(request, question_id):
-	qa_object = QuestionAnswer.objects.get(id=question_id)
+	qa_object = QuestionAnswer.objects.select_related('questioner').get(id=question_id)
 
 	if request.is_ajax():
 		functionality = request.GET.get('functionality', None)
@@ -377,7 +377,7 @@ def question_answer_thread(request, question_id):
 
 	context = {
 		"qa": qa_object,
-		"qa_comments": QAComment.objects.filter(question_answer=qa_object).order_by('-id')
+		"qa_comments": QAComment.objects.filter(question_answer=qa_object).select_related('creator').prefetch_related('likes', 'dislikes').order_by('-id')
 	}
 	return render(request, "tutoring/question_answer_thread.html", context)
 
