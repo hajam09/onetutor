@@ -17,7 +17,6 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-import debug_toolbar
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,10 +26,16 @@ urlpatterns = [
     path('jira/', include('jira.urls')),
     path('forum/', include('forum.urls')),
     path('', include('tutoring.urls')),
-    path('__debug__/', include(debug_toolbar.urls)),
 ]
 
 handler404 = 'accounts.views.not_found_page'
 
 if settings.DEBUG:
+    import debug_toolbar
+
+    # Server statics and uploaded media
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+    urlpatterns += [
+        path('__debug__/', include(debug_toolbar.urls)),
+    ]
