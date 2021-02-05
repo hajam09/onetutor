@@ -40,6 +40,24 @@ class Forum(models.Model):
 	forum_image = models.ImageField(upload_to='forumimage/', blank=True, null=True)
 	watchers = models.ManyToManyField(User, blank=True, related_name='forum_watchers')
 
+	def increase_forum_vote(self, request):
+		if(request.user not in self.forum_likes.all()):
+			self.forum_likes.add(request.user)
+		else:
+			self.forum_likes.remove(request.user)
+
+		if(request.user in self.forum_dislikes.all()):
+			self.forum_dislikes.remove(request.user)
+
+	def decrease_forum_vote(self, request):
+		if(request.user not in self.forum_dislikes.all()):
+				self.forum_dislikes.add(request.user)
+		else:
+			self.forum_dislikes.remove(request.user)
+
+		if(request.user in self.forum_likes.all()):
+			self.forum_likes.remove(request.user)
+
 	class Meta:
 		verbose_name_plural = "Forums"
 
@@ -53,6 +71,24 @@ class ForumComment(models.Model):
 	reply = models.ForeignKey('ForumComment', null=True, blank=True, related_name='replies', on_delete=models.CASCADE)
 	forum_comment_likes = models.ManyToManyField(User, related_name='forum_comment_likes')
 	forum_comment_dislikes = models.ManyToManyField(User, related_name='forum_comment_dislikes')
+
+	def increase_forum_comment_likes(self, request):
+		if(request.user not in self.forum_comment_likes.all()):
+			self.forum_comment_likes.add(request.user)
+		else:
+			self.forum_comment_likes.remove(request.user)
+
+		if(request.user in self.forum_comment_dislikes.all()):
+			self.forum_comment_dislikes.remove(request.user)
+
+	def increase_forum_comment_dislikes(self, request):
+		if(request.user not in self.forum_comment_dislikes.all()):
+			self.forum_comment_dislikes.add(request.user)
+		else:
+			self.forum_comment_dislikes.remove(request.user)
+
+		if(request.user in self.forum_comment_likes.all()):
+			self.forum_comment_likes.remove(request.user)
 
 	class Meta:
 		verbose_name_plural = "ForumComment"

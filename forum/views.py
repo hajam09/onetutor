@@ -311,13 +311,7 @@ def forumpage(request, community_id, forum_id):
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
-			if(request.user not in forum.forum_likes.all()):
-				forum.forum_likes.add(request.user)
-			else:
-				forum.forum_likes.remove(request.user)
-
-			if(request.user in forum.forum_dislikes.all()):
-				forum.forum_dislikes.remove(request.user)
+			forum.increase_forum_vote(request)
 
 			response = {
 				"status_code": HTTPStatus.OK,
@@ -333,13 +327,7 @@ def forumpage(request, community_id, forum_id):
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
-			if(request.user not in forum.forum_dislikes.all()):
-				forum.forum_dislikes.add(request.user)
-			else:
-				forum.forum_dislikes.remove(request.user)
-
-			if(request.user in forum.forum_likes.all()):
-				forum.forum_likes.remove(request.user)
+			forum.decrease_forum_vote(request)
 
 			response = {
 				"status_code": HTTPStatus.OK,
@@ -385,13 +373,7 @@ def forumpage(request, community_id, forum_id):
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
-			if(request.user not in this_comment.forum_comment_likes.all()):
-				this_comment.forum_comment_likes.add(request.user)
-			else:
-				this_comment.forum_comment_likes.remove(request.user)
-
-			if(request.user in this_comment.forum_comment_dislikes.all()):
-				this_comment.forum_comment_dislikes.remove(request.user)
+			this_comment.increase_forum_comment_likes(request)
 
 			response = {
 				"this_comment": serializers.serialize("json", [this_comment,]),
@@ -418,13 +400,7 @@ def forumpage(request, community_id, forum_id):
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
-			if(request.user not in this_comment.forum_comment_dislikes.all()):
-				this_comment.forum_comment_dislikes.add(request.user)
-			else:
-				this_comment.forum_comment_dislikes.remove(request.user)
-
-			if(request.user in this_comment.forum_comment_likes.all()):
-				this_comment.forum_comment_likes.remove(request.user)
+			this_comment.increase_forum_comment_dislikes(request)
 
 			response = {
 				"this_comment": serializers.serialize("json", [this_comment,]),
