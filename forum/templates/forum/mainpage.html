@@ -101,11 +101,11 @@
             'date': '{{f.created_at}}',
             'title': '{{f.forum_title|linebreaksbr}}',
             'description': '{{f.forum_description|linebreaksbr}}',
-            'comment_count': '{{f.forumcomment_set.all|length}}',
+            'comment_count': '{{f.forums.count}}',
             'image': '{{ f.forum_image }}',
             'can_edit': '{{ user.id }}' == '{{f.creator.id}}' ? true : false,
             'is_watching': watchers.includes('{{user.email}}') ? true: false,
-            'watchers_count': '{{f.watchers.all|length}}',
+            'watchers_count': '{{f.watchers.count}}',
         });
 
         {% endfor %}
