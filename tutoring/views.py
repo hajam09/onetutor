@@ -269,24 +269,7 @@ def question_answer_thread(request, question_id):
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
-			# list_of_liked = QAComment.objects.filter(likes__id=user.pk)
-			# list_of_disliked = QAComment.objects.filter(dislikes__id=user.pk)
-
-			# if(this_comment not in list_of_liked):
-			# 	user.qacomment_likes.add(this_comment)
-			# else:
-			# 	user.qacomment_likes.remove(this_comment)
-
-			# if(this_comment in list_of_disliked):
-			# 	user.qacomment_dislikes.remove(this_comment)
-
-			if(request.user not in this_comment.likes.all()):
-				this_comment.likes.add(request.user)
-			else:
-				this_comment.likes.remove(request.user)
-
-			if(request.user in this_comment.dislikes.all()):
-				this_comment.dislikes.remove(request.user)
+			this_comment.increase_qa_comment_likes(request)
 
 			response = {
 				"this_comment": serializers.serialize("json", [this_comment,]),
@@ -307,24 +290,7 @@ def question_answer_thread(request, question_id):
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
-			# list_of_liked = QAComment.objects.filter(likes__id=user.pk)
-			# list_of_disliked = QAComment.objects.filter(dislikes__id=user.pk)
-
-			# if(this_comment not in list_of_disliked):
-			# 	user.qacomment_dislikes.add(this_comment)
-			# else:
-			# 	user.qacomment_dislikes.remove(this_comment)
-				
-			# if(this_comment in list_of_liked):
-			# 	user.qacomment_likes.remove(this_comment)
-
-			if(request.user not in this_comment.dislikes.all()):
-				this_comment.dislikes.add(request.user)
-			else:
-				this_comment.dislikes.remove(request.user)
-
-			if(request.user in this_comment.likes.all()):
-				this_comment.likes.remove(request.user)
+			this_comment.increase_qa_comment_dislikes(request)
 
 			response = {
 				"this_comment": serializers.serialize("json", [this_comment,]),
@@ -408,17 +374,6 @@ def like_comment(request):
 		}
 		return HttpResponse(json.dumps(response), content_type="application/json")
 
-	# list_of_liked = QuestionAnswer.objects.filter(likes__id=user.pk)
-	# list_of_disliked = QuestionAnswer.objects.filter(dislikes__id=user.pk)
-
-	# if(this_comment not in list_of_liked):
-	# 	user.likes.add(this_comment)
-	# else:
-	# 	user.likes.remove(this_comment)
-
-	# if(this_comment in list_of_disliked):
-	# 	user.dislikes.remove(this_comment)
-
 	if(request.user not in this_comment.likes.all()):
 		this_comment.likes.add(request.user)
 	else:
@@ -459,17 +414,6 @@ def dislike_comment(request):
 			"message": "We think this question has been deleted!"
 		}
 		return HttpResponse(json.dumps(response), content_type="application/json")
-
-	# list_of_liked = QuestionAnswer.objects.filter(likes__id=user.pk)
-	# list_of_disliked = QuestionAnswer.objects.filter(dislikes__id=user.pk)
-
-	# if(this_comment not in list_of_disliked):
-	# 	user.dislikes.add(this_comment)
-	# else:
-	# 	user.dislikes.remove(this_comment)
-		
-	# if(this_comment in list_of_liked):
-	# 	user.likes.remove(this_comment)
 
 	if(request.user not in this_comment.dislikes.all()):
 		this_comment.dislikes.add(request.user)

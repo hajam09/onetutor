@@ -156,24 +156,7 @@ def communitypage(request, community_id):
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
-			# list_of_liked = Forum.objects.filter(forum_likes__id=request.user.pk)
-			# list_of_disliked = Forum.objects.filter(forum_dislikes__id=request.user.pk)
-
-			# if(this_forum not in list_of_liked):
-			# 	this_forum.forum_likes.add(request.user)
-			# else:
-			# 	this_forum.forum_likes.remove(request.user)
-
-			# if(this_forum in list_of_disliked):
-			# 	this_forum.forum_dislikes.remove(request.user)
-
-			if(request.user not in this_forum.forum_likes.all()):
-				this_forum.forum_likes.add(request.user)
-			else:
-				this_forum.forum_likes.remove(request.user)
-
-			if(request.user in this_forum.forum_dislikes.all()):
-				this_forum.forum_dislikes.remove(request.user)
+			this_forum.increase_forum_vote(request)
 
 			response = {
 				"status_code": HTTPStatus.OK,
@@ -204,24 +187,7 @@ def communitypage(request, community_id):
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
-			# list_of_liked = Forum.objects.filter(forum_likes__id=request.user.pk)
-			# list_of_disliked = Forum.objects.filter(forum_dislikes__id=request.user.pk)
-
-			# if(this_forum not in list_of_disliked):
-			# 	this_forum.forum_dislikes.add(request.user)
-			# else:
-			# 	this_forum.forum_dislikes.remove(request.user)
-				
-			# if(this_forum in list_of_liked):
-			# 	this_forum.forum_likes.remove(request.user)
-
-			if(request.user not in this_forum.forum_dislikes.all()):
-				this_forum.forum_dislikes.add(request.user)
-			else:
-				this_forum.forum_dislikes.remove(request.user)
-
-			if(request.user in this_forum.forum_likes.all()):
-				this_forum.forum_likes.remove(request.user)
+			this_forum.decrease_forum_vote(request)
 
 			response = {
 				"status_code": HTTPStatus.OK,

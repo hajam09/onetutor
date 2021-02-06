@@ -245,24 +245,7 @@ def ticketpage(request, ticket_url):
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
-			# list_of_liked = TicketComment.objects.filter(ticket_comment_likes__id=user.pk)
-			# list_of_disliked = TicketComment.objects.filter(ticket_comment_dislikes__id=user.pk)
-
-			# if(this_ticket not in list_of_liked):
-			# 	user.ticket_comment_likes.add(this_ticket)
-			# else:
-			# 	user.ticket_comment_likes.remove(this_ticket)
-
-			# if(this_ticket in list_of_disliked):
-			# 	user.ticket_comment_dislikes.remove(this_ticket)
-
-			if(request.user not in this_ticket.ticket_comment_likes.all()):
-				this_ticket.ticket_comment_likes.add(request.user)
-			else:
-				this_ticket.ticket_comment_likes.remove(request.user)
-
-			if(request.user in this_ticket.ticket_comment_dislikes.all()):
-				this_ticket.ticket_comment_dislikes.remove(request.user)
+			this_ticket.increase_ticket_comment_likes(request)
 
 			response = {
 				"this_ticket": serializers.serialize("json", [this_ticket,]),
@@ -283,24 +266,7 @@ def ticketpage(request, ticket_url):
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
-			# list_of_liked = TicketComment.objects.filter(ticket_comment_likes__id=user.pk)
-			# list_of_disliked = TicketComment.objects.filter(ticket_comment_dislikes__id=user.pk)
-
-			# if(this_ticket not in list_of_disliked):
-			# 	user.ticket_comment_dislikes.add(this_ticket)
-			# else:
-			# 	user.ticket_comment_dislikes.remove(this_ticket)
-				
-			# if(this_ticket in list_of_liked):
-			# 	user.ticket_comment_likes.remove(this_ticket)
-
-			if(request.user not in this_ticket.ticket_comment_dislikes.all()):
-				this_ticket.ticket_comment_dislikes.add(request.user)
-			else:
-				this_ticket.ticket_comment_dislikes.remove(request.user)
-
-			if(request.user in this_ticket.ticket_comment_likes.all()):
-				this_ticket.ticket_comment_likes.remove(request.user)
+			this_ticket.increase_ticket_comment_dislikes(request)
 
 			response = {
 				"this_ticket": serializers.serialize("json", [this_ticket,]),

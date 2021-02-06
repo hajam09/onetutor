@@ -46,5 +46,23 @@ class TicketComment(models.Model):
 	date = models.DateTimeField(default=datetime.datetime.now)
 	edited = models.BooleanField(default=False)
 
+	def increase_ticket_comment_likes(self, request):
+		if(request.user not in self.ticket_comment_likes.all()):
+			self.ticket_comment_likes.add(request.user)
+		else:
+			self.ticket_comment_likes.remove(request.user)
+
+		if(request.user in self.ticket_comment_dislikes.all()):
+			self.ticket_comment_dislikes.remove(request.user)
+
+	def increase_ticket_comment_dislikes(self, request):
+		if(request.user not in self.ticket_comment_dislikes.all()):
+			self.ticket_comment_dislikes.add(request.user)
+		else:
+			self.ticket_comment_dislikes.remove(request.user)
+
+		if(request.user in self.ticket_comment_likes.all()):
+			self.ticket_comment_likes.remove(request.user)
+
 	class Meta:
 		verbose_name_plural = "TicketComment"
