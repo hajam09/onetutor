@@ -232,16 +232,13 @@ def communitypage(request, community_id):
 
 def forumpage(request, community_id, forum_id):
 	try:
-		forum = Forum.objects.get(pk=forum_id)
+		forum = Forum.objects.select_related('creator', 'community').prefetch_related('forums', 'watchers', 'forum_dislikes', 'forum_likes', 'forums__forum_comment_dislikes', 'forums__forum_comment_likes', 'forums__creator', 'forums__reply').get(pk=forum_id)
 	except Forum.DoesNotExist:
 		raise Http404
 
-	try:
-		community = Community.objects.get(pk=community_id)
-	except Community.DoesNotExist:
-		raise Http404
+	community = forum.community
 		
-	if forum.community != community:
+	if community.id is not int(community_id):
 		# Forum's community is not the same as the expected community from url.
 		return HttpResponse("<h1>Bad Request. Looks like you are messing with the url.</h1>")
 
