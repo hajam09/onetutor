@@ -419,8 +419,8 @@
 
 	function like_comment(commentId) {
 		$.ajax({
-			url: '{% url "tutoring:like_comment" %}',
 			data: {
+				'functionality': 'like_comment',
 				'commentId': commentId
 			},
 			dataType: 'json',
@@ -460,8 +460,8 @@
 
 	function dislike_comment(commentId) {
 		$.ajax({
-			url: '{% url "tutoring:dislike_comment" %}',
 			data: {
+				'functionality': 'dislike_comment',
 				'commentId': commentId
 			},
 			dataType: 'json',

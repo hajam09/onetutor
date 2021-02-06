@@ -152,6 +152,60 @@ def viewtutorprofile(request, tutor_secondary_key):
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
 
+		elif functionality == "like_comment":
+			if not request.user.is_authenticated:
+				response = {
+					"status_code": 401,
+					"message": "Login to like the question and answer. "
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			commentId = request.GET.get('commentId', None)
+
+			try:
+				this_comment = QuestionAnswer.objects.get(id=int(commentId))
+			except QuestionAnswer.DoesNotExist:
+				response = {
+					"status_code": HTTPStatus.NOT_FOUND,
+					"message": "We think this question has been deleted!"
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			this_comment.increase_QuestionAnswer_likes(request)
+
+			response = {
+				"this_comment": serializers.serialize("json", [this_comment,]),
+				"status_code": HTTPStatus.OK
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+		elif functionality == "dislike_comment":
+			if not request.user.is_authenticated:
+				response = {
+					"status_code": 401,
+					"message": "Login to dislike the question and answer. "
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			commentId = request.GET.get('commentId', None)
+
+			try:
+				this_comment = QuestionAnswer.objects.get(id=int(commentId))
+			except QuestionAnswer.DoesNotExist:
+				response = {
+					"status_code": HTTPStatus.NOT_FOUND,
+					"message": "We think this question has been deleted!"
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			this_comment.increase_QuestionAnswer_dislikes(request)
+
+			response = {
+				"this_comment": serializers.serialize("json", [this_comment,]),
+				"status_code": 200
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
 		raise Exception("Unknown functionality viewtutorprofile")
 
 	context = {
@@ -347,6 +401,7 @@ def question_answer_thread(request, question_id):
 	}
 	return render(request, "tutoring/question_answer_thread.html", context)
 
+@deprecated(reason="Implemented in viewtutorprofile views.")
 def like_comment(request):
 	# TODO: Manual test the implementation. Check if used.
 	if not request.is_ajax():
@@ -388,6 +443,7 @@ def like_comment(request):
 	}
 	return HttpResponse(json.dumps(response), content_type="application/json")
 
+@deprecated(reason="Implemented in viewtutorprofile views.")
 def dislike_comment(request):
 	# TODO: Manual test the implementation. Check if used.
 	if not request.is_ajax():

@@ -23,6 +23,24 @@ class QuestionAnswer(models.Model):
 	dislikes = models.ManyToManyField(User, related_name='dislikes')
 	date = models.DateTimeField(default=datetime.now)
 
+	def increase_QuestionAnswer_likes(self, request):
+		if(request.user not in self.likes.all()):
+			self.likes.add(request.user)
+		else:
+			self.likes.remove(request.user)
+
+		if(request.user in self.dislikes.all()):
+			self.dislikes.remove(request.user)
+
+	def increase_QuestionAnswer_dislikes(self, request):
+		if(request.user not in self.dislikes.all()):
+			self.dislikes.add(request.user)
+		else:
+			self.dislikes.remove(request.user)
+
+		if(request.user in self.likes.all()):
+			self.likes.remove(request.user)
+
 	class Meta:
 		verbose_name_plural = "QuestionAnswer"
 
