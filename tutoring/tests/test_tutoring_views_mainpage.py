@@ -3,7 +3,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from accounts.seed_data_installer import installTutor
 
-# coverage run --source=accounts manage.py test tutoring
+# coverage run --source=tutoring manage.py test tutoring
 # coverage html
 
 @skip("Running multiple tests simultaneously slows down the process")
