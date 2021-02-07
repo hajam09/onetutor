@@ -251,7 +251,7 @@ class TestViewsCreateProfile(TestCase):
 			"address_1": "99 Some Road",
 			"address_2": "becontree",
 			"city": "Cambridge",
-			"stateProvice": "Sussex",
+			"stateProvince": "Sussex",
 			"postalZip": "MU8 3SW",
 		}
 		count_before = TutorProfile.objects.all().count()
@@ -285,7 +285,7 @@ class TestViewsTutorProfile(TestCase):
 						"address_1": "24 Cranborne Road",
 						"address_2": "Barking",
 						"city": "London",
-						"stateProvice": "Essex", 
+						"stateProvince": "Essex", 
 						"postalZip": "IG11 7XE",
 						"country": { "alpha": "GB", "name": "United Kingdom" }
 					}
@@ -344,7 +344,7 @@ class TestViewsUserSettings(TestCase):
 						"address_1": "24 Cranborne Road",
 						"address_2": "Barking",
 						"city": "London",
-						"stateProvice": "Essex", 
+						"stateProvince": "Essex", 
 						"postalZip": "IG11 7XE",
 						"country": { "alpha": "GB", "name": "United Kingdom" }
 					}
@@ -429,7 +429,7 @@ class TestViewsUserSettings(TestCase):
 			"address_1": "204 Eversholt Road",
 			"address_2": "Euston",
 			"city": "London",
-			"stateProvice": "Essex",
+			"stateProvince": "Essex",
 			"postalZip": "YM5 2DG",
 			"country": "GB"
 		}
@@ -440,7 +440,7 @@ class TestViewsUserSettings(TestCase):
 			"address_1": context["address_1"],
 			"address_2": context["address_2"],
 			"city": context["city"],
-			"stateProvice": context["stateProvice"],
+			"stateProvince": context["stateProvince"],
 			"postalZip": context["postalZip"],
 			"country": {"alpha": self.country.alpha, "name": self.country.name}
 		}

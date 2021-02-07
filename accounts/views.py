@@ -183,7 +183,7 @@ def createprofile(request):
 			"address_1": request.POST["address_1"].strip().title(),
 			"address_2": request.POST["address_2"].strip().title(),
 			"city": request.POST["city"].strip().title(),
-			"stateProvice": request.POST["stateProvice"].strip().title(),
+			"stateProvince": request.POST["stateProvince"].strip().title(),
 			"postalZip": request.POST["postalZip"].strip().upper(),
 			"country": {
 				"alpha": country.alpha,
@@ -247,7 +247,7 @@ def user_settings(request):
 		address_1 = request.POST["address_1"].strip().title()
 		address_2 = request.POST["address_2"].strip().title()
 		city = request.POST["city"].strip().title()
-		stateProvice = request.POST["stateProvice"].strip().title()
+		stateProvince = request.POST["stateProvince"].strip().title()
 		postalZip = request.POST["postalZip"].strip().upper()
 		country = Countries.objects.get(alpha=request.POST["country"])
 
@@ -255,7 +255,7 @@ def user_settings(request):
 			"address_1": address_1,
 			"address_2": address_2,
 			"city": city,
-			"stateProvice": stateProvice,
+			"stateProvince": stateProvince,
 			"postalZip": postalZip,
 			"country": {"alpha": country.alpha, "name": country.name}
 
