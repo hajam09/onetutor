@@ -303,7 +303,7 @@ def user_settings(request):
 				messages.add_message(request,messages.SUCCESS,"Your password has been updated")
 				auth_login(request, user)
 			else:
-				messages.add_message(request,messages.ERROR,"Error updating your password")
+				messages.add_message(request,messages.ERROR,"Error occured while trying to log you again.")
 				return redirect("accounts:login")	
 
 	if request.method == "POST" and "notification_settings" in request.POST:

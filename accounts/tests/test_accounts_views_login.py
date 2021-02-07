@@ -5,17 +5,15 @@ from django.urls import reverse
 from django.core.cache import cache
 import requests, json
 from django.contrib.auth.models import User
-from accounts.models import TutorProfile, Countries, SocialConnection, UserSession
-from tutoring.models import QuestionAnswer
-from django.contrib.messages import get_messages
+from accounts.models import UserSession
 
 # coverage run --source=accounts manage.py test accounts
 # coverage html
 
-# @skip("Don't want to test")
+@skip("Running multiple tests simultaneously slows down the process")
 class TestAccountViewsLogin(TestCase):
 	"""
-		Testing the login view and it's subsidiary function.
+		Testing the login view where the user want to login to the system, and it's subsidiary function.
 	"""
 
 	def setUp(self):
@@ -153,4 +151,4 @@ class TestAccountViewsLogin(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertIn("message", response.context)
 		self.assertEquals(response.context["message"], "Your account has been temporarily locked out because of too many failed login attempts.")
-		cache.set('loginAttempts', 1)
+		cache.set('loginAttempts', None)

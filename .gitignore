@@ -2,6 +2,7 @@
 *.pyc
 *.log
 *.coverage
+coverage.xml
 media/
 htmlcov
 .scannerwork
