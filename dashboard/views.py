@@ -7,11 +7,12 @@ from django.contrib.auth.models import User
 from django.db.models import Count
 from django.contrib.sessions.models import Session
 from django.utils import timezone
-import datetime, os, operator, psutil
+import datetime, os, operator, psutil, math
 from django.db.models import Q
 from accounts.models import TutorProfile, StudentProfile, Subject, Countries, SocialConnection
 from forum.models import Category, Community, Forum, ForumComment
 from tutoring.models import QuestionAnswer, QAComment
+from jira.models import Sprint, Ticket, TicketComment, TicketImage
 
 CPU_USAGE = [0,0,0,0,0,0,0,0,0,0]
 RAM_USAGE = [0,0,0,0,0,0,0,0,0,0]
@@ -41,8 +42,8 @@ def pages(request):
 		return HttpResponse(html_template.render({}, request))
 
 def metric(request):
-	x = get_user_growth_by_month()
-	print(x)
+	x = jira_task_information()
+	# print(x)
 	return
 
 def get_all_logged_in_users():
@@ -157,3 +158,28 @@ def get_user_growth_by_month():
 		counter += 1
 
 	return data[-12:], ticks[-12:]
+
+def jira_task_information():
+	"""
+		Related data: #of sprints, #of tickets in each issue_type
+		#of tickets in each priority, #of tickets by each status.
+		#of TicketComment, #of ticketimages and total size of all images.
+	"""
+	result = {
+		"no_of_sprints": Sprint.objects.count(),
+		"tickets_in_each_issue_type": list(Ticket.objects.all().values('issue_type').annotate(total=Count('issue_type')).order_by('-total')),
+		"tickets_in_each_priority": list(Ticket.objects.all().values('priority').annotate(total=Count('priority')).order_by('-total')),
+		"tickets_in_each_status": list(Ticket.objects.all().values('status').annotate(total=Count('status')).order_by('-total')),
+		"ticket_image_file_size": convert_file_unit(sum([x.image.size for x in TicketImage.objects.all()])),
+		"ticket_comments": 'get by each week and sum'
+	}
+	return result
+
+def convert_file_unit(size_bytes):
+	if size_bytes == 0:
+		return "0B"
+	size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
+	i = int(math.floor(math.log(size_bytes, 1024)))
+	p = math.pow(1024, i)
+	s = round(size_bytes / p, 2)
+	return "%s %s" % (s, size_name[i])

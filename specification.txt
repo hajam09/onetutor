@@ -37,3 +37,5 @@ Dashboard Metrics:
 * Total login - on popover( login over 24hrs, 1 weeek, month)
 * Total failed login - on popover( login over 24hrs, 1 weeek, month)
 * Password resets - on popover( login over 24hrs, 1 weeek, month)
+* Number of Chat rooms, number of messages each day for the last 7 days.
+* Collect the webbrowser types.
