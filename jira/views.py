@@ -80,6 +80,8 @@ def backlog(request):
 
 		if "Jira" in project:
 			prefix = "Jira-"
+		elif "Dashboard" in project:
+			prefix = "Dashboard-"
 		else:
 			prefix = "OneTutor-"
 
@@ -288,6 +290,8 @@ def ticketpage(request, ticket_url):
 
 		if "Jira" in project:
 			prefix = "Jira-"
+		elif "Dashboard" in project:
+			prefix = "Dashboard-"
 		else:
 			prefix = "OneTutor-"
 

@@ -11,22 +11,15 @@ Dashboard Metrics:
 * CPU usage over time - Done
 * Users joined in last week/month - Done
 
-* Users account with FB, G+, Twitter, and system account
-* Line graph for tasks completed from JIRA
-* Line graph for no. of email sent per notification_settings
-* number of file uploads in this week/this month for profile pic and QA pictures
 * Number of page views and display count for each page. /tutoring/mainpage.html
 * Number of AJAX requests called for each functionality  - on popover( login over 24hrs, 1 weeek, month)
 * Test results for each app / each views functions
-* Number of likes/dislikes made in comments
 * Graph for number of daily visits
 * Total number of visits
 * Map showing visits from each country (to view traffic)
 * Bounce rate for the website
 * View website traffic for the last 7 days in a table. # of visits for each day for the last 7 days
 * Number of messages sent on the chat app
-* Number of chats created
-* Ring chart showing % of task completed from JIRA
 * No. of open tasks, closed tasks
 * Table for ticket status (open, progress, done), subject, and priority (high, medium, low)
 * user (pic), User, Country, payment method, activity (last login time ago), payment status (approved G, pending Y, rejected R)
@@ -37,5 +30,3 @@ Dashboard Metrics:
 * Total login - on popover( login over 24hrs, 1 weeek, month)
 * Total failed login - on popover( login over 24hrs, 1 weeek, month)
 * Password resets - on popover( login over 24hrs, 1 weeek, month)
-* Number of Chat rooms, number of messages each day for the last 7 days.
-* Collect the webbrowser types.
