@@ -1,11 +1,13 @@
-from django.shortcuts import render, redirect
+from chat.models import Message
+from chat.models import Room
 from django.contrib.auth.models import User
-from django.http import HttpResponse
-from http import HTTPStatus
-from .models import Room, Message
-import json
 from django.db.models import Count
+from django.http import HttpResponse
 from django.http import JsonResponse
+from django.shortcuts import redirect
+from django.shortcuts import render
+from http import HTTPStatus
+import json
 
 
 def chatpage(request):
