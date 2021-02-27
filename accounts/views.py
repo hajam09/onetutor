@@ -41,8 +41,10 @@ def login(request):
 
 		if cache.get('loginAttempts') != None and cache.get('loginAttempts') > 3:
 			cache.set('loginAttempts', cache.get('loginAttempts'), 600)
-			context = {"message": 'Your account has been temporarily locked out because of too many failed login attempts.'}
-			return render(request,AccountValueSet.ACCOUNTS_LOGIN_TEMPLATE, context)
+			context = {
+				"message": 'Your account has been temporarily locked out because of too many failed login attempts.'
+			}
+			return render(request, AccountValueSet.ACCOUNTS_LOGIN_TEMPLATE, context)
 
 		username = request.POST['username'].replace(" ", "")
 		password = request.POST['password']
@@ -58,15 +60,18 @@ def login(request):
 
 			auth_login(request, user)
 			return redirect('tutoring:mainpage')
-		else:
-			if cache.get('loginAttempts') == None:
-				cache.set('loginAttempts', 1)
-			else:
-				cache.incr('loginAttempts', 1)
 
-			context = {"message": "Username or Password did not match!", "username": username}
-			return render(request,AccountValueSet.ACCOUNTS_LOGIN_TEMPLATE, context)
-	return render(request,AccountValueSet.ACCOUNTS_LOGIN_TEMPLATE, {})
+		if cache.get('loginAttempts') == None:
+			cache.set('loginAttempts', 1)
+		else:
+			cache.incr('loginAttempts', 1)
+
+		context = {
+			"message": "Username or Password did not match!",
+			"username": username
+		}
+		return render(request, AccountValueSet.ACCOUNTS_LOGIN_TEMPLATE, context)
+	return render(request, AccountValueSet.ACCOUNTS_LOGIN_TEMPLATE, {})
 
 def authenticate_user(request, user):
 	response = requests.get("http://ip-api.com/json").json()

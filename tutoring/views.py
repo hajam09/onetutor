@@ -314,7 +314,7 @@ def question_answer_thread(request, question_id):
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
 
-		elif functionality == "like_comment":
+		if functionality == "like_comment":
 			# TODO: Manual test the implementation.
 			comment_id = request.GET.get('commentId', None)
 
@@ -335,7 +335,7 @@ def question_answer_thread(request, question_id):
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
 
-		elif functionality == "dislike_comment":
+		if functionality == "dislike_comment":
 			# TODO: Manual test the implementation.
 			comment_id = request.GET.get('commentId', None)
 			
@@ -356,7 +356,7 @@ def question_answer_thread(request, question_id):
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
 
-		elif functionality == "delete_qa_comment":
+		if functionality == "delete_qa_comment":
 			comment_id = request.GET.get('comment_id', None)
 			try:
 				QAComment.objects.get(pk=int(comment_id)).delete()
@@ -376,7 +376,7 @@ def question_answer_thread(request, question_id):
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
 
-		elif functionality == "update_comment":
+		if functionality == "update_comment":
 			comment_id, comment_text = request.GET.get('comment_id', None), request.GET.get('comment_text', None)
 
 			try:
