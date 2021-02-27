@@ -1,7 +1,8 @@
-from django.db import models
-from django.contrib.auth.models import User
-import jsonfield, uuid
 from datetime import datetime
+from django.contrib.auth.models import User
+from django.db import models
+import jsonfield
+import uuid
 
 class TutorProfile(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)

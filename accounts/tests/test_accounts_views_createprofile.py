@@ -1,14 +1,15 @@
-from unittest import skip
-from accounts.seed_data_installer import installCountries
-from django.test import TestCase, Client
-from django.urls import reverse
-from django.contrib.auth.models import User
 from accounts.models import TutorProfile
+from accounts.seed_data_installer import installCountries
+from django.contrib.auth.models import User
+from django.test import Client
+from django.test import TestCase
+from django.urls import reverse
+from unittest import skip
 
 # coverage run --source=accounts manage.py test accounts
 # coverage html
 
-@skip("Running multiple tests simultaneously slows down the process")
+# @skip("Running multiple tests simultaneously slows down the process")
 class TestAccountViewsCreateTutorProfile(TestCase):
 	"""
 		Testing the create profile view where the user can create tutor profile.
