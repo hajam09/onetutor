@@ -7,13 +7,13 @@ from django.test import TestCase
 from django.urls import reverse
 from unittest import skip
 import json
-import onetutor.com.accounts.ValueSet as ValueSet
+import onetutor.com.accounts.AccountValueSet as AccountValueSet
 import requests
 
 # coverage run --source=accounts manage.py test accounts
 # coverage html
 
-# @skip("Running multiple tests simultaneously slows down the process")
+@skip("Running multiple tests simultaneously slows down the process")
 class TestAccountViewsLogin(TestCase):
 	"""
 		Testing the login view where the user want to login to the system, and it's subsidiary function.
@@ -23,12 +23,12 @@ class TestAccountViewsLogin(TestCase):
 		self.client = Client(HTTP_USER_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36')
 		self.url = reverse('accounts:login')
 		installTutor()
-		self.user_1 = User.objects.get(email=ValueSet.USER_1_EMAIL)
+		self.user_1 = User.objects.get(email=AccountValueSet.USER_1_EMAIL)
 
 	def test_login_GET(self):
 		response = self.client.get(self.url)
 		self.assertEquals(response.status_code, 200)
-		self.assertTemplateUsed(response, ValueSet.ACCOUNTS_LOGIN_TEMPLATE)
+		self.assertTemplateUsed(response, AccountValueSet.ACCOUNTS_LOGIN_TEMPLATE)
 
 	def test_login_remember_me(self):
 		"""
@@ -43,7 +43,7 @@ class TestAccountViewsLogin(TestCase):
 			Credentials are correct.
 		"""
 		context = {
-			"username": "barry.allen@yahoo.com",
+			"username": AccountValueSet.USER_1_USERNAME,
 			"password": "RanDomPasWord56",
 			"browser_type": "Chrome"
 		}
@@ -59,7 +59,7 @@ class TestAccountViewsLogin(TestCase):
 			Credentials are incorrect.
 		"""
 		context = {
-			"username": ValueSet.NONEXISTENTIALUSER_1,
+			"username": AccountValueSet.NONEXISTENTIALUSER_1,
 			"password": "qWeRtY1234",
 			"browser_type": "Chrome"
 		}
@@ -68,7 +68,7 @@ class TestAccountViewsLogin(TestCase):
 		self.assertIn("message", response.context)
 		self.assertEquals(response.context["message"], "Username or Password did not match!")
 		self.assertIn("username", response.context)
-		self.assertEquals(response.context["username"], ValueSet.NONEXISTENTIALUSER_1)
+		self.assertEquals(response.context["username"], AccountValueSet.NONEXISTENTIALUSER_1)
 		self.assertTemplateUsed(response, "accounts/login.html")
 
 	# @skip("Don't want to test")
@@ -87,7 +87,7 @@ class TestAccountViewsLogin(TestCase):
 			Buts user has blocked this IP address from their UserSession.
 		"""
 		context = {
-			"username": "barry.allen@yahoo.com",
+			"username": AccountValueSet.USER_1_USERNAME,
 			"password": "RanDomPasWord56",
 			"browser_type": "Chrome"
 		}
@@ -102,7 +102,7 @@ class TestAccountViewsLogin(TestCase):
 		# self.test_login_authenticate_valid_user()
 		response = self.client.post(self.url, context)
 		self.assertEquals(response.context["message"], "This IP has been blocked by OneTutor for some reasons. If you think there has been some mistake, please appeal.")
-		self.assertEquals(response.context["username"], "barry.allen@yahoo.com")
+		self.assertEquals(response.context["username"], AccountValueSet.USER_1_USERNAME)
 		self.assertTemplateUsed(response, "accounts/login.html")
 
 	# @skip("Don't want to test")
@@ -112,7 +112,7 @@ class TestAccountViewsLogin(TestCase):
 			Buts user has blocked this IP address from their UserSession.
 		"""
 		context = {
-			"username": "barry.allen@yahoo.com",
+			"username": AccountValueSet.USER_1_USERNAME,
 			"password": "RanDomPasWord56",
 			"browser_type": "Chrome"
 		}
@@ -138,7 +138,7 @@ class TestAccountViewsLogin(TestCase):
 			User temporarily blocked from authenticating.
 		"""
 		context = {
-			"username": ValueSet.NONEXISTENTIALUSER_1,
+			"username": AccountValueSet.NONEXISTENTIALUSER_1,
 			"password": "qWeRtY1234",
 			"browser_type": "Chrome"
 		}

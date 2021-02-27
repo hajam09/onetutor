@@ -9,7 +9,7 @@ from unittest import skip
 # coverage run --source=accounts manage.py test accounts
 # coverage html
 
-# @skip("Running multiple tests simultaneously slows down the process")
+@skip("Running multiple tests simultaneously slows down the process")
 class TestAccountViewsCreateTutorProfile(TestCase):
 	"""
 		Testing the create profile view where the user can create tutor profile.

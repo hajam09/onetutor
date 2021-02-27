@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import QuestionAnswer, QAComment
+from tutoring.models import QAComment
+from tutoring.models import QuestionAnswer
 
-admin.site.register(QuestionAnswer)
 admin.site.register(QAComment)
+admin.site.register(QuestionAnswer)

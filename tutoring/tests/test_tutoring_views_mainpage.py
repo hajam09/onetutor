@@ -1,7 +1,8 @@
-from unittest import skip
+from accounts.seed_data_installer import installTutor
 from django.test import TestCase, Client
 from django.urls import reverse
-from accounts.seed_data_installer import installTutor
+from unittest import skip
+import onetutor.com.tutoring.TutoringValueSet as TutoringValueSet
 
 # coverage run --source=tutoring manage.py test tutoring
 # coverage html
@@ -14,13 +15,13 @@ class TestTutoringViewsMainpage(TestCase):
 
 	def setUp(self):
 		self.client = Client(HTTP_USER_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36')
-		self.url = reverse('tutoring:mainpage')
+		self.url = reverse(TutoringValueSet.TUTORING_MAINPAGE_REDIRECT_VIEW)
 		installTutor()
 
 	def test_mainpage_GET(self):
 		response = self.client.get(self.url)
 		self.assertEquals(response.status_code, 200)
-		self.assertTemplateUsed(response, "tutoring/mainpage.html")
+		self.assertTemplateUsed(response, TutoringValueSet.TUTORING_MAINPAGE_TEMPLATE)
 
 	def test_mainpage_POST_empty_input(self):
 		context = {
@@ -36,7 +37,7 @@ class TestTutoringViewsMainpage(TestCase):
 		self.assertNotIn("generalQuery", response.context)
 		self.assertNotIn("location", response.context)
 		self.assertEquals(response.status_code, 200)
-		self.assertTemplateUsed(response, "tutoring/mainpage.html")
+		self.assertTemplateUsed(response, TutoringValueSet.TUTORING_MAINPAGE_TEMPLATE)
 
 	def test_mainpage_POST_invalid_input(self):
 		"""
@@ -54,7 +55,7 @@ class TestTutoringViewsMainpage(TestCase):
 		self.assertEquals(response.context["message"], "Sorry, we couldn't find you a tutor for your search. Try entering something broad.")
 		self.assertEquals(response.context["alert"], "alert-info")
 		self.assertEquals(response.status_code, 200)
-		self.assertTemplateUsed(response, "tutoring/mainpage.html")
+		self.assertTemplateUsed(response, TutoringValueSet.TUTORING_MAINPAGE_TEMPLATE)
 
 	def test_mainpage_POST_valid_generalQuery_and_location(self):
 		"""
@@ -72,7 +73,7 @@ class TestTutoringViewsMainpage(TestCase):
 		self.assertNotIn("message", response.context)
 		self.assertNotIn("alert", response.context)
 		self.assertEquals(response.status_code, 200)
-		self.assertTemplateUsed(response, "tutoring/mainpage.html")
+		self.assertTemplateUsed(response, TutoringValueSet.TUTORING_MAINPAGE_TEMPLATE)
 
 	def test_mainpage_POST_valid_generalQuery(self):
 		"""
@@ -90,7 +91,7 @@ class TestTutoringViewsMainpage(TestCase):
 		self.assertNotIn("message", response.context)
 		self.assertNotIn("alert", response.context)
 		self.assertEquals(response.status_code, 200)
-		self.assertTemplateUsed(response, "tutoring/mainpage.html")
+		self.assertTemplateUsed(response, TutoringValueSet.TUTORING_MAINPAGE_TEMPLATE)
 
 	def test_mainpage_POST_valid_location(self):
 		"""
@@ -107,4 +108,4 @@ class TestTutoringViewsMainpage(TestCase):
 		self.assertNotEquals(response.context["tutorList"].count(), 0)
 		self.assertNotIn("message", response.context)
 		self.assertNotIn("alert", response.context)
-		self.assertTemplateUsed(response, "tutoring/mainpage.html")
+		self.assertTemplateUsed(response, TutoringValueSet.TUTORING_MAINPAGE_TEMPLATE)

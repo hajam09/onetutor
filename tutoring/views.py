@@ -1,52 +1,56 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
-from accounts.models import TutorProfile, Subject
-from .models import QuestionAnswer, QAComment
-from django.http import HttpResponse
-import json
-from django.core import serializers
+from accounts.models import Subject
+from accounts.models import TutorProfile
 from datetime import datetime
 from deprecated import deprecated
-from http import HTTPStatus
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.core import serializers
+from django.http import HttpResponse
+from django.shortcuts import redirect
+from django.shortcuts import render
+from http import HTTPStatus
+from tutoring.models import QAComment
+from tutoring.models import QuestionAnswer
+import json
+import onetutor.com.tutoring.TutoringValueSet as TutoringValueSet
 
 def mainpage(request):
 	if request.method == "POST":
-		generalQuery = request.POST["generalQuery"]
+		general_query = request.POST["generalQuery"]
 		location = request.POST["location"]
 		context = {}
 
-		tutorList = None
+		tutor_list = None
 		# user may want to find a particular tutor by name(s).
-		if generalQuery and location:
-			tutorList = TutorProfile.objects.filter(summary__icontains=generalQuery, location__icontains=location).select_related('user') | \
-						TutorProfile.objects.filter(subjects__icontains=generalQuery, location__icontains=location).select_related('user')
-			context["generalQuery"] = generalQuery
+		if general_query and location:
+			tutor_list = TutorProfile.objects.filter(summary__icontains=general_query, location__icontains=location).select_related('user') | \
+						TutorProfile.objects.filter(subjects__icontains=general_query, location__icontains=location).select_related('user')
+			context["generalQuery"] = general_query
 			context["location"] = location
 
-		elif generalQuery:
-			tutorList = TutorProfile.objects.filter(summary__icontains=generalQuery).select_related('user') | \
-						TutorProfile.objects.filter(subjects__icontains=generalQuery).select_related('user')
-			context["generalQuery"] = generalQuery
+		elif general_query:
+			tutor_list = TutorProfile.objects.filter(summary__icontains=general_query).select_related('user') | \
+						TutorProfile.objects.filter(subjects__icontains=general_query).select_related('user')
+			context["generalQuery"] = general_query
 
 		elif location:
-			tutorList = TutorProfile.objects.filter(location__icontains=location).select_related('user')
+			tutor_list = TutorProfile.objects.filter(location__icontains=location).select_related('user')
 			context["location"] = location
 
 		else:
 			context["message"] = "Search for a tutor again!"
 			context["alert"] = "alert-danger"
-			return render(request, "tutoring/mainpage.html", context)
+			return render(request, TutoringValueSet.TUTORING_MAINPAGE_TEMPLATE, context)
 
-		context["tutorList"] = tutorList
+		context["tutorList"] = tutor_list
 
-		if tutorList.count() == 0:
+		if tutor_list.count() == 0:
 			context["message"] = "Sorry, we couldn't find you a tutor for your search. Try entering something broad."
 			context["alert"] = "alert-info" 
 
-		return render(request, "tutoring/mainpage.html", context)
+		return render(request, TutoringValueSet.TUTORING_MAINPAGE_TEMPLATE, context)
 
-	return render(request, "tutoring/mainpage.html", {})
+	return render(request, TutoringValueSet.TUTORING_MAINPAGE_TEMPLATE, {})
 
 def viewtutorprofile(request, tutor_secondary_key):
 	try:
@@ -99,7 +103,7 @@ def viewtutorprofile(request, tutor_secondary_key):
 			except QuestionAnswer.DoesNotExist:
 				response = {
 					"status_code": HTTPStatus.NOT_FOUND,
-					"message": "We think this question has been deleted!"
+					"message": TutoringValueSet.TUTORING_QUESTION_DELETED
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 				
@@ -139,7 +143,7 @@ def viewtutorprofile(request, tutor_secondary_key):
 			except QuestionAnswer.DoesNotExist:
 				response = {
 					"status_code": HTTPStatus.NOT_FOUND,
-					"message": "We think this question has been deleted!"
+					"message": TutoringValueSet.TUTORING_QUESTION_DELETED
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
@@ -160,14 +164,14 @@ def viewtutorprofile(request, tutor_secondary_key):
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
-			commentId = request.GET.get('commentId', None)
+			comment_id = request.GET.get('commentId', None)
 
 			try:
-				this_comment = QuestionAnswer.objects.get(id=int(commentId))
+				this_comment = QuestionAnswer.objects.get(id=int(comment_id))
 			except QuestionAnswer.DoesNotExist:
 				response = {
 					"status_code": HTTPStatus.NOT_FOUND,
-					"message": "We think this question has been deleted!"
+					"message": TutoringValueSet.TUTORING_QUESTION_DELETED
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
@@ -187,14 +191,14 @@ def viewtutorprofile(request, tutor_secondary_key):
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
-			commentId = request.GET.get('commentId', None)
+			comment_id = request.GET.get('commentId', None)
 
 			try:
-				this_comment = QuestionAnswer.objects.get(id=int(commentId))
+				this_comment = QuestionAnswer.objects.get(id=int(comment_id))
 			except QuestionAnswer.DoesNotExist:
 				response = {
 					"status_code": HTTPStatus.NOT_FOUND,
-					"message": "We think this question has been deleted!"
+					"message": TutoringValueSet.TUTORING_QUESTION_DELETED
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
@@ -234,7 +238,7 @@ def tutor_questions(request):
 			except QuestionAnswer.DoesNotExist:
 				response = {
 					"status_code": HTTPStatus.NOT_FOUND,
-					"message": "We think this question has been deleted!"
+					"message": TutoringValueSet.TUTORING_QUESTION_DELETED
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 				
@@ -312,14 +316,14 @@ def question_answer_thread(request, question_id):
 
 		elif functionality == "like_comment":
 			# TODO: Manual test the implementation.
-			commentId = request.GET.get('commentId', None)
+			comment_id = request.GET.get('commentId', None)
 
 			try:
-				this_comment = QAComment.objects.get(id=int(commentId))
+				this_comment = QAComment.objects.get(id=int(comment_id))
 			except QAComment.DoesNotExist:
 				response = {
 					"status_code": HTTPStatus.NOT_FOUND,
-					"message": "We think this comment has been deleted!"
+					"message": TutoringValueSet.TUTORING_COMMENT_DELETED
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
@@ -333,14 +337,14 @@ def question_answer_thread(request, question_id):
 
 		elif functionality == "dislike_comment":
 			# TODO: Manual test the implementation.
-			commentId = request.GET.get('commentId', None)
+			comment_id = request.GET.get('commentId', None)
 			
 			try:
-				this_comment = QAComment.objects.get(id=int(commentId))
+				this_comment = QAComment.objects.get(id=int(comment_id))
 			except QAComment.DoesNotExist:
 				response = {
 					"status_code": HTTPStatus.NOT_FOUND,
-					"message": "We think this comment has been deleted!"
+					"message": TutoringValueSet.TUTORING_COMMENT_DELETED
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
@@ -380,7 +384,7 @@ def question_answer_thread(request, question_id):
 			except QAComment.DoesNotExist:
 				response = {
 					"status_code": HTTPStatus.NOT_FOUND,
-					"message": "We think this comment has been deleted!"
+					"message": TutoringValueSet.TUTORING_COMMENT_DELETED
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
@@ -418,14 +422,14 @@ def like_comment(request):
 		}
 		return HttpResponse(json.dumps(response), content_type="application/json")
 
-	commentId = request.GET.get('commentId', None)
+	comment_id = request.GET.get('commentId', None)
 
 	try:
-		this_comment = QuestionAnswer.objects.get(id=int(commentId))
+		this_comment = QuestionAnswer.objects.get(id=int(comment_id))
 	except QuestionAnswer.DoesNotExist:
 		response = {
 			"status_code": HTTPStatus.NOT_FOUND,
-			"message": "We think this question has been deleted!"
+			"message": TutoringValueSet.TUTORING_QUESTION_DELETED
 		}
 		return HttpResponse(json.dumps(response), content_type="application/json")
 
@@ -460,14 +464,14 @@ def dislike_comment(request):
 		}
 		return HttpResponse(json.dumps(response), content_type="application/json")
 
-	commentId = request.GET.get('commentId', None)
+	comment_id = request.GET.get('commentId', None)
 
 	try:
-		this_comment = QuestionAnswer.objects.get(id=int(commentId))
+		this_comment = QuestionAnswer.objects.get(id=int(comment_id))
 	except QuestionAnswer.DoesNotExist:
 		response = {
 			"status_code": HTTPStatus.NOT_FOUND,
-			"message": "We think this question has been deleted!"
+			"message": TutoringValueSet.TUTORING_QUESTION_DELETED
 		}
 		return HttpResponse(json.dumps(response), content_type="application/json")
 

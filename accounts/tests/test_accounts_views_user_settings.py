@@ -13,13 +13,13 @@ from django.urls import reverse
 from tutoring.models import QuestionAnswer
 from unittest import skip
 import json
-import onetutor.com.accounts.ValueSet as ValueSet
+import onetutor.com.accounts.AccountValueSet as AccountValueSet
 import requests
 
 # coverage run --source=accounts manage.py test accounts
 # coverage html
 
-# @skip("Running multiple tests simultaneously slows down the process")
+@skip("Running multiple tests simultaneously slows down the process")
 class TestAccountViewsUserSettings(TestCase):
 	"""
 		Testing the user settings view where the user can access their system settings.
@@ -30,7 +30,7 @@ class TestAccountViewsUserSettings(TestCase):
 		self.url = reverse('accounts:user_settings')
 		installTutor()
 		installCountries()
-		self.user_1 = User.objects.get(email=ValueSet.USER_1_EMAIL)
+		self.user_1 = User.objects.get(email=AccountValueSet.USER_1_EMAIL)
 		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
 
 	def test_usersettings_GET(self):
@@ -52,14 +52,14 @@ class TestAccountViewsUserSettings(TestCase):
 			"update_general_information": ""
 		}
 		response = self.client.post(self.url, context)
-		user = User.objects.get(username=ValueSet.USER_1_EMAIL)
+		user = User.objects.get(username=AccountValueSet.USER_1_EMAIL)
 		self.assertEqual(user.first_name, context["first_name"])
 		self.assertEqual(user.last_name, context["last_name"])
 		self.assertEqual(response.status_code, 302)
 		messages = list(get_messages(response.wsgi_request))
 		self.assertEqual(len(messages), 1)
 		self.assertEqual(str(messages[0]), 'Your personal details has been updated successfully')
-		self.assertRedirects(response, ValueSet.ACCOUNTS_USER_SETTINGS_REDIRECT)
+		self.assertRedirects(response, AccountValueSet.ACCOUNTS_USER_SETTINGS_REDIRECT)
 
 	# @skip('')
 	def test_usersettings_user_tutorprofile_update_address(self):
@@ -93,7 +93,7 @@ class TestAccountViewsUserSettings(TestCase):
 		self.assertEqual(len(messages), 1)
 		self.assertEqual(str(messages[0]), 'Your location has been updated successfully')
 		self.assertEquals(response.status_code, 302)
-		self.assertRedirects(response, ValueSet.ACCOUNTS_USER_SETTINGS_REDIRECT)
+		self.assertRedirects(response, AccountValueSet.ACCOUNTS_USER_SETTINGS_REDIRECT)
 
 	def test_usersettings_user_delete_account(self):
 		"""
@@ -120,7 +120,7 @@ class TestAccountViewsUserSettings(TestCase):
 		self.assertEqual(len(messages), 1)
 		self.assertEqual(str(messages[0]), 'Account deleted successfully')
 		self.assertRedirects(response, '/')
-		self.assertEqual(User.objects.filter(email=ValueSet.USER_1_EMAIL).count(), 0)
+		self.assertEqual(User.objects.filter(email=AccountValueSet.USER_1_EMAIL).count(), 0)
 
 	def test_usersettings_user_update_password_mismatch_password(self):
 		"""
@@ -140,7 +140,7 @@ class TestAccountViewsUserSettings(TestCase):
 		self.assertEqual(len(messages), 1)
 		self.assertEqual(str(messages[0]), 'Your current password does not match')
 		self.assertEqual(response.status_code, 302)
-		self.assertRedirects(response, ValueSet.ACCOUNTS_USER_SETTINGS_REDIRECT)
+		self.assertRedirects(response, AccountValueSet.ACCOUNTS_USER_SETTINGS_REDIRECT)
 
 	def test_usersettings_user_update_password_newpassword_confirmpassowrd_unmatched(self):
 		"""
@@ -161,7 +161,7 @@ class TestAccountViewsUserSettings(TestCase):
 		self.assertEqual(len(messages), 1)
 		self.assertEqual(str(messages[0]), 'Your new password and confirm password does not match')
 		self.assertEqual(response.status_code, 302)
-		self.assertRedirects(response, ValueSet.ACCOUNTS_USER_SETTINGS_REDIRECT)
+		self.assertRedirects(response, AccountValueSet.ACCOUNTS_USER_SETTINGS_REDIRECT)
 
 	def test_usersettings_user_update_password_weak_password(self):
 		"""
@@ -182,7 +182,7 @@ class TestAccountViewsUserSettings(TestCase):
 		self.assertEqual(len(messages), 1)
 		self.assertEqual(str(messages[0]), 'Your new password is not strong enough')
 		self.assertEqual(response.status_code, 302)
-		self.assertRedirects(response, ValueSet.ACCOUNTS_USER_SETTINGS_REDIRECT)
+		self.assertRedirects(response, AccountValueSet.ACCOUNTS_USER_SETTINGS_REDIRECT)
 
 	def test_usersettings_user_update_password_success(self):
 		"""
@@ -232,7 +232,7 @@ class TestAccountViewsUserSettings(TestCase):
 		self.assertEqual(len(messages), 1)
 		self.assertEqual(str(messages[0]), 'Your social connection has been updated successfully')
 		self.assertEqual(response.status_code, 302)
-		self.assertRedirects(response, ValueSet.ACCOUNTS_USER_SETTINGS_REDIRECT)
+		self.assertRedirects(response, AccountValueSet.ACCOUNTS_USER_SETTINGS_REDIRECT)
 
 		social_account = SocialConnection.objects.get(user=self.user_1)
 		self.assertEquals(social_account.twitter, context["twitter"])
@@ -247,7 +247,7 @@ class TestAccountViewsUserSettings(TestCase):
 
 		# this user needs to login, which creates the UserSession object in the view.
 		context = {
-			"username": ValueSet.USER_1_EMAIL,
+			"username": AccountValueSet.USER_1_EMAIL,
 			"password": "RanDomPasWord56",
 			"browser_type": "Chrome"
 		}

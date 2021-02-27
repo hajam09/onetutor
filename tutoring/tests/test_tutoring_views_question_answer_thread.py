@@ -1,15 +1,18 @@
-from unittest import skip
-from django.test import TestCase, Client
-from django.urls import reverse
 from accounts.seed_data_installer import installTutor
 from django.contrib.auth.models import User
-from tutoring.models import QuestionAnswer, QAComment
+from django.test import Client
+from django.test import TestCase
+from django.urls import reverse
+from tutoring.models import QAComment
+from tutoring.models import QuestionAnswer
+from unittest import skip
 import json
+import onetutor.com.tutoring.TutoringValueSet as TutoringValueSet
 
 # coverage run --source=tutoring manage.py test tutoring
 # coverage html
 
-# @skip("Running multiple tests simultaneously slows down the process")
+@skip("Running multiple tests simultaneously slows down the process")
 class TestTutoringViewsQuestionAnswerThread(TestCase):
 	"""
 		Testing the question answer thread.
@@ -86,7 +89,7 @@ class TestTutoringViewsQuestionAnswerThread(TestCase):
 		ajax_reponse = json.loads(response.content)
 		self.assertEquals(response.status_code, 200)
 		self.assertEquals(ajax_reponse["status_code"], 404)
-		self.assertEquals(ajax_reponse["message"], "We think this comment has been deleted!")
+		self.assertEquals(ajax_reponse["message"], TutoringValueSet.TUTORING_COMMENT_DELETED)
 
 	def test_question_answer_thread_dislike_comment(self):
 		payload = {
@@ -114,7 +117,7 @@ class TestTutoringViewsQuestionAnswerThread(TestCase):
 		ajax_reponse = json.loads(response.content)
 		self.assertEquals(response.status_code, 200)
 		self.assertEquals(ajax_reponse["status_code"], 404)
-		self.assertEquals(ajax_reponse["message"], "We think this comment has been deleted!")
+		self.assertEquals(ajax_reponse["message"], TutoringValueSet.TUTORING_COMMENT_DELETED)
 
 	def test_question_answer_thread_delete_qa_comment(self):
 		payload = {
@@ -169,7 +172,7 @@ class TestTutoringViewsQuestionAnswerThread(TestCase):
 		ajax_reponse = json.loads(response.content)
 		self.assertEquals(response.status_code, 200)
 		self.assertEquals(ajax_reponse["status_code"], 404)
-		self.assertEquals(ajax_reponse["message"], "We think this comment has been deleted!")
+		self.assertEquals(ajax_reponse["message"], TutoringValueSet.TUTORING_COMMENT_DELETED)
 
 	def test_question_answer_thread_ajax_not_authenticated(self):
 		self.client.logout()
