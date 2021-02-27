@@ -5,6 +5,7 @@ from django.test import Client
 from django.test import TestCase
 from django.urls import reverse
 from unittest import skip
+import onetutor.com.accounts.AccountValueSet as AccountValueSet
 
 # coverage run --source=accounts manage.py test accounts
 # coverage html
@@ -18,13 +19,13 @@ class TestAccountViewsCreateTutorProfile(TestCase):
 	def setUp(self):
 		self.client = Client(HTTP_USER_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36')
 		self.url = reverse('accounts:createprofile')
-		self.user_1 = User.objects.create_user(username="barry.allen@yahoo.com",
-			email="barry.allen@yahoo.com",
-			password="RanDomPasWord56",
+		self.user_1 = User.objects.create_user(username=AccountValueSet.USER_1_USERNAME,
+			email=AccountValueSet.USER_1_USERNAME,
+			password=AccountValueSet.USER_STRONG_PASSWORD,
 			first_name="Barry",
 			last_name="Allen"
 		)
-		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		self.client.login(username=AccountValueSet.USER_1_USERNAME, password=AccountValueSet.USER_STRONG_PASSWORD)
 		installCountries()
 
 	def test_createprofile_GET(self):
@@ -33,7 +34,7 @@ class TestAccountViewsCreateTutorProfile(TestCase):
 		"""
 		response = self.client.get(self.url)
 		self.assertEquals(response.status_code, 200)
-		self.assertTemplateUsed(response, "accounts/createprofile.html")
+		self.assertTemplateUsed(response, AccountValueSet.ACCOUNTS_CREATE_PROFILE_TEMPLATE)
 
 	# @skip("Don't want to test")
 	def test_createprofile_create_tutor_profile(self):

@@ -32,8 +32,8 @@ class TestAccountViewsRegister(TestCase):
 		"""
 		context = {
 			"email": AccountValueSet.USER_1_EMAIL,
-			"password": "qWeRtY1234",
-			"confirm_password": "qWeRtY1234",
+			"password": AccountValueSet.USER_STRONG_PASSWORD,
+			"confirm_password": AccountValueSet.USER_STRONG_PASSWORD,
 			"first_name": "Henry",
 			"last_name": "Allen" 
 		}
@@ -56,8 +56,8 @@ class TestAccountViewsRegister(TestCase):
 		"""
 		context = {
 			"email": AccountValueSet.USER_2_EMAIL,
-			"password": "Password123",
-			"confirm_password": "Password321",
+			"password": AccountValueSet.USER_STRONG_PASSWORD,
+			"confirm_password": AccountValueSet.USER_INCORRECT_PASSWORD,
 			"first_name": "Oliver",
 			"last_name": "Queen" 
 		}
@@ -81,8 +81,8 @@ class TestAccountViewsRegister(TestCase):
 		"""
 		context = {
 			"email": AccountValueSet.USER_2_EMAIL,
-			"password": "123",
-			"confirm_password": "123",
+			"password": AccountValueSet.USER_WEAK_PASSWORD,
+			"confirm_password": AccountValueSet.USER_WEAK_PASSWORD,
 			"first_name": "Oliver",
 			"last_name": "Queen" 
 		}
@@ -107,8 +107,8 @@ class TestAccountViewsRegister(TestCase):
 		"""
 		context = {
 			"email": AccountValueSet.USER_2_EMAIL,
-			"password": "Password123",
-			"confirm_password": "Password123",
+			"password": AccountValueSet.USER_STRONG_PASSWORD,
+			"confirm_password": AccountValueSet.USER_STRONG_PASSWORD,
 			"first_name": "Oliver",
 			"last_name": "Queen" 
 		}

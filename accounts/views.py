@@ -59,6 +59,7 @@ def login(request):
 				return login_user
 
 			auth_login(request, user)
+			add_user_session(request, request.POST['browser_type'])
 			return redirect('tutoring:mainpage')
 
 		if cache.get('loginAttempts') == None:

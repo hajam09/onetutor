@@ -31,12 +31,12 @@ class TestAccountViewsUserSettings(TestCase):
 		installTutor()
 		installCountries()
 		self.user_1 = User.objects.get(email=AccountValueSet.USER_1_EMAIL)
-		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		self.client.login(username=AccountValueSet.USER_1_EMAIL, password=AccountValueSet.USER_STRONG_PASSWORD)
 
 	def test_usersettings_GET(self):
 		response = self.client.get(self.url)
 		self.assertEquals(response.status_code, 200)
-		self.assertTemplateUsed(response, "accounts/user_settings.html")
+		self.assertTemplateUsed(response, AccountValueSet.ACCOUNTS_USER_SETTINGS_TEMPLATE)
 
 	# @skip('')
 	def test_usersettings_user_update_general_information(self):
@@ -131,8 +131,8 @@ class TestAccountViewsUserSettings(TestCase):
 		context = {
 			"update_password": "",
 			"currentPassword": "not_the_current_password",
-			"newPassword": "RanDomPasWord65",
-			"confirmPassword": "RanDomPasWord65"
+			"newPassword": AccountValueSet.USER_NEW_STRONG_PASSWORD,
+			"confirmPassword": AccountValueSet.USER_NEW_STRONG_PASSWORD
 		}
 
 		response = self.client.post(self.url, context)
@@ -151,8 +151,8 @@ class TestAccountViewsUserSettings(TestCase):
 
 		context = {
 			"update_password": "",
-			"currentPassword": "RanDomPasWord56",
-			"newPassword": "RanDomPasWord65",
+			"currentPassword": AccountValueSet.USER_STRONG_PASSWORD,
+			"newPassword": AccountValueSet.USER_NEW_STRONG_PASSWORD,
 			"confirmPassword": "RanDomPasWord66"
 		}
 
@@ -172,9 +172,9 @@ class TestAccountViewsUserSettings(TestCase):
 
 		context = {
 			"update_password": "",
-			"currentPassword": "RanDomPasWord56",
-			"newPassword": "123",
-			"confirmPassword": "123"
+			"currentPassword": AccountValueSet.USER_STRONG_PASSWORD,
+			"newPassword": AccountValueSet.USER_WEAK_PASSWORD,
+			"confirmPassword": AccountValueSet.USER_WEAK_PASSWORD
 		}
 
 		response = self.client.post(self.url, context)
@@ -193,9 +193,9 @@ class TestAccountViewsUserSettings(TestCase):
 
 		context = {
 			"update_password": "",
-			"currentPassword": "RanDomPasWord56",
-			"newPassword": "RanDomPasWord65",
-			"confirmPassword": "RanDomPasWord65"
+			"currentPassword": AccountValueSet.USER_STRONG_PASSWORD,
+			"newPassword": AccountValueSet.USER_NEW_STRONG_PASSWORD,
+			"confirmPassword": AccountValueSet.USER_NEW_STRONG_PASSWORD
 		}
 
 		response = self.client.post(self.url, context)
@@ -203,7 +203,7 @@ class TestAccountViewsUserSettings(TestCase):
 		self.assertEqual(len(messages), 1)
 		self.assertEqual(str(messages[0]), 'Your password has been updated')
 		self.assertEquals(response.status_code, 200)
-		self.assertTemplateUsed(response, "accounts/user_settings.html")
+		self.assertTemplateUsed(response, AccountValueSet.ACCOUNTS_USER_SETTINGS_TEMPLATE)
 
 	def test_usersettings_user_update_password_successfully_error_authenticating(self):
 		"""
@@ -248,7 +248,7 @@ class TestAccountViewsUserSettings(TestCase):
 		# this user needs to login, which creates the UserSession object in the view.
 		context = {
 			"username": AccountValueSet.USER_1_EMAIL,
-			"password": "RanDomPasWord56",
+			"password": AccountValueSet.USER_STRONG_PASSWORD,
 			"browser_type": "Chrome"
 		}
 		

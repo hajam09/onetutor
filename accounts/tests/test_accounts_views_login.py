@@ -44,7 +44,7 @@ class TestAccountViewsLogin(TestCase):
 		"""
 		context = {
 			"username": AccountValueSet.USER_1_USERNAME,
-			"password": "RanDomPasWord56",
+			"password": AccountValueSet.USER_STRONG_PASSWORD,
 			"browser_type": "Chrome"
 		}
 		response = self.client.post(self.url, context)
@@ -60,7 +60,7 @@ class TestAccountViewsLogin(TestCase):
 		"""
 		context = {
 			"username": AccountValueSet.NONEXISTENTIALUSER_1,
-			"password": "qWeRtY1234",
+			"password": AccountValueSet.USER_INCORRECT_PASSWORD,
 			"browser_type": "Chrome"
 		}
 		response = self.client.post(self.url, context)
@@ -73,7 +73,7 @@ class TestAccountViewsLogin(TestCase):
 
 	# @skip("Don't want to test")
 	def test_logout(self):
-		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		self.client.login(username=AccountValueSet.USER_1_USERNAME, password=AccountValueSet.USER_STRONG_PASSWORD)
 		self.url = reverse('accounts:logout')
 		response = self.client.get(self.url)
 		self.assertEqual(response.status_code, 302)
@@ -88,7 +88,7 @@ class TestAccountViewsLogin(TestCase):
 		"""
 		context = {
 			"username": AccountValueSet.USER_1_USERNAME,
-			"password": "RanDomPasWord56",
+			"password": AccountValueSet.USER_STRONG_PASSWORD,
 			"browser_type": "Chrome"
 		}
 		self.api_response = requests.get("http://ip-api.com/json").json()
@@ -113,7 +113,7 @@ class TestAccountViewsLogin(TestCase):
 		"""
 		context = {
 			"username": AccountValueSet.USER_1_USERNAME,
-			"password": "RanDomPasWord56",
+			"password": AccountValueSet.USER_STRONG_PASSWORD,
 			"browser_type": "Chrome"
 		}
 		self.api_response = requests.get("http://ip-api.com/json").json()
@@ -139,7 +139,7 @@ class TestAccountViewsLogin(TestCase):
 		"""
 		context = {
 			"username": AccountValueSet.NONEXISTENTIALUSER_1,
-			"password": "qWeRtY1234",
+			"password": AccountValueSet.USER_INCORRECT_PASSWORD,
 			"browser_type": "Chrome"
 		}
 
