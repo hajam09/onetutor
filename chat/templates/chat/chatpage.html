@@ -653,22 +653,22 @@
 
     }
 
-    setInterval( function() {
+    // setInterval( function() {
 
-        $.ajax({
-            data: {
-                'functionality': 'fetch_chat',
-                'lst_msg_room': lst_msg_pk,
-            },
-            dataType: 'json',
-            success: function (response) {
-                if(response.status_code == 200) {
-                    NewMessageUpdateHandler(response.new_msg_all_room);
-                }
-            }
-        });
+    //     $.ajax({
+    //         data: {
+    //             'functionality': 'fetch_chat',
+    //             'lst_msg_room': lst_msg_pk,
+    //         },
+    //         dataType: 'json',
+    //         success: function (response) {
+    //             if(response.status_code == 200) {
+    //                 NewMessageUpdateHandler(response.new_msg_all_room);
+    //             }
+    //         }
+    //     });
 
-    }, 1000);    
+    // }, 1000);    
     
 </script>
 

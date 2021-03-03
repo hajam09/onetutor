@@ -1,4 +1,4 @@
-django==2.0.2
+django==3.1.7
 Pillow
 Deprecated
 django-jsonfield
