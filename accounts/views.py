@@ -53,12 +53,12 @@ def login(request):
 
 		user = authenticate(username=username, password=password)
 		if user:
-			login_user = authenticate_user(request, user)
-			if login_user != True:
-				return login_user
+			# login_user = authenticate_user(request, user)
+			# if login_user != True:
+			# 	return login_user
 
 			auth_login(request, user)
-			add_user_session(request, request.POST['browser_type'])
+			# add_user_session(request, request.POST['browser_type'])
 			return redirect('tutoring:mainpage')
 
 		if cache.get('loginAttempts') == None:
@@ -74,6 +74,9 @@ def login(request):
 	return render(request, 'accounts/login.html', {})
 
 def authenticate_user(request, user):
+	"""
+		Not in usage due to data collection requirement review.
+	"""
 	response = requests.get("http://ip-api.com/json").json()
 	try:
 		this_session = UserSession.objects.get(ip_address=response['query'])
@@ -90,6 +93,9 @@ def authenticate_user(request, user):
 	return render(request,'accounts/login.html', context)
 
 def add_user_session(request, browser_type):
+	"""
+		Not in usage due to data collection requirement review.
+	"""
 	# add_user_session(request, request.POST['browser_type'])
 	response = requests.get("http://ip-api.com/json").json()
 	try:
@@ -240,7 +246,7 @@ def user_settings(request):
 
 	countries = Countries.objects.all()
 	social_links = SocialConnection.objects.get(user=request.user) if SocialConnection.objects.filter(user=request.user).count() != 0 else None
-	user_sessions = UserSession.objects.filter(user=request.user)
+	# user_sessions = UserSession.objects.filter(user=request.user)
 
 	if request.method == "POST" and "update_general_information" in request.POST:
 		firstname = request.POST["first_name"].strip()
@@ -345,31 +351,31 @@ def user_settings(request):
 		messages.add_message(request,messages.SUCCESS,"Your social connection has been updated successfully")
 		return redirect('/accounts/user_settings/')
 
-	if request.is_ajax():
-		functionality = request.GET.get('functionality', None)
+	# if request.is_ajax():
+	# 	functionality = request.GET.get('functionality', None)
 
-		if functionality == "block_unblock_IP":
-			session_id, allow = request.GET.get('session_id', None), request.GET.get('allow', None)
-			allow = True if allow == 'true' else False
-			this_session = UserSession.objects.get(id=session_id)
-			this_session.allowed = allow
-			this_session.save()
-			if allow:
-				message = "{} has been unblocked".format(this_session.ip_address)
-			else:
-				message = "{} has been blocked".format(this_session.ip_address)
-			response = {
-				"status_code": HTTPStatus.OK,
-				"message": message
-			}
-			return HttpResponse(json.dumps(response), content_type="application/json")
+	# 	if functionality == "block_unblock_IP":
+	# 		session_id, allow = request.GET.get('session_id', None), request.GET.get('allow', None)
+	# 		allow = True if allow == 'true' else False
+	# 		this_session = UserSession.objects.get(id=session_id)
+	# 		this_session.allowed = allow
+	# 		this_session.save()
+	# 		if allow:
+	# 			message = "{} has been unblocked".format(this_session.ip_address)
+	# 		else:
+	# 			message = "{} has been blocked".format(this_session.ip_address)
+	# 		response = {
+	# 			"status_code": HTTPStatus.OK,
+	# 			"message": message
+	# 		}
+	# 		return HttpResponse(json.dumps(response), content_type="application/json")
 
 
 	context = {
 		"tutorProfile": tutorProfile,
 		"countries": countries,
 		"social_links": social_links,
-		"user_sessions": user_sessions
+		# "user_sessions": user_sessions
 	}
 	
 	return render(request, "accounts/user_settings.html",context)
