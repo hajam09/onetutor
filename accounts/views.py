@@ -247,7 +247,7 @@ def tutorprofile(request):
 	try:
 		tutorProfile = TutorProfile.objects.get(user=request.user.id)
 	except TutorProfile.DoesNotExist:
-		return redirect('accounts:createprofile')
+		return redirect('accounts:selectprofile')
 	
 	tutorProfile.subjects = tutorProfile.subjects.replace(", ", ",").split(",")
 	return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile})
@@ -306,7 +306,7 @@ def user_settings(request):
 	try:
 		tutorProfile = TutorProfile.objects.get(user=request.user.id)
 	except TutorProfile.DoesNotExist:
-		return redirect('accounts:createprofile')
+		return redirect('accounts:selectprofile')
 
 	countries = Countries.objects.all()
 	social_links = SocialConnection.objects.get(user=request.user) if SocialConnection.objects.filter(user=request.user).count() != 0 else None
