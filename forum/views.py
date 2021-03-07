@@ -1,13 +1,19 @@
-from .models import Category, Community, Forum, ForumComment
 from datetime import datetime
+from deprecated import deprecated
 from django.contrib.auth.models import User
 from django.core import serializers
-from django.http import HttpResponse, Http404
-from django.shortcuts import render, redirect
-from deprecated import deprecated
-from sklearn.preprocessing import MinMaxScaler
-import json, random, pandas as pd
+from django.http import Http404
+from django.http import HttpResponse
+from django.shortcuts import redirect
+from django.shortcuts import render
+from forum.models import Category
+from forum.models import Community
+from forum.models import Forum
+from forum.models import ForumComment
 from http import HTTPStatus
+from sklearn.preprocessing import MinMaxScaler
+import json
+import pandas as pd
 
 def mainpage(request):
 

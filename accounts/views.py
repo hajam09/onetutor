@@ -262,7 +262,7 @@ def user_settings(request):
 		user.save()
 
 		messages.add_message(request,messages.SUCCESS,"Your personal details has been updated successfully")
-		return redirect('/accounts/user_settings/'_VIEW)
+		return redirect('/accounts/user_settings/')
 
 	if request.method == "POST" and "update_address" in request.POST:
 		address_1 = request.POST["address_1"].strip().title()
@@ -283,7 +283,7 @@ def user_settings(request):
 		}
 		TutorProfile.objects.filter(user=request.user.id).update(location=location)
 		messages.add_message(request,messages.SUCCESS,"Your location has been updated successfully")
-		return redirect('/accounts/user_settings/'_VIEW)
+		return redirect('/accounts/user_settings/')
 
 	if request.method == "POST" and "delete_account" in request.POST:
 		delete_code = request.POST["delete-code"]
@@ -303,16 +303,16 @@ def user_settings(request):
 
 		if currentPassword and not user.check_password(currentPassword):
 			messages.add_message(request,messages.ERROR,"Your current password does not match")
-			return redirect('/accounts/user_settings/'_VIEW)
+			return redirect('/accounts/user_settings/')
 
 		if(newPassword and confirmPassword):
 			if(newPassword!=confirmPassword):
 				messages.add_message(request,messages.ERROR,"Your new password and confirm password does not match")
-				return redirect('/accounts/user_settings/'_VIEW)
+				return redirect('/accounts/user_settings/')
 
 			if(len(newPassword)<8 or any(letter.isalpha() for letter in newPassword)==False or any(capital.isupper() for capital in newPassword)==False or any(number.isdigit() for number in newPassword)==False):
 				messages.add_message(request,messages.WARNING,"Your new password is not strong enough")
-				return redirect('/accounts/user_settings/'_VIEW)
+				return redirect('/accounts/user_settings/')
 
 			user.set_password(newPassword)
 		user.save()
@@ -343,7 +343,7 @@ def user_settings(request):
 			defaults={'twitter': twitter, 'facebook': facebook, 'google': google, 'linkedin': linkedin},
 		)
 		messages.add_message(request,messages.SUCCESS,"Your social connection has been updated successfully")
-		return redirect('/accounts/user_settings/'_VIEW)
+		return redirect('/accounts/user_settings/')
 
 	if request.is_ajax():
 		functionality = request.GET.get('functionality', None)
