@@ -40,7 +40,7 @@ def mainpage(request):
 		else:
 			context["message"] = "Search for a tutor again!"
 			context["alert"] = "alert-danger"
-			return render(request, TutoringValueSet.TUTORING_MAINPAGE_TEMPLATE, context)
+			return render(request, 'tutoring/mainpage.html', context)
 
 		context["tutorList"] = tutor_list
 
@@ -48,9 +48,9 @@ def mainpage(request):
 			context["message"] = "Sorry, we couldn't find you a tutor for your search. Try entering something broad."
 			context["alert"] = "alert-info" 
 
-		return render(request, TutoringValueSet.TUTORING_MAINPAGE_TEMPLATE, context)
+		return render(request, 'tutoring/mainpage.html', context)
 
-	return render(request, TutoringValueSet.TUTORING_MAINPAGE_TEMPLATE, {})
+	return render(request, 'tutoring/mainpage.html', {})
 
 def viewtutorprofile(request, tutor_secondary_key):
 	try:
@@ -103,7 +103,7 @@ def viewtutorprofile(request, tutor_secondary_key):
 			except QuestionAnswer.DoesNotExist:
 				response = {
 					"status_code": HTTPStatus.NOT_FOUND,
-					"message": TutoringValueSet.TUTORING_QUESTION_DELETED
+					"message": 'We think this question has been deleted!'
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 				
@@ -143,7 +143,7 @@ def viewtutorprofile(request, tutor_secondary_key):
 			except QuestionAnswer.DoesNotExist:
 				response = {
 					"status_code": HTTPStatus.NOT_FOUND,
-					"message": TutoringValueSet.TUTORING_QUESTION_DELETED
+					"message": 'We think this question has been deleted!'
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
@@ -171,7 +171,7 @@ def viewtutorprofile(request, tutor_secondary_key):
 			except QuestionAnswer.DoesNotExist:
 				response = {
 					"status_code": HTTPStatus.NOT_FOUND,
-					"message": TutoringValueSet.TUTORING_QUESTION_DELETED
+					"message": 'We think this question has been deleted!'
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
@@ -198,7 +198,7 @@ def viewtutorprofile(request, tutor_secondary_key):
 			except QuestionAnswer.DoesNotExist:
 				response = {
 					"status_code": HTTPStatus.NOT_FOUND,
-					"message": TutoringValueSet.TUTORING_QUESTION_DELETED
+					"message": 'We think this question has been deleted!'
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
@@ -238,7 +238,7 @@ def tutor_questions(request):
 			except QuestionAnswer.DoesNotExist:
 				response = {
 					"status_code": HTTPStatus.NOT_FOUND,
-					"message": TutoringValueSet.TUTORING_QUESTION_DELETED
+					"message": 'We think this question has been deleted!'
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 				
@@ -323,7 +323,7 @@ def question_answer_thread(request, question_id):
 			except QAComment.DoesNotExist:
 				response = {
 					"status_code": HTTPStatus.NOT_FOUND,
-					"message": TutoringValueSet.TUTORING_COMMENT_DELETED
+					"message": 'We think this comment has been deleted!'
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
@@ -344,7 +344,7 @@ def question_answer_thread(request, question_id):
 			except QAComment.DoesNotExist:
 				response = {
 					"status_code": HTTPStatus.NOT_FOUND,
-					"message": TutoringValueSet.TUTORING_COMMENT_DELETED
+					"message": 'We think this comment has been deleted!'
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
@@ -384,7 +384,7 @@ def question_answer_thread(request, question_id):
 			except QAComment.DoesNotExist:
 				response = {
 					"status_code": HTTPStatus.NOT_FOUND,
-					"message": TutoringValueSet.TUTORING_COMMENT_DELETED
+					"message": 'We think this comment has been deleted!'
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
@@ -429,7 +429,7 @@ def like_comment(request):
 	except QuestionAnswer.DoesNotExist:
 		response = {
 			"status_code": HTTPStatus.NOT_FOUND,
-			"message": TutoringValueSet.TUTORING_QUESTION_DELETED
+			"message": 'We think this question has been deleted!'
 		}
 		return HttpResponse(json.dumps(response), content_type="application/json")
 
@@ -471,7 +471,7 @@ def dislike_comment(request):
 	except QuestionAnswer.DoesNotExist:
 		response = {
 			"status_code": HTTPStatus.NOT_FOUND,
-			"message": TutoringValueSet.TUTORING_QUESTION_DELETED
+			"message": 'We think this question has been deleted!'
 		}
 		return HttpResponse(json.dumps(response), content_type="application/json")
 

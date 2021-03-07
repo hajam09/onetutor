@@ -34,7 +34,7 @@ class TestAccountViewsCreateTutorProfile(TestCase):
 		"""
 		response = self.client.get(self.url)
 		self.assertEquals(response.status_code, 200)
-		self.assertTemplateUsed(response, AccountValueSet.ACCOUNTS_CREATE_PROFILE_TEMPLATE)
+		self.assertTemplateUsed(response, 'accounts/createprofile.html')
 
 	# @skip("Don't want to test")
 	def test_createprofile_create_tutor_profile(self):

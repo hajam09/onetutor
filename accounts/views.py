@@ -29,7 +29,6 @@ from tutoring.models import QuestionAnswer
 import accounts.seed_data_installer
 import datetime
 import json
-import onetutor.com.accounts.AccountValueSet as AccountValueSet
 import os
 import random
 import re
@@ -44,7 +43,7 @@ def login(request):
 			context = {
 				"message": 'Your account has been temporarily locked out because of too many failed login attempts.'
 			}
-			return render(request, AccountValueSet.ACCOUNTS_LOGIN_TEMPLATE, context)
+			return render(request, 'accounts/login.html', context)
 
 		username = request.POST['username'].replace(" ", "")
 		password = request.POST['password']
@@ -71,8 +70,8 @@ def login(request):
 			"message": "Username or Password did not match!",
 			"username": username
 		}
-		return render(request, AccountValueSet.ACCOUNTS_LOGIN_TEMPLATE, context)
-	return render(request, AccountValueSet.ACCOUNTS_LOGIN_TEMPLATE, {})
+		return render(request, 'accounts/login.html', context)
+	return render(request, 'accounts/login.html', {})
 
 def authenticate_user(request, user):
 	response = requests.get("http://ip-api.com/json").json()
@@ -88,7 +87,7 @@ def authenticate_user(request, user):
 		"message": "This IP has been blocked by OneTutor for some reasons. If you think there has been some mistake, please appeal.",
 		"username": user.username
 	}
-	return render(request,AccountValueSet.ACCOUNTS_LOGIN_TEMPLATE, context)
+	return render(request,'accounts/login.html', context)
 
 def add_user_session(request, browser_type):
 	# add_user_session(request, request.POST['browser_type'])
@@ -128,7 +127,7 @@ def register(request):
 				"firstname": firstname,
 				"lastname": lastname
 			}
-			return render(request,AccountValueSet.ACCOUNTS_REGISTRATION_TEMPLATE, context)
+			return render(request,'accounts/registration.html', context)
 		else:
 			context = {}
 			if(password!=password_2):
@@ -138,7 +137,7 @@ def register(request):
 					"firstname": firstname,
 					"lastname": lastname
 				}
-				return render(request,AccountValueSet.ACCOUNTS_REGISTRATION_TEMPLATE, context)
+				return render(request,'accounts/registration.html', context)
 
 			if(len(password)<8 or any(letter.isalpha() for letter in password)==False or any(capital.isupper() for capital in password)==False or any(number.isdigit() for number in password)==False):
 				context = {
@@ -147,7 +146,7 @@ def register(request):
 					"firstname": firstname,
 					"lastname": lastname
 				}
-				return render(request,AccountValueSet.ACCOUNTS_REGISTRATION_TEMPLATE, context)
+				return render(request,'accounts/registration.html', context)
 
 			user = User.objects.create_user(username=email, email=email, password=password, first_name=firstname, last_name=lastname)
 			user.is_active = settings.DEBUG
@@ -168,8 +167,8 @@ def register(request):
 				email_message.send()
 
 			context = {"activate": "We've sent you an activation link. Please check your email."}
-			return render(request,AccountValueSet.ACCOUNTS_REGISTRATION_TEMPLATE, context)
-	return render(request,AccountValueSet.ACCOUNTS_REGISTRATION_TEMPLATE, {})
+			return render(request,'accounts/registration.html', context)
+	return render(request,'accounts/registration.html', {})
 
 def logout(request):
 	auth_logout(request)
@@ -214,7 +213,7 @@ def createprofile(request):
 		}
 
 		TutorProfile.objects.create(user=request.user, summary=summary, about=about, location=location, education=education, subjects=subjects, availability=availability)
-		return redirect(AccountValueSet.ACCOUNTS_CREATE_PROFILE_REDIRECT)
+		return redirect('accounts:createprofile')
 
 	if request.method == "POST" and "student" in request.POST:
 		# user is a student
@@ -227,7 +226,7 @@ def tutorprofile(request):
 	try:
 		tutorProfile = TutorProfile.objects.get(user=request.user.id)
 	except TutorProfile.DoesNotExist:
-		return redirect(AccountValueSet.ACCOUNTS_CREATE_PROFILE_REDIRECT)
+		return redirect('accounts:createprofile')
 	
 	tutorProfile.subjects = tutorProfile.subjects.replace(", ", ",").split(",")
 	return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile})
@@ -237,7 +236,7 @@ def user_settings(request):
 	try:
 		tutorProfile = TutorProfile.objects.get(user=request.user.id)
 	except TutorProfile.DoesNotExist:
-		return redirect(AccountValueSet.ACCOUNTS_CREATE_PROFILE_REDIRECT)
+		return redirect('accounts:createprofile')
 
 	countries = Countries.objects.all()
 	social_links = SocialConnection.objects.get(user=request.user) if SocialConnection.objects.filter(user=request.user).count() != 0 else None
@@ -263,7 +262,7 @@ def user_settings(request):
 		user.save()
 
 		messages.add_message(request,messages.SUCCESS,"Your personal details has been updated successfully")
-		return redirect(AccountValueSet.ACCOUNTS_USER_SETTINGS_REDIRECT_VIEW)
+		return redirect('/accounts/user_settings/'_VIEW)
 
 	if request.method == "POST" and "update_address" in request.POST:
 		address_1 = request.POST["address_1"].strip().title()
@@ -284,7 +283,7 @@ def user_settings(request):
 		}
 		TutorProfile.objects.filter(user=request.user.id).update(location=location)
 		messages.add_message(request,messages.SUCCESS,"Your location has been updated successfully")
-		return redirect(AccountValueSet.ACCOUNTS_USER_SETTINGS_REDIRECT_VIEW)
+		return redirect('/accounts/user_settings/'_VIEW)
 
 	if request.method == "POST" and "delete_account" in request.POST:
 		delete_code = request.POST["delete-code"]
@@ -304,16 +303,16 @@ def user_settings(request):
 
 		if currentPassword and not user.check_password(currentPassword):
 			messages.add_message(request,messages.ERROR,"Your current password does not match")
-			return redirect(AccountValueSet.ACCOUNTS_USER_SETTINGS_REDIRECT_VIEW)
+			return redirect('/accounts/user_settings/'_VIEW)
 
 		if(newPassword and confirmPassword):
 			if(newPassword!=confirmPassword):
 				messages.add_message(request,messages.ERROR,"Your new password and confirm password does not match")
-				return redirect(AccountValueSet.ACCOUNTS_USER_SETTINGS_REDIRECT_VIEW)
+				return redirect('/accounts/user_settings/'_VIEW)
 
 			if(len(newPassword)<8 or any(letter.isalpha() for letter in newPassword)==False or any(capital.isupper() for capital in newPassword)==False or any(number.isdigit() for number in newPassword)==False):
 				messages.add_message(request,messages.WARNING,"Your new password is not strong enough")
-				return redirect(AccountValueSet.ACCOUNTS_USER_SETTINGS_REDIRECT_VIEW)
+				return redirect('/accounts/user_settings/'_VIEW)
 
 			user.set_password(newPassword)
 		user.save()
@@ -344,7 +343,7 @@ def user_settings(request):
 			defaults={'twitter': twitter, 'facebook': facebook, 'google': google, 'linkedin': linkedin},
 		)
 		messages.add_message(request,messages.SUCCESS,"Your social connection has been updated successfully")
-		return redirect(AccountValueSet.ACCOUNTS_USER_SETTINGS_REDIRECT_VIEW)
+		return redirect('/accounts/user_settings/'_VIEW)
 
 	if request.is_ajax():
 		functionality = request.GET.get('functionality', None)
@@ -502,18 +501,18 @@ def password_change(request, uidb64, token):
 		if password_1 and password_2:
 			if(password_1!=password_2):
 				context = {"message": "Your passwords do not match!"}
-				return render(request,AccountValueSet.ACCOUNTS_PASSWORD_RESET_FORM_TEMPLATE, context)
+				return render(request,'accounts/password_reset_form.html', context)
 
 			if(len(password_1)<8 or any(letter.isalpha() for letter in password_1)==False or any(capital.isupper() for capital in password_1)==False or any(number.isdigit() for number in password_1)==False):
 				context = {"message": "Your password is not strong enough."}
-				return render(request,AccountValueSet.ACCOUNTS_PASSWORD_RESET_FORM_TEMPLATE, context)
+				return render(request,'accounts/password_reset_form.html', context)
 
 			user.set_password(password_1)
 			user.save()
 			return redirect("accounts:login")
 
 	if user is not None and generate_token.check_token(user, token):
-		return render(request, AccountValueSet.ACCOUNTS_PASSWORD_RESET_FORM_TEMPLATE,{})
+		return render(request, 'accounts/password_reset_form.html',{})
 	else:
 		return render(request, "accounts/activate_failed.html",status=401)
 

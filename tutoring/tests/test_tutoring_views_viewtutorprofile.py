@@ -126,7 +126,7 @@ class TestTutoringViewsViewTutorProfile(TestCase):
 		ajax_reponse = json.loads(response.content)
 		self.assertEquals(response.status_code, 200)
 		self.assertEquals(ajax_reponse["status_code"], 404)
-		self.assertEquals(ajax_reponse["message"], TutoringValueSet.TUTORING_QUESTION_DELETED)
+		self.assertEquals(ajax_reponse["message"], 'We think this question has been deleted!')
 
 	def test_viewtutorprofile_post_answer_success(self):
 		"""
@@ -243,7 +243,7 @@ class TestTutoringViewsViewTutorProfile(TestCase):
 		ajax_reponse = json.loads(response.content)
 		self.assertEquals(response.status_code, 200)
 		self.assertEquals(ajax_reponse["status_code"], 404)
-		self.assertEquals(ajax_reponse["message"], TutoringValueSet.TUTORING_QUESTION_DELETED)
+		self.assertEquals(ajax_reponse["message"], 'We think this question has been deleted!')
 
 	def test_viewtutorprofile_like_question_answer_object_success(self):
 		"""
@@ -295,7 +295,7 @@ class TestTutoringViewsViewTutorProfile(TestCase):
 		ajax_reponse = json.loads(response.content)
 		self.assertEquals(response.status_code, 200)
 		self.assertEquals(ajax_reponse["status_code"], 404)
-		self.assertEquals(ajax_reponse["message"], TutoringValueSet.TUTORING_QUESTION_DELETED)
+		self.assertEquals(ajax_reponse["message"], 'We think this question has been deleted!')
 
 	def test_viewtutorprofile_dislike_question_answer_object_success(self):
 		"""

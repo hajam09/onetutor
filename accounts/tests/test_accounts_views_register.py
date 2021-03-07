@@ -24,7 +24,7 @@ class TestAccountViewsRegister(TestCase):
 	def test_login_GET(self):
 		response = self.client.get(self.url)
 		self.assertEquals(response.status_code, 200)
-		self.assertTemplateUsed(response, AccountValueSet.ACCOUNTS_REGISTRATION_TEMPLATE)
+		self.assertTemplateUsed(response, 'accounts/registration.html')
 
 	def test_register_account_exists(self):
 		"""
@@ -47,7 +47,7 @@ class TestAccountViewsRegister(TestCase):
 		self.assertEquals(response.context["firstname"], "Henry")
 		self.assertIn("lastname", response.context)
 		self.assertEquals(response.context["lastname"], "Allen")
-		self.assertTemplateUsed(response, AccountValueSet.ACCOUNTS_REGISTRATION_TEMPLATE)
+		self.assertTemplateUsed(response, 'accounts/registration.html')
 
 	def test_register_password_not_matching(self):
 		"""
@@ -71,7 +71,7 @@ class TestAccountViewsRegister(TestCase):
 		self.assertEquals(response.context["firstname"], "Oliver")
 		self.assertIn("lastname", response.context)
 		self.assertEquals(response.context["lastname"], "Queen")
-		self.assertTemplateUsed(response, AccountValueSet.ACCOUNTS_REGISTRATION_TEMPLATE)
+		self.assertTemplateUsed(response, 'accounts/registration.html')
 
 	def test_register_password_not_strong(self):
 		"""
@@ -96,7 +96,7 @@ class TestAccountViewsRegister(TestCase):
 		self.assertEquals(response.context["firstname"], "Oliver")
 		self.assertIn("lastname", response.context)
 		self.assertEquals(response.context["lastname"], "Queen")
-		self.assertTemplateUsed(response, AccountValueSet.ACCOUNTS_REGISTRATION_TEMPLATE)
+		self.assertTemplateUsed(response, 'accounts/registration.html')
 
 	def test_register_create_account(self):
 		"""

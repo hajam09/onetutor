@@ -28,7 +28,7 @@ class TestAccountViewsLogin(TestCase):
 	def test_login_GET(self):
 		response = self.client.get(self.url)
 		self.assertEquals(response.status_code, 200)
-		self.assertTemplateUsed(response, AccountValueSet.ACCOUNTS_LOGIN_TEMPLATE)
+		self.assertTemplateUsed(response, 'accounts/login.html')
 
 	def test_login_remember_me(self):
 		"""

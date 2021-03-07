@@ -89,7 +89,7 @@ class TestTutoringViewsQuestionAnswerThread(TestCase):
 		ajax_reponse = json.loads(response.content)
 		self.assertEquals(response.status_code, 200)
 		self.assertEquals(ajax_reponse["status_code"], 404)
-		self.assertEquals(ajax_reponse["message"], TutoringValueSet.TUTORING_COMMENT_DELETED)
+		self.assertEquals(ajax_reponse["message"], 'We think this comment has been deleted!')
 
 	def test_question_answer_thread_dislike_comment(self):
 		payload = {
@@ -117,7 +117,7 @@ class TestTutoringViewsQuestionAnswerThread(TestCase):
 		ajax_reponse = json.loads(response.content)
 		self.assertEquals(response.status_code, 200)
 		self.assertEquals(ajax_reponse["status_code"], 404)
-		self.assertEquals(ajax_reponse["message"], TutoringValueSet.TUTORING_COMMENT_DELETED)
+		self.assertEquals(ajax_reponse["message"], 'We think this comment has been deleted!')
 
 	def test_question_answer_thread_delete_qa_comment(self):
 		payload = {
@@ -172,7 +172,7 @@ class TestTutoringViewsQuestionAnswerThread(TestCase):
 		ajax_reponse = json.loads(response.content)
 		self.assertEquals(response.status_code, 200)
 		self.assertEquals(ajax_reponse["status_code"], 404)
-		self.assertEquals(ajax_reponse["message"], TutoringValueSet.TUTORING_COMMENT_DELETED)
+		self.assertEquals(ajax_reponse["message"], 'We think this comment has been deleted!')
 
 	def test_question_answer_thread_ajax_not_authenticated(self):
 		self.client.logout()
