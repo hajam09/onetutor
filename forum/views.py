@@ -54,7 +54,7 @@ def mainpage(request):
 					'forumTitle': e.forum_title,
 					'forumImage': str(e.forum_image),
 					'forumDescription': e.forum_description,
-					'forumCommentCount': ForumComment.objects.filter(forum=e).count(),
+					'forumCommentCount': e.forums.count(),
 					'forumEdit': True if e.creator.id == request.user.pk else False,
 					'forumWatching': True if request.user in e.watchers.all() else False,
 					'forumWatchCount': e.watchers.count(),
