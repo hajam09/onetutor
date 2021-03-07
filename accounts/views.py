@@ -181,13 +181,23 @@ def logout(request):
 	return redirect('accounts:login')
 
 @login_required
-def createprofile(request):
-	# only allowed for the user who do not have a profile yet
-	if TutorProfile.objects.filter(user=request.user.id).exists() or StudentProfile.objects.filter(user=request.user.id).exists():
-		return redirect('accounts:profile')
+def selectprofile(request):
+	if TutorProfile.objects.filter(user=request.user.id).exists():
+		return redirect("accounts:tutorprofile")
 
-	if request.method == "POST" and "tutor" in request.POST:
-		# user is a tutor
+	if StudentProfile.objects.filter(user=request.user.id).exists():
+		return render("accounts:studentprofile")
+
+	return render(request, 'accounts/select_profile.html', {})
+
+@login_required
+def create_student_profile(request):
+	return render(request,"accounts/create_student_profile.html", {})
+
+@login_required
+def create_tutor_profile(request):
+
+	if request.method == "POST" and "Create_Tutor_Profile" in request.POST:
 		summary = request.POST["summary"]
 		about = request.POST["about"]
 		subjects = request.POST["subjects"]
@@ -218,14 +228,19 @@ def createprofile(request):
 			}
 		}
 
-		TutorProfile.objects.create(user=request.user, summary=summary, about=about, location=location, education=education, subjects=subjects, availability=availability)
-		return redirect('accounts:createprofile')
-
-	if request.method == "POST" and "student" in request.POST:
-		# user is a student
-		pass
+		TutorProfile.objects.create(
+			user=request.user,
+			summary=summary,
+			about=about,
+			location=location,
+			education=education,
+			subjects=subjects,
+			availability=availability
+			)
+		return redirect('accounts:tutorprofile')
+	
 	countries = Countries.objects.all()
-	return render(request,"accounts/createprofile.html", {"countries": countries})
+	return render(request,"accounts/create_tutor_profile.html", {"countries": countries})
 
 @login_required
 def tutorprofile(request):
@@ -236,6 +251,55 @@ def tutorprofile(request):
 	
 	tutorProfile.subjects = tutorProfile.subjects.replace(", ", ",").split(",")
 	return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile})
+
+@login_required
+def tutorprofileedit(request):
+	if request.method == "POST" and "updateTutorProfile" in request.POST:
+		summary = request.POST["summary"]
+		about = request.POST["about"]
+		subjects = request.POST["subjects"]
+		subjects = subjects.strip()
+		subjects = re.sub(' +', ' ', subjects)
+		subjects = re.sub(' ,+', ',', subjects)
+		subjects = subjects.replace(", ", ",")
+		subjects = subjects.split(",")
+		subjects.sort()
+		subjects = ", ".join(subjects)
+		
+		availabilityChoices = request.POST.getlist('availabilityChoices')
+
+		availability = {}
+		availability["monday"] = {"morning": False, "afternoon": False, "evening": False}
+		availability["tuesday"] = {"morning": False, "afternoon": False, "evening": False}
+		availability["wednesday"] = {"morning": False, "afternoon": False, "evening": False}
+		availability["thursday"] = {"morning": False, "afternoon": False, "evening": False}
+		availability["friday"] = {"morning": False, "afternoon": False, "evening": False}
+		availability["saturday"] = {"morning": False, "afternoon": False, "evening": False}
+		availability["sunday"] = {"morning": False, "afternoon": False, "evening": False}
+		
+		for i in availabilityChoices:
+			i = i.split("_")
+			weekDay = i[0]
+			dayTime = i[1]
+			availability[weekDay][dayTime] = True
+
+		education = {}
+		for i in range(int(request.POST["numberOfEducation"])):
+			education["education_" + str(i + 1) ] = {"school_name": request.POST["school_name_" + str(i + 1)], "qualification": request.POST["qualification_" + str(i + 1)], "year": request.POST["year_" + str(i + 1)]}
+
+		TutorProfile.objects.filter(user=request.user.id).update(user=request.user, summary=summary, about=about, education=education, subjects=subjects, availability=availability, profilePicture=None)
+		return redirect("accounts:tutorprofile")
+
+	tutorProfile = TutorProfile.objects.get(user=request.user.id)
+	return render(request,"accounts/tutorprofileedit.html", {"tutorProfile": tutorProfile})
+
+@login_required
+def studentprofile(request):
+	return render(request,"accounts/studentprofile.html", {})
+
+@login_required
+def studentprofileedit(request):
+	return render(request,"accounts/studentprofile.html", {})
 
 @login_required
 def user_settings(request):
@@ -379,66 +443,6 @@ def user_settings(request):
 	}
 	
 	return render(request, "accounts/user_settings.html",context)
-
-@login_required
-def tutorprofileedit(request):
-	if request.method == "POST" and "updateTutorProfile" in request.POST:
-		summary = request.POST["summary"]
-		about = request.POST["about"]
-		subjects = request.POST["subjects"]
-		subjects = subjects.strip()
-		subjects = re.sub(' +', ' ', subjects)
-		subjects = re.sub(' ,+', ',', subjects)
-		subjects = subjects.replace(", ", ",")
-		subjects = subjects.split(",")
-		subjects.sort()
-		subjects = ", ".join(subjects)
-		
-		availabilityChoices = request.POST.getlist('availabilityChoices')
-
-		availability = {}
-		availability["monday"] = {"morning": False, "afternoon": False, "evening": False}
-		availability["tuesday"] = {"morning": False, "afternoon": False, "evening": False}
-		availability["wednesday"] = {"morning": False, "afternoon": False, "evening": False}
-		availability["thursday"] = {"morning": False, "afternoon": False, "evening": False}
-		availability["friday"] = {"morning": False, "afternoon": False, "evening": False}
-		availability["saturday"] = {"morning": False, "afternoon": False, "evening": False}
-		availability["sunday"] = {"morning": False, "afternoon": False, "evening": False}
-		
-		for i in availabilityChoices:
-			i = i.split("_")
-			weekDay = i[0]
-			dayTime = i[1]
-			availability[weekDay][dayTime] = True
-
-		education = {}
-		for i in range(int(request.POST["numberOfEducation"])):
-			education["education_" + str(i + 1) ] = {"school_name": request.POST["school_name_" + str(i + 1)], "qualification": request.POST["qualification_" + str(i + 1)], "year": request.POST["year_" + str(i + 1)]}
-
-		TutorProfile.objects.filter(user=request.user.id).update(user=request.user, summary=summary, about=about, education=education, subjects=subjects, availability=availability, profilePicture=None)
-		return redirect("accounts:profile")
-
-	tutorProfile = TutorProfile.objects.get(user=request.user.id)
-	return render(request,"accounts/tutorprofileedit.html", {"tutorProfile": tutorProfile})
-
-@login_required
-def studentprofile(request):
-	return render(request,"accounts/studentprofile.html", {})
-
-@login_required
-def studentprofileedit(request):
-	return render(request,"accounts/studentprofile.html", {})
-
-@login_required
-def profile(request):
-	if not TutorProfile.objects.filter(user=request.user.id).exists() and not StudentProfile.objects.filter(user=request.user.id).exists():
-		return redirect('accounts:createprofile')
-
-	if TutorProfile.objects.filter(user=request.user.id).exists():
-		return redirect("accounts:tutorprofile")
-
-	if StudentProfile.objects.filter(user=request.user.id).exists():
-		return render("accounts:studentprofile")
 
 def rules(request, rule_type):
 	if rule_type == "privacy_policy":

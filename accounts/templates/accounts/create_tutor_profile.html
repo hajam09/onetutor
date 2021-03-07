@@ -1,0 +1,195 @@
+{% extends "accounts/account_base.html" %}
+{% load static %}
+{% block content %}
+<style type="text/css">
+	.ui-w-80{width:100px!important;height:auto}.btn-default{border-color:rgba(24,28,33,.1);background:rgba(0,0,0,0);color:#4e5155}label.btn{margin-bottom:0}.btn-outline-primary{border-color:#26b4ff;background:0 0;color:#26b4ff}.btn{cursor:pointer}.text-light{color:#babbbc!important}.account-settings-fileinput{position:absolute;visibility:hidden;width:1px;height:1px;opacity:0}h6,label{color: black;}
+	@media (min-width: 1200px) {
+		.container {
+			width: 1600px;
+		}
+		.wrapper {
+			width: 75%;
+		}
+	}
+
+	@media (min-width: 972px) and (max-width: 1200px) {
+		.container {
+			width: 1600px;
+		}
+		.wrapper {
+			width: 90%;
+		}
+	}
+
+	@media (min-width: 700px) and (max-width: 959px) {
+		.container {
+			width: 1600px;
+		}
+		.wrapper {
+			width: 90%;
+		}
+		.side-bar-text{display: none}
+		.col-md-3{max-width: 17%}
+	}
+</style>
+<div class="wrapper" style="margin: auto;overflow-x: hidden;">
+    <br>
+    {% if messages %}
+    {% for message in messages %}
+    {% if message.tags == "success" %}
+    <div style="color: black; text-align: center;" class="alert alert-success" role="alert">{{message}}</div>
+    {% elif message.tags == "error" %}
+    <div style="color: black; text-align: center;" class="alert alert-danger" role="alert">{{message}}</div>
+    {% else %}
+    <div style="color: black; text-align: center;" class="alert alert-info" role="alert">{{message}}</div>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+    <div class="row gutters-sm">
+        <div class="col-md-12" style="color: black;">
+            <form method="post">
+					{% csrf_token %}
+					<div class="form-group">
+						<h2 for="summary">Summary</h2>
+						<input type="text" class="form-control" id="summary" name="summary" required>
+					</div>
+					<hr>
+					<div class="form-group">
+						<h2 for="about">About</h2>
+						<textarea class="form-control" id="about" name="about" rows="5" required></textarea>
+					</div>
+					<hr>
+					<div class="form-group" id="education">
+						<h2 for="education">Education</h2>
+						<div id="listOfEducation"></div>
+						<button type="button" class="btn btn-primary btn-sm" onclick="addEducationRow();">Add Row</button>
+					</div>
+					<hr>
+					<div class="form-group">
+						<h2 for="subjects">Subjects</h2>
+						<input type="text" class="form-control" id="subjects" name="subjects"
+							placeholder="English, Maths, Science, Geography, ..." required>
+					</div>
+					<hr>
+					<div class="form-group">
+						<h2 for="address">Address</h2>
+						<div class="form-group">
+							<label for="address_1"><b>Address Line 1</b></label>
+							<input type="text" class="form-control" id="address_1"
+								name="address_1" placeholder="Address Line 1" value="{{tutorProfile.location.address_1}}"
+								required>
+						</div>
+						<div class="form-group">
+							<label for="address_2"><b>Address Line 2</b></label>
+							<input type="text" class="form-control" id="address_2"
+								name="address_2" placeholder="Address Line 2" value="{{tutorProfile.location.address_2}}">
+						</div>
+						<div class="row">
+							<div class="col-6">
+								<div class="form-group">
+									<label for="city"><b>City</b></label>
+									<input type="text" class="form-control" id="city" name="city"
+										placeholder="City" value="{{tutorProfile.location.city}}" required>
+								</div>
+							</div>
+							<div class="col-6">
+								<div class="form-group">
+									<label for="stateProvince"><b>State / Province</b></label>
+									<input type="text" class="form-control" id="stateProvince"
+										name="stateProvince" placeholder="State / Province" value="{{tutorProfile.location.stateProvince}}">
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-6">
+								<div class="form-group">
+									<label for="postalZip"><b>Postal / Zip Code</b></label>
+									<input type="text" class="form-control" id="postalZip"
+										name="postalZip" placeholder="Postal / Zip Code" value="{{tutorProfile.location.postalZip}}"
+										required>
+								</div>
+							</div>
+							<div class="col-6">
+								<div class="form-group">
+									<label for="country"><b>Country</b></label>
+									<select class="form-control" id="country" name="country">
+										{% if tutorProfile.location.country %}
+											{% for country in countries %}
+												{% ifequal country.alpha tutorProfile.location.country.alpha %}
+													<option value="{{country.alpha}}" selected="selected">{{country.name}}</option>
+												{% else %}
+													<option value="{{country.alpha}}">{{country.name}}</option>
+												{% endifequal %}
+											{% endfor %}
+										{% else %}
+											{% for country in countries %}
+												{% ifequal country.alpha "GB" %}
+													<option value="{{country.alpha}}" selected="selected">{{country.name}}</option>
+												{% else %}
+													<option value="{{country.alpha}}">{{country.name}}</option>
+												{% endifequal %}
+											{% endfor %}
+										{% endif %}
+									</select>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<button type="submit" class="btn btn-success btn-lg btn-block">Create Profile</button>
+					</div>
+					<input type="hidden" name="numberOfEducation" value="0">
+					<input type="hidden" name="Create_Tutor_Profile">
+				</form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+	var numberOfEducation = 0;
+	function addEducationRow() {
+		addRemoveEducationBtn();
+		numberOfEducation = numberOfEducation + 1;
+		var newRow = `<div class="row" id="education_{educationCounter}">
+						<div class="col-md-4 panel-pad-10">
+							<div class="card">
+								<input type="text" class="form-control" id="school_name_{educationCounter}"
+								name="school_name_{educationCounter}" placeholder="School Name" required>
+							</div>
+						</div>
+						<div class="col-md-4 panel-pad-10">
+							<div class="card">
+								<input type="text" class="form-control" id="qualification_{educationCounter}"
+								name="qualification_{educationCounter}" placeholder="Qualification &amp; Grade(s)"
+								required>
+							</div>
+						</div>
+						<div class="col-md-4 panel-pad-10">
+							<div class="card">
+								<input type="text" class="form-control" id="year_{educationCounter}" name="year_{educationCounter}"
+								placeholder="Attended Years" required>
+							</div>
+						</div>
+					</div><br>`.split("{educationCounter}").join(numberOfEducation);
+
+		$('input[name=numberOfEducation]').val(numberOfEducation);
+		$('#listOfEducation').append(newRow);
+	}
+
+	function removeEducationRow() {
+		$('#listOfEducation').children().last().remove();
+		$('#listOfEducation').children().last().remove();
+		numberOfEducation = numberOfEducation - 1;
+		$('input[name=numberOfEducation]').val(numberOfEducation);
+
+		if ($('#listOfEducation').children().length == 0) {
+			$('#removeRow').remove();
+		}
+	}
+
+	function addRemoveEducationBtn() {
+		if ($('#removeRow').length > 0)
+			return
+		$('#education').append('<button type="button" id="removeRow" class="btn btn-danger btn-sm" onclick="removeEducationRow();">Remove Row</button>');
+	}
+</script>
+{% endblock %}
