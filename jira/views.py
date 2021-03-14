@@ -48,9 +48,18 @@ def sprintboard(request, sprint_url):
 		if functionality == "update_ticket_attributes_from_modal":
 			new_summary = request.GET.get('new_summary', None)
 			new_description = request.GET.get('new_description', None)
+			new_column = request.GET.get('new_column', None)
 			ticket_id = request.GET.get('ticket_code', None)
+			new_priority = request.GET.get('new_priority', None)
+			new_issue_type = request.GET.get('new_issue_type', None)
 			
-			Ticket.objects.filter(id=ticket_id).update(summary=new_summary, description=new_description)
+			Ticket.objects.filter(id=ticket_id).update(
+				summary=new_summary,
+				description=new_description,
+				status=new_column,
+				priority=new_priority,
+				issue_type=new_issue_type
+			)
 			response = {
 				"status_code": HTTPStatus.OK
 			}

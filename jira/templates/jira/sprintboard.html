@@ -79,7 +79,7 @@
             						<img alt="shark" src="https://knboard.com/media/avatars/shark.png" style="color: transparent; width: 100%; height: 100%; object-fit: cover; text-align: center; text-indent: 10000px">
             					</div>
             				</div>
-            				<div>Guest-hHzRczVVjw</div>
+            				<div>User--</div>
             			</div>
             			<br>
             			<small>Column</small>
@@ -132,7 +132,7 @@
 							    	</div>
 							        <div class="card card-body">
 							        	<a id="ticket_url" href="{% url 'jira:ticketpage' ticket.url %}" style="color: grey;">{{ticket.url}}</a>
-							            <h6 class="note-title text-truncate w-75 mb-0" data-noteheading="Book a Ticket for Movie">{{ticket.summary}} </h6>
+							            <h6 id="ticket_{{ ticket.id }}_summary_UI_text" class="note-title text-truncate w-75 mb-0">{{ticket.summary}} </h6>
 							            <br>
 							            <div>
 							            	{% if ticket.issue_type == "Bug" %}
@@ -152,13 +152,13 @@
 						                	{% endif %}
 
 											{% if ticket.priority == "Low" %}
-											<span class="badge badge-success">{{ticket.priority}}</span>
+											<span id="ticket_{{ ticket.id }}_priority_UI_badge" class="badge badge-success">{{ticket.priority}}</span>
 											{% elif ticket.priority == "Medium" %}
-											<span class="badge badge-warning">{{ticket.priority}}</span>
+											<span id="ticket_{{ ticket.id }}_priority_UI_badge" class="badge badge-warning">{{ticket.priority}}</span>
 											{% elif ticket.priority == "High" %}
-											<span class="badge badge-danger">{{ticket.priority}}</span>
+											<span id="ticket_{{ ticket.id }}_priority_UI_badge" class="badge badge-danger">{{ticket.priority}}</span>
 											{% else %}
-											<span class="badge badge-secondary">{{ticket.priority}}</span>
+											<span id="ticket_{{ ticket.id }}_priority_UI_badge" class="badge badge-secondary">{{ticket.priority}}</span>
 											{% endif %}
 
 											<span class="badge badge-pill badge-secondary">{{ticket.points}}</span>
@@ -183,7 +183,7 @@
 							    	</div>
 							        <div class="card card-body">
 							            <a id="ticket_url" href="{% url 'jira:ticketpage' ticket.url %}" style="color: grey;">{{ticket.url}}</a>
-							            <h6 class="note-title text-truncate w-75 mb-0" data-noteheading="Book a Ticket for Movie">{{ticket.summary}} </h6>
+							            <h6 id="ticket_{{ ticket.id }}_summary_UI_text" class="note-title text-truncate w-75 mb-0">{{ticket.summary}} </h6>
 							            <br>
 							            <div>
 							            	{% if ticket.issue_type == "Bug" %}
@@ -203,13 +203,13 @@
 						                	{% endif %}
 
 						                	{% if ticket.priority == "Low" %}
-											<span class="badge badge-success">{{ticket.priority}}</span>
+											<span id="ticket_{{ ticket.id }}_priority_UI_badge" class="badge badge-success">{{ticket.priority}}</span>
 											{% elif ticket.priority == "Medium" %}
-											<span class="badge badge-warning">{{ticket.priority}}</span>
+											<span id="ticket_{{ ticket.id }}_priority_UI_badge" class="badge badge-warning">{{ticket.priority}}</span>
 											{% elif ticket.priority == "High" %}
-											<span class="badge badge-danger">{{ticket.priority}}</span>
+											<span id="ticket_{{ ticket.id }}_priority_UI_badge" class="badge badge-danger">{{ticket.priority}}</span>
 											{% else %}
-											<span class="badge badge-secondary">{{ticket.priority}}</span>
+											<span id="ticket_{{ ticket.id }}_priority_UI_badge" class="badge badge-secondary">{{ticket.priority}}</span>
 											{% endif %}
 
 											<span class="badge badge-pill badge-secondary">{{ticket.points}}</span>
@@ -234,7 +234,7 @@
 							    	</div>
 							        <div class="card card-body">
 							            <a id="ticket_url" href="{% url 'jira:ticketpage' ticket.url %}" style="color: grey;">{{ticket.url}}</a>
-							            <h6 class="note-title text-truncate w-75 mb-0" data-noteheading="Book a Ticket for Movie">{{ticket.summary}} </h6>
+							            <h6 id="ticket_{{ ticket.id }}_summary_UI_text" class="note-title text-truncate w-75 mb-0">{{ticket.summary}} </h6>
 							            <br>
 							            <div>
 							            	{% if ticket.issue_type == "Bug" %}
@@ -254,13 +254,13 @@
 						                	{% endif %}
 
 						                	{% if ticket.priority == "Low" %}
-											<span class="badge badge-success">{{ticket.priority}}</span>
+											<span id="ticket_{{ ticket.id }}_priority_UI_badge" class="badge badge-success">{{ticket.priority}}</span>
 											{% elif ticket.priority == "Medium" %}
-											<span class="badge badge-warning">{{ticket.priority}}</span>
+											<span id="ticket_{{ ticket.id }}_priority_UI_badge" class="badge badge-warning">{{ticket.priority}}</span>
 											{% elif ticket.priority == "High" %}
-											<span class="badge badge-danger">{{ticket.priority}}</span>
+											<span id="ticket_{{ ticket.id }}_priority_UI_badge" class="badge badge-danger">{{ticket.priority}}</span>
 											{% else %}
-											<span class="badge badge-secondary">{{ticket.priority}}</span>
+											<span id="ticket_{{ ticket.id }}_priority_UI_badge" class="badge badge-secondary">{{ticket.priority}}</span>
 											{% endif %}
 
 											<span class="badge badge-pill badge-secondary">{{ticket.points}}</span>
@@ -282,7 +282,7 @@
 							    	</div>
 							        <div class="card card-body">
 							            <a id="ticket_url" href="{% url 'jira:ticketpage' ticket.url %}" style="color: grey;">{{ticket.url}}</a>
-							            <h6 class="note-title text-truncate w-75 mb-0" data-noteheading="Book a Ticket for Movie">{{ticket.summary}} </h6>
+							            <h6 id="ticket_{{ ticket.id }}_summary_UI_text" class="note-title text-truncate w-75 mb-0">{{ticket.summary}} </h6>
 							            <br>
 							            <div>
 							            	{% if ticket.issue_type == "Bug" %}
@@ -302,13 +302,13 @@
 						                	{% endif %}
 
 						                	{% if ticket.priority == "Low" %}
-											<span class="badge badge-success">{{ticket.priority}}</span>
+											<span id="ticket_{{ ticket.id }}_priority_UI_badge" class="badge badge-success">{{ticket.priority}}</span>
 											{% elif ticket.priority == "Medium" %}
-											<span class="badge badge-warning">{{ticket.priority}}</span>
+											<span id="ticket_{{ ticket.id }}_priority_UI_badge" class="badge badge-warning">{{ticket.priority}}</span>
 											{% elif ticket.priority == "High" %}
-											<span class="badge badge-danger">{{ticket.priority}}</span>
+											<span id="ticket_{{ ticket.id }}_priority_UI_badge" class="badge badge-danger">{{ticket.priority}}</span>
 											{% else %}
-											<span class="badge badge-secondary">{{ticket.priority}}</span>
+											<span id="ticket_{{ ticket.id }}_priority_UI_badge" class="badge badge-secondary">{{ticket.priority}}</span>
 											{% endif %}
 
 											<span class="badge badge-pill badge-secondary">{{ticket.points}}</span>
@@ -486,21 +486,27 @@
     	var value = '';
 
     	if (status=='Open') {
-    		value += '<option selected >To Do</option>';
+    		value += '<option selected value="Open">To Do</option>';
     	} else {
-    		value += '<option>To Do</option>';
+    		value += '<option value="Open">To Do</option>';
     	}
 
     	if (status=='Progress') {
-    		value += '<option selected >In progress</option>';
+    		value += '<option selected value="Progress">In progress</option>';
     	} else {
-    		value += '<option>In progress</option>';
+    		value += '<option value="Progress">In progress</option>';
     	}
 
-    	if (status=='Done' || status=='Cancelled') {
+    	if (status=='Done') {
     		value += '<option selected>Done</option>';
     	} else {
     		value += '<option>Done</option>';
+    	}
+
+    	if (status=='Cancelled') {
+    		value += '<option selected >Cancelled</option>';
+    	} else {
+    		value += '<option>Cancelled</option>';
     	}
 
     	return value;
@@ -547,9 +553,12 @@
     	var isChanged = eval($("#changeMade").attr('value'));
     	var new_summary = $('#ticket_title_modal_field').val();
     	var new_description = $('#ticket_description_modal_field').val();
+    	var new_column = $('#ticket_status_dropdown').val();
     	var ticket_code = $("#ticket_code").val();
+    	var new_priority = $("#ticket_priority_dropdown").val();
+    	var new_issue_type = $("#ticket_issue_type_dropdown").val();
 
-    	// TODO: need to update Column, Priority, Issue Type and Labels in the database if changed in the UI.
+    	// TODO: need to update Labels in the database if changed in the UI.
 
     	if (isChanged) {
     		// either the summary or the description has been changed. Update in the DB.
@@ -560,17 +569,45 @@
 					'new_summary': new_summary,
 					'new_description': new_description,
 					'ticket_code': ticket_code,
+					'new_column': new_column,
+					'new_priority': new_priority,
+					'new_issue_type': new_issue_type,
 				},
 				dataType: 'json',
 				success: function (response) {
+					$("#ticket_"+ticket_code+"_summary_UI_text").text(new_summary);
+					updateTicketNewPriorityBadgeInUI(ticket_code, new_priority);
+					updateTicketNewIssueTypeInUI(ticket_code, new_issue_type);
 					// TODO: once the update is complete in the db, then in the UI background update:
-					// summary, column, priority, issue type and labels
+					// column, issue type and labels
 				}
 			});
 
     	}
     	$("#changeMade").attr("value","false");
     }
+
+    function updateTicketNewPriorityBadgeInUI(ticket_code, new_priority) {
+
+    	var new_class = 'badge ';
+
+    	if (new_priority == 'None') {
+    		new_class+= 'badge-secondary';
+    	}
+    	else if (new_priority == 'Low') {
+    		new_class+= 'badge-success';
+    	}
+    	else if (new_priority == 'Medium') {
+    		new_class+= 'badge-warning';
+    	}
+    	else if (new_priority == 'High') {
+    		new_class+= 'badge-danger';
+    	}
+
+    	$('#ticket_'+ticket_code+'_priority_UI_badge').attr("class", new_class).text(new_priority);
+    }
+
+    function updateTicketNewIssueTypeInUI(ticket_code, new_issue_type) {}
 
     document.getElementById('ticket_title_modal_field').addEventListener('input', function () {
     	 $("#changeMade").attr("value","true");
@@ -583,7 +620,6 @@
     $("#ticket_status_dropdown, #ticket_priority_dropdown, #ticket_issue_type_dropdown").on('change', function() {
     	if ($(this).val() != 'selectionKey'){
     		$("#changeMade").attr("value","true");
-    		console.log("changed");
     	}
     });
 </script>
