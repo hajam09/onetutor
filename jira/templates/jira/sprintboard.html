@@ -51,6 +51,61 @@
 	ul { list-style-type: none; margin: 0; padding: 0; margin-bottom: 10px; }
 </style>
 <div class="col-xs-12" style="height:10px;"></div>
+<button id="ticket_description_modal_button" data-toggle="modal" data-target=".bd-example-modal-lg" hidden></button>
+<div id="ticket_description_modal" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="#myLargeModalLabel" aria-hidden="true" style="color:black;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                	<span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+            	<div class="row">
+            		<div class="col-8">
+            			<input class="form-control form-control-lg" type="text" placeholder="Ticket title" id="ticket_title_modal_field" onfocusout="updateTicketAttributesFromModal()">
+            			<br>
+            			<strong>Description</strong>
+            			<br>
+            			<textarea cols="60" rows="5" id="ticket_description_modal_field" oninput="auto_grow(this)" onfocusout="updateTicketAttributesFromModal()"></textarea>
+            			<div id="changeMade" value="false" hidden></div>
+            			<div id="ticket_code" hidden></div>
+            		</div>
+            		<div class="col-4">
+            			<p style="color: rgb(117, 117, 117); margin: 0px;">Assignees</p>
+            			<div style="display: flex; -webkit-box-align: center; align-items: center; margin: 0.5rem 0px; overflow-wrap: anywhere;">
+            				<div>
+            					<div style="height: 2rem; width: 2rem; margin-right: 0.5rem;">
+            						<img alt="shark" src="https://knboard.com/media/avatars/shark.png" style="color: transparent; width: 100%; height: 100%; object-fit: cover; text-align: center; text-indent: 10000px">
+            					</div>
+            				</div>
+            				<div>Guest-hHzRczVVjw</div>
+            			</div>
+            			<br>
+            			<small>Column</small>
+            			<select class="form-control" id="ticket_status_dropdown">
+            				
+            			</select>
+            			<small>Priority</small>
+            			<select class="form-control" id="ticket_priority_dropdown">
+
+            			</select>
+            			<small>Issue Type</small>
+            			<select class="form-control">
+            				<option>1</option> <option>2</option> <option>3</option> <option>4</option> <option>5</option>
+            			</select>
+            			<small>Labels</small>
+            			<select class="form-control">
+            				<option>1</option> <option>2</option> <option>3</option> <option>4</option> <option>5</option>
+            			</select>
+            			<br>
+            			<button type="button" class="btn btn-danger"><i class='fa fa-trash-o' style='font-size:20px'></i> Delete Ticket</button>
+            		</div>
+            	</div>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="wrapper" style="margin: auto;overflow-x: hidden;">
     <br>
     <div class="row gutters-sm">
@@ -64,7 +119,14 @@
                 			<div class="row">TO DO</div>
                 			<ul class="tickets connectedSortable" id="sortable_1">
                 				{% for ticket in todo_tickets %}
-							    <li class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
+							    <li isticket="true" class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
+							    	<div id="ticket_details" hidden>
+							    		<span>{{ ticket.status }}</span>
+							    		<span>{{ ticket.priority }}</span>
+							    		<span>{{ ticket.summary }}</span>
+							    		<span>{{ ticket.description|linebreaksbr }}</span>
+							    		<span>{{ ticket.id}}</span>
+							    	</div>
 							        <div class="card card-body">
 							        	<a id="ticket_url" href="{% url 'jira:ticketpage' ticket.url %}" style="color: grey;">{{ticket.url}}</a>
 							            <h6 class="note-title text-truncate w-75 mb-0" data-noteheading="Book a Ticket for Movie">{{ticket.summary}} </h6>
@@ -97,7 +159,14 @@
                 			<div class="row">IN PROGRESS</div>
                 			<ul class="tickets connectedSortable" id="sortable_2">
                 				{% for ticket in prog_tickets %}
-							    <li class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
+							    <li isticket="true" class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
+							    	<div id="ticket_details" hidden>
+							    		<span>{{ ticket.status }}</span>
+							    		<span>{{ ticket.priority }}</span>
+							    		<span>{{ ticket.summary }}</span>
+							    		<span>{{ ticket.description|linebreaksbr }}</span>
+							    		<span>{{ ticket.id}}</span>
+							    	</div>
 							        <div class="card card-body">
 							            <a id="ticket_url" href="{% url 'jira:ticketpage' ticket.url %}" style="color: grey;">{{ticket.url}}</a>
 							            <h6 class="note-title text-truncate w-75 mb-0" data-noteheading="Book a Ticket for Movie">{{ticket.summary}} </h6>
@@ -130,7 +199,14 @@
                 			<div class="row">DONE</div>
                 			<ul class="tickets connectedSortable" id="sortable_3">
                 				{% for ticket in done_tickets %}
-							    <li class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
+							    <li isticket="true" class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
+							    	<div id="ticket_details" hidden>
+							    		<span>{{ ticket.status }}</span>
+							    		<span>{{ ticket.priority }}</span>
+							    		<span>{{ ticket.summary }}</span>
+							    		<span>{{ ticket.description|linebreaksbr }}</span>
+							    		<span>{{ ticket.id}}</span>
+							    	</div>
 							        <div class="card card-body">
 							            <a id="ticket_url" href="{% url 'jira:ticketpage' ticket.url %}" style="color: grey;">{{ticket.url}}</a>
 							            <h6 class="note-title text-truncate w-75 mb-0" data-noteheading="Book a Ticket for Movie">{{ticket.summary}} </h6>
@@ -160,7 +236,14 @@
 
 							    <!-- Cancelled Tickets -->
 							    {% for ticket in canc_tickets %}
-							    <li class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
+							    <li isticket="true" class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
+							    	<div id="ticket_details" hidden>
+							    		<span>{{ ticket.status }}</span>
+							    		<span>{{ ticket.priority }}</span>
+							    		<span>{{ ticket.summary }}</span>
+							    		<span>{{ ticket.description|linebreaksbr }}</span>
+							    		<span>{{ ticket.id}}</span>
+							    	</div>
 							        <div class="card card-body">
 							            <a id="ticket_url" href="{% url 'jira:ticketpage' ticket.url %}" style="color: grey;">{{ticket.url}}</a>
 							            <h6 class="note-title text-truncate w-75 mb-0" data-noteheading="Book a Ticket for Movie">{{ticket.summary}} </h6>
@@ -269,5 +352,140 @@
 			});
 		}
 	});
+
+	window.onclick = e => {
+        openTicketModalDescription(e.target);
+    }
+
+    function openTicketModalDescription(e) {
+
+    	try {
+
+            if (e.hasAttribute("isticket")) {
+
+            	var ticket_status = getTicketStatusDropdownSelected(e.children[0].children[0].innerHTML);
+            	var ticket_priority = getTicketPriorityDropdownSelected(e.children[0].children[1].innerHTML);
+            	var ticket_summary = e.children[0].children[2].innerHTML;
+            	var ticket_description = e.children[0].children[3].innerHTML.replace(/<br\s*[\/]?>/gi, "\n").trim();
+            	var ticket_id = e.children[0].children[4].innerHTML;
+
+            	$('#ticket_status_dropdown').append(ticket_status);
+            	$('#ticket_priority_dropdown').append(ticket_priority);
+            	$('#ticket_title_modal_field').val(ticket_summary);
+            	$('#ticket_description_modal_field').val(ticket_description);
+            	$('#ticket_code').val(ticket_id);
+            	$("#changeMade").attr("value","false");
+
+            	// temporary way to open the modal.
+                document.getElementById("ticket_description_modal_button").click();
+            }
+
+            return openTicketModalDescription(e.parentElement);
+
+        } catch(err) {
+            return;
+        }
+    	
+    }
+
+    function getTicketStatusDropdownSelected(status) {
+    	$('#ticket_status_dropdown').children().remove().end();
+
+    	var value = '';
+
+    	if (status=='Open') {
+    		value += '<option selected >To Do</option>';
+    	} else {
+    		value += '<option>To Do</option>';
+    	}
+
+    	if (status=='Progress') {
+    		value += '<option selected >In progress</option>';
+    	} else {
+    		value += '<option>In progress</option>';
+    	}
+
+    	if (status=='Done' || status=='Cancelled') {
+    		value += '<option selected>Done</option>';
+    	} else {
+    		value += '<option>Done</option>';
+    	}
+
+    	return value;
+    }
+
+    function getTicketPriorityDropdownSelected(priority) {
+    	$('#ticket_priority_dropdown').children().remove().end();
+
+    	var value = '';
+
+    	if (priority=='Low') {
+    		value += '<option selected >Low</option>';
+    	} else {
+    		value += '<option>Low</option>';
+    	}
+
+    	if (priority=='Medium') {
+    		console.log("aaaa");
+    		value += '<option selected >Medium</option>';
+    	} else {
+    		console.log("bbbb");
+    		value += '<option>Medium</option>';
+    	}
+
+    	if (priority=='High') {
+    		value += '<option selected>High</option>';
+    	} else {
+    		value += '<option>High</option>';
+    	}
+
+    	if (priority=='None') {
+    		value += '<option selected>None</option>';
+    	} else {
+    		value += '<option>None</option>';
+    	}
+
+    	return value;
+    }
+
+    function auto_grow(element) {
+    	element.style.height = "5px";
+    	element.style.height = (element.scrollHeight)+"px";
+    }
+
+    function updateTicketAttributesFromModal() {
+    	var isChanged = eval($("#changeMade").attr('value'));
+    	var new_summary = $('#ticket_title_modal_field').val();
+    	var new_description = $('#ticket_description_modal_field').val();
+    	var ticket_code = $("#ticket_code").val();
+
+    	if (isChanged) {
+    		// either the summary or the description has been changed. Update in the DB.
+    		$.ajax({
+				data: {
+					'functionality': 'update_ticket_attributes_from_modal',
+					'new_summary': new_summary,
+					'new_description': new_description,
+					'ticket_code': ticket_code,
+				},
+				dataType: 'json',
+				success: function (response) {
+					// when successful update the ticket summary in the background.
+					// also if column is updated, issue type and priority.
+					// display the prioriy on the ticket div itself.
+				}
+			});
+
+    	}
+    	$("#changeMade").attr("value","false");
+    }
+
+    document.getElementById('ticket_title_modal_field').addEventListener('input', function () {
+    	 $("#changeMade").attr("value","true");
+    });
+
+    document.getElementById('ticket_description_modal_field').addEventListener('input', function () {
+    	 $("#changeMade").attr("value","true");
+    });
 </script>
 {% endblock %}

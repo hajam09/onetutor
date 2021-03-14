@@ -45,6 +45,17 @@ def sprintboard(request, sprint_url):
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
 
+		if functionality == "update_ticket_attributes_from_modal":
+			new_summary = request.GET.get('new_summary', None)
+			new_description = request.GET.get('new_description', None)
+			ticket_id = request.GET.get('ticket_code', None)
+			
+			Ticket.objects.filter(id=ticket_id).update(summary=new_summary, description=new_description)
+			response = {
+				"status_code": HTTPStatus.OK
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
 	sprint_tickets = Ticket.objects.filter(sprint=active_sprint)
 	context = {
 		"active_sprint": active_sprint,
