@@ -63,11 +63,11 @@
             <div class="modal-body">
             	<div class="row">
             		<div class="col-8">
-            			<input class="form-control form-control-lg" type="text" placeholder="Ticket title" id="ticket_title_modal_field" onfocusout="updateTicketAttributesFromModal()">
+            			<input class="form-control form-control-lg" type="text" placeholder="Ticket title" id="ticket_title_modal_field">
             			<br>
             			<strong>Description</strong>
             			<br>
-            			<textarea cols="60" rows="5" id="ticket_description_modal_field" oninput="auto_grow(this)" onfocusout="updateTicketAttributesFromModal()"></textarea>
+            			<textarea cols="60" rows="5" id="ticket_description_modal_field" oninput="auto_grow(this)"></textarea>
             			<div id="changeMade" value="false" hidden></div>
             			<div id="ticket_code" hidden></div>
             		</div>
@@ -100,6 +100,8 @@
             			</select>
             			<br>
             			<button type="button" class="btn btn-danger"><i class='fa fa-trash-o' style='font-size:20px'></i> Delete Ticket</button>
+            			<br><br>
+            			<button type="button" class="btn btn-success" onclick="updateTicketAttributesFromModal();"><i class='fa fa-check' style='font-size:20px'></i> Update Ticket</button>
             		</div>
             	</div>
             </div>
