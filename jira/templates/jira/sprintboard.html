@@ -91,8 +91,8 @@
 
             			</select>
             			<small>Issue Type</small>
-            			<select class="form-control">
-            				<option>1</option> <option>2</option> <option>3</option> <option>4</option> <option>5</option>
+            			<select class="form-control" id="ticket_issue_type_dropdown">
+            				
             			</select>
             			<small>Labels</small>
             			<select class="form-control">
@@ -126,6 +126,7 @@
 							    		<span>{{ ticket.summary }}</span>
 							    		<span>{{ ticket.description|linebreaksbr }}</span>
 							    		<span>{{ ticket.id}}</span>
+							    		<span>{{ ticket.issue_type}}</span>
 							    	</div>
 							        <div class="card card-body">
 							        	<a id="ticket_url" href="{% url 'jira:ticketpage' ticket.url %}" style="color: grey;">{{ticket.url}}</a>
@@ -148,7 +149,17 @@
 						                	<p hidden></p><img src='' width="20" height="20">
 						                	{% endif %}
 
-						                	<span class="badge badge-pill badge-secondary">{{ticket.points}}</span>
+											{% if ticket.priority == "Low" %}
+											<span class="badge badge-success">{{ticket.priority}}</span>
+											{% elif ticket.priority == "Medium" %}
+											<span class="badge badge-warning">{{ticket.priority}}</span>
+											{% elif ticket.priority == "High" %}
+											<span class="badge badge-danger">{{ticket.priority}}</span>
+											{% else %}
+											<span class="badge badge-secondary">{{ticket.priority}}</span>
+											{% endif %}
+
+											<span class="badge badge-pill badge-secondary">{{ticket.points}}</span>
 							            </div>
 							        </div>
 							    </li>
@@ -166,6 +177,7 @@
 							    		<span>{{ ticket.summary }}</span>
 							    		<span>{{ ticket.description|linebreaksbr }}</span>
 							    		<span>{{ ticket.id}}</span>
+							    		<span>{{ ticket.issue_type}}</span>
 							    	</div>
 							        <div class="card card-body">
 							            <a id="ticket_url" href="{% url 'jira:ticketpage' ticket.url %}" style="color: grey;">{{ticket.url}}</a>
@@ -188,7 +200,17 @@
 						                	<p hidden></p><img src='' width="20" height="20">
 						                	{% endif %}
 
-						                	<span class="badge badge-pill badge-secondary">{{ticket.points}}</span>
+						                	{% if ticket.priority == "Low" %}
+											<span class="badge badge-success">{{ticket.priority}}</span>
+											{% elif ticket.priority == "Medium" %}
+											<span class="badge badge-warning">{{ticket.priority}}</span>
+											{% elif ticket.priority == "High" %}
+											<span class="badge badge-danger">{{ticket.priority}}</span>
+											{% else %}
+											<span class="badge badge-secondary">{{ticket.priority}}</span>
+											{% endif %}
+
+											<span class="badge badge-pill badge-secondary">{{ticket.points}}</span>
 							            </div>
 							        </div>
 							    </li>
@@ -206,6 +228,7 @@
 							    		<span>{{ ticket.summary }}</span>
 							    		<span>{{ ticket.description|linebreaksbr }}</span>
 							    		<span>{{ ticket.id}}</span>
+							    		<span>{{ ticket.issue_type}}</span>
 							    	</div>
 							        <div class="card card-body">
 							            <a id="ticket_url" href="{% url 'jira:ticketpage' ticket.url %}" style="color: grey;">{{ticket.url}}</a>
@@ -228,7 +251,17 @@
 						                	<p hidden></p><img src='' width="20" height="20">
 						                	{% endif %}
 
-						                	<span class="badge badge-pill badge-secondary">{{ticket.points}}</span>
+						                	{% if ticket.priority == "Low" %}
+											<span class="badge badge-success">{{ticket.priority}}</span>
+											{% elif ticket.priority == "Medium" %}
+											<span class="badge badge-warning">{{ticket.priority}}</span>
+											{% elif ticket.priority == "High" %}
+											<span class="badge badge-danger">{{ticket.priority}}</span>
+											{% else %}
+											<span class="badge badge-secondary">{{ticket.priority}}</span>
+											{% endif %}
+
+											<span class="badge badge-pill badge-secondary">{{ticket.points}}</span>
 							            </div>
 							        </div>
 							    </li>
@@ -243,6 +276,7 @@
 							    		<span>{{ ticket.summary }}</span>
 							    		<span>{{ ticket.description|linebreaksbr }}</span>
 							    		<span>{{ ticket.id}}</span>
+							    		<span>{{ ticket.issue_type}}</span>
 							    	</div>
 							        <div class="card card-body">
 							            <a id="ticket_url" href="{% url 'jira:ticketpage' ticket.url %}" style="color: grey;">{{ticket.url}}</a>
@@ -265,7 +299,17 @@
 						                	<p hidden></p><img src='' width="20" height="20">
 						                	{% endif %}
 
-						                	<span class="badge badge-pill badge-secondary">{{ticket.points}}</span>
+						                	{% if ticket.priority == "Low" %}
+											<span class="badge badge-success">{{ticket.priority}}</span>
+											{% elif ticket.priority == "Medium" %}
+											<span class="badge badge-warning">{{ticket.priority}}</span>
+											{% elif ticket.priority == "High" %}
+											<span class="badge badge-danger">{{ticket.priority}}</span>
+											{% else %}
+											<span class="badge badge-secondary">{{ticket.priority}}</span>
+											{% endif %}
+
+											<span class="badge badge-pill badge-secondary">{{ticket.points}}</span>
 							            </div>
 							        </div>
 							    </li>
@@ -368,9 +412,11 @@
             	var ticket_summary = e.children[0].children[2].innerHTML;
             	var ticket_description = e.children[0].children[3].innerHTML.replace(/<br\s*[\/]?>/gi, "\n").trim();
             	var ticket_id = e.children[0].children[4].innerHTML;
+            	var ticket_issue_type = getTicketIssueTypeDropdownSelected(e.children[0].children[5].innerHTML);
 
             	$('#ticket_status_dropdown').append(ticket_status);
             	$('#ticket_priority_dropdown').append(ticket_priority);
+            	$('#ticket_issue_type_dropdown').append(ticket_issue_type);
             	$('#ticket_title_modal_field').val(ticket_summary);
             	$('#ticket_description_modal_field').val(ticket_description);
             	$('#ticket_code').val(ticket_id);
@@ -386,6 +432,50 @@
             return;
         }
     	
+    }
+
+    function getTicketIssueTypeDropdownSelected(issue) {
+    	$('#ticket_issue_type_dropdown').children().remove().end();
+
+    	var value = '';
+
+    	if (issue=='Bug') {
+    		value += '<option selected >Bug</option>';
+    	} else {
+    		value += '<option>Bug</option>';
+    	}
+
+    	if (issue=='Improvement') {
+    		value += '<option selected >Improvement</option>';
+    	} else {
+    		value += '<option>Improvement</option>';
+    	}
+
+    	if (issue=='Story') {
+    		value += '<option selected >Story</option>';
+    	} else {
+    		value += '<option>Story</option>';
+    	}
+
+    	if (issue=='Task') {
+    		value += '<option selected >Task</option>';
+    	} else {
+    		value += '<option>Task</option>';
+    	}
+
+    	if (issue=='Test') {
+    		value += '<option selected >Test</option>';
+    	} else {
+    		value += '<option>Test</option>';
+    	}
+
+    	if (issue=='Epic') {
+    		value += '<option selected >Epic</option>';
+    	} else {
+    		value += '<option>Epic</option>';
+    	}
+
+    	return value;
     }
 
     function getTicketStatusDropdownSelected(status) {
@@ -426,10 +516,8 @@
     	}
 
     	if (priority=='Medium') {
-    		console.log("aaaa");
     		value += '<option selected >Medium</option>';
     	} else {
-    		console.log("bbbb");
     		value += '<option>Medium</option>';
     	}
 
@@ -459,8 +547,11 @@
     	var new_description = $('#ticket_description_modal_field').val();
     	var ticket_code = $("#ticket_code").val();
 
+    	// TODO: need to update Column, Priority, Issue Type and Labels in the database if changed in the UI.
+
     	if (isChanged) {
     		// either the summary or the description has been changed. Update in the DB.
+    		console.log("update in db");
     		$.ajax({
 				data: {
 					'functionality': 'update_ticket_attributes_from_modal',
@@ -470,9 +561,8 @@
 				},
 				dataType: 'json',
 				success: function (response) {
-					// when successful update the ticket summary in the background.
-					// also if column is updated, issue type and priority.
-					// display the prioriy on the ticket div itself.
+					// TODO: once the update is complete in the db, then in the UI background update:
+					// summary, column, priority, issue type and labels
 				}
 			});
 
@@ -486,6 +576,13 @@
 
     document.getElementById('ticket_description_modal_field').addEventListener('input', function () {
     	 $("#changeMade").attr("value","true");
+    });
+
+    $("#ticket_status_dropdown, #ticket_priority_dropdown, #ticket_issue_type_dropdown").on('change', function() {
+    	if ($(this).val() != 'selectionKey'){
+    		$("#changeMade").attr("value","true");
+    		console.log("changed");
+    	}
     });
 </script>
 {% endblock %}
