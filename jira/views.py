@@ -389,17 +389,14 @@ def editticket(request, ticket_url):
 		ticket.summary=summary
 
 		if status != "None":
-			# dev has changed the status to open, progress, done..
-			if ticket.sprint == None:
-				# if a sprint is not set to this ticket when status is changed,
-				# it will not show up on any sprintboard nor in the backlog.
+			if status != "Cancelled" and ticket.sprint == None:
 				to_sprint = request.POST['sprint']
 				ticket.sprint = Sprint.objects.get(url=to_sprint)
 		else:
 			# when status is set to none, the ticket is sent to backlog. Set the sprint to none.
 			ticket.sprint = None
 
-		ticket.save(update_fields=['assignee', 'description' ,'issue_type' ,'points' ,'priority' ,'reporter' , 'sprint', 'status' ,'summary'])
+		ticket.save()
 
 		# creating an instance for each attachement for this ticket
 		if "ticket-attachment-files" in request.FILES:

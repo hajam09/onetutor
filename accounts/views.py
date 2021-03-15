@@ -1,4 +1,3 @@
-# from accounts.seed_data_installer import *
 from accounts.models import Countries
 from accounts.models import SocialConnection
 from accounts.models import StudentProfile

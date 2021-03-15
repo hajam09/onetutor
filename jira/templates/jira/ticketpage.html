@@ -293,7 +293,7 @@
 							                	<span class="badge badge-secondary">{{ticket.status}}</span>
 							                	{% endif %}
     										</p>
-                                            {% if ticket.status != 'None' %}
+                                            {% if ticket.sprint %}
                                             <p>
                                                 <a href="{% url 'jira:sprintboard' ticket.sprint.url %}" style="text-transform: capitalize;">{{ticket.sprint.url}}</a>
                                             </p>

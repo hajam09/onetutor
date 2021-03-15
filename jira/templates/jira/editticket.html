@@ -110,7 +110,7 @@
 												</p>
 											</div>
 										</div>
-										{% if ticket.status == 'None' %}
+										{% if not ticket.sprint %}
 										<div class="row" id="choose_sprint" hidden>
 											<div class="col-6">Sprint:</div>
 											<div class="col-6">
@@ -119,6 +119,7 @@
 														{% for sprints in incomplete_sprints %}
 														<option value="{{sprints.url}}" style="text-transform: capitalize;">{{sprints.url}}</option>
 														{% endfor %}
+														<option value="None" style="text-transform: capitalize;">None</option>
 													</select>
 												</p>
 											</div>
