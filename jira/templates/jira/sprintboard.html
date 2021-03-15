@@ -121,7 +121,7 @@
                 			<div class="row">TO DO</div>
                 			<ul class="tickets connectedSortable" id="sortable_1">
                 				{% for ticket in todo_tickets %}
-							    <li isticket="true" class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
+							    <li id="jira_ticket_{{ticket.id}}_in_board" isticket="true" class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
 							    	<div id="ticket_details" hidden>
 							    		<span>{{ ticket.status }}</span>
 							    		<span>{{ ticket.priority }}</span>
@@ -172,7 +172,7 @@
                 			<div class="row">IN PROGRESS</div>
                 			<ul class="tickets connectedSortable" id="sortable_2">
                 				{% for ticket in prog_tickets %}
-							    <li isticket="true" class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
+							    <li id="jira_ticket_{{ticket.id}}_in_board" isticket="true" class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
 							    	<div id="ticket_details" hidden>
 							    		<span>{{ ticket.status }}</span>
 							    		<span>{{ ticket.priority }}</span>
@@ -223,7 +223,7 @@
                 			<div class="row">DONE</div>
                 			<ul class="tickets connectedSortable" id="sortable_3">
                 				{% for ticket in done_tickets %}
-							    <li isticket="true" class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
+							    <li id="jira_ticket_{{ticket.id}}_in_board" isticket="true" class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
 							    	<div id="ticket_details" hidden>
 							    		<span>{{ ticket.status }}</span>
 							    		<span>{{ ticket.priority }}</span>
@@ -271,13 +271,13 @@
 
 							    <!-- Cancelled Tickets -->
 							    {% for ticket in canc_tickets %}
-							    <li isticket="true" class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
+							    <li id="jira_ticket_{{ticket.id}}_in_board" isticket="true" class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
 							    	<div id="ticket_details" hidden>
 							    		<span>{{ ticket.status }}</span>
 							    		<span>{{ ticket.priority }}</span>
 							    		<span>{{ ticket.summary }}</span>
 							    		<span>{{ ticket.description|linebreaksbr }}</span>
-							    		<span>{{ ticket.id}}</span>
+							    		<span>{{ ticket.id }}</span>
 							    		<span>{{ ticket.issue_type}}</span>
 							    	</div>
 							        <div class="card card-body">
@@ -578,13 +578,30 @@
 					$("#ticket_"+ticket_code+"_summary_UI_text").text(new_summary);
 					updateTicketNewPriorityBadgeInUI(ticket_code, new_priority);
 					updateTicketNewIssueTypeInUI(ticket_code, new_issue_type);
+					updateTIcketNewColumnInUI(ticket_code, new_column);
 					// TODO: once the update is complete in the db, then in the UI background update:
-					// column, issue type and labels
+					// issue type and labels
 				}
 			});
 
     	}
     	$("#changeMade").attr("value","false");
+    }
+
+    function updateTIcketNewColumnInUI(ticket_code, new_column) {
+
+    	var ticket_div = document.getElementById('jira_ticket_'+ticket_code+'_in_board');
+
+    	if (new_column == 'Open')
+    		$('#sortable_1').append(ticket_div);
+
+    	if (new_column == 'Progress')
+    		$('#sortable_2').append(ticket_div);
+
+    	if (new_column == 'Done' || new_column == 'Cancelled')
+    		$('#sortable_3').append(ticket_div);
+
+    	return;
     }
 
     function updateTicketNewPriorityBadgeInUI(ticket_code, new_priority) {
