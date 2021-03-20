@@ -43,6 +43,7 @@
 				<div class="loginbox-textbox">
 					<input type="password" class="form-control" name="password" placeholder="Password" required/>
 				</div>
+				<input type="text" name="uniqueVisitorId" id="uniqueVisitorId" hidden>
 				<div class="loginbox-forgot row">
 					<label class="checkbox-inline"><input type="checkbox" name="remember_me" /> Remember Me</label>
 					<a href="#" onclick="showHidePassword();" style="color: #007bff;">Show Password</a>
@@ -64,6 +65,24 @@
 
 		password_1.attr("type","text") ? password_1.attr("type")=="password" : password_1.attr("type","password")
 
+	}
+
+	function generateUniqueVisitorId() {
+
+		if ( localStorage.getItem('uniqueVisitorId') ) {
+			$('#uniqueVisitorId').val( localStorage.getItem('uniqueVisitorId') );
+			return;
+		}
+
+		var result = '';
+		var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+		var charactersLength = characters.length;
+		for ( var i = 0; i < 10; i++ ) {
+			result += characters.charAt(Math.floor(Math.random() * charactersLength));
+		}
+
+		localStorage.setItem('uniqueVisitorId', result)
+		$('#uniqueVisitorId').val(result);
 	}
 
 	function browser_detection() {
@@ -110,5 +129,6 @@
 		}
 	}
 	browser_detection();
+	generateUniqueVisitorId();
 </script>
 {% endblock %}

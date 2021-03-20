@@ -36,9 +36,10 @@ import string
 
 def login(request):
 	if request.method == "POST":
+		uniqueVisitorId = request.POST['uniqueVisitorId']
 
-		if cache.get('loginAttempts') != None and cache.get('loginAttempts') > 3:
-			cache.set('loginAttempts', cache.get('loginAttempts'), 600)
+		if cache.get(uniqueVisitorId) != None and cache.get(uniqueVisitorId) > 3:
+			cache.set(uniqueVisitorId, cache.get(uniqueVisitorId), 600)
 			context = {
 				"message": 'Your account has been temporarily locked out because of too many failed login attempts.'
 			}
@@ -57,13 +58,14 @@ def login(request):
 			# 	return login_user
 
 			auth_login(request, user)
+			cache.delete(uniqueVisitorId)
 			# add_user_session(request, request.POST['browser_type'])
 			return redirect('tutoring:mainpage')
 
-		if cache.get('loginAttempts') == None:
-			cache.set('loginAttempts', 1)
+		if cache.get(uniqueVisitorId) == None:
+			cache.set(uniqueVisitorId, 1)
 		else:
-			cache.incr('loginAttempts', 1)
+			cache.incr(uniqueVisitorId, 1)
 
 		context = {
 			"message": "Username or Password did not match!",
