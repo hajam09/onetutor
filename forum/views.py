@@ -48,7 +48,10 @@ def mainpage(request):
 			try:
 				next_forum = forums_split[int(next_index)]
 			except IndexError:
-				next_forum = []
+				response = {
+					"error": "IndexError"
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
 
 			for e in next_forum:
 				forum_json.append({
@@ -207,7 +210,11 @@ def communitypage(request, community_id):
 			try:
 				next_forum = forums_split[int(next_index)]
 			except IndexError:
-				next_forum = []
+				response = {
+					"error": "IndexError"
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+				
 			for e in next_forum:
 				forum_json.append({
 						'forumId': e.id,

@@ -330,6 +330,9 @@
 
 	window.onscroll = function(ev) {
 		if ((window.innerHeight + window.pageYOffset) >= document.body.offsetHeight) {
+
+			if (NEXT_INDEX == -1)
+				return;
 			
 			$.ajax({
 				data: {
@@ -338,6 +341,9 @@
 				},
 				dataType: 'json',
 				success: function (response) {
+					if (response.error == 'IndexError')
+						NEXT_INDEX = -1;
+
 					if(response.status_code == 200) {
 
 						var this_forum = response.forum_json;
