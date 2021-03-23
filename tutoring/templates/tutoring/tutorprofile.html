@@ -31,97 +31,145 @@
 		
 	}
 </style>
+<div class="profile-userbuttons">
+	<div class="modal fade" id="questionModal" tabindex="-1" role="dialog" aria-labelledby="questionModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content" style="color: black;">
+				<div class="modal-header">
+					<h3 class="modal-title" id="exampleModalLabel" style="display: inline-block;">Enter your Question below.</h3>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close" style="display: inline-block;">
+					<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="form-group">
+						<label for="subject-related" class="col-form-label pull-left"><b>Select a subject</b></label>
+						<select class="form-control" id="subject" name="subject">
+							{% for subject in subjects %}
+							<option value="{{subject.name}}">{{subject.name}}</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div class="form-group">
+						<label for="question" class="col-form-label pull-left"><b>Question:</b></label>
+						<textarea class="form-control" id="question" name="question" required></textarea>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+						<button type="submit" class="btn btn-success" onclick="post_question();">Post my Question</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 <div class="wrapper" style="margin: auto;overflow-x: hidden;">
 	<br>
 	<div class="row gutters-sm">
 		<div class="col-lg-3 d-md-block">
 			<div class="card">
 				<div class="card-body">
-					<div class="profile-sidebar">
-						<div class="profile-userpic">
-							{% if tutorProfile.profilePicture %}
-							<img src="{{ tutorProfile.profilePicture.url }}" class="img-responsive mx-auto d-block" style="width:100px;" alt="" />
-							{% else %}
-							<img src="https://icon-library.com/images/default-user-icon/default-user-icon-13.jpg" class="img-responsive mx-auto d-block" style="width:100px;" alt="" />
-							{% endif %}
-						</div>
-						<div class="profile-usertitle">
-							<div class="profile-usertitle-name">
-								{{ tutorProfile.user.first_name }} {{ tutorProfile.user.last_name }}
-							</div>
-							<div class="profile-usertitle-job">
-								{{ tutorProfile.summary }}
-							</div>
-						</div>
-						<div class="profile-userbuttons">
-							<div class="modal fade" id="questionModal" tabindex="-1" role="dialog" aria-labelledby="questionModalLabel" aria-hidden="true">
-								<div class="modal-dialog" role="document">
-									<div class="modal-content" style="color: black;">
-										<div class="modal-header">
-											<h3 class="modal-title" id="exampleModalLabel" style="display: inline-block;">Enter your Question below.</h3>
-											<button type="button" class="close" data-dismiss="modal" aria-label="Close" style="display: inline-block;">
-												<span aria-hidden="true">&times;</span>
-											</button>
-										</div>
-										<div class="modal-body">
-											<!-- <form method="post" id="askQuestionForm"> -->
-												<!-- {% csrf_token %} -->
-												<div class="form-group">
-													<label for="subject-related" class="col-form-label pull-left"><b>Select a subject</b></label>
-													<select class="form-control" id="subject" name="subject">
-														{% for subject in subjects %}
-														<option value="{{subject.name}}">{{subject.name}}</option>
-														{% endfor %}
-													</select>
-												</div>
-												<div class="form-group">
-													<label for="question" class="col-form-label pull-left"><b>Question:</b></label>
-													<textarea class="form-control" id="question" name="question" required></textarea>
-												</div>
-												<div class="modal-footer">
-													<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-													<button type="submit" class="btn btn-success" onclick="post_question();">Post my Question</button>
-												</div>
-											<!-- </form> -->
-										</div>
-									</div>
-								</div>
-							</div>
+					<div class="d-flex flex-column align-items-center text-center">
+						{% if tutorProfile.profilePicture %}
+						<img src="{{ tutorProfile.profilePicture.url }}" class="rounded-circle" width="150" height="150" alt="Error" />
+						{% else %}
+						<img src="https://icon-library.com/images/default-user-icon/default-user-icon-13.jpg" class="rounded-circle" width="150" height="150" alt="Error" />
+						{% endif %}
+						<div class="mt-3">
+							<h4 style="color: black;">{{ tutorProfile.user.first_name }} {{ tutorProfile.user.last_name }}</h4>
+							<p class="text-secondary mb-1">{{ tutorProfile.summary }}</p>
 							{% if user.pk != tutorProfile.user.pk %}
-							<button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#questionModal">Ask a Question</button>
-							<button type="button" class="btn btn-danger btn-sm" onclick="StartMessage();">Message</button>
+							<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#questionModal">Ask a Question</button>
+							<button type="button" class="btn btn-outline-primary" onclick="StartMessage();">Message</button>
 							{% endif %}
 						</div>
 					</div>
 				</div>
-				<nav class="nav flex-column nav-pills nav-gap-y-1">
-						<a href="#tutor_profile" data-toggle="tab" class="nav-item nav-link has-icon nav-link-faded active">
-							<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1">
-								<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-								<circle cx="12" cy="7" r="4"></circle>
+			</div>
+			<div class="card mt-3" style="color: black;">
+				<ul class="list-group list-group-flush">
+					<li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+						<h6 class="mb-0">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-globe mr-2 icon-inline">
+								<circle cx="12" cy="12" r="10"></circle>
+								<line x1="2" y1="12" x2="22" y2="12"></line>
+								<path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
 							</svg>
-							&nbsp;&nbsp;
-							<label class="side-bar-text">Profile</label>
-						</a>
-						<a href="#q_and_a" data-toggle="tab" class="nav-item nav-link has-icon nav-link-faded">
-							<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
-							&nbsp;&nbsp;
-							<label class="side-bar-text">Q and A</label>
-						</a>
-					</nav>
+							Website
+						</h6>
+						<span class="text-secondary">https://bootdey.com</span>
+					</li>
+					<li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+						<h6 class="mb-0">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-github mr-2 icon-inline">
+								<path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+							</svg>
+							Github
+						</h6>
+						<span class="text-secondary">bootdey</span>
+					</li>
+					<li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+						<h6 class="mb-0">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-twitter mr-2 icon-inline text-info">
+								<path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+							</svg>
+							Twitter
+						</h6>
+						<span class="text-secondary">@bootdey</span>
+					</li>
+					<li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+						<h6 class="mb-0">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-instagram mr-2 icon-inline text-danger">
+								<rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+								<path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+								<line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+							</svg>
+							Instagram
+						</h6>
+						<span class="text-secondary">bootdey</span>
+					</li>
+					<li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+						<h6 class="mb-0">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-facebook mr-2 icon-inline text-primary">
+								<path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+							</svg>
+							Facebook
+						</h6>
+						<span class="text-secondary">bootdey</span>
+					</li>
+				</ul>
+			</div>
+			<br>
+			<div class="card" style="color: black;">
+				<nav class="nav flex-column nav-pills nav-gap-y-1">
+					<a href="#tutor_profile" data-toggle="tab" class="nav-item nav-link has-icon nav-link-faded active">
+					<i class='fa fa-user' style='font-size:20px'></i>
+					&nbsp;&nbsp;
+					<label class="side-bar-text">Profile</label>
+					</a>
+					<a href="#q_and_a" data-toggle="tab" class="nav-item nav-link has-icon nav-link-faded">
+					<i class='fas fa-question' style='font-size:20px'></i>
+					&nbsp;&nbsp;
+					<label class="side-bar-text">Q and A</label>
+					</a>
+					<a href="#tutor_reviews" data-toggle="tab" class="nav-item nav-link has-icon nav-link-faded">
+					<i class='fa fa-star' style='font-size:20px'></i>
+					&nbsp;&nbsp;
+					<label class="side-bar-text">Reviews</label>
+					</a>
+				</nav>
 			</div>
 		</div>
 		<div class="col-lg-9">
 			<div class="card">
-				
 				<div class="card-body tab-content" style="color: black;">
-					
 					<div class="tab-pane active" id="tutor_profile">
 						<div>
 							<h3>About</h3>
 							<p>{{ tutorProfile.about|linebreaksbr }}</p>
 						</div>
-						<hr><br>
+						<hr>
+						<br>
 						<div>
 							<h3>Education</h3>
 							<div>
@@ -137,7 +185,8 @@
 								{% endfor %}
 							</div>
 						</div>
-						<hr><br>
+						<hr>
+						<br>
 						<div>
 							<div class="row">
 								<div class="col-sm-6">
@@ -226,25 +275,25 @@
 									<div class="modal-header">
 										<h3 class="modal-title" id="exampleModalLabel" style="display: inline-block;">Answer the Question below.</h3>
 										<button type="button" class="close" data-dismiss="modal" aria-label="Close" style="display: inline-block;">
-											<span aria-hidden="true">&times;</span>
+										<span aria-hidden="true">&times;</span>
 										</button>
 									</div>
 									<div class="modal-body">
 										<!-- <form method="post"> -->
-											<!-- {% csrf_token %} -->
-											<div class="form-group">
-												<label for="question_text" class="col-form-label pull-left">Question</label>
-												<textarea class="form-control" id="question_text" name="question_text" readonly></textarea>
-											</div>
-											<div class="form-group">
-												<label for="answer_text" class="col-form-label pull-left">Answer</label>
-												<textarea class="form-control" id="answer_text" name="answer_text" required></textarea>
-											</div>
-											<input type="text" name="question_id" id="question_id" hidden/>
-											<div class="modal-footer">
-												<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-												<button type="submit" class="btn btn-success" onclick="post_answer();">Post my Answer</button>
-											</div>
+										<!-- {% csrf_token %} -->
+										<div class="form-group">
+											<label for="question_text" class="col-form-label pull-left">Question</label>
+											<textarea class="form-control" id="question_text" name="question_text" readonly></textarea>
+										</div>
+										<div class="form-group">
+											<label for="answer_text" class="col-form-label pull-left">Answer</label>
+											<textarea class="form-control" id="answer_text" name="answer_text" required></textarea>
+										</div>
+										<input type="text" name="question_id" id="question_id" hidden/>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+											<button type="submit" class="btn btn-success" onclick="post_answer();">Post my Answer</button>
+										</div>
 										<!-- </form> -->
 									</div>
 								</div>
@@ -257,7 +306,7 @@
 									<div class="modal-header">
 										<h3 class="modal-title" id="exampleModalLabel" style="display: inline-block;">Edit your question below.</h3>
 										<button type="button" class="close" data-dismiss="modal" aria-label="Close" style="display: inline-block;">
-											<span aria-hidden="true">&times;</span>
+										<span aria-hidden="true">&times;</span>
 										</button>
 									</div>
 									<div class="modal-body">
@@ -265,8 +314,8 @@
 											<label for="subject-related" class="col-form-label pull-left"><b>Select a subject</b></label>
 											<select class="form-control" id="editQuestionSubject" name="subject">
 												<!-- {% for subject in subjects %}
-												<option value="{{subject.name}}">{{subject.name}}</option>
-												{% endfor %} -->
+													<option value="{{subject.name}}">{{subject.name}}</option>
+													{% endfor %} -->
 											</select>
 										</div>
 										<div class="form-group">
@@ -283,42 +332,45 @@
 							</div>
 						</div>
 						<div style="overflow-y: scroll; overflow-x: hidden; height:866px;" id="tutor_questions">
-						{% if questionAndAnswers %} {% for qa in questionAndAnswers %}
+							{% if questionAndAnswers %} {% for qa in questionAndAnswers %}
 							<div class="container question_answer_container_{{qa.id}}" style="width: auto;">
 								<div id="question_answer_id_{{qa.id}}">
 									<a href="/subject_tag/{{qa.subject}}" class="mtgtlDwEfX" style="display:inline-block;" id="qa_subject_{{qa.id}}">{{ qa.subject }}</a>
 									{{ qa.questioner.first_name }} {{ qa.questioner.last_name }} asked a question at
 									<p style="display:inline-block;" id="tool_tip_date_{{qa.id}}" data-toggle="tooltip" data-placement="top">{{ qa.date }}</p>
 									<div class="dropdown pull-right" style="display:inline-block;">
-									    <!--Trigger-->
-									    <a class="btn-floating btn-lg black dropdown-toggle"type="button" id="dropdownMenu3" data-toggle="dropdown"
-									        aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
-									    <br>
-									    <!--Menu-->
-									    <div class="dropdown-menu dropdown-primary">
-									    	{% if qa.questioner.pk == user.pk %}
-									        	<a class="dropdown-item" href="#" onclick="delete_question('{{qa.id}}');"><i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete question</a>
-									        	<a class="dropdown-item" href="#" data-toggle="modal" data-target="#editQuestionModal" onclick="updateEditQuestionModal('{{ qa.id }}');"><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit question</a>
-									        {% endif %}
-									        <a class="dropdown-item" href="{% url 'tutoring:question_answer_thread' qa.id %}" target="_blank"><i class="fab fa-discourse"></i>&nbsp;&nbsp;View thread</a>
-									    </div>
+										<!--Trigger-->
+										<a class="btn-floating btn-lg black dropdown-toggle"type="button" id="dropdownMenu3" data-toggle="dropdown"
+											aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
+										<br>
+										<!--Menu-->
+										<div class="dropdown-menu dropdown-primary">
+											{% if qa.questioner.pk == user.pk %}
+											<a class="dropdown-item" href="#" onclick="delete_question('{{qa.id}}');"><i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete question</a>
+											<a class="dropdown-item" href="#" data-toggle="modal" data-target="#editQuestionModal" onclick="updateEditQuestionModal('{{ qa.id }}');"><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit question</a>
+											{% endif %}
+											<a class="dropdown-item" href="{% url 'tutoring:question_answer_thread' qa.id %}" target="_blank"><i class="fab fa-discourse"></i>&nbsp;&nbsp;View thread</a>
+										</div>
 									</div>
 								</div>
-								
 								<div><strong id="qa_question_{{qa.id}}">{{ qa.question|linebreaksbr }}</strong></div>
 								<br>
-								<div style="width: 970px;" id="qa_answer_{{qa.id}}">{{ qa.answer|linebreaksbr }}</div><br>
+								<div style="width: 970px;" id="qa_answer_{{qa.id}}">{{ qa.answer|linebreaksbr }}</div>
+								<br>
 								<button id="comment_like_id_{{qa.id}}" type="button" class="btn btn-default btn-sm" onclick="like_comment('{{qa.id}}')">
-									<i class='far fa-thumbs-up' style='font-size:15px'></i> ({{qa.likes.count}})
+								<i class='far fa-thumbs-up' style='font-size:15px'></i> ({{qa.likes.count}})
 								</button>
 								<button id="comment_dislike_id_{{qa.id}}" type="button" class="btn btn-default btn-sm" onclick="dislike_comment('{{qa.id}}')">
-									<i class='far fa-thumbs-down' style='font-size:15px'></i> ({{qa.dislikes.count}})
+								<i class='far fa-thumbs-down' style='font-size:15px'></i> ({{qa.dislikes.count}})
 								</button><br><br>
-								<span class="badge badge-info" data-toggle="modal" data-target="#answerModal" onclick="updateAnswerModal('{{ qa.id }}');">Answer this question</span><hr>
+								<span class="badge badge-info" data-toggle="modal" data-target="#answerModal" onclick="updateAnswerModal('{{ qa.id }}');">Answer this question</span>
+								<hr>
 							</div>
-							
-						{% endfor %} {% endif %}
+							{% endfor %} {% endif %}
 						</div>
+					</div>
+					<div class="tab-pane" id="tutor_reviews">
+						<p>Tutor Reviews</p>
 					</div>
 				</div>
 			</div>
@@ -406,13 +458,13 @@
 					$('#qa_subject_'+$('#question_id_to_update').val()).attr("href", "/subject_tag/"+this_qa.fields.subject);
 
 				} else if (response.status_code == 404) {
-	            	Swal.fire({
-	            		icon: 'error',
-	            		title: "Can't do that!",
-	            		text: response.message
-	            	});
-	            	$( ".question_answer_container_"+$('#question_id_to_update').val() ).remove();
-	            }
+					Swal.fire({
+						icon: 'error',
+						title: "Can't do that!",
+						text: response.message
+					});
+					$( ".question_answer_container_"+$('#question_id_to_update').val() ).remove();
+				}
 			}
 		});
 	}
@@ -433,27 +485,27 @@
 					$('#comment_like_id_'+commentId).html('<i class="far fa-thumbs-up" style="font-size:15px"></i> ('+ number_of_likes +')');
 					$('#comment_dislike_id_'+commentId).html('<i class="far fa-thumbs-down" style="font-size:15px"></i> ('+ number_of_dislikes +')');
 
-	            } else if (response.status_code == 401) {
-	            	Swal.fire({
-	            		icon: 'warning',
-	            		title: "Can't do that!",
-	            		text: response.message
-	            	});
+				} else if (response.status_code == 401) {
+					Swal.fire({
+						icon: 'warning',
+						title: "Can't do that!",
+						text: response.message
+					});
 
-	            } else if (response.status_code == 403) {
-	            	Swal.fire({
-	            		icon: 'error',
-	            		title: "Can't do that!",
-	            		text: response.message
-	            	});
-	            } else if (response.status_code == 404) {
-	            	Swal.fire({
-	            		icon: 'error',
-	            		title: "Can't do that!",
-	            		text: response.message
-	            	});
-	            	$( ".question_answer_container_"+commentId ).remove();
-	            }
+				} else if (response.status_code == 403) {
+					Swal.fire({
+						icon: 'error',
+						title: "Can't do that!",
+						text: response.message
+					});
+				} else if (response.status_code == 404) {
+					Swal.fire({
+						icon: 'error',
+						title: "Can't do that!",
+						text: response.message
+					});
+					$( ".question_answer_container_"+commentId ).remove();
+				}
 			}
 		});
 	}
@@ -475,26 +527,26 @@
 					$('#comment_dislike_id_'+commentId).html('<i class="far fa-thumbs-down" style="font-size:15px"></i> ('+ number_of_dislikes +')');
 
 				} else if (response.status_code == 401) {
-	            	Swal.fire({
-	            		icon: 'warning',
-	            		title: "Can't do that!",
-	            		text: response.message
-	            	});
+					Swal.fire({
+						icon: 'warning',
+						title: "Can't do that!",
+						text: response.message
+					});
 
-	            } else if (response.status_code == 403) {
-	            	Swal.fire({
-	            		icon: 'error',
-	            		title: "Can't do that!",
-	            		text: response.message
-	            	});
-	            } else if (response.status_code == 404) {
-	            	Swal.fire({
-	            		icon: 'error',
-	            		title: "Can't do that!",
-	            		text: response.message
-	            	});
-	            	$( ".question_answer_container_"+commentId ).remove();
-	            }
+				} else if (response.status_code == 403) {
+					Swal.fire({
+						icon: 'error',
+						title: "Can't do that!",
+						text: response.message
+					});
+				} else if (response.status_code == 404) {
+					Swal.fire({
+						icon: 'error',
+						title: "Can't do that!",
+						text: response.message
+					});
+					$( ".question_answer_container_"+commentId ).remove();
+				}
 			}
 		});
 	}
@@ -533,14 +585,14 @@
 								`+response.questioner_first_name+ " " +response.questioner_last_name+` asked a question at
 								<p style="display:inline-block;" id="tool_tip_date_`+new_qa.pk+`" data-toggle="tooltip" data-placement="top">`+response.created_date+`</p>
 								<div class="dropdown pull-right" style="display:inline-block;">
-								    <a class="btn-floating btn-lg black dropdown-toggle"type="button" id="dropdownMenu3" data-toggle="dropdown"
-								        aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
-								    <br>
-								    <div class="dropdown-menu dropdown-primary">
-								        <a class="dropdown-item" href="#" onclick="delete_question('`+new_qa.pk+`');"><i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete question</a>
-								        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editQuestionModal" onclick="updateEditQuestionModal('`+new_qa.pk+`');"><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit question</a>
-								        <a class="dropdown-item" href="/question_answer_thread/`+new_qa.pk+`" target="_blank"><i class="fab fa-discourse"></i>&nbsp;&nbsp;Answer in a thread</a>
-								    </div>
+									<a class="btn-floating btn-lg black dropdown-toggle"type="button" id="dropdownMenu3" data-toggle="dropdown"
+										aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
+									<br>
+									<div class="dropdown-menu dropdown-primary">
+										<a class="dropdown-item" href="#" onclick="delete_question('`+new_qa.pk+`');"><i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete question</a>
+										<a class="dropdown-item" href="#" data-toggle="modal" data-target="#editQuestionModal" onclick="updateEditQuestionModal('`+new_qa.pk+`');"><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit question</a>
+										<a class="dropdown-item" href="/question_answer_thread/`+new_qa.pk+`" target="_blank"><i class="fab fa-discourse"></i>&nbsp;&nbsp;Answer in a thread</a>
+									</div>
 								</div>
 							</div>
 							
@@ -559,13 +611,13 @@
 					$( "#tutor_questions" ).prepend( new_question_text );
 
 				} else if (response.status_code == 401) {
-	            	Swal.fire({
-	            		icon: 'warning',
-	            		title: "Can't do that!",
-	            		text: response.message
-	            	});
+					Swal.fire({
+						icon: 'warning',
+						title: "Can't do that!",
+						text: response.message
+					});
 
-	            }
+				}
 			}
 		});
 	}
@@ -596,20 +648,20 @@
 					$('div#qa_answer_'+$('#question_id').val()).html(new_ans);
 
 				} else if (response.status_code == 401) {
-	            	Swal.fire({
-	            		icon: 'warning',
-	            		title: "Can't do that!",
-	            		text: response.message
-	            	});
+					Swal.fire({
+						icon: 'warning',
+						title: "Can't do that!",
+						text: response.message
+					});
 
-	            } else if (response.status_code == 404) {
-	            	Swal.fire({
-	            		icon: 'error',
-	            		title: "Can't do that!",
-	            		text: response.message
-	            	});
-	            	$( ".question_answer_container_"+$('#question_id').val() ).remove();
-	            }
+				} else if (response.status_code == 404) {
+					Swal.fire({
+						icon: 'error',
+						title: "Can't do that!",
+						text: response.message
+					});
+					$( ".question_answer_container_"+$('#question_id').val() ).remove();
+				}
 			}
 		});
 	}
@@ -655,12 +707,12 @@
 						text: response.message
 					});
 				} else {
-	            	Swal.fire({
-	            		icon: 'warning',
-	            		title: "Can't do that!",
-	            		text: response.message
-	            	});
-	            }
+					Swal.fire({
+						icon: 'warning',
+						title: "Can't do that!",
+						text: response.message
+					});
+				}
 			}
 		});
 	}
