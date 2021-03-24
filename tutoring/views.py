@@ -11,6 +11,7 @@ from django.shortcuts import render
 from http import HTTPStatus
 from tutoring.models import QAComment
 from tutoring.models import QuestionAnswer
+from tutoring.models import TutorReview
 import json
 import onetutor.com.tutoring.TutoringValueSet as TutoringValueSet
 
@@ -215,7 +216,8 @@ def viewtutorprofile(request, tutor_secondary_key):
 	context = {
 		"tutorProfile": tutorProfile,
 		"subjects": Subject.objects.all(),
-		"questionAndAnswers": QuestionAnswer.objects.filter(answerer=tutorProfile.user).select_related('questioner', 'answerer').prefetch_related('likes', 'dislikes').order_by('-id')
+		"questionAndAnswers": QuestionAnswer.objects.filter(answerer=tutorProfile.user).select_related('questioner', 'answerer').prefetch_related('likes', 'dislikes').order_by('-id'),
+		"tutorReviews": TutorReview.objects.filter(tutor=tutorProfile.user).order_by('date').select_related('reviewer').prefetch_related('likes', 'dislikes').order_by('-date'),
 	}
 
 	return render(request, "tutoring/tutorprofile.html", context)

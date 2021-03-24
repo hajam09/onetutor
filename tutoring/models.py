@@ -82,6 +82,7 @@ class TutorReview(models.Model):
 	rating = models.PositiveSmallIntegerField()
 	likes = models.ManyToManyField(User, related_name="tutorReviewLikes")
 	dislikes = models.ManyToManyField(User, related_name="tutorReviewDislikes")
+	edited = models.BooleanField(default=False)
 
 	class Meta:
 		verbose_name_plural = "TutorReview"
