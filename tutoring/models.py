@@ -73,3 +73,15 @@ class QAComment(models.Model):
 
 	class Meta:
 		verbose_name_plural = "QAComments"
+
+class TutorReview(models.Model):
+	tutor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="tutor")
+	reviewer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reviewer")
+	date = models.DateTimeField(default=datetime.now)
+	comment = models.TextField()
+	rating = models.PositiveSmallIntegerField()
+	likes = models.ManyToManyField(User, related_name="tutorReviewLikes")
+	dislikes = models.ManyToManyField(User, related_name="tutorReviewDislikes")
+
+	class Meta:
+		verbose_name_plural = "TutorReview"
