@@ -413,7 +413,7 @@
 									<a href="#"><i class="icofont-ui-rating active"></i></a>
 									<a href="#"><i class="icofont-ui-rating active"></i></a>
 									<a href="#"><i class="icofont-ui-rating active"></i></a>
-									<a href="#"><i class="icofont-ui-rating"></i></a> <b class="text-black ml-2">334</b>
+									<a href="#"><i class="icofont-ui-rating"></i></a> <b class="text-black ml-2">{{ tutorReviews.count }} total reviews</b>
 								</div>
 								<p class="text-black mb-4 mt-2">Rated 3.5 out of 5</p>
 							</div>
@@ -424,12 +424,12 @@
 									</div>
 									<div class="rating-list-center">
 										<div class="progress">
-											<div style="width: 56%" aria-valuemax="5" aria-valuemin="0" aria-valuenow="5" role="progressbar" class="progress-bar bg-primary">
+											<div id="star-5-bar" style="width: 56%" aria-valuemax="5" aria-valuemin="0" aria-valuenow="5" role="progressbar" class="progress-bar bg-primary">
 												<span class="sr-only">80% Complete (danger)</span>
 											</div>
 										</div>
 									</div>
-									<div class="rating-list-right text-black">56%</div>
+									<div id="star-5-value" class="rating-list-right text-black">56%</div>
 								</div>
 								<div class="rating-list">
 									<div class="rating-list-left text-black">
@@ -437,12 +437,12 @@
 									</div>
 									<div class="rating-list-center">
 										<div class="progress">
-											<div style="width: 23%" aria-valuemax="5" aria-valuemin="0" aria-valuenow="5" role="progressbar" class="progress-bar bg-primary">
+											<div id="star-4-bar" style="width: 23%" aria-valuemax="5" aria-valuemin="0" aria-valuenow="5" role="progressbar" class="progress-bar bg-primary">
 												<span class="sr-only">80% Complete (danger)</span>
 											</div>
 										</div>
 									</div>
-									<div class="rating-list-right text-black">23%</div>
+									<div id="star-4-value" class="rating-list-right text-black">23%</div>
 								</div>
 								<div class="rating-list">
 									<div class="rating-list-left text-black">
@@ -450,12 +450,12 @@
 									</div>
 									<div class="rating-list-center">
 										<div class="progress">
-											<div style="width: 11%" aria-valuemax="5" aria-valuemin="0" aria-valuenow="5" role="progressbar" class="progress-bar bg-primary">
+											<div id="star-3-bar" style="width: 11%" aria-valuemax="5" aria-valuemin="0" aria-valuenow="5" role="progressbar" class="progress-bar bg-primary">
 												<span class="sr-only">80% Complete (danger)</span>
 											</div>
 										</div>
 									</div>
-									<div class="rating-list-right text-black">11%</div>
+									<div id="star-3-value" class="rating-list-right text-black">11%</div>
 								</div>
 								<div class="rating-list">
 									<div class="rating-list-left text-black">
@@ -463,12 +463,38 @@
 									</div>
 									<div class="rating-list-center">
 										<div class="progress">
-											<div style="width: 2%" aria-valuemax="5" aria-valuemin="0" aria-valuenow="5" role="progressbar" class="progress-bar bg-primary">
+											<div id="star-2-bar" style="width: 2%" aria-valuemax="5" aria-valuemin="0" aria-valuenow="5" role="progressbar" class="progress-bar bg-primary">
 												<span class="sr-only">80% Complete (danger)</span>
 											</div>
 										</div>
 									</div>
-									<div class="rating-list-right text-black">02%</div>
+									<div id="star-2-value" class="rating-list-right text-black">02%</div>
+								</div>
+								<div class="rating-list">
+									<div class="rating-list-left text-black">
+										1 Star
+									</div>
+									<div class="rating-list-center">
+										<div class="progress">
+											<div id="star-1-bar" style="width: 2%" aria-valuemax="5" aria-valuemin="0" aria-valuenow="5" role="progressbar" class="progress-bar bg-primary">
+												<span class="sr-only">80% Complete (danger)</span>
+											</div>
+										</div>
+									</div>
+									<div id="star-1-value" class="rating-list-right text-black">02%</div>
+								</div>
+								<div class="rating-list">
+									<div class="rating-list-left text-black">
+										0 Star
+									</div>
+									<div class="rating-list-center">
+										<div class="progress">
+											<div id="star-0-bar" style="width: 2%" aria-valuemax="5" aria-valuemin="0" aria-valuenow="5" role="progressbar" class="progress-bar bg-primary">
+												<span class="sr-only">80% Complete (danger)</span>
+											</div>
+										</div>
+									</div>
+									<div id="star-0-value" class="rating-list-right text-black">02%</div>
 								</div>
 							</div>
 							<div class="graph-star-rating-footer text-center mt-3 mb-3">
@@ -504,6 +530,8 @@
 	var list_of_reviews = [];
 
 	function CollectTutorReviewsHandler() {
+		var rating_value_count = [0, 0, 0, 0, 0, 0];
+		var rating_value_percantage = [];
 
 		{% for r in tutorReviews %}
 
@@ -520,9 +548,24 @@
 				'can_edit': '{{ user.id }}' == '{{ r.reviewer.id }}' ? true : false,
 			});
 
+			rating_value_count[eval('{{r.rating}}')] += 1;
+
 		{% endfor %}
 
+		var total_count = rating_value_count.reduce((a, b) => a + b, 0);
+		for(var i = 0; i <rating_value_count.length; i++) {
+			rating_value_percantage.push(Math.round(rating_value_count[i]/total_count * 100));
+		}
+		DisplayReviewStatistics(rating_value_percantage);
 		ParseTutorReviewToDisplay(list_of_reviews);
+	}
+
+	function DisplayReviewStatistics(statistics) {
+
+		for (var i = 0; i < statistics.length; i++) {
+			$('#star-'+i+'-bar').css("width", statistics[i]+"%");
+			$('#star-'+i+'-value').text(statistics[i]+"%");
+		}
 	}
 
 	function UpdateRatingOrder() {
@@ -651,14 +694,24 @@
 
 	function removeTutorReviewFromGlobalReviewList(component_id) {
 		var new_list = [];
+		var rating_value_count = [0, 0, 0, 0, 0, 0];
+		var rating_value_percantage = [];
+		// no the optimal solution for bigger arrays. 
 
 		for (var i = 0; i < list_of_reviews.length; i++) {
 			if (list_of_reviews[i].pk != component_id) {
 				new_list.push(list_of_reviews[i]);
+				rating_value_count[list_of_reviews[i].rating] += 1;
 			}
 		}
 
+		var total_count = rating_value_count.reduce((a, b) => a + b, 0);
+		for(var i = 0; i <rating_value_count.length; i++) {
+			rating_value_percantage.push(Math.round(rating_value_count[i]/total_count * 100));
+		}
+
 		list_of_reviews = new_list;
+		DisplayReviewStatistics(rating_value_percantage);
 		ParseTutorReviewToDisplay(list_of_reviews);
 	}
 
