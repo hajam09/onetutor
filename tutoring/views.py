@@ -211,6 +211,34 @@ def viewtutorprofile(request, tutor_secondary_key):
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
 
+		elif functionality == "delete_tutor_review":
+			if not request.user.is_authenticated:
+				response = {
+					"status_code": 401,
+					"message": "Login to delete this review."
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			review_id = request.GET.get('review_id', None)			
+
+			try:
+				TutorReview.objects.get(pk=review_id).delete()
+				response = {
+					"status_code": HTTPStatus.OK,
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+			except TutorReview.DoesNotExist:
+				response = {
+					"status_code": HTTPStatus.NOT_FOUND
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			response = {
+				"status_code": HTTPStatus.BAD_REQUEST,
+				"message": "Bad Request"
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
 		raise Exception("Unknown functionality viewtutorprofile")
 
 	context = {

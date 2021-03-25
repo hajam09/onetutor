@@ -582,14 +582,15 @@
 		for (var i = 0; i < list.length; i++) {
 
 			var edited_text = list[i].edited == true ? '(edited)' : '';
+			var user_edit_dropdown = GetTutorReviewDropdownForUser(list[i].can_edit, list[i].pk);
 			
 			var new_comment = `
-			<div class="reviews-members pt-4 pb-4">
+			<div class="reviews-members pt-4 pb-4" id="tutor_review_container_`+list[i].pk+`">
 				<div class="media">
 					<a href="#"><img alt="Generic placeholder image" src="http://bootdey.com/img/Content/avatar/avatar1.png" class="mr-3 rounded-pill"></a>
 					<div class="media-body">
 						<div class="reviews-members-header">
-							
+							`+user_edit_dropdown+`
 							<h6 class="mb-1"><b>`+list[i].reviewer_full_name+`</b></h6>
 							<p class="text-gray">`+list[i].date+` <span class="text-secondary" >`+edited_text+`</span></p>
 						</div>
@@ -600,7 +601,7 @@
 							<button type="button" class="btn btn-outline-primary" style="border-radius: 35px;"><i class="fa fa-thumbs-o-up"></i> `+list[i].likes_count+`</button>
 							<button type="button" class="btn btn-outline-primary" style="border-radius: 35px;"><i class="fa fa-thumbs-o-down"></i> `+list[i].dislikes_count+`</button>
 							&nbsp;&nbsp;
-							`+GenerateStartFromRating(list[i].rating);+`
+							`+GenerateStarsFromRating(list[i].rating);+`
 						</div>
 					</div>
 				</div>
@@ -608,12 +609,60 @@
 			<hr>`;
 
 			$('#tutor_review_comment_section').append( new_comment );
-
 		}
-
 	}
 
-	function GenerateStartFromRating(value) {
+	function GetTutorReviewDropdownForUser(can_edit, component_id) {
+		var response = `<div class="dropdown pull-right" style="display:inline-block;">
+							<button type="button" class="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown"
+											aria-haspopup="true" aria-expanded="false"></button>
+								<div class="dropdown-menu dropdown-primary">`;
+
+		if (can_edit)
+			response += `<span class="dropdown-item" onclick="DeleteTutorReviewComponent(`+component_id+`);"><i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete</span>
+						<span class="dropdown-item"><i class="fa fa-edit"></i>&nbsp;&nbsp;Edit</span>`;
+		else
+			response += '<span class="dropdown-item"><i class="fa fa-warning"></i>&nbsp;&nbsp;Report</span>';
+
+		response+= `</div></div>`;
+		return response;
+	}
+
+	function DeleteTutorReviewComponent(component_id) {
+		$.ajax({
+			data: {
+				'functionality': 'delete_tutor_review',
+				'review_id': component_id,
+			},
+			dataType: 'json',
+			success: function (response) {
+				if (response.status_code == 200 || response.status_code == 404) {
+					removeTutorReviewFromGlobalReviewList(component_id);
+				} else {
+					Swal.fire({
+						icon: 'error',
+						title: "Can't do that!",
+						text: response.message
+					});
+				}
+			}
+		});
+	}
+
+	function removeTutorReviewFromGlobalReviewList(component_id) {
+		var new_list = [];
+
+		for (var i = 0; i < list_of_reviews.length; i++) {
+			if (list_of_reviews[i].pk != component_id) {
+				new_list.push(list_of_reviews[i]);
+			}
+		}
+
+		list_of_reviews = new_list;
+		ParseTutorReviewToDisplay(list_of_reviews);
+	}
+
+	function GenerateStarsFromRating(value) {
 		var response = '';
 
 		for (var i = 0; i < value; i++) {
