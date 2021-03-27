@@ -84,5 +84,23 @@ class TutorReview(models.Model):
 	dislikes = models.ManyToManyField(User, related_name="tutorReviewDislikes")
 	edited = models.BooleanField(default=False)
 
+	def increase_TutorReivew_likes(self, request):
+		if(request.user not in self.likes.all()):
+			self.likes.add(request.user)
+		else:
+			self.likes.remove(request.user)
+
+		if(request.user in self.dislikes.all()):
+			self.dislikes.remove(request.user)
+
+	def increase_TutorReivew_dislikes(self, request):
+		if(request.user not in self.dislikes.all()):
+			self.dislikes.add(request.user)
+		else:
+			self.dislikes.remove(request.user)
+
+		if(request.user in self.likes.all()):
+			self.likes.remove(request.user)
+
 	class Meta:
 		verbose_name_plural = "TutorReview"

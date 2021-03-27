@@ -222,7 +222,7 @@ def viewtutorprofile(request, tutor_secondary_key):
 			review_id = request.GET.get('review_id', None)			
 
 			try:
-				TutorReview.objects.get(pk=review_id).delete()
+				# TutorReview.objects.get(pk=review_id).delete()
 				response = {
 					"status_code": HTTPStatus.OK,
 				}
@@ -236,6 +236,60 @@ def viewtutorprofile(request, tutor_secondary_key):
 			response = {
 				"status_code": HTTPStatus.BAD_REQUEST,
 				"message": "Bad Request"
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+		elif functionality == "like_tutor_review":
+			if not request.user.is_authenticated:
+				response = {
+					"status_code": 401,
+					"message": "Login to like this tutor review."
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			review_id = request.GET.get('review_id', None)
+
+			try:
+				this_tutor_review = TutorReview.objects.get(id=review_id)
+			except TutorReview.DoesNotExist:
+				response = {
+					"status_code": HTTPStatus.NOT_FOUND,
+					"message": 'We think this review has been deleted!'
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			this_tutor_review.increase_TutorReivew_likes(request)
+
+			response = {
+				"this_tutor_review": serializers.serialize("json", [this_tutor_review,]),
+				"status_code": HTTPStatus.OK
+			}
+			return HttpResponse(json.dumps(response), content_type="application/json")
+
+		elif functionality == "dislike_tutor_review":
+			if not request.user.is_authenticated:
+				response = {
+					"status_code": 401,
+					"message": "Login to dislike this tutor review."
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			review_id = request.GET.get('review_id', None)
+
+			try:
+				this_tutor_review = TutorReview.objects.get(id=review_id)
+			except TutorReview.DoesNotExist:
+				response = {
+					"status_code": HTTPStatus.NOT_FOUND,
+					"message": 'We think this review has been deleted!'
+				}
+				return HttpResponse(json.dumps(response), content_type="application/json")
+
+			this_tutor_review.increase_TutorReivew_dislikes(request)
+
+			response = {
+				"this_tutor_review": serializers.serialize("json", [this_tutor_review,]),
+				"status_code": HTTPStatus.OK
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
 

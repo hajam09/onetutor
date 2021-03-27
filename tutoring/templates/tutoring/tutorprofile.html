@@ -641,8 +641,12 @@
 							<p>`+list[i].comment+`</p>
 						</div>
 						<div class="reviews-members-footer">
-							<button type="button" class="btn btn-outline-primary" style="border-radius: 35px;"><i class="fa fa-thumbs-o-up"></i> `+list[i].likes_count+`</button>
-							<button type="button" class="btn btn-outline-primary" style="border-radius: 35px;"><i class="fa fa-thumbs-o-down"></i> `+list[i].dislikes_count+`</button>
+							<button type="button" class="btn btn-outline-primary" style="border-radius: 35px;" onclick="LikeTutorReivew(`+list[i].pk+`)">
+								<i class="fa fa-thumbs-o-up"></i> `+list[i].likes_count+`
+							</button>
+							<button type="button" class="btn btn-outline-primary" style="border-radius: 35px;" onclick="DislikeTutorReivew(`+list[i].pk+`)">
+								<i class="fa fa-thumbs-o-down"></i> `+list[i].dislikes_count+`
+							</button>
 							&nbsp;&nbsp;
 							`+GenerateStarsFromRating(list[i].rating);+`
 						</div>
@@ -653,6 +657,70 @@
 
 			$('#tutor_review_comment_section').append( new_comment );
 		}
+	}
+
+	function LikeTutorReivew(tutor_review_id) {
+		$.ajax({
+			data: {
+				'functionality': 'like_tutor_review',
+				'review_id': tutor_review_id,
+			},
+			dataType: 'json',
+			success: function (response) {
+				if (response.status_code == 401) {
+					Swal.fire({
+						icon: 'warning',
+						title: "Can't do that!",
+						text: response.message
+					});
+				} else if (response.status_code == 404) {
+					removeTutorReviewFromGlobalReviewList(tutor_review_id);
+				} else if (response.status_code == 200) {
+					var this_tutor_review = eval(response.this_tutor_review)[0];
+					var likesCount = this_tutor_review.fields.likes.length;
+					var dislikeCount = this_tutor_review.fields.dislikes.length;
+					updateTutorReviewLikesAndDislikesFromGlobalReviewList(tutor_review_id, likesCount, dislikeCount);
+				}
+			}
+		});
+	}
+
+	function DislikeTutorReivew(tutor_review_id) {
+		$.ajax({
+			data: {
+				'functionality': 'dislike_tutor_review',
+				'review_id': tutor_review_id,
+			},
+			dataType: 'json',
+			success: function (response) {
+				if (response.status_code == 401) {
+					Swal.fire({
+						icon: 'warning',
+						title: "Can't do that!",
+						text: response.message
+					});
+				} else if (response.status_code == 404) {
+					removeTutorReviewFromGlobalReviewList(tutor_review_id);
+				} else if (response.status_code == 200) {
+					var this_tutor_review = eval(response.this_tutor_review)[0];
+					var likesCount = this_tutor_review.fields.likes.length;
+					var dislikeCount = this_tutor_review.fields.dislikes.length;
+					updateTutorReviewLikesAndDislikesFromGlobalReviewList(tutor_review_id, likesCount, dislikeCount);
+				}
+			}
+		});
+
+	}
+
+	function updateTutorReviewLikesAndDislikesFromGlobalReviewList(component_id, likesCount, dislikeCount) {
+		for (var i = 0; i < list_of_reviews.length; i++) {
+			if (list_of_reviews[i].pk == component_id) {
+				list_of_reviews[i].likes_count = eval(likesCount);
+				list_of_reviews[i].dislikes_count = eval(dislikeCount);
+				break;
+			}
+		}
+		ParseTutorReviewToDisplay(list_of_reviews);
 	}
 
 	function GetTutorReviewDropdownForUser(can_edit, component_id) {
