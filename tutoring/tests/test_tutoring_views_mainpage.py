@@ -2,7 +2,6 @@ from accounts.seed_data_installer import installTutor
 from django.test import TestCase, Client
 from django.urls import reverse
 from unittest import skip
-import onetutor.com.tutoring.TutoringValueSet as TutoringValueSet
 
 # coverage run --source=tutoring manage.py test tutoring
 # coverage html

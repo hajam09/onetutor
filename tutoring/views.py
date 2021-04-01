@@ -13,7 +13,6 @@ from tutoring.models import QAComment
 from tutoring.models import QuestionAnswer
 from tutoring.models import TutorReview
 import json
-import onetutor.com.tutoring.TutoringValueSet as TutoringValueSet
 
 def mainpage(request):
 	if request.method == "POST":

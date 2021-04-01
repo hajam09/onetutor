@@ -5,7 +5,6 @@ from django.test import Client
 from django.test import TestCase
 from django.urls import reverse
 from unittest import skip
-import onetutor.com.accounts.AccountValueSet as AccountValueSet
 
 # coverage run --source=accounts manage.py test accounts
 # coverage html

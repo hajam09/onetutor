@@ -7,7 +7,6 @@ from django.test import TestCase
 from django.urls import reverse
 from unittest import skip
 import json
-import onetutor.com.accounts.AccountValueSet as AccountValueSet
 import requests
 
 # coverage run --source=accounts manage.py test accounts

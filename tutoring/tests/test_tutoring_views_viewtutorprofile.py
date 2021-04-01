@@ -6,8 +6,6 @@ from django.urls import reverse
 from tutoring.models import QuestionAnswer
 from unittest import skip
 import json
-import onetutor.com.accounts.AccountValueSet as AccountValueSet
-import onetutor.com.tutoring.TutoringValueSet as TutoringValueSet
 
 # coverage run --source=tutoring manage.py test tutoring
 # coverage html

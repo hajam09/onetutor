@@ -13,7 +13,6 @@ from django.urls import reverse
 from tutoring.models import QuestionAnswer
 from unittest import skip
 import json
-import onetutor.com.accounts.AccountValueSet as AccountValueSet
 import requests
 
 # coverage run --source=accounts manage.py test accounts

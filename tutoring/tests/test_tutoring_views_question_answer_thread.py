@@ -7,7 +7,6 @@ from tutoring.models import QAComment
 from tutoring.models import QuestionAnswer
 from unittest import skip
 import json
-import onetutor.com.tutoring.TutoringValueSet as TutoringValueSet
 
 # coverage run --source=tutoring manage.py test tutoring
 # coverage html
