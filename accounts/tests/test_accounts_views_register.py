@@ -18,7 +18,7 @@ class TestAccountViewsRegister(TestCase):
 		self.client = Client(HTTP_USER_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36')
 		self.url = reverse('accounts:register')
 		installTutor()
-		self.user_1 = User.objects.get(email=AccountValueSet.USER_1_EMAIL)
+		self.user_1 = User.objects.get(email='barry.allen@yahoo.com')
 
 	def test_login_GET(self):
 		response = self.client.get(self.url)
@@ -30,9 +30,9 @@ class TestAccountViewsRegister(TestCase):
 			Testing whether an account already exists with the specified email address.
 		"""
 		context = {
-			"email": AccountValueSet.USER_1_EMAIL,
-			"password": AccountValueSet.USER_STRONG_PASSWORD,
-			"confirm_password": AccountValueSet.USER_STRONG_PASSWORD,
+			"email": 'barry.allen@yahoo.com',
+			"password": 'RanDomPasWord56',
+			"confirm_password": 'RanDomPasWord56',
 			"first_name": "Henry",
 			"last_name": "Allen" 
 		}
@@ -41,7 +41,7 @@ class TestAccountViewsRegister(TestCase):
 		self.assertIn("message", response.context)
 		self.assertEquals(response.context["message"], "An account already exists for this email address!")
 		self.assertIn("email", response.context)
-		self.assertEquals(response.context["email"], AccountValueSet.USER_1_EMAIL)
+		self.assertEquals(response.context["email"], 'barry.allen@yahoo.com')
 		self.assertIn("firstname", response.context)
 		self.assertEquals(response.context["firstname"], "Henry")
 		self.assertIn("lastname", response.context)
@@ -54,9 +54,9 @@ class TestAccountViewsRegister(TestCase):
 			Testing whether the password 1 and password 2 are matching.
 		"""
 		context = {
-			"email": AccountValueSet.USER_2_EMAIL,
-			"password": AccountValueSet.USER_STRONG_PASSWORD,
-			"confirm_password": AccountValueSet.USER_INCORRECT_PASSWORD,
+			"email": 'oliver.queen@yahoo.com',
+			"password": 'RanDomPasWord56',
+			"confirm_password": 'QWERTY1234Q',
 			"first_name": "Oliver",
 			"last_name": "Queen" 
 		}
@@ -65,7 +65,7 @@ class TestAccountViewsRegister(TestCase):
 		self.assertIn("message", response.context)
 		self.assertEquals(response.context["message"], "Your passwords do not match!")
 		self.assertIn("email", response.context)
-		self.assertEquals(response.context["email"], AccountValueSet.USER_2_EMAIL)
+		self.assertEquals(response.context["email"], 'oliver.queen@yahoo.com')
 		self.assertIn("firstname", response.context)
 		self.assertEquals(response.context["firstname"], "Oliver")
 		self.assertIn("lastname", response.context)
@@ -79,9 +79,9 @@ class TestAccountViewsRegister(TestCase):
 			Testing whether the password is strong or not.
 		"""
 		context = {
-			"email": AccountValueSet.USER_2_EMAIL,
-			"password": AccountValueSet.USER_WEAK_PASSWORD,
-			"confirm_password": AccountValueSet.USER_WEAK_PASSWORD,
+			"email": 'oliver.queen@yahoo.com',
+			"password": '123',
+			"confirm_password": '123',
 			"first_name": "Oliver",
 			"last_name": "Queen" 
 		}
@@ -90,7 +90,7 @@ class TestAccountViewsRegister(TestCase):
 		self.assertIn("message", response.context)
 		self.assertEquals(response.context["message"], "Your password is not strong enough.")
 		self.assertIn("email", response.context)
-		self.assertEquals(response.context["email"], AccountValueSet.USER_2_EMAIL)
+		self.assertEquals(response.context["email"], 'oliver.queen@yahoo.com')
 		self.assertIn("firstname", response.context)
 		self.assertEquals(response.context["firstname"], "Oliver")
 		self.assertIn("lastname", response.context)
@@ -105,9 +105,9 @@ class TestAccountViewsRegister(TestCase):
 			Testing whether we can create an account and an activation link is sent.
 		"""
 		context = {
-			"email": AccountValueSet.USER_2_EMAIL,
-			"password": AccountValueSet.USER_STRONG_PASSWORD,
-			"confirm_password": AccountValueSet.USER_STRONG_PASSWORD,
+			"email": 'oliver.queen@yahoo.com',
+			"password": 'RanDomPasWord56',
+			"confirm_password": 'RanDomPasWord56',
 			"first_name": "Oliver",
 			"last_name": "Queen" 
 		}
@@ -115,4 +115,4 @@ class TestAccountViewsRegister(TestCase):
 		self.assertEquals(response.status_code, 200)
 		self.assertIn("activate", response.context)
 		self.assertEquals(response.context["activate"], "We've sent you an activation link. Please check your email.")
-		self.assertTrue(User.objects.filter(username=AccountValueSet.USER_2_EMAIL).exists())
+		self.assertTrue(User.objects.filter(username='oliver.queen@yahoo.com').exists())

@@ -20,7 +20,7 @@ class TestTutoringViewsTutorQuestions(TestCase):
 		self.client = Client(HTTP_USER_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36')
 		installTutor()
 		self.url = reverse('tutoring:tutor_questions')
-		self.user1 = User.objects.get(email=AccountValueSet.USER_1_EMAIL)
+		self.user1 = User.objects.get(email='barry.allen@yahoo.com')
 		self.user2 = User.objects.get(email='cisco.ramone@hotmail.com')
 		self.user3 = User.objects.create_user(username="test_uname", email="test_email", password="test_passwordM123", first_name="test_first_name", last_name="test_last_name")
 		self.tutor_1_profile = TutorProfile.objects.get(user=self.user1)
@@ -45,14 +45,14 @@ class TestTutoringViewsTutorQuestions(TestCase):
 		self.assertIn('_auth_user_id', self.client.session)
 
 	def test_tutorquestion_render(self):
-		self.client.login(username=AccountValueSet.USER_1_EMAIL, password='RanDomPasWord56')
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
 		response = self.client.get(self.url, {})
 		self.assertIn("questionAndAnswers", response.context)
 		self.assertEquals(list(response.context["questionAndAnswers"]), list(QuestionAnswer.objects.filter(answerer=self.user1).order_by('-id')))
 		self.assertTemplateUsed(response, "tutoring/tutor_questions.html")
 
 	def test_tutorquestion_post_answer_question_deleted(self):
-		self.client.login(username=AccountValueSet.USER_1_EMAIL, password='RanDomPasWord56')
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
 		payload = {
 			"functionality": "post_answer",
 			"question_id": self.new_question.pk,
@@ -66,7 +66,7 @@ class TestTutoringViewsTutorQuestions(TestCase):
 		self.assertEquals(ajax_reponse["message"], "We think this question has been deleted!")
 
 	def test_tutorquestion_post_answer_success(self):
-		self.client.login(username=AccountValueSet.USER_1_EMAIL, password='RanDomPasWord56')
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
 		payload = {
 			"functionality": "post_answer",
 			"question_id": self.new_question.pk,
@@ -80,7 +80,7 @@ class TestTutoringViewsTutorQuestions(TestCase):
 		self.assertEquals(QuestionAnswer.objects.get(id=self.new_question.id).answer, payload["new_answer"])
 
 	def test_tutorquestion_delete_question_success(self):
-		self.client.login(username=AccountValueSet.USER_1_EMAIL, password='RanDomPasWord56')
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
 		payload = {
 			"functionality": "delete_question",
 			"question_id": self.new_question.pk,
@@ -92,7 +92,7 @@ class TestTutoringViewsTutorQuestions(TestCase):
 		self.assertEquals(QuestionAnswer.objects.filter(id=self.new_question.id).count(), 0)
 
 	def test_tutorquestion_delete_question_not_found(self):
-		self.client.login(username=AccountValueSet.USER_1_EMAIL, password='RanDomPasWord56')
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
 		payload = {
 			"functionality": "delete_question",
 			"question_id": self.new_question.pk,

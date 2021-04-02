@@ -20,7 +20,7 @@ class TestTutoringViewsViewTutorProfile(TestCase):
 	def setUp(self):
 		self.client = Client(HTTP_USER_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36')
 		installTutor()
-		self.user1 = User.objects.get(email=AccountValueSet.USER_1_EMAIL)
+		self.user1 = User.objects.get(email='barry.allen@yahoo.com')
 		self.user2 = User.objects.get(email='cisco.ramone@hotmail.com')
 
 		self.tutor_1_profile = TutorProfile.objects.get(user=self.user1)
@@ -74,7 +74,7 @@ class TestTutoringViewsViewTutorProfile(TestCase):
 		"""
 			User is posting a question on the tutor profile with proper permission.
 		"""
-		self.client.login(username=AccountValueSet.USER_1_EMAIL, password='RanDomPasWord56')
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
 		payload = {
 			"functionality": "post_question",
 			"subject": "English",
@@ -88,7 +88,7 @@ class TestTutoringViewsViewTutorProfile(TestCase):
 		self.assertIn("created_date", ajax_reponse)
 		self.assertEquals(ajax_reponse["questioner_first_name"], 'Barry')
 		self.assertEquals(ajax_reponse["questioner_last_name"], 'Allen')
-		self.assertNotEqual(QuestionAnswer.objects.filter(questioner=User.objects.get(username=AccountValueSet.USER_1_EMAIL)), 0)
+		self.assertNotEqual(QuestionAnswer.objects.filter(questioner=User.objects.get(username='barry.allen@yahoo.com')), 0)
 		self.assertEquals(eval(ajax_reponse["new_qa"])[0]["fields"]["subject"], payload["subject"])
 		self.assertEquals(eval(ajax_reponse["new_qa"])[0]["fields"]["question"], payload["question"])
 
@@ -113,7 +113,7 @@ class TestTutoringViewsViewTutorProfile(TestCase):
 			User is posting an answer on the tutor profile.
 			The question is deleted by the creator.
 		"""
-		self.client.login(username=AccountValueSet.USER_1_EMAIL, password='RanDomPasWord56')
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
 		payload = {
 			"functionality": "post_answer",
 			"question_id": self.new_question.pk,
@@ -130,7 +130,7 @@ class TestTutoringViewsViewTutorProfile(TestCase):
 		"""
 			User is posting an answer on the tutor profile with proper permission.
 		"""
-		self.client.login(username=AccountValueSet.USER_1_EMAIL, password='RanDomPasWord56')
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
 		payload = {
 			"functionality": "post_answer",
 			"question_id": self.new_question.pk,
@@ -147,7 +147,7 @@ class TestTutoringViewsViewTutorProfile(TestCase):
 		"""
 			User/creator of the question is trying to delete the question they posted.
 		"""
-		self.client.login(username=AccountValueSet.USER_1_EMAIL, password='RanDomPasWord56')
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
 		payload = {
 			"functionality": "delete_question",
 			"question_id": self.new_question.pk,
@@ -163,7 +163,7 @@ class TestTutoringViewsViewTutorProfile(TestCase):
 			User/creator of the question is trying to delete the question they posted.
 			But that question is already deleted in an another window.
 		"""
-		self.client.login(username=AccountValueSet.USER_1_EMAIL, password='RanDomPasWord56')
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
 		payload = {
 			"functionality": "delete_question",
 			"question_id": self.new_question.pk,
@@ -180,7 +180,7 @@ class TestTutoringViewsViewTutorProfile(TestCase):
 			User is updating the question text they created.
 			But that question is already deleted in an another window.
 		"""
-		self.client.login(username=AccountValueSet.USER_1_EMAIL, password='RanDomPasWord56')
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
 		payload = {
 			"functionality": "update_question",
 			"question_id": self.new_question.pk,
@@ -198,7 +198,7 @@ class TestTutoringViewsViewTutorProfile(TestCase):
 		"""
 			User is updating the question text they created.
 		"""
-		self.client.login(username=AccountValueSet.USER_1_EMAIL, password='RanDomPasWord56')
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
 		payload = {
 			"functionality": "update_question",
 			"question_id": self.new_question.pk,
@@ -231,7 +231,7 @@ class TestTutoringViewsViewTutorProfile(TestCase):
 			Authenticated user is trying to like a question answer instance on the tutor profile.
 			The question answer instance does not exist.
 		"""
-		self.client.login(username=AccountValueSet.USER_1_EMAIL, password='RanDomPasWord56')
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
 		payload = {
 			"functionality": "like_comment",
 			"commentId": self.new_question.pk,
@@ -250,12 +250,12 @@ class TestTutoringViewsViewTutorProfile(TestCase):
 			User not in list of disliked.
 			L(0) : D(0) --> L(1) : D(0)
 		"""
-		self.client.login(username=AccountValueSet.USER_1_EMAIL, password='RanDomPasWord56')
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
 		payload = {
 			"functionality": "like_comment",
 			"commentId": self.new_question.pk,
 		}
-		user = User.objects.get(username=AccountValueSet.USER_1_EMAIL)		
+		user = User.objects.get(username='barry.allen@yahoo.com')		
 		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 		ajax_reponse = json.loads(response.content)
 		self.assertIn(self.new_question, QuestionAnswer.objects.filter(likes__id=user.pk))
@@ -283,7 +283,7 @@ class TestTutoringViewsViewTutorProfile(TestCase):
 			Authenticated user is trying to dislike a question answer instance on the tutor profile.
 			The question answer instance does not exist.
 		"""
-		self.client.login(username=AccountValueSet.USER_1_EMAIL, password='RanDomPasWord56')
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
 		payload = {
 			"functionality": "dislike_comment",
 			"commentId": self.new_question.pk,
@@ -302,12 +302,12 @@ class TestTutoringViewsViewTutorProfile(TestCase):
 			User not in list of disliked.
 			L(0) : D(0) --> L(0) : D(1)
 		"""
-		self.client.login(username=AccountValueSet.USER_1_EMAIL, password='RanDomPasWord56')
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
 		payload = {
 			"functionality": "dislike_comment",
 			"commentId": self.new_question.pk,
 		}
-		user = User.objects.get(username=AccountValueSet.USER_1_EMAIL)		
+		user = User.objects.get(username='barry.allen@yahoo.com')		
 		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 		ajax_reponse = json.loads(response.content)
 		self.assertNotIn(self.new_question, QuestionAnswer.objects.filter(likes__id=user.pk))

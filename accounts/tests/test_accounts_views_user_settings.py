@@ -29,8 +29,8 @@ class TestAccountViewsUserSettings(TestCase):
 		self.url = reverse('accounts:user_settings')
 		installTutor()
 		installCountries()
-		self.user_1 = User.objects.get(email=AccountValueSet.USER_1_EMAIL)
-		self.client.login(username=AccountValueSet.USER_1_EMAIL, password=AccountValueSet.USER_STRONG_PASSWORD)
+		self.user_1 = User.objects.get(email='barry.allen@yahoo.com')
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
 
 	def test_usersettings_GET(self):
 		response = self.client.get(self.url)
@@ -51,7 +51,7 @@ class TestAccountViewsUserSettings(TestCase):
 			"update_general_information": ""
 		}
 		response = self.client.post(self.url, context)
-		user = User.objects.get(username=AccountValueSet.USER_1_EMAIL)
+		user = User.objects.get(username='barry.allen@yahoo.com')
 		self.assertEqual(user.first_name, context["first_name"])
 		self.assertEqual(user.last_name, context["last_name"])
 		self.assertEqual(response.status_code, 302)
@@ -119,7 +119,7 @@ class TestAccountViewsUserSettings(TestCase):
 		self.assertEqual(len(messages), 1)
 		self.assertEqual(str(messages[0]), 'Account deleted successfully')
 		self.assertRedirects(response, '/')
-		self.assertEqual(User.objects.filter(email=AccountValueSet.USER_1_EMAIL).count(), 0)
+		self.assertEqual(User.objects.filter(email='barry.allen@yahoo.com').count(), 0)
 
 	def test_usersettings_user_update_password_mismatch_password(self):
 		"""
@@ -130,8 +130,8 @@ class TestAccountViewsUserSettings(TestCase):
 		context = {
 			"update_password": "",
 			"currentPassword": "not_the_current_password",
-			"newPassword": AccountValueSet.USER_NEW_STRONG_PASSWORD,
-			"confirmPassword": AccountValueSet.USER_NEW_STRONG_PASSWORD
+			"newPassword": 'RanDomPasWord65',
+			"confirmPassword": 'RanDomPasWord65'
 		}
 
 		response = self.client.post(self.url, context)
@@ -150,8 +150,8 @@ class TestAccountViewsUserSettings(TestCase):
 
 		context = {
 			"update_password": "",
-			"currentPassword": AccountValueSet.USER_STRONG_PASSWORD,
-			"newPassword": AccountValueSet.USER_NEW_STRONG_PASSWORD,
+			"currentPassword": 'RanDomPasWord56',
+			"newPassword": 'RanDomPasWord65',
 			"confirmPassword": "RanDomPasWord66"
 		}
 
@@ -171,9 +171,9 @@ class TestAccountViewsUserSettings(TestCase):
 
 		context = {
 			"update_password": "",
-			"currentPassword": AccountValueSet.USER_STRONG_PASSWORD,
-			"newPassword": AccountValueSet.USER_WEAK_PASSWORD,
-			"confirmPassword": AccountValueSet.USER_WEAK_PASSWORD
+			"currentPassword": 'RanDomPasWord56',
+			"newPassword": '123',
+			"confirmPassword": '123'
 		}
 
 		response = self.client.post(self.url, context)
@@ -192,9 +192,9 @@ class TestAccountViewsUserSettings(TestCase):
 
 		context = {
 			"update_password": "",
-			"currentPassword": AccountValueSet.USER_STRONG_PASSWORD,
-			"newPassword": AccountValueSet.USER_NEW_STRONG_PASSWORD,
-			"confirmPassword": AccountValueSet.USER_NEW_STRONG_PASSWORD
+			"currentPassword": 'RanDomPasWord56',
+			"newPassword": 'RanDomPasWord65',
+			"confirmPassword": 'RanDomPasWord65'
 		}
 
 		response = self.client.post(self.url, context)
@@ -246,8 +246,8 @@ class TestAccountViewsUserSettings(TestCase):
 
 		# this user needs to login, which creates the UserSession object in the view.
 		context = {
-			"username": AccountValueSet.USER_1_EMAIL,
-			"password": AccountValueSet.USER_STRONG_PASSWORD,
+			"username": 'barry.allen@yahoo.com',
+			"password": 'RanDomPasWord56',
 			"browser_type": "Chrome"
 		}
 		

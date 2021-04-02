@@ -18,13 +18,14 @@ class TestAccountViewsCreateTutorProfile(TestCase):
 	def setUp(self):
 		self.client = Client(HTTP_USER_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36')
 		self.url = reverse('accounts:createprofile')
-		self.user_1 = User.objects.create_user(username=AccountValueSet.USER_1_USERNAME,
-			email=AccountValueSet.USER_1_USERNAME,
-			password=AccountValueSet.USER_STRONG_PASSWORD,
+		self.user_1 = User.objects.create_user(username='barry.allen@yahoo.com',
+			email='barry.allen@yahoo.com',
+			password='RanDomPasWord56',
 			first_name="Barry",
 			last_name="Allen"
 		)
-		self.client.login(username=AccountValueSet.USER_1_USERNAME, password=AccountValueSet.USER_STRONG_PASSWORD)
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		print("on user settings")
 		installCountries()
 
 	def test_createprofile_GET(self):

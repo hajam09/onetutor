@@ -22,7 +22,7 @@ class TestAccountViewsLogin(TestCase):
 		self.client = Client(HTTP_USER_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36')
 		self.url = reverse('accounts:login')
 		installTutor()
-		self.user_1 = User.objects.get(email=AccountValueSet.USER_1_EMAIL)
+		self.user_1 = User.objects.get(email='barry.allen@yahoo.com')
 
 	def test_login_GET(self):
 		response = self.client.get(self.url)
@@ -42,8 +42,8 @@ class TestAccountViewsLogin(TestCase):
 			Credentials are correct.
 		"""
 		context = {
-			"username": AccountValueSet.USER_1_USERNAME,
-			"password": AccountValueSet.USER_STRONG_PASSWORD,
+			"username": 'barry.allen@yahoo.com',
+			"password": 'RanDomPasWord56',
 			"browser_type": "Chrome"
 		}
 		response = self.client.post(self.url, context)
@@ -58,8 +58,8 @@ class TestAccountViewsLogin(TestCase):
 			Credentials are incorrect.
 		"""
 		context = {
-			"username": AccountValueSet.NONEXISTENTIALUSER_1,
-			"password": AccountValueSet.USER_INCORRECT_PASSWORD,
+			"username": 'nonexistentialuser@gmail.com',
+			"password": 'QWERTY1234Q',
 			"browser_type": "Chrome"
 		}
 		response = self.client.post(self.url, context)
@@ -67,12 +67,12 @@ class TestAccountViewsLogin(TestCase):
 		self.assertIn("message", response.context)
 		self.assertEquals(response.context["message"], "Username or Password did not match!")
 		self.assertIn("username", response.context)
-		self.assertEquals(response.context["username"], AccountValueSet.NONEXISTENTIALUSER_1)
+		self.assertEquals(response.context["username"], 'nonexistentialuser@gmail.com')
 		self.assertTemplateUsed(response, "accounts/login.html")
 
 	# @skip("Don't want to test")
 	def test_logout(self):
-		self.client.login(username=AccountValueSet.USER_1_USERNAME, password=AccountValueSet.USER_STRONG_PASSWORD)
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
 		self.url = reverse('accounts:logout')
 		response = self.client.get(self.url)
 		self.assertEqual(response.status_code, 302)
@@ -86,8 +86,8 @@ class TestAccountViewsLogin(TestCase):
 			Buts user has blocked this IP address from their UserSession.
 		"""
 		context = {
-			"username": AccountValueSet.USER_1_USERNAME,
-			"password": AccountValueSet.USER_STRONG_PASSWORD,
+			"username": 'barry.allen@yahoo.com',
+			"password": 'RanDomPasWord56',
 			"browser_type": "Chrome"
 		}
 		self.api_response = requests.get("http://ip-api.com/json").json()
@@ -101,7 +101,7 @@ class TestAccountViewsLogin(TestCase):
 		# self.test_login_authenticate_valid_user()
 		response = self.client.post(self.url, context)
 		self.assertEquals(response.context["message"], "This IP has been blocked by OneTutor for some reasons. If you think there has been some mistake, please appeal.")
-		self.assertEquals(response.context["username"], AccountValueSet.USER_1_USERNAME)
+		self.assertEquals(response.context["username"], 'barry.allen@yahoo.com')
 		self.assertTemplateUsed(response, "accounts/login.html")
 
 	# @skip("Don't want to test")
@@ -111,8 +111,8 @@ class TestAccountViewsLogin(TestCase):
 			Buts user has blocked this IP address from their UserSession.
 		"""
 		context = {
-			"username": AccountValueSet.USER_1_USERNAME,
-			"password": AccountValueSet.USER_STRONG_PASSWORD,
+			"username": 'barry.allen@yahoo.com',
+			"password": 'RanDomPasWord56',
 			"browser_type": "Chrome"
 		}
 		self.api_response = requests.get("http://ip-api.com/json").json()
@@ -137,8 +137,8 @@ class TestAccountViewsLogin(TestCase):
 			User temporarily blocked from authenticating.
 		"""
 		context = {
-			"username": AccountValueSet.NONEXISTENTIALUSER_1,
-			"password": AccountValueSet.USER_INCORRECT_PASSWORD,
+			"username": 'nonexistentialuser@gmail.com',
+			"password": 'QWERTY1234Q',
 			"browser_type": "Chrome"
 		}
 
