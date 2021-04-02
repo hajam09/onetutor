@@ -9,7 +9,7 @@ from unittest import skip
 import json
 import requests
 
-# coverage run --source=accounts manage.py test accounts
+# coverage run --source='.' manage.py test accounts
 # coverage html
 
 @skip("Running multiple tests simultaneously slows down the process")
@@ -21,8 +21,12 @@ class TestAccountViewsLogin(TestCase):
 	def setUp(self):
 		self.client = Client(HTTP_USER_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36')
 		self.url = reverse('accounts:login')
-		installTutor()
 		self.user_1 = User.objects.get(email='barry.allen@yahoo.com')
+
+	@classmethod
+	def setUpClass(cls):
+		super(TestAccountViewsLogin, cls).setUpClass()
+		installTutor()
 
 	def test_login_GET(self):
 		response = self.client.get(self.url)

@@ -3,7 +3,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from unittest import skip
 
-# coverage run --source=tutoring manage.py test tutoring
+# coverage run --source='.' manage.py test accounts
 # coverage html
 
 @skip("Running multiple tests simultaneously slows down the process")
@@ -15,6 +15,10 @@ class TestTutoringViewsMainpage(TestCase):
 	def setUp(self):
 		self.client = Client(HTTP_USER_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36')
 		self.url = reverse('tutoring:mainpage')
+
+	@classmethod
+	def setUpClass(cls):
+		super(TestTutoringViewsMainpage, cls).setUpClass()
 		installTutor()
 
 	def test_mainpage_GET(self):

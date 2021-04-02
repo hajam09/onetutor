@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.urls import reverse
 from unittest import skip
 
-# coverage run --source=accounts manage.py test accounts
+# coverage run --source='.' manage.py test accounts
 # coverage html
 
 @skip("Running multiple tests simultaneously slows down the process")
@@ -25,7 +25,10 @@ class TestAccountViewsCreateTutorProfile(TestCase):
 			last_name="Allen"
 		)
 		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
-		print("on user settings")
+
+	@classmethod
+	def setUpClass(cls):
+		super(TestAccountViewsCreateTutorProfile, cls).setUpClass()
 		installCountries()
 
 	def test_createprofile_GET(self):

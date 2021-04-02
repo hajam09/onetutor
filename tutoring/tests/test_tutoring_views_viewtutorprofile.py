@@ -7,7 +7,7 @@ from tutoring.models import QuestionAnswer
 from unittest import skip
 import json
 
-# coverage run --source=tutoring manage.py test tutoring
+# coverage run --source='.' manage.py test accounts
 # coverage html
 
 @skip("Running multiple tests simultaneously slows down the process")
@@ -19,7 +19,6 @@ class TestTutoringViewsViewTutorProfile(TestCase):
 
 	def setUp(self):
 		self.client = Client(HTTP_USER_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36')
-		installTutor()
 		self.user1 = User.objects.get(email='barry.allen@yahoo.com')
 		self.user2 = User.objects.get(email='cisco.ramone@hotmail.com')
 
@@ -33,6 +32,11 @@ class TestTutoringViewsViewTutorProfile(TestCase):
 			questioner=self.user1,
 			answerer=self.user2
 		)
+
+	@classmethod
+	def setUpClass(cls):
+		super(TestTutoringViewsViewTutorProfile, cls).setUpClass()
+		installTutor()
 
 	def test_viewtutorprofile_does_not_exist(self):
 		"""

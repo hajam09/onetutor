@@ -8,7 +8,7 @@ from tutoring.models import QuestionAnswer
 from unittest import skip
 import json
 
-# coverage run --source=tutoring manage.py test tutoring
+# coverage run --source='.' manage.py test accounts
 # coverage html
 
 @skip("Running multiple tests simultaneously slows down the process")
@@ -20,7 +20,6 @@ class TestTutoringViewsQuestionAnswerThread(TestCase):
 
 	def setUp(self):
 		self.client = Client(HTTP_USER_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36')
-		installTutor()
 		self.user1 = User.objects.get(email='barry.allen@yahoo.com')
 		self.user2 = User.objects.get(email='cisco.ramone@hotmail.com')
 		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
@@ -39,8 +38,12 @@ class TestTutoringViewsQuestionAnswerThread(TestCase):
 			comment = 'Sample comment'
 		)
 
-
 		self.url = reverse('tutoring:question_answer_thread', kwargs={'question_id':self.new_question.id})
+
+	@classmethod
+	def setUpClass(cls):
+		super(TestTutoringViewsQuestionAnswerThread, cls).setUpClass()
+		installTutor()
 
 	def test_question_answer_thread_view_render(self):
 		response = self.client.get(self.url, {})
