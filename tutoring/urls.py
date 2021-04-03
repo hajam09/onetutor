@@ -11,4 +11,6 @@ urlpatterns = [
 	path('subject_tag/<slug:tag_name>/', views.subject_tag, name='subject_tag'),
 	path('tutor_questions/', views.tutor_questions, name='tutor_questions'),
 	path('question_answer_thread/<int:question_id>/', views.question_answer_thread, name='question_answer_thread'),
+	path('question_answer/like/', views.like_comment, name='like_comment'),
+	path('question_answer/dislike/', views.dislike_comment, name='dislike_comment'),
 ]

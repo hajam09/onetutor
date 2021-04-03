@@ -7,7 +7,7 @@ from tutoring.models import QuestionAnswer
 from unittest import skip
 import json
 
-# coverage run --source='.' manage.py test accounts
+# coverage run --source='.' manage.py test tutoring
 # coverage html
 
 @skip("Running multiple tests simultaneously slows down the process")
@@ -45,7 +45,7 @@ class TestTutoringViewsTutorQuestions(TestCase):
 		"""
 		response = self.client.post(self.url, {})
 		self.assertEqual(response.status_code, 302)
-		self.assertRedirects(response, '/accounts/createprofile/')
+		self.assertRedirects(response, '/accounts/profile/select/')
 		self.assertIn('_auth_user_id', self.client.session)
 
 	def test_tutorquestion_render(self):

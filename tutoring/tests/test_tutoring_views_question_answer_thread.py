@@ -8,7 +8,7 @@ from tutoring.models import QuestionAnswer
 from unittest import skip
 import json
 
-# coverage run --source='.' manage.py test accounts
+# coverage run --source='.' manage.py test tutoring
 # coverage html
 
 @skip("Running multiple tests simultaneously slows down the process")

@@ -11,7 +11,7 @@ import json
 # coverage run --source='.' manage.py test tutoring
 # coverage html
 
-# @skip("Running multiple tests simultaneously slows down the process")
+@skip("Running multiple tests simultaneously slows down the process")
 class TestTutoringViewsViewTutorProfile(TestCase):
 	"""
 		Testing the create tutor profile view of the application.
@@ -470,7 +470,7 @@ class TestTutoringViewsViewTutorProfile(TestCase):
 		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
 		payload = {
 			"functionality": "dislike_tutor_review",
-			"commentId": self.new_tutor_review.pk,
+			"review_id": self.new_tutor_review.pk,
 		}	
 		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 		ajax_reponse = json.loads(response.content)
@@ -479,4 +479,4 @@ class TestTutoringViewsViewTutorProfile(TestCase):
 		self.assertEquals(response.status_code, 200)
 		self.assertIn("status_code", ajax_reponse)
 		self.assertEquals(ajax_reponse["status_code"], 200)
-		self.assertIn("this_comment", ajax_reponse)
+		self.assertIn("this_tutor_review", ajax_reponse)
