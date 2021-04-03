@@ -3,7 +3,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from unittest import skip
 
-# coverage run --source='.' manage.py test accounts
+# coverage run --source='.' manage.py test tutoring
 # coverage html
 
 @skip("Running multiple tests simultaneously slows down the process")

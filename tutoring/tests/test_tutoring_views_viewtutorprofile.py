@@ -4,13 +4,14 @@ from django.contrib.auth.models import User
 from django.test import TestCase, Client
 from django.urls import reverse
 from tutoring.models import QuestionAnswer
+from tutoring.models import TutorReview
 from unittest import skip
 import json
 
-# coverage run --source='.' manage.py test accounts
+# coverage run --source='.' manage.py test tutoring
 # coverage html
 
-@skip("Running multiple tests simultaneously slows down the process")
+# @skip("Running multiple tests simultaneously slows down the process")
 class TestTutoringViewsViewTutorProfile(TestCase):
 	"""
 		Testing the create tutor profile view of the application.
@@ -31,6 +32,13 @@ class TestTutoringViewsViewTutorProfile(TestCase):
 			answer="Not answered yet.",
 			questioner=self.user1,
 			answerer=self.user2
+		)
+
+		self.new_tutor_review = TutorReview.objects.create(
+			tutor=self.user2,
+			reviewer=self.user1,
+			comment="Test comment",
+			rating=4
 		)
 
 	@classmethod
@@ -316,6 +324,158 @@ class TestTutoringViewsViewTutorProfile(TestCase):
 		ajax_reponse = json.loads(response.content)
 		self.assertNotIn(self.new_question, QuestionAnswer.objects.filter(likes__id=user.pk))
 		self.assertIn(self.new_question, QuestionAnswer.objects.filter(dislikes__id=user.pk))
+		self.assertEquals(response.status_code, 200)
+		self.assertIn("status_code", ajax_reponse)
+		self.assertEquals(ajax_reponse["status_code"], 200)
+		self.assertIn("this_comment", ajax_reponse)
+
+	def test_viewtutorprofile_delete_tutor_review_not_authenticated(self):
+		"""
+			User is deleting their own review made to a tutor without authentication.
+			Could happen when logged out in one tab and deleting from another existing tab
+			prior to user logging out
+		"""
+		payload = {
+			"functionality": "delete_tutor_review"
+		}
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertEquals(response.status_code, 200)
+		self.assertIn("status_code", ajax_reponse)
+		self.assertEquals(ajax_reponse["status_code"], 401)
+		self.assertIn("message", ajax_reponse)
+		self.assertEquals(ajax_reponse["message"], 'Login to delete this review.')
+
+	def test_viewtutorprofile_delete_tutor_review_successful(self):
+		"""
+			User is deleting their own review made to a tutor with authentication.
+		"""
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		payload = {
+			"functionality": "delete_tutor_review",
+			"review_id": self.new_tutor_review.pk,
+		}
+		print("self.new_tutor_review.id", self.new_tutor_review.id)
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertEquals(response.status_code, 200)
+		self.assertEquals(ajax_reponse["status_code"], 200)
+		self.assertEquals(TutorReview.objects.filter(id=self.new_tutor_review.id).count(), 0)
+
+	def test_viewtutorprofile_delete_tutor_review_not_found(self):
+		"""
+			User/creator of the tutor reivew is trying to delete the review they posted.
+			But that review is already deleted in an another window.
+		"""
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		payload = {
+			"functionality": "delete_tutor_review",
+			"review_id": self.new_tutor_review.pk,
+		}
+		self.new_tutor_review.delete()
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertEquals(response.status_code, 200)
+		self.assertEquals(ajax_reponse["status_code"], 404)
+		self.assertEquals(TutorReview.objects.filter(id=self.new_tutor_review.id).count(), 0)
+
+	def test_viewtutorprofile_like_tutor_review_object_not_authenticated(self):
+		"""
+			A random unauthenticated user is trying to like a tutor reivew instance on the tutor profile.
+		"""
+		payload = {
+			"functionality": "like_tutor_review",
+		}
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertEquals(response.status_code, 200)
+		self.assertEquals(ajax_reponse["status_code"], 401)
+		self.assertEquals(ajax_reponse["message"], "Login to like this tutor review.")
+
+	def test_viewtutorprofile_like_tutor_review_object_not_found(self):
+		"""
+			Authenticated user is trying to like a tutor profile instance on the tutor profile.
+			The instance does not exist.
+		"""
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		payload = {
+			"functionality": "like_tutor_review",
+			"review_id": self.new_tutor_review.pk,
+		}
+		self.new_tutor_review.delete()
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertEquals(response.status_code, 200)
+		self.assertEquals(ajax_reponse["status_code"], 404)
+		self.assertEquals(ajax_reponse["message"], 'We think this review has been deleted!')
+
+	def test_viewtutorprofile_like_tutor_review_object_success(self):
+		"""
+			User is authenticated.
+			User not in list of liked.
+			User not in list of disliked.
+			L(0) : D(0) --> L(1) : D(0)
+		"""
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		payload = {
+			"functionality": "like_tutor_review",
+			"review_id": self.new_tutor_review.pk,
+		}		
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertIn(self.new_tutor_review, TutorReview.objects.filter(likes__id=self.user1.pk))
+		self.assertNotIn(self.new_tutor_review, TutorReview.objects.filter(dislikes__id=self.user1.pk))
+		self.assertEquals(response.status_code, 200)
+		self.assertIn("status_code", ajax_reponse)
+		self.assertEquals(ajax_reponse["status_code"], 200)
+		self.assertIn("this_tutor_review", ajax_reponse)
+
+	def test_viewtutorprofile_dislike_tutor_review_object_not_authenticated(self):
+		"""
+			A random unauthenticated user is trying to dislike a tutor review instance on the tutor profile.
+		"""
+		payload = {
+			"functionality": "dislike_tutor_review",
+		}
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertEquals(response.status_code, 200)
+		self.assertEquals(ajax_reponse["status_code"], 401)
+		self.assertEquals(ajax_reponse["message"], "Login to dislike this tutor review.")
+
+	def test_viewtutorprofile_dislike_tutor_review_object_not_found(self):
+		"""
+			Authenticated user is trying to dislike a tutor review instance on the tutor profile.
+			The instance does not exist.
+		"""
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		payload = {
+			"functionality": "dislike_tutor_review",
+			"review_id": self.new_tutor_review.pk,
+		}
+		self.new_tutor_review.delete()
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertEquals(response.status_code, 200)
+		self.assertEquals(ajax_reponse["status_code"], 404)
+		self.assertEquals(ajax_reponse["message"], 'We think this review has been deleted!')
+
+	def test_viewtutorprofile_dislike_tutor_review_object_success(self):
+		"""
+			User is authenticated.
+			User not in list of liked.
+			User not in list of disliked.
+			L(0) : D(0) --> L(0) : D(1)
+		"""
+		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
+		payload = {
+			"functionality": "dislike_tutor_review",
+			"commentId": self.new_tutor_review.pk,
+		}	
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertNotIn(self.new_tutor_review, TutorReview.objects.filter(likes__id=self.user1.pk))
+		self.assertIn(self.new_tutor_review, TutorReview.objects.filter(dislikes__id=self.user1.pk))
 		self.assertEquals(response.status_code, 200)
 		self.assertIn("status_code", ajax_reponse)
 		self.assertEquals(ajax_reponse["status_code"], 200)

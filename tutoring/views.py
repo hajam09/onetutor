@@ -221,7 +221,7 @@ def viewtutorprofile(request, tutor_secondary_key):
 			review_id = request.GET.get('review_id', None)			
 
 			try:
-				# TutorReview.objects.get(pk=review_id).delete()
+				TutorReview.objects.get(pk=review_id).delete()
 				response = {
 					"status_code": HTTPStatus.OK,
 				}
