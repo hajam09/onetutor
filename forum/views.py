@@ -698,6 +698,9 @@ def GetPopularPosts():
 		Attributes to determine the popularity:
 			forum vote, comment count, watch count and creation date is today (future).
 	"""
+	if Forum.objects.count() == 0:
+		return []
+		
 	all_forums_obj = Forum.objects.all().prefetch_related('forum_likes', 'forum_dislikes', 'watchers', 'forums').select_related('creator', 'community')
 
 	forum_list = [{
