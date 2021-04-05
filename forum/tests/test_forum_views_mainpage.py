@@ -1,17 +1,20 @@
 from accounts.seed_data_installer import installCategories
-from accounts.seed_data_installer import installTutor
+from accounts.seed_data_installer import installCommunity
 from accounts.seed_data_installer import installForum
+from accounts.seed_data_installer import installTutor
 from django.contrib.auth.models import User
-from forum.models import Community
 from django.test import TestCase, Client
 from django.urls import reverse
 from forum.models import Category
+from forum.models import Community
+from forum.models import Forum
 from unittest import skip
+import json
 
 # coverage run --source='.' manage.py test forum
 # coverage html
 
-# @skip("Running multiple tests simultaneously slows down the process")
+@skip("Running multiple tests simultaneously slows down the process")
 class TestForumViewsMainpage(TestCase):
 
 	def setUp(self):
@@ -22,15 +25,15 @@ class TestForumViewsMainpage(TestCase):
 	@classmethod
 	def setUpClass(cls):
 		super(TestForumViewsMainpage, cls).setUpClass()
-		installCategories()
 		installTutor()
+		installCategories()
+		installCommunity(2)
 		installForum(20)
 
 	def test_mainpage_view_render(self):
 		response = self.client.get(self.url)
 		self.assertEquals(response.status_code, 200)
-		self.assertEquals(response.context["category"].count(), Category.objects.count())
-		self.assertEquals(response.context["forums"], [])
+		self.assertEquals(response.context["category"].count(), 15)
 		self.assertTemplateUsed(response, 'forum/mainpage.html')
 
 	def test_mainpage_POST_create_community_not_authenticated(self):
@@ -51,4 +54,25 @@ class TestForumViewsMainpage(TestCase):
 		self.client.login(username='barry.allen@yahoo.com', password='RanDomPasWord56')
 		response = self.client.post(self.url, context)
 		self.assertLess(old_count, Community.objects.count())
-		self.assertRedirects(response, '/forum/c/1/')
+		self.assertRedirects(response, '/forum/c/{}/'.format(Community.objects.latest('id').pk))
+
+	def test_mainpage_ajax_fetch_forums_index_1(self):
+		payload = {
+			"functionality": "fetch_forums",
+			"next_index": "1",
+		}
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertEquals(response.status_code, 200)
+		self.assertEquals(ajax_reponse["status_code"], 200)
+		self.assertEquals(len(ajax_reponse["forum_json"]), 5)
+
+	def test_mainpage_ajax_fetch_forums_index_error(self):
+		payload = {
+			"functionality": "fetch_forums",
+			"next_index": "2",
+		}
+		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+		ajax_reponse = json.loads(response.content)
+		self.assertEquals(response.status_code, 200)
+		self.assertEquals(ajax_reponse["error"], "IndexError")
