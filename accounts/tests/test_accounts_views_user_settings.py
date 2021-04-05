@@ -243,6 +243,7 @@ class TestAccountViewsUserSettings(TestCase):
 		self.assertEquals(social_account.google, context["google"])
 		self.assertEquals(social_account.linkedin, context["linkedin"])
 
+	@skip("Not in usage due to data collection requirement review.")
 	def test_usersettings_user_block_an_ip_address(self):
 		"""
 			User is trying to block an ip address for their account.
@@ -272,6 +273,7 @@ class TestAccountViewsUserSettings(TestCase):
 		this_session = UserSession.objects.get(user=self.user_1)
 		self.assertEquals(this_session.allowed, False)
 
+	@skip("Not in usage due to data collection requirement review.")
 	def test_usersettings_user_unblock_an_ip_address(self):
 		"""
 			User is trying to unblock an ip address for their account.
