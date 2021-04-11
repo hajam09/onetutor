@@ -1,17 +1,18 @@
-# from django.shortcuts import render
+from threading import Thread
+import time
 
-# # Create your views here.
-# from django.contrib.auth.models import User
-# import time
-# from threading import Thread
+def executeDeleteCacheFromLogin(RUN_EVERY):
+	time.sleep(RUN_EVERY)
+	#
+	#
+	executeDeleteCacheFromLogin(RUN_EVERY)
 
-# def getAllUsers():
-# 	time.sleep(5)
-# 	for i in User.objects.all():
-# 		print(i.first_name)
-# 	getAllUsers()
+def runTasks(functionName, wait_time):
+	t1 = Thread(target = functionName, args=(wait_time,))
+	t1.daemon = True
+	t1.start()
 
-# def mainFunction():
-# 	t1 = Thread(target = getAllUsers)
-# 	t1.daemon = True
-# 	t1.start()
+def startCronJobs():
+	runTasks(executeDeleteCacheFromLogin, 10)
+
+startCronJobs()
