@@ -28,12 +28,13 @@ class TestForumViewsMainpage(TestCase):
 		installTutor()
 		installCategories()
 		installCommunity(2)
-		installForum(20)
+		installForum(2)
 
 	def test_mainpage_view_render(self):
 		response = self.client.get(self.url)
 		self.assertEquals(response.status_code, 200)
 		self.assertEquals(response.context["category"].count(), 15)
+		self.assertEquals(len(response.context["forums"]), 2)
 		self.assertTemplateUsed(response, 'forum/mainpage.html')
 
 	def test_mainpage_POST_create_community_not_authenticated(self):
@@ -59,18 +60,18 @@ class TestForumViewsMainpage(TestCase):
 	def test_mainpage_ajax_fetch_forums_index_1(self):
 		payload = {
 			"functionality": "fetch_forums",
-			"next_index": "1",
+			"next_index": "0",
 		}
 		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 		ajax_reponse = json.loads(response.content)
 		self.assertEquals(response.status_code, 200)
 		self.assertEquals(ajax_reponse["status_code"], 200)
-		self.assertEquals(len(ajax_reponse["forum_json"]), 5)
+		self.assertEquals(len(ajax_reponse["forum_json"]), 2)
 
 	def test_mainpage_ajax_fetch_forums_index_error(self):
 		payload = {
 			"functionality": "fetch_forums",
-			"next_index": "2",
+			"next_index": "1",
 		}
 		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 		ajax_reponse = json.loads(response.content)

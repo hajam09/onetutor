@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.test import Client
 from django.urls import reverse
 from onetutor.tests.ForumTestHelper import ForumBuildHelper
+from unittest import skip
 
 # coverage run --source='.' manage.py test forum
 # coverage html
