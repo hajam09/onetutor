@@ -1,3 +1,4 @@
+from accounts.forms import LoginForm
 from accounts.models import Countries
 from accounts.models import SocialConnection
 from accounts.models import StudentProfile
@@ -35,44 +36,41 @@ import requests
 import string
 
 def login(request):
+
+	if not request.session.session_key:
+		request.session.save()
+
 	if request.method == "POST":
-		uniqueVisitorId = request.POST['uniqueVisitorId']
+		uniqueVisitorId = request.session.session_key
 
-		if cache.get(uniqueVisitorId) != None and cache.get(uniqueVisitorId) > 3:
+		if cache.get(uniqueVisitorId) is not None and cache.get(uniqueVisitorId) > 3:
 			cache.set(uniqueVisitorId, cache.get(uniqueVisitorId), 600)
-			context = {
-				"message": 'Your account has been temporarily locked out because of too many failed login attempts.'
-			}
-			return render(request, 'accounts/login.html', context)
 
-		username = request.POST['username'].replace(" ", "")
-		password = request.POST['password']
+			messages.add_message(
+				request,
+				messages.ERROR,
+				"Your account has been temporarily locked out because of too many failed login attempts."
+			)
+			return redirect('accounts:login')
 
-		if not request.POST.get('remember_me', None):
-			request.session.set_expiry(0)
+		form = LoginForm(request, request.POST)
 
-		user = authenticate(username=username, password=password)
-		if user:
-			# login_user = authenticate_user(request, user)
-			# if login_user != True:
-			# 	return login_user
-
-			auth_login(request, user)
+		if form.is_valid():
 			cache.delete(uniqueVisitorId)
-			# add_user_session(request, request.POST['browser_type'])
 			return redirect('tutoring:mainpage')
 
-		if cache.get(uniqueVisitorId) == None:
+		if cache.get(uniqueVisitorId) is None:
 			cache.set(uniqueVisitorId, 1)
 		else:
 			cache.incr(uniqueVisitorId, 1)
 
-		context = {
-			"message": "Username or Password did not match!",
-			"username": username
-		}
-		return render(request, 'accounts/login.html', context)
-	return render(request, 'accounts/login.html', {})
+	else:
+		form = LoginForm(request)
+
+	context = {
+		"form": form
+	}
+	return render(request, 'accounts/login.html', context)
 
 def authenticate_user(request, user):
 	"""

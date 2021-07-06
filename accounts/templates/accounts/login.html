@@ -1,8 +1,9 @@
 {% extends "accounts/account_base.html" %}
 {% load static %}
+{% load crispy_forms_tags %}
 {% block content %}
 <style type="text/css">
-	/*body{margin-top:20px}*/.login-container{position:relative;margin:10% auto;max-width:390px}.login-container .loginbox{position:relative;width:390px!important;height:auto!important;padding:0 0 20px 0;-webkit-box-shadow:0 0 14px rgba(0,0,0,.1);-moz-box-shadow:0 0 14px rgba(0,0,0,.1);box-shadow:0 0 14px rgba(0,0,0,.1)}.bg-white{background-color:#fff!important}.login-container .loginbox .loginbox-title{position:relative;text-align:center;width:100%;height:35px;padding-top:10px;font-family:'Lucida Sans','trebuchet MS',Arial,Helvetica;font-size:20px;font-weight:400;color:#444}.login-container .loginbox .loginbox-social{padding:0 10px 10px;text-align:center}.login-container .loginbox .loginbox-social .social-title{font-size:14px;font-weight:500;color:#a9a9a9;margin-top:10px}.login-container .loginbox .loginbox-social .social-buttons{height:80px;padding:15px 35px;text-align:center;padding-left:80px}.login-container .loginbox .loginbox-social .social-buttons .button-facebook{float:left;border:2px solid #3b5998;color:#3b5998;border-radius:50%;width:50px;height:50px;margin-right:30px;background-color:#fff}.login-container .loginbox .loginbox-social .social-buttons .button-twitter{float:left;border:2px solid #29c1f6;color:#29c1f6;border-radius:50%;width:50px;height:50px;margin-right:30px;background-color:#fff}.login-container .loginbox .loginbox-social .social-buttons .button-google{float:left;border:2px solid #ef4f1d;color:#ef4f1d;border-radius:50%;width:50px;height:50px;margin-right:30px;background-color:#fff}.login-container .loginbox .loginbox-social .social-buttons .button-facebook i{font-size:26px;line-height:50px}.login-container .loginbox .loginbox-social .social-buttons .button-twitter i{font-size:26px;line-height:50px}.login-container .loginbox .loginbox-social .social-buttons .button-google i{font-size:26px;line-height:50px}.login-container .loginbox .loginbox-or{position:relative;text-align:center;height:20px}.login-container .loginbox .loginbox-or .or-line{position:absolute;height:1px;top:10px;left:40px;right:40px;background-color:#ccc}.login-container .loginbox .loginbox-or .or{position:absolute;top:0;-lh-property:0;left:-webkit-calc(50% - 25px);left:-moz-calc(50% - 25px);left:calc(50% - 25px);width:50px;height:20px;background-color:#fff;color:#999;margin:0 auto}.login-container .loginbox .loginbox-textbox{padding:10px 40px}.login-container .loginbox .loginbox-textbox .form-control{-webkit-border-radius:3px!important;-webkit-background-clip:padding-box!important;-moz-border-radius:3px!important;-moz-background-clip:padding!important;border-radius:3px!important;background-clip:padding-box!important}.login-container .loginbox .loginbox-forgot{padding-left:40px}.login-container .loginbox .loginbox-forgot a{font-size: 15px; font-weight: 500; color: #5cb85c; margin-top: 10px;margin-left: 88px}.login-container .loginbox .loginbox-submit{padding:10px 40px}.login-container .loginbox .loginbox-signup{text-align:center;padding-top:10px}.login-container .loginbox .loginbox-signup a{font-size:13px;color:#666}.login-container .logobox{width:340px!important;height:50px!important;padding:5px;margin-top:15px;-webkit-box-shadow:0 0 14px rgba(0,0,0,.1);-moz-box-shadow:0 0 14px rgba(0,0,0,.1);box-shadow:0 0 14px rgba(0,0,0,.1);background-color:#fff;text-align:left}.checkbox-inline {font-size: 15px; font-weight: 500; color: #a9a9a9; margin-top: 10px;margin-left: 16px}
+	/*body{margin-top:20px}*/.login-container{position:relative;margin:10% auto;max-width:390px}.login-container .loginbox{position:relative;width:390px!important;height:auto!important;padding:0 0 20px 0;-webkit-box-shadow:0 0 14px rgba(0,0,0,.1);-moz-box-shadow:0 0 14px rgba(0,0,0,.1);box-shadow:0 0 14px rgba(0,0,0,.1)}.bg-white{background-color:#fff!important}.login-container .loginbox .loginbox-title{position:relative;text-align:center;width:100%;height:35px;padding-top:10px;font-family:'Lucida Sans','trebuchet MS',Arial,Helvetica;font-size:20px;font-weight:400;color:#444}.login-container .loginbox .loginbox-social{padding:0 10px 10px;text-align:center}.login-container .loginbox .loginbox-social .social-title{font-size:14px;font-weight:500;color:#a9a9a9;margin-top:10px}.login-container .loginbox .loginbox-social .social-buttons{height:80px;padding:15px 35px;text-align:center;padding-left:80px}.login-container .loginbox .loginbox-social .social-buttons .button-facebook{float:left;border:2px solid #3b5998;color:#3b5998;border-radius:50%;width:50px;height:50px;margin-right:30px;background-color:#fff}.login-container .loginbox .loginbox-social .social-buttons .button-twitter{float:left;border:2px solid #29c1f6;color:#29c1f6;border-radius:50%;width:50px;height:50px;margin-right:30px;background-color:#fff}.login-container .loginbox .loginbox-social .social-buttons .button-google{float:left;border:2px solid #ef4f1d;color:#ef4f1d;border-radius:50%;width:50px;height:50px;margin-right:30px;background-color:#fff}.login-container .loginbox .loginbox-social .social-buttons .button-facebook i{font-size:26px;line-height:50px}.login-container .loginbox .loginbox-social .social-buttons .button-twitter i{font-size:26px;line-height:50px}.login-container .loginbox .loginbox-social .social-buttons .button-google i{font-size:26px;line-height:50px}.login-container .loginbox .loginbox-or{position:relative;text-align:center;height:20px}.login-container .loginbox .loginbox-or .or-line{position:absolute;height:1px;top:10px;left:40px;right:40px;background-color:#ccc}.login-container .loginbox .loginbox-or .or{position:absolute;top:0;-lh-property:0;left:-webkit-calc(50% - 25px);left:-moz-calc(50% - 25px);left:calc(50% - 25px);width:50px;height:20px;background-color:#fff;color:#999;margin:0 auto}.login-container .loginbox .loginbox-textbox{padding:10px 40px}.login-container .loginbox .loginbox-textbox .form-control{-webkit-border-radius:3px!important;-webkit-background-clip:padding-box!important;-moz-border-radius:3px!important;-moz-background-clip:padding!important;border-radius:3px!important;background-clip:padding-box!important}.login-container .loginbox .loginbox-forgot{padding-left:40px}.login-container .loginbox .loginbox-forgot a{font-size: 15px; font-weight: 500; color: #5cb85c; margin-top: 10px;margin-left: 88px}.login-container .loginbox .loginbox-submit{padding:10px 40px}.login-container .loginbox .loginbox-signup{text-align:center;padding-top:10px}.login-container .loginbox .loginbox-signup a{font-size:13px;color:#666}.login-container .logobox{width:340px!important;height:50px!important;padding:5px;margin-top:15px;-webkit-box-shadow:0 0 14px rgba(0,0,0,.1);-moz-box-shadow:0 0 14px rgba(0,0,0,.1);box-shadow:0 0 14px rgba(0,0,0,.1);background-color:#fff;text-align:left}.checkbox-inline {font-size: 15px; font-weight: 500; color: #a9a9a9; margin-top: 10px;margin-left: 16px}#id_remember_me{margin-left: -35px;} label[for="id_remember_me"]{margin-left: -15px;}.invalid-feedback{text-align: center;}
 </style>
 <div class="container">
 	<br><br><br>
@@ -10,14 +11,11 @@
 		<div class="loginbox bg-white" style="-webkit-box-shadow:0 4px 8px 0 rgba(0,0,0,.2),0 6px 20px 0 rgba(0,0,0,.19)">
 			<form method="post">
 				{% csrf_token %}
-				{% if message %}
-				<div style="color: black; text-align: center;" class="alert alert-danger" role="alert">{{message}}</div>
-				{% endif %}
 				{% if messages %}
-				{% for message in messages %}
-				<div style="color: black; text-align: center;" class="alert alert-success" role="alert">{{message}}</div>
-				{% endfor %}
-				{% endif %}
+                    {% for message in messages %}
+                        <div style="color: black; text-align: center;" class="alert alert-danger" role="alert">{{message}}</div>
+                    {% endfor %}
+                {% endif %}
 				<div class="loginbox-title">Login</div>
 				<div class="loginbox-social">
 					<div class="social-title ">Connect with Your Social Accounts</div>
@@ -38,20 +36,11 @@
 					<div class="or">OR</div>
 				</div>
 				<div class="loginbox-textbox">
-					<input type="text" class="form-control" name="username" placeholder="Email" value="{% if username %}{{username}}{% endif %}" required/>
-				</div>
-				<div class="loginbox-textbox">
-					<input type="password" class="form-control" name="password" placeholder="Password" required/>
-				</div>
-				<input type="text" name="uniqueVisitorId" id="uniqueVisitorId" hidden>
-				<div class="loginbox-forgot row">
-					<label class="checkbox-inline"><input type="checkbox" name="remember_me" /> Remember Me</label>
-					<a href="#" onclick="showHidePassword();" style="color: #007bff;">Show Password</a>
+					{{form | crispy}}
 				</div>
 				<div class="loginbox-submit">
 					<input type="submit" class="btn btn-primary btn-block" value="Login">
 				</div>
-				<input type="text" name="browser_type" hidden>
 				<div class="loginbox-social">
 					<div class="social-title ">Forgot your password? <a href="{% url 'accounts:password_request' %}">Reset Here</a></div>
 				</div>
@@ -60,75 +49,18 @@
 	</div>
 </div>
 <script type="text/javascript">
-	function showHidePassword() {
-		var password_1 = $("[name='password']");
 
-		password_1.attr("type","text") ? password_1.attr("type")=="password" : password_1.attr("type","password")
-
+	window.onload = function(e)
+	{
+		$( "#div_id_remember_me" ).addClass( "checkbox-inline" );
+		$( "#div_id_remember_me" ).append( '<a class="pull-right" href="#" onclick="showHidePassword();" style="color: #007bff;">Show Password</a>' );
 	}
 
-	function generateUniqueVisitorId() {
-
-		if ( localStorage.getItem('uniqueVisitorId') ) {
-			$('#uniqueVisitorId').val( localStorage.getItem('uniqueVisitorId') );
-			return;
-		}
-
-		var result = '';
-		var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-		var charactersLength = characters.length;
-		for ( var i = 0; i < 10; i++ ) {
-			result += characters.charAt(Math.floor(Math.random() * charactersLength));
-		}
-
-		localStorage.setItem('uniqueVisitorId', result)
-		$('#uniqueVisitorId').val(result);
+	function showHidePassword()
+	{
+		var password = $("[name='password']");
+		password.attr("type") == "password" ? password.attr("type","text") : password.attr("type","password")
 	}
 
-	function browser_detection() {
-		// Opera 8.0+
-		var isOpera = (!!window.opr && !!opr.addons) || !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
-		if (isOpera) {
-			$("[name='browser_type']").val("Opera");
-			return;
-		}
-
-		// Firefox 1.0+
-		var isFirefox = typeof InstallTrigger !== 'undefined';
-		if (isFirefox) {
-			$("[name='browser_type']").val("Firefox");
-			return;
-		}
-
-		// Safari 3.0+ "[object HTMLElementConstructor]" 
-		var isSafari = /constructor/i.test(window.HTMLElement) || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!window['safari'] || (typeof safari !== 'undefined' && safari.pushNotification));
-		if (isSafari) {
-			$("[name='browser_type']").val("Safari");
-			return;
-		}
-
-		// Internet Explorer 6-11
-		var isIE = /*@cc_on!@*/false || !!document.documentMode;
-		if (isIE) {
-			$("[name='browser_type']").val("Internet Explorer");
-			return;
-		}
-
-		// Edge 20+
-		var isEdge = !isIE && !!window.StyleMedia;
-		if (isEdge) {
-			$("[name='browser_type']").val("Edge");
-			return;
-		}
-
-		// Chrome 1 - 71
-		var isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime);
-		if (isChrome) {
-			$("[name='browser_type']").val("Chrome");
-			return;
-		}
-	}
-	browser_detection();
-	generateUniqueVisitorId();
 </script>
 {% endblock %}

@@ -6,3 +6,4 @@ coverage.xml
 media/
 htmlcov
 .scannerwork
+.idea/

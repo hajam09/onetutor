@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'chat',
+    'crispy_forms',
     'cronjobs',
     'coverage',
     'debug_toolbar',
@@ -130,6 +131,7 @@ USE_TZ = True
 # Debug Toolbar
 # =============
 INTERNAL_IPS = ['127.0.0.1']
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 
 # Static files (CSS, JavaScript, Images)
