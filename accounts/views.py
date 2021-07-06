@@ -34,6 +34,8 @@ import random
 import re
 import requests
 import string
+from accounts.forms import RegistrationForm
+from onetutor.operations import emailOperations
 
 def login(request):
 
@@ -46,10 +48,8 @@ def login(request):
 		if cache.get(uniqueVisitorId) is not None and cache.get(uniqueVisitorId) > 3:
 			cache.set(uniqueVisitorId, cache.get(uniqueVisitorId), 600)
 
-			messages.add_message(
-				request,
-				messages.ERROR,
-				"Your account has been temporarily locked out because of too many failed login attempts."
+			messages.success(
+				request, 'Your account has been temporarily locked out because of too many failed login attempts.'
 			)
 			return redirect('accounts:login')
 
@@ -118,62 +118,26 @@ def add_user_session(request, browser_type):
 		)
 
 def register(request):
+
 	if request.method == "POST":
-		email = request.POST['email']
-		password = request.POST['password']
-		password_2 = request.POST['confirm_password'];
-		firstname = request.POST['first_name']
-		lastname = request.POST['last_name']		
+		form = RegistrationForm(request.POST)
+		if form.is_valid():
+			newUser = form.save()
+			emailOperations.sendEmailToActivateAccount( request, newUser )
 
-		if User.objects.filter(username=email).exists():
-			context = {
-				"message": "An account already exists for this email address!",
-				"email": email,
-				"firstname": firstname,
-				"lastname": lastname
-			}
-			return render(request,'accounts/registration.html', context)
-		else:
-			context = {}
-			if(password!=password_2):
-				context = {
-					"message": "Your passwords do not match!",
-					"email": email,
-					"firstname": firstname,
-					"lastname": lastname
-				}
-				return render(request,'accounts/registration.html', context)
+			messages.add_message(
+				request,
+				messages.ERROR,
+				"We've sent you an activation link. Please check your email."
+			)
+			return redirect('accounts:login')
+	else:
+		form = RegistrationForm()
 
-			if(len(password)<8 or any(letter.isalpha() for letter in password)==False or any(capital.isupper() for capital in password)==False or any(number.isdigit() for number in password)==False):
-				context = {
-					"message": "Your password is not strong enough.",
-					"email": email,
-					"firstname": firstname,
-					"lastname": lastname
-				}
-				return render(request,'accounts/registration.html', context)
-
-			user = User.objects.create_user(username=email, email=email, password=password, first_name=firstname, last_name=lastname)
-			user.is_active = settings.DEBUG
-			user.save()
-
-			if not settings.DEBUG:
-				# No need to send an email during debug.
-				current_site = get_current_site(request)
-				email_subject = "Activate your OneTutor Account"
-				message = render_to_string('accounts/activate.html',
-					{"user":user,
-					"domain":current_site.domain,
-					"uid": urlsafe_base64_encode(force_bytes(user.pk)),
-					"token": generate_token.make_token(user)
-					})
-
-				email_message = EmailMessage(email_subject, message, settings.EMAIL_HOST_USER, [email])
-				email_message.send()
-
-			context = {"activate": "We've sent you an activation link. Please check your email."}
-			return render(request,'accounts/registration.html', context)
-	return render(request,'accounts/registration.html', {})
+	context = {
+		"form": form
+	}
+	return render(request,'accounts/registration.html', context)
 
 def logout(request):
 	auth_logout(request)
@@ -453,6 +417,7 @@ def not_found_page(request, *args, **argv):
 	return render(request,"accounts/404.html", {})
 
 def activateaccount(request, uidb64, token):
+
 	try:
 		uid = force_text(urlsafe_base64_decode(uidb64))
 		user = User.objects.get(pk=uid)
@@ -462,9 +427,14 @@ def activateaccount(request, uidb64, token):
 	if user is not None and generate_token.check_token(user, token):
 		user.is_active = True
 		user.save()
-		messages.add_message(request,messages.SUCCESS,"Account activated successfully")
+		messages.add_message(
+			request,
+			messages.SUCCESS,
+			"Account activated successfully"
+		)
 		return redirect('accounts:login')
-	return render(request, "accounts/activate_failed.html",status=401)
+
+	return render(request, "accounts/activate_failed.html", status=401)
 
 def password_request(request):
 	if request.method == "POST":
