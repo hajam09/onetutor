@@ -446,25 +446,13 @@ def password_request(request):
 			user = None
 
 		if user is not None:
-			username = user.first_name
+			emailOperations.sendEmailToChangePassword(request, user)
 
-			current_site = get_current_site(request)
-			domain = current_site.domain
-
-			uid = urlsafe_base64_encode(force_bytes(user.pk))
-			token = generate_token.make_token(user)
-
-			email_subject = "Request to change OneTutor Password"
-			message = """Hi {},\n\n
-			You have recently request to change your account password.
-			Please click this link below to change your account password. \n\n
-			http://{}/accounts/password_change/{}/{}""".format(username, domain, uid, token)
-
-			email_message = EmailMessage(email_subject, message, settings.EMAIL_HOST_USER, [email])
-			email_message.send()
-
-		return render(request, "accounts/password_request.html",{"message": "Check your email for a password change link."})
-	return render(request, "accounts/password_request.html",{})
+		messages.success(
+			request, 'Check your email for a password change link.'
+		)
+		return redirect('accounts:password_request')
+	return render(request, "accounts/password_request.html", {})
 
 def password_change(request, uidb64, token):
 	try:
