@@ -1,10 +1,10 @@
-from accounts.forms import LoginForm
-from accounts.models import Countries
-from accounts.models import SocialConnection
-from accounts.models import StudentProfile
-from accounts.models import TutorProfile
-from accounts.models import UserSession
-from accounts.utils import generate_token
+import datetime
+import json
+import os
+import re
+from http import HTTPStatus
+
+import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate
@@ -12,29 +12,21 @@ from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.contrib.sites.shortcuts import get_current_site
 from django.core.cache import cache
-from django.core.mail import EmailMessage
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
-from django.template.loader import render_to_string
-from django.utils.encoding import DjangoUnicodeDecodeError
-from django.utils.encoding import force_bytes
 from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_decode
-from django.utils.http import urlsafe_base64_encode
-from http import HTTPStatus
-from tutoring.models import QuestionAnswer
-import accounts.seed_data_installer
-import datetime
-import json
-import os
-import random
-import re
-import requests
-import string
+
+from accounts.forms import LoginForm
 from accounts.forms import RegistrationForm
+from accounts.models import Countries
+from accounts.models import SocialConnection
+from accounts.models import StudentProfile
+from accounts.models import TutorProfile
+from accounts.models import UserSession
+from accounts.utils import generate_token
 from onetutor.operations import emailOperations
 
 def login(request):
