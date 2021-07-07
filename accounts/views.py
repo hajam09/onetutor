@@ -319,12 +319,12 @@ def user_settings(request):
 		return redirect('/accounts/user_settings/')
 
 	if request.method == "POST" and "delete_account" in request.POST:
-		delete_code = request.POST["delete-code"]
-		if "user_" + str(request.user.id) + "_delete_key" in request.session and delete_code == request.session["user_" + str(request.user.id) + "_delete_key"]:
+		if request.POST["delete-code"] == request.session.session_key:
 			u = User.objects.get(pk=request.user.id)
 			u.delete()
-			del request.session["user_" + str(request.user.id) + "_delete_key"]
-			messages.add_message(request,messages.SUCCESS,"Account deleted successfully")
+			messages.success(
+				request, 'Account deleted successfully'
+			)
 			return redirect('tutoring:mainpage')
 
 	if request.method == "POST" and "update_password" in request.POST:
@@ -498,14 +498,10 @@ def request_delete_code(request):
 		}
 		return HttpResponse(json.dumps(response), content_type="application/json")
 
-	# generate a random string, send it to the user's email and add it to the session.
-	delete_code = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(20))
-	request.session["user_" + str(request.user.id) + "_delete_key"] = delete_code
+	if not request.session.session_key:
+		request.session.save()
 
-	subject = 'Account deletion code.'
-	message = """Hi {},\n\n Below is the code to delete your account permanently. Copy the code and paste it on our website. \n\n Your codeis: {}""".format(" ".join(request.user.first_name), delete_code)
-	email_message = EmailMessage(subject, message, settings.EMAIL_HOST_USER, [request.user.email])
-	email_message.send()
+	emailOperations.sendEmailForAccountDeletionCode(request, request.user)
 
 	response = {
 		"status_code": HTTPStatus.OK,

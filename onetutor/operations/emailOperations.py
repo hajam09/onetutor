@@ -37,8 +37,6 @@ def sendEmailToActivateAccount(request, user: User):
 
 
 def sendEmailToChangePassword(request, user: User):
-
-
     currentSite = get_current_site(request)
     emailSubject = "Request to change OneTutor Password"
     fullName = user.get_full_name()
@@ -56,6 +54,28 @@ def sendEmailToChangePassword(request, user: User):
             Thanks,
             The OneTutor Team
         """.format(fullName, currentSite.domain, uid, token)
+
+    emailMessage = EmailMessage(emailSubject, message, settings.EMAIL_HOST_USER, [user.email])
+    emailMessage.send()
+    return
+
+
+def sendEmailForAccountDeletionCode(request, user: User):
+    emailSubject = "Account deletion code"
+    fullName = user.get_full_name()
+    deleteCode = request.session.session_key
+
+    message = """
+                Hi {},
+                \n
+                Below is the code to delete your account permanently.
+                Copy the code and paste it on our website.
+                \n
+                Your code is: {}
+                \n
+                Thanks,
+                The OneTutor Team
+            """.format(fullName, deleteCode)
 
     emailMessage = EmailMessage(emailSubject, message, settings.EMAIL_HOST_USER, [user.email])
     emailMessage.send()
