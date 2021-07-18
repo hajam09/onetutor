@@ -127,6 +127,7 @@ def create_tutor_profile(request):
 			"sunday": {"morning": False, "afternoon": False, "evening": False}
 		}
 
+		# TODO: Remove location field.
 		TutorProfile.objects.create(
 			user=request.user,
 			summary=summary,
