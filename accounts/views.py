@@ -104,50 +104,41 @@ def create_student_profile(request):
 @login_required
 def create_tutor_profile(request):
 
-	if request.method == "POST" and "Create_Tutor_Profile" in request.POST:
+	if request.method == "POST" and "createTutorProfile" in request.POST:
 		summary = request.POST["summary"]
 		about = request.POST["about"]
-		subjects = request.POST["subjects"]
+		subjects = ', '.join([i.capitalize() for i in request.POST.getlist('subjects')])
 
 		education = {}
 		for i in range(int( request.POST["numberOfEducation"])):
-			education["education_" + str(i + 1) ] = {"school_name": request.POST["school_name_" + str(i + 1)], "qualification": request.POST["qualification_" + str(i + 1)], "year": request.POST["year_" + str(i + 1)]}
-
-		availability = {}
-		availability["monday"] = {"morning": False, "afternoon": False, "evening": False}
-		availability["tuesday"] = {"morning": False, "afternoon": False, "evening": False}
-		availability["wednesday"] = {"morning": False, "afternoon": False, "evening": False}
-		availability["thursday"] = {"morning": False, "afternoon": False, "evening": False}
-		availability["friday"] = {"morning": False, "afternoon": False, "evening": False}
-		availability["saturday"] = {"morning": False, "afternoon": False, "evening": False}
-		availability["sunday"] = {"morning": False, "afternoon": False, "evening": False}
-
-		country = Countries.objects.get(alpha=request.POST["country"])
-		location = {
-			"address_1": request.POST["address_1"].strip().title(),
-			"address_2": request.POST["address_2"].strip().title(),
-			"city": request.POST["city"].strip().title(),
-			"stateProvince": request.POST["stateProvince"].strip().title(),
-			"postalZip": request.POST["postalZip"].strip().upper(),
-			"country": {
-				"alpha": country.alpha,
-				"name": country.name
+			education["education_" + str(i + 1)] = {
+				"school_name": request.POST["school_name_" + str(i + 1)],
+				"qualification": request.POST["qualification_" + str(i + 1)],
+				"year": request.POST["year_" + str(i + 1)]
 			}
+
+		availability = {
+			"monday": {"morning": False, "afternoon": False, "evening": False},
+			"tuesday": {"morning": False, "afternoon": False, "evening": False},
+			"wednesday": {"morning": False, "afternoon": False, "evening": False},
+			"thursday": {"morning": False, "afternoon": False, "evening": False},
+			"friday": {"morning": False, "afternoon": False, "evening": False},
+			"saturday": {"morning": False, "afternoon": False, "evening": False},
+			"sunday": {"morning": False, "afternoon": False, "evening": False}
 		}
 
 		TutorProfile.objects.create(
 			user=request.user,
 			summary=summary,
 			about=about,
-			location=location,
+			location={},
 			education=education,
 			subjects=subjects,
 			availability=availability
 			)
 		return redirect('accounts:tutorprofile')
 
-	countries = Countries.objects.all()
-	return render(request,"accounts/create_tutor_profile.html", {"countries": countries})
+	return render(request, "accounts/create_tutor_profile.html")
 
 @login_required
 def tutorprofile(request):

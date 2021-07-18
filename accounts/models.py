@@ -4,6 +4,7 @@ from django.db import models
 import jsonfield
 import uuid
 
+# TODO: Remove fields: location
 class TutorProfile(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
 	secondary_key = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
@@ -18,9 +19,10 @@ class TutorProfile(models.Model):
 	class Meta:
 		verbose_name_plural = "TutorProfiles"
 
+# TODO: Remove fields: location
 class StudentProfile(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
-	location = jsonfield.JSONField()# not implemented at the moment
+	location = jsonfield.JSONField()
 	subjects = models.CharField(max_length=8192)
 	profilePicture = models.ImageField(upload_to='profilepicture', blank=True, null=True)# not implemented at the moment
 
