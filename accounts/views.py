@@ -1,10 +1,8 @@
-import datetime
 import json
 import os
 import re
 from http import HTTPStatus
 
-import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate
@@ -64,13 +62,14 @@ def login(request):
 	}
 	return render(request, 'accounts/login.html', context)
 
+
 def register(request):
 
 	if request.method == "POST":
 		form = RegistrationForm(request.POST)
 		if form.is_valid():
 			newUser = form.save()
-			emailOperations.sendEmailToActivateAccount( request, newUser )
+			emailOperations.sendEmailToActivateAccount(request, newUser)
 
 			messages.add_message(
 				request,
@@ -84,7 +83,7 @@ def register(request):
 	context = {
 		"form": form
 	}
-	return render(request,'accounts/registration.html', context)
+	return render(request, 'accounts/registration.html', context)
 
 def logout(request):
 	auth_logout(request)
