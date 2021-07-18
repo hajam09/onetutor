@@ -57,14 +57,3 @@ class SocialConnection(models.Model):
 
 	class Meta:
 		verbose_name_plural = "SocialConnection"
-
-class UserSession(models.Model):
-	user = models.ForeignKey(User, on_delete=models.CASCADE)
-	device_type = models.CharField(max_length=256)
-	location = models.CharField(max_length=1024)
-	ip_address = models.GenericIPAddressField()
-	login_time = models.DateTimeField(default=datetime.now)
-	allowed = models.BooleanField(default=True)
-
-	class Meta:
-		verbose_name_plural = "UserSessions"

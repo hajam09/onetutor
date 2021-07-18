@@ -1,7 +1,6 @@
 from accounts.models import Countries
 from accounts.models import SocialConnection
 from accounts.models import TutorProfile
-from accounts.models import UserSession
 from accounts.seed_data_installer import installCountries
 from accounts.seed_data_installer import installTutor
 from django.contrib.auth.models import User
@@ -242,58 +241,3 @@ class TestAccountViewsUserSettings(TestCase):
 		self.assertEquals(social_account.facebook, context["facebook"])
 		self.assertEquals(social_account.google, context["google"])
 		self.assertEquals(social_account.linkedin, context["linkedin"])
-
-	@skip("Not in usage due to data collection requirement review.")
-	def test_usersettings_user_block_an_ip_address(self):
-		"""
-			User is trying to block an ip address for their account.
-		"""
-
-		# this user needs to login, which creates the UserSession object in the view.
-		context = {
-			"username": 'barry.allen@yahoo.com',
-			"password": 'RanDomPasWord56',
-			"browser_type": "Chrome"
-		}
-		
-		self.client.post(reverse('accounts:login'), context)
-		this_session = UserSession.objects.get(user=self.user_1)
-
-		payload = {
-			"functionality": "block_unblock_IP",
-			"session_id": this_session.pk,
-			"allow": "false"
-		}
-		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-		ajax_reponse = json.loads(response.content)
-		self.assertEquals(response.status_code, 200)
-		self.assertEquals(ajax_reponse["status_code"], 200)
-		self.assertEquals(ajax_reponse["message"], "{} has been blocked".format(this_session.ip_address))
-
-		this_session = UserSession.objects.get(user=self.user_1)
-		self.assertEquals(this_session.allowed, False)
-
-	@skip("Not in usage due to data collection requirement review.")
-	def test_usersettings_user_unblock_an_ip_address(self):
-		"""
-			User is trying to unblock an ip address for their account.
-		"""
-
-		# using to block the ip
-		self.test_usersettings_user_block_an_ip_address()
-
-		this_session = UserSession.objects.get(user=self.user_1)
-
-		payload = {
-			"functionality": "block_unblock_IP",
-			"session_id": this_session.pk,
-			"allow": "true"
-		}
-		response = self.client.get(self.url, payload, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-		ajax_reponse = json.loads(response.content)
-		self.assertEquals(response.status_code, 200)
-		self.assertEquals(ajax_reponse["status_code"], 200)
-		self.assertEquals(ajax_reponse["message"], "{} has been unblocked".format(this_session.ip_address))
-
-		this_session = UserSession.objects.get(user=self.user_1)
-		self.assertEquals(this_session.allowed, True)

@@ -25,7 +25,6 @@ from accounts.models import Countries
 from accounts.models import SocialConnection
 from accounts.models import StudentProfile
 from accounts.models import TutorProfile
-from accounts.models import UserSession
 from accounts.utils import generate_token
 from onetutor.operations import emailOperations
 
@@ -64,51 +63,6 @@ def login(request):
 		"form": form
 	}
 	return render(request, 'accounts/login.html', context)
-
-def authenticate_user(request, user):
-	"""
-		Not in usage due to data collection requirement review.
-	"""
-	response = requests.get("http://ip-api.com/json").json()
-	try:
-		this_session = UserSession.objects.get(ip_address=response['query'])
-	except UserSession.DoesNotExist:
-		return True
-
-	if this_session.allowed:
-		return True
-
-	context = {
-		"message": "This IP has been blocked by OneTutor for some reasons. If you think there has been some mistake, please appeal.",
-		"username": user.username
-	}
-	return render(request,'accounts/login.html', context)
-
-def add_user_session(request, browser_type):
-	"""
-		Not in usage due to data collection requirement review.
-	"""
-	# add_user_session(request, request.POST['browser_type'])
-	response = requests.get("http://ip-api.com/json").json()
-	try:
-		this_session = UserSession.objects.get(ip_address=response['query'])
-		this_hour_now = datetime.datetime.now(tz=None)
-		diff = this_hour_now - this_session.login_time.replace(tzinfo=None)
-		if (diff.total_seconds()/3600 > 12):
-			# with the same ip, the user has logged in 12hrs later.
-			# TODO: update the user session with the new login_time and device type.
-			pass
-	except UserSession.DoesNotExist:
-		user_agent = request.META['HTTP_USER_AGENT']
-		platform = re.sub(r'\W+', '', user_agent.split()[1]) # Windows, Mac, Linux, Android, etc.
-		device_type = "{}, {}".format(browser_type, platform)
-		location="{}, {}, {}".format(response['city'], response['regionName'], response['country'])
-		UserSession.objects.create(
-			user=request.user,
-			device_type=device_type,
-			location=location,
-			ip_address=response['query'],
-		)
 
 def register(request):
 
@@ -266,7 +220,6 @@ def user_settings(request):
 
 	countries = Countries.objects.all()
 	social_links = SocialConnection.objects.get(user=request.user) if SocialConnection.objects.filter(user=request.user).count() != 0 else None
-	# user_sessions = UserSession.objects.filter(user=request.user)
 
 	if request.method == "POST" and "update_general_information" in request.POST:
 		firstname = request.POST["first_name"].strip()
@@ -371,31 +324,10 @@ def user_settings(request):
 		messages.add_message(request,messages.SUCCESS,"Your social connection has been updated successfully")
 		return redirect('/accounts/user_settings/')
 
-	# if request.is_ajax():
-	# 	functionality = request.GET.get('functionality', None)
-
-	# 	if functionality == "block_unblock_IP":
-	# 		session_id, allow = request.GET.get('session_id', None), request.GET.get('allow', None)
-	# 		allow = True if allow == 'true' else False
-	# 		this_session = UserSession.objects.get(id=session_id)
-	# 		this_session.allowed = allow
-	# 		this_session.save()
-	# 		if allow:
-	# 			message = "{} has been unblocked".format(this_session.ip_address)
-	# 		else:
-	# 			message = "{} has been blocked".format(this_session.ip_address)
-	# 		response = {
-	# 			"status_code": HTTPStatus.OK,
-	# 			"message": message
-	# 		}
-	# 		return HttpResponse(json.dumps(response), content_type="application/json")
-
-
 	context = {
 		"tutorProfile": tutorProfile,
 		"countries": countries,
 		"social_links": social_links,
-		# "user_sessions": user_sessions
 	}
 
 	return render(request, "accounts/user_settings.html",context)

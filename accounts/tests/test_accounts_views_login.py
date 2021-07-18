@@ -1,4 +1,3 @@
-from accounts.models import UserSession
 from accounts.seed_data_installer import installTutor
 from django.contrib.auth.models import User
 from django.core.cache import cache
@@ -84,57 +83,6 @@ class TestAccountViewsLogin(TestCase):
 		self.assertNotIn('_auth_user_id', self.client.session)
 
 	# @skip("Don't want to test")
-	def test_login_ip_address_blocked(self):
-		"""
-			User's credentials are correct.
-			Buts user has blocked this IP address from their UserSession.
-		"""
-		context = {
-			"username": 'barry.allen@yahoo.com',
-			"password": 'RanDomPasWord56',
-			"browser_type": "Chrome"
-		}
-		self.api_response = requests.get("http://ip-api.com/json").json()
-		self.user_session = UserSession.objects.create(
-			user=User.objects.get(username=context["username"]),
-			device_type="Chrome, Windows",
-			location="Barking, England, United Kingdom",
-			ip_address=self.api_response['query'],
-			allowed=False
-		)
-		# self.test_login_authenticate_valid_user()
-		response = self.client.post(self.url, context)
-		self.assertEquals(response.context["message"], "This IP has been blocked by OneTutor for some reasons. If you think there has been some mistake, please appeal.")
-		self.assertEquals(response.context["username"], 'barry.allen@yahoo.com')
-		self.assertTemplateUsed(response, "accounts/login.html")
-
-	# @skip("Don't want to test")
-	def test_login_ip_address_unblocked(self):
-		"""
-			User's credentials are correct.
-			Buts user has blocked this IP address from their UserSession.
-		"""
-		context = {
-			"username": 'barry.allen@yahoo.com',
-			"password": 'RanDomPasWord56',
-			"browser_type": "Chrome"
-		}
-		self.api_response = requests.get("http://ip-api.com/json").json()
-		self.user_session = UserSession.objects.create(
-			user=User.objects.get(username=context["username"]),
-			device_type="Chrome, Windows",
-			location="Barking, England, United Kingdom",
-			ip_address=self.api_response['query'],
-			allowed=True
-		)
-		# self.test_login_authenticate_valid_user()
-		response = self.client.post(self.url, context)
-		self.assertEqual(response.status_code, 302)
-		self.assertRedirects(response, '/')
-		self.assertIn('_auth_user_id', self.client.session)
-		self.assertEqual(int(self.client.session['_auth_user_id']), self.user_1.pk)
-
-	# @skip("Don't want to test")
 	def test_login_login_attempts(self):
 		"""
 			Credentials are incorrect.
@@ -151,7 +99,7 @@ class TestAccountViewsLogin(TestCase):
 			response = self.client.post(self.url, context)
 			i = i+1
 			if i > 5:
-				break			
+				break
 
 		self.assertNotEqual(cache.get('loginAttempts'), None)
 		self.assertEqual(response.status_code, 200)
