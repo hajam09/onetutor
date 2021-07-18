@@ -38,7 +38,7 @@ def login(request):
 		if cache.get(uniqueVisitorId) is not None and cache.get(uniqueVisitorId) > 3:
 			cache.set(uniqueVisitorId, cache.get(uniqueVisitorId), 600)
 
-			messages.success(
+			messages.error(
 				request, 'Your account has been temporarily locked out because of too many failed login attempts.'
 			)
 			return redirect('accounts:login')
@@ -71,10 +71,8 @@ def register(request):
 			newUser = form.save()
 			emailOperations.sendEmailToActivateAccount(request, newUser)
 
-			messages.add_message(
-				request,
-				messages.ERROR,
-				"We've sent you an activation link. Please check your email."
+			messages.info(
+				request, 'We\'ve sent you an activation link. Please check your email.'
 			)
 			return redirect('accounts:login')
 	else:
