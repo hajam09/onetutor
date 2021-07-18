@@ -29,6 +29,7 @@ from accounts.models import UserSession
 from accounts.utils import generate_token
 from onetutor.operations import emailOperations
 
+
 def login(request):
 
 	if not request.session.session_key:
@@ -193,7 +194,7 @@ def create_tutor_profile(request):
 			availability=availability
 			)
 		return redirect('accounts:tutorprofile')
-	
+
 	countries = Countries.objects.all()
 	return render(request,"accounts/create_tutor_profile.html", {"countries": countries})
 
@@ -203,7 +204,7 @@ def tutorprofile(request):
 		tutorProfile = TutorProfile.objects.get(user=request.user.id)
 	except TutorProfile.DoesNotExist:
 		return redirect('accounts:selectprofile')
-	
+
 	tutorProfile.subjects = tutorProfile.subjects.replace(", ", ",").split(",")
 	return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile})
 
@@ -220,7 +221,7 @@ def tutorprofileedit(request):
 		subjects = subjects.split(",")
 		subjects.sort()
 		subjects = ", ".join(subjects)
-		
+
 		availabilityChoices = request.POST.getlist('availabilityChoices')
 
 		availability = {}
@@ -231,7 +232,7 @@ def tutorprofileedit(request):
 		availability["friday"] = {"morning": False, "afternoon": False, "evening": False}
 		availability["saturday"] = {"morning": False, "afternoon": False, "evening": False}
 		availability["sunday"] = {"morning": False, "afternoon": False, "evening": False}
-		
+
 		for i in availabilityChoices:
 			i = i.split("_")
 			weekDay = i[0]
@@ -276,7 +277,7 @@ def user_settings(request):
 				previousProfileImage = os.path.join(settings.MEDIA_ROOT, tutorProfile.profilePicture.name)
 				if os.path.exists(previousProfileImage):
 					os.remove(previousProfileImage)
-				
+
 			profilePicture = request.FILES["my-file-selector"]
 			tutorProfile.profilePicture = profilePicture
 			tutorProfile.save(update_fields=['profilePicture'])
@@ -349,7 +350,7 @@ def user_settings(request):
 				auth_login(request, user)
 			else:
 				messages.add_message(request,messages.ERROR,"Error occured while trying to log you again.")
-				return redirect("accounts:login")	
+				return redirect("accounts:login")
 
 	if request.method == "POST" and "notification_settings" in request.POST:
 		login_attempt_notification = True if request.POST.get('login_attempt_notification') else False
@@ -396,7 +397,7 @@ def user_settings(request):
 		"social_links": social_links,
 		# "user_sessions": user_sessions
 	}
-	
+
 	return render(request, "accounts/user_settings.html",context)
 
 def rules(request, rule_type):

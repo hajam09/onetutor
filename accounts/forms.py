@@ -126,6 +126,7 @@ class LoginForm(forms.ModelForm):
         email = self.cleaned_data.get('email')
         password = self.cleaned_data.get('password')
 
+        # TODO: Bug - the remember_me is not in the cleaned_data dictionary.
         if not self.cleaned_data.get('remember_me', None):
             self.request.session.set_expiry(0)
 
