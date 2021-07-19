@@ -110,7 +110,7 @@ def create_tutor_profile(request):
 		subjects = ', '.join([i.capitalize() for i in request.POST.getlist('subjects')])
 
 		education = {}
-		for i in range(int( request.POST["numberOfEducation"])):
+		for i in range(int(request.POST["numberOfEducation"])):
 			education["education_" + str(i + 1)] = {
 				"school_name": request.POST["school_name_" + str(i + 1)],
 				"qualification": request.POST["qualification_" + str(i + 1)],
@@ -153,28 +153,27 @@ def tutorprofile(request):
 
 @login_required
 def tutorprofileedit(request):
+
+	try:
+		tutorProfile = TutorProfile.objects.get(user=request.user)
+	except TutorProfile.DoesNotExist:
+		return redirect('accounts:selectprofile')
+
 	if request.method == "POST" and "updateTutorProfile" in request.POST:
 		summary = request.POST["summary"]
 		about = request.POST["about"]
-		subjects = request.POST["subjects"]
-		subjects = subjects.strip()
-		subjects = re.sub(' +', ' ', subjects)
-		subjects = re.sub(' ,+', ',', subjects)
-		subjects = subjects.replace(", ", ",")
-		subjects = subjects.split(",")
-		subjects.sort()
-		subjects = ", ".join(subjects)
-
+		subjects = ', '.join([i.capitalize() for i in request.POST.getlist('subjects')])
 		availabilityChoices = request.POST.getlist('availabilityChoices')
 
-		availability = {}
-		availability["monday"] = {"morning": False, "afternoon": False, "evening": False}
-		availability["tuesday"] = {"morning": False, "afternoon": False, "evening": False}
-		availability["wednesday"] = {"morning": False, "afternoon": False, "evening": False}
-		availability["thursday"] = {"morning": False, "afternoon": False, "evening": False}
-		availability["friday"] = {"morning": False, "afternoon": False, "evening": False}
-		availability["saturday"] = {"morning": False, "afternoon": False, "evening": False}
-		availability["sunday"] = {"morning": False, "afternoon": False, "evening": False}
+		availability = {
+			"monday": {"morning": False, "afternoon": False, "evening": False},
+			"tuesday": {"morning": False, "afternoon": False, "evening": False},
+			"wednesday": {"morning": False, "afternoon": False, "evening": False},
+			"thursday": {"morning": False, "afternoon": False, "evening": False},
+			"friday": {"morning": False, "afternoon": False, "evening": False},
+			"saturday": {"morning": False, "afternoon": False, "evening": False},
+			"sunday": {"morning": False, "afternoon": False, "evening": False}
+		}
 
 		for i in availabilityChoices:
 			i = i.split("_")
@@ -184,13 +183,24 @@ def tutorprofileedit(request):
 
 		education = {}
 		for i in range(int(request.POST["numberOfEducation"])):
-			education["education_" + str(i + 1) ] = {"school_name": request.POST["school_name_" + str(i + 1)], "qualification": request.POST["qualification_" + str(i + 1)], "year": request.POST["year_" + str(i + 1)]}
+			education["education_" + str(i + 1)] = {
+				"school_name": request.POST["school_name_" + str(i + 1)],
+				"qualification": request.POST["qualification_" + str(i + 1)],
+				"year": request.POST["year_" + str(i + 1)]
+			}
 
-		TutorProfile.objects.filter(user=request.user.id).update(user=request.user, summary=summary, about=about, education=education, subjects=subjects, availability=availability, profilePicture=None)
+		tutorProfile.summary = summary
+		tutorProfile.about = about
+		tutorProfile.education = education
+		tutorProfile.subjects = subjects
+		tutorProfile.availability = availability
+		tutorProfile.save()
 		return redirect("accounts:tutorprofile")
 
-	tutorProfile = TutorProfile.objects.get(user=request.user.id)
-	return render(request,"accounts/tutorprofileedit.html", {"tutorProfile": tutorProfile})
+	context = {
+		"tutorProfile": tutorProfile
+	}
+	return render(request, "accounts/tutorprofileedit.html", context)
 
 @login_required
 def studentprofile(request):
