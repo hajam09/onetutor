@@ -1,7 +1,5 @@
 import json
 import os
-import re
-from http import HTTPStatus
 
 from django.conf import settings
 from django.contrib import messages
@@ -212,124 +210,147 @@ def studentprofileedit(request):
 
 @login_required
 def user_settings(request):
+	# TODO: Change this view to tutor settins and create separate for student settings.
+	# TODO: Implement TFA.
+
 	try:
-		tutorProfile = TutorProfile.objects.get(user=request.user.id)
+		tutorProfile = TutorProfile.objects.get(user=request.user)
 	except TutorProfile.DoesNotExist:
 		return redirect('accounts:selectprofile')
 
-	countries = Countries.objects.all()
-	social_links = SocialConnection.objects.get(user=request.user) if SocialConnection.objects.filter(user=request.user).count() != 0 else None
+	if request.method == "POST" and "updateGeneralInformation" in request.POST:
+		firstname = request.POST["firstName"].strip()
+		lastname = request.POST["lastName"].strip()
 
-	if request.method == "POST" and "update_general_information" in request.POST:
-		firstname = request.POST["first_name"].strip()
-		lastname = request.POST["last_name"].strip()
-
-		if "my-file-selector" in request.FILES:
+		if "profilePicture" in request.FILES:
 			if tutorProfile.profilePicture and 'profilepicture/defaultimg/' not in tutorProfile.profilePicture.url:
 				previousProfileImage = os.path.join(settings.MEDIA_ROOT, tutorProfile.profilePicture.name)
 				if os.path.exists(previousProfileImage):
 					os.remove(previousProfileImage)
 
-			profilePicture = request.FILES["my-file-selector"]
+			profilePicture = request.FILES["profilePicture"]
 			tutorProfile.profilePicture = profilePicture
 			tutorProfile.save(update_fields=['profilePicture'])
 
-		user = User.objects.get(pk=(request.user.id))
+		user = request.user
 		user.first_name = firstname
 		user.last_name = lastname
 		user.save()
 
-		messages.add_message(request,messages.SUCCESS,"Your personal details has been updated successfully")
-		return redirect('/accounts/user_settings/')
+		messages.success(
+			request,
+			'Your personal details has been updated successfully.'
+		)
 
-	if request.method == "POST" and "update_address" in request.POST:
-		address_1 = request.POST["address_1"].strip().title()
-		address_2 = request.POST["address_2"].strip().title()
-		city = request.POST["city"].strip().title()
-		stateProvince = request.POST["stateProvince"].strip().title()
-		postalZip = request.POST["postalZip"].strip().upper()
-		country = Countries.objects.get(alpha=request.POST["country"])
+	if request.method == "POST" and "updateTutorProfile" in request.POST:
+		summary = request.POST["summary"]
+		about = request.POST["about"]
+		subjects = ', '.join([i.capitalize() for i in request.POST.getlist('subjects')])
+		availabilityChoices = request.POST.getlist('availabilityChoices')
 
-		location = {
-			"address_1": address_1,
-			"address_2": address_2,
-			"city": city,
-			"stateProvince": stateProvince,
-			"postalZip": postalZip,
-			"country": {"alpha": country.alpha, "name": country.name}
-
+		availability = {
+			"monday": {"morning": False, "afternoon": False, "evening": False},
+			"tuesday": {"morning": False, "afternoon": False, "evening": False},
+			"wednesday": {"morning": False, "afternoon": False, "evening": False},
+			"thursday": {"morning": False, "afternoon": False, "evening": False},
+			"friday": {"morning": False, "afternoon": False, "evening": False},
+			"saturday": {"morning": False, "afternoon": False, "evening": False},
+			"sunday": {"morning": False, "afternoon": False, "evening": False}
 		}
-		TutorProfile.objects.filter(user=request.user.id).update(location=location)
-		messages.add_message(request,messages.SUCCESS,"Your location has been updated successfully")
-		return redirect('/accounts/user_settings/')
 
-	if request.method == "POST" and "delete_account" in request.POST:
-		if request.POST["delete-code"] == request.session.session_key:
-			u = User.objects.get(pk=request.user.id)
-			u.delete()
-			messages.success(
-				request, 'Account deleted successfully'
-			)
-			return redirect('tutoring:mainpage')
+		for i in availabilityChoices:
+			i = i.split("_")
+			weekDay = i[0]
+			dayTime = i[1]
+			availability[weekDay][dayTime] = True
 
-	if request.method == "POST" and "update_password" in request.POST:
+		education = {}
+		for i in range(int(request.POST["numberOfEducation"])):
+			education["education_" + str(i + 1)] = {
+				"school_name": request.POST["school_name_" + str(i + 1)],
+				"qualification": request.POST["qualification_" + str(i + 1)],
+				"year": request.POST["year_" + str(i + 1)]
+			}
+
+		tutorProfile.summary = summary
+		tutorProfile.about = about
+		tutorProfile.education = education
+		tutorProfile.subjects = subjects
+		tutorProfile.availability = availability
+		tutorProfile.save()
+
+		messages.success(
+			request,
+			'Your biography and other details has been updated successfully.'
+		)
+
+	if request.method == "POST" and "changePassword" in request.POST:
 		currentPassword = request.POST["currentPassword"]
 		newPassword = request.POST["newPassword"]
 		confirmPassword = request.POST["confirmPassword"]
 
-		user = User.objects.get(pk=(request.user.id))
+		user = request.user
 
 		if currentPassword and not user.check_password(currentPassword):
-			messages.add_message(request,messages.ERROR,"Your current password does not match")
-			return redirect('/accounts/user_settings/')
+			messages.error(
+				request,
+				'Your current password does not match with the account\'s existing password.'
+			)
 
-		if(newPassword and confirmPassword):
-			if(newPassword!=confirmPassword):
-				messages.add_message(request,messages.ERROR,"Your new password and confirm password does not match")
-				return redirect('/accounts/user_settings/')
+		if newPassword and confirmPassword:
+			if newPassword != confirmPassword:
+				messages.error(
+					request,
+					'Your new password and confirm password does not match.'
+				)
 
-			if(len(newPassword)<8 or any(letter.isalpha() for letter in newPassword)==False or any(capital.isupper() for capital in newPassword)==False or any(number.isdigit() for number in newPassword)==False):
-				messages.add_message(request,messages.WARNING,"Your new password is not strong enough")
-				return redirect('/accounts/user_settings/')
+			if len(newPassword) < 8 or not any(letter.isalpha() for letter in newPassword) or not any(
+					capital.isupper() for capital in newPassword) or not any(
+					number.isdigit() for number in newPassword):
+				messages.warning(
+					request,
+					'Your new password is not strong enough.'
+				)
 
 			user.set_password(newPassword)
 		user.save()
 
-		if(newPassword and confirmPassword):
+		if newPassword and confirmPassword:
 			user = authenticate(username=user.username, password=newPassword)
 			if user:
-				messages.add_message(request,messages.SUCCESS,"Your password has been updated")
+				messages.success(
+					request,
+					'Your password has been updated.'
+				)
 				auth_login(request, user)
 			else:
-				messages.add_message(request,messages.ERROR,"Error occured while trying to log you again.")
+				messages.warning(
+					request,
+					'Something happened. Try to login to the system.'
+				)
 				return redirect("accounts:login")
 
-	if request.method == "POST" and "notification_settings" in request.POST:
-		login_attempt_notification = True if request.POST.get('login_attempt_notification') else False
-		question_notification = True if request.POST.get('question_notification') else False
-		answer_on_forum = True if request.POST.get('answer_on_forum') else False
-		message_on_chat = True if request.POST.get('message_on_chat') else False
-		# Need to create a Notifications table for each user and add it to event listner.
+	if request.method == "POST" and "notificationSettings" in request.POST:
+		loginAttemptNotification = True if request.POST.get('loginAttemptNotification') else False
+		questionNotification = True if request.POST.get('questionNotification') else False
+		answerOnForum = True if request.POST.get('answerOnForum') else False
+		messageOnChat = True if request.POST.get('messageOnChat') else False
+		# TODO: Need to create a Notifications table for each user and add it to event listener.
 
-	if request.method == "POST" and "social_links" in request.POST:
-		twitter = request.POST["twitter"]
-		facebook = request.POST["facebook"]
-		google = request.POST["google"]
-		linkedin = request.POST["linkedin"]
-		obj, created = SocialConnection.objects.update_or_create(
-			user=request.user,
-			defaults={'twitter': twitter, 'facebook': facebook, 'google': google, 'linkedin': linkedin},
+	if request.method == "POST" and "deleteAccount" in request.POST:
+		if request.POST["delete-code"] == request.session.session_key:
+			request.user.delete()
+			messages.success(
+				request,
+				'Account deleted successfully'
+			)
+			return redirect('tutoring:mainpage')
+		messages.error(
+			request,
+			'Account delete code is incorrect, please try again later.'
 		)
-		messages.add_message(request,messages.SUCCESS,"Your social connection has been updated successfully")
-		return redirect('/accounts/user_settings/')
 
-	context = {
-		"tutorProfile": tutorProfile,
-		"countries": countries,
-		"social_links": social_links,
-	}
-
-	return render(request, "accounts/user_settings.html",context)
+	return render(request, "accounts/user_settings.html")
 
 def rules(request, rule_type):
 	if rule_type == "privacy_policy":
@@ -351,10 +372,9 @@ def activateaccount(request, uidb64, token):
 	if user is not None and generate_token.check_token(user, token):
 		user.is_active = True
 		user.save()
-		messages.add_message(
+		messages.success(
 			request,
-			messages.SUCCESS,
-			"Account activated successfully"
+			'Account activated successfully'
 		)
 		return redirect('accounts:login')
 
@@ -407,7 +427,8 @@ def password_change(request, uidb64, token):
 	else:
 		return render(request, "accounts/activate_failed.html",status=401)
 
-def request_delete_code(request):
+def requestDeleteCode(request):
+
 	if not request.is_ajax():
 		response = {
 			"status_code": 403,
@@ -428,7 +449,7 @@ def request_delete_code(request):
 	emailOperations.sendEmailForAccountDeletionCode(request, request.user)
 
 	response = {
-		"status_code": HTTPStatus.OK,
+		"status_code": 200,
 		"message": "Check your email for the code."
 	}
 	return HttpResponse(json.dumps(response), content_type="application/json")
