@@ -354,9 +354,9 @@ def user_settings(request):
 
 def rules(request, rule_type):
 	if rule_type == "privacy_policy":
-		return render(request,"accounts/privacypolicy.html", {})
+		return render(request,"accounts/privacypolicy.html")
 	if rule_type == "terms_and_conditions":
-		return render(request,"accounts/termsandconditions.html", {})
+		return render(request,"accounts/termsandconditions.html")
 
 def not_found_page(request, *args, **argv):
 	return render(request,"accounts/404.html", {})
@@ -381,6 +381,7 @@ def activateaccount(request, uidb64, token):
 	return render(request, "accounts/activate_failed.html", status=401)
 
 def password_request(request):
+
 	if request.method == "POST":
 		email = request.POST["email"]
 
@@ -392,13 +393,14 @@ def password_request(request):
 		if user is not None:
 			emailOperations.sendEmailToChangePassword(request, user)
 
-		messages.success(
+		messages.info(
 			request, 'Check your email for a password change link.'
 		)
 		return redirect('accounts:password_request')
 	return render(request, "accounts/password_request.html", {})
 
 def password_change(request, uidb64, token):
+
 	try:
 		uid = force_text(urlsafe_base64_decode(uidb64))
 		user = User.objects.get(pk=uid)
@@ -406,26 +408,33 @@ def password_change(request, uidb64, token):
 		user = None
 
 	if request.method == "POST" and user is not None and generate_token.check_token(user, token):
-		password_1 = request.POST["password_1"]
-		password_2 = request.POST["password_2"]
+		newPassword = request.POST["newPassword"]
+		confirmPassword = request.POST["confirmPassword"]
 
-		if password_1 and password_2:
-			if(password_1!=password_2):
-				context = {"message": "Your passwords do not match!"}
-				return render(request,'accounts/password_reset_form.html', context)
+		if newPassword and confirmPassword:
+			if newPassword != confirmPassword:
+				messages.error(
+					request,
+					'Your new password and confirm password does not match.'
+				)
+				return redirect("accounts:password_change", uidb64=uidb64, token=token)
 
-			if(len(password_1)<8 or any(letter.isalpha() for letter in password_1)==False or any(capital.isupper() for capital in password_1)==False or any(number.isdigit() for number in password_1)==False):
-				context = {"message": "Your password is not strong enough."}
-				return render(request,'accounts/password_reset_form.html', context)
+			if len(newPassword) < 8 or not any(letter.isalpha() for letter in newPassword) or not any(
+					capital.isupper() for capital in newPassword) or not any(
+				number.isdigit() for number in newPassword):
+				messages.warning(
+					request,
+					'Your new password is not strong enough.'
+				)
+				return redirect("accounts:password_change", uidb64=uidb64, token=token)
 
-			user.set_password(password_1)
+			user.set_password(newPassword)
 			user.save()
 			return redirect("accounts:login")
 
 	if user is not None and generate_token.check_token(user, token):
-		return render(request, 'accounts/password_reset_form.html',{})
-	else:
-		return render(request, "accounts/activate_failed.html",status=401)
+		return render(request, 'accounts/password_reset_form.html')
+	return render(request, "accounts/activate_failed.html", status=401)
 
 def requestDeleteCode(request):
 
