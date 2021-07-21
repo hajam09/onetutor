@@ -17,8 +17,6 @@ from django.utils.http import urlsafe_base64_decode
 
 from accounts.forms import LoginForm
 from accounts.forms import RegistrationForm
-from accounts.models import Countries
-from accounts.models import SocialConnection
 from accounts.models import StudentProfile
 from accounts.models import TutorProfile
 from accounts.utils import generate_token

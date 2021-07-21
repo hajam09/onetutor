@@ -1,4 +1,8 @@
+import json
 from datetime import datetime
+from http import HTTPStatus
+
+import pandas as pd
 from deprecated import deprecated
 from django.contrib.auth.models import User
 from django.core import serializers
@@ -6,14 +10,13 @@ from django.http import Http404
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
+from sklearn.preprocessing import MinMaxScaler
+
 from forum.models import Category
 from forum.models import Community
 from forum.models import Forum
 from forum.models import ForumComment
-from http import HTTPStatus
-from sklearn.preprocessing import MinMaxScaler
-import json
-import pandas as pd
+
 
 def mainpage(request):
 
