@@ -1,3 +1,5 @@
+from django.template.defaultfilters import slugify
+
 from accounts.models import Countries
 from accounts.models import Subject
 from accounts.models import TutorProfile
@@ -262,28 +264,26 @@ def installCommunity(totalValue):
 		CRON.append(installCommunity)
 		return
 
-	if Category.objects.count() == 0:
-		return#installCategories()
-
-	if Community.objects.count() >= 10:
+	categoryCount = Category.objects.count()
+	if categoryCount == 0 or categoryCount >= 10:
 		return
 
 	community_bulk_object = []
 	for i in range(totalValue):
 		gen = DocumentGenerator()
 		creator = random.choice(User.objects.all().exclude(is_superuser=True))
-		category = random.choice(Category.objects.all())
-		community_title = gen.sentence()
-		community_title_with_underscore = community_title.replace(" ", "_")
-		community_url = ''.join(e for e in community_title_with_underscore if e.isalnum() or e=="_")
-		community_description = gen.paragraph()
+		title = gen.sentence()
+		url = slugify(title)
+		tags = ", ".join([gen.word() for _ in range(5)])
+		description = gen.paragraph()
 
 		community_bulk_object.append(
 			Community(
-				creator = creator,
-				community_title = community_title,
-				community_url = community_url,
-				community_description = community_description,
+				creator=creator,
+				title=title,
+				url=url,
+				tags=tags,
+				description=description,
 			)
 		)
 
@@ -311,18 +311,19 @@ def installForum(totalValue):
 		gen = DocumentGenerator()
 		community = random.choice(Community.objects.all())
 		creator = random.choice(User.objects.all().exclude(is_superuser=True))
-		forum_title = gen.sentence()
-		forum_title_with_underscore = forum_title.replace(" ", "_")
-		forum_url = ''.join(e for e in forum_title_with_underscore if e.isalnum() or e=="_")
-		forum_description = gen.paragraph()
+		title = gen.sentence()
+		url = slugify(title)
+		description = gen.paragraph()
+		anonymous = random.choice([True, False])
 
 		forum_bulk_object.append(
 			Forum(
-				community = community,
-				creator = creator,
-				forum_title = forum_title,
-				forum_url = forum_url,
-				forum_description = forum_description,
+				community=community,
+				creator=creator,
+				title=title,
+				url=url,
+				description=description,
+				anonymous=anonymous
 			)
 		)
 

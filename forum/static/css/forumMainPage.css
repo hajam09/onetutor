@@ -1,0 +1,16 @@
+#buttons_in_footer {
+	display: none;
+}
+
+.QMwdLfHioF {
+	cursor: pointer;
+}
+
+@media (max-width: 767px) {
+	#buttons_in_sidebar {
+		display: none;
+	}
+	#buttons_in_footer {
+		display: inline;
+	}
+}

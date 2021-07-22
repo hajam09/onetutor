@@ -16,7 +16,7 @@ class TestForumViewsCommunitypage(TestCase):
 		self.forums.communityBuilder(1)
 		self.forums.forumBuilder(2)
 		self.forums.forumCommentBuilder(4)
-		self.url = reverse('forum:communitypage', kwargs={'community_id':self.forums.community[0].id})
+		self.url = reverse('forum:communityPage', kwargs={'community_id':self.forums.community[0].id})
 		self.client.login(username=self.forums.newUser.user.username, password='RanDomPasWord56')
 
 	@classmethod
@@ -30,4 +30,4 @@ class TestForumViewsCommunitypage(TestCase):
 		self.assertEquals(response.context["community"], self.forums.community[0])
 		self.assertEquals(len(response.context["forums"]), len(self.forums.forum))
 		self.assertFalse(response.context["in_community"])
-		self.assertTemplateUsed(response, 'forum/communitypage.html')
+		self.assertTemplateUsed(response, 'forum/communityPage.html')

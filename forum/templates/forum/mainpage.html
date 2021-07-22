@@ -1,50 +1,14 @@
 {% extends "accounts/account_base.html" %}
 {% load static %}
+{% load crispy_forms_tags %}
 {% block content %}
-<style type="text/css">
-    .ui-w-80{width:100px!important;height:auto}
-    #buttons_in_footer{display: none;}
-    .QMwdLfHioF{ cursor: pointer; }
-    @media (min-width: 1200px) {
-        .container {
-            width: 1600px;
-        }
-        .wrapper {
-            width: 75%;
-        }
-    }
-
-    @media (min-width: 972px) and (max-width: 1200px) {
-        .container {
-            width: 1600px;
-        }
-        .wrapper {
-            width: 90%;
-        }
-    }
-
-    @media (min-width: 700px) and (max-width: 959px) {
-        .container {
-            width: 1600px;
-        }
-        .wrapper {
-            width: 90%;
-        }
-    }
-
-    @media (max-width: 767px) {
-        #buttons_in_sidebar{display:none;}
-        #buttons_in_footer{display:inline;}
-    }
-</style>
-
-<div class="wrapper" style="margin: auto;overflow-x: hidden; color: black;">
+<link rel="stylesheet" type="text/css" href="{% static 'css/forumMainPage.css' %}"/>
+<div class="container" style="margin: auto;overflow-x: hidden; color: black;">
     <div class="gutters-sm">
         <div style="height:70px;"></div>
         <div class="col-md-12">
             <div class="row">
-                <div class="col-12 col-lg-8 col-md-12" id="list_of_forums">
-                    <!-- Forum div here... -->
+                <div class="col-12 col-lg-8 col-md-12" id="div-id-forum-list-container">
                     {% if not forums %}
                     <div class="alert alert-info " role="alert" style="text-align: center;"> This forum is empty. Why don't you start one. </div>
                     {% endif %}
@@ -166,7 +130,7 @@
             </div>
             <div style="height:20px;"></div>`;
 
-            $('#list_of_forums').append(forum_div_container);
+            $('#div-id-forum-list-container').append(forum_div_container);
         }
     }
 

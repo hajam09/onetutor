@@ -2,39 +2,32 @@
 {% load static %}
 {% block content %}
 <style type="text/css">
-	.ui-w-80{width:100px!important;height:auto}
-	#buttons_in_footer{display: none;}
-	.QMwdLfHioF{ cursor: pointer; }
-	@media (min-width: 1200px) {
-		.container {
-			width: 1600px;
-		}
-		.wrapper {
-			width: 75%;
-		}
+	.ui-w-80
+	{
+		width: 100px!important;
+		height: auto
 	}
 
-	@media (min-width: 972px) and (max-width: 1200px) {
-		.container {
-			width: 1600px;
-		}
-		.wrapper {
-			width: 90%;
-		}
+	#buttons_in_footer
+	{
+		display: none;
 	}
 
-	@media (min-width: 700px) and (max-width: 959px) {
-		.container {
-			width: 1600px;
-		}
-		.wrapper {
-			width: 90%;
-		}
+	.QMwdLfHioF
+	{
+		cursor: pointer;
 	}
 
-	@media (max-width: 767px) {
-		#buttons_in_sidebar{display:none;}
-		#buttons_in_footer{display:inline;}
+	@media (max-width: 767px)
+	{
+		#buttons_in_sidebar
+		{
+			display: none;
+		}
+		#buttons_in_footer
+		{
+			display: inline;
+		}
 	}
 </style>
 <div>
@@ -97,7 +90,7 @@
 	</div>
 	{% endif %}
 </div>
-<div class="wrapper" style="margin: auto;overflow-x: hidden; color: black;">
+<div class="container" style="margin: auto;overflow-x: hidden; color: black;">
 	<div class="gutters-sm">
 		<div style="height:70px;"></div>
 		<div class="col-md-12">
