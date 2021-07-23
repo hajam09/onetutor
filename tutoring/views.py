@@ -1,56 +1,103 @@
-from accounts.models import Subject
-from accounts.models import TutorProfile
+import json
 from datetime import datetime
+from http import HTTPStatus
+
+import pandas
 from deprecated import deprecated
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.core import serializers
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
-from http import HTTPStatus
+
+from accounts.models import Subject
+from accounts.models import TutorProfile
 from tutoring.models import QAComment
 from tutoring.models import QuestionAnswer
 from tutoring.models import TutorReview
-import json
+
 
 def mainpage(request):
+	context = {}
+
 	if request.method == "POST":
-		general_query = request.POST["generalQuery"]
+
+		generalQuery = request.POST["generalQuery"]
 		location = request.POST["location"]
-		context = {}
 
-		tutor_list = None
+		generalQueryList = generalQuery.split()
+		locationList = location.split()
+
+		profiles = TutorProfile.objects.all().select_related('user')
+
 		# user may want to find a particular tutor by name(s).
-		if general_query and location:
-			tutor_list = TutorProfile.objects.filter(summary__icontains=general_query, location__icontains=location).select_related('user') | \
-						TutorProfile.objects.filter(subjects__icontains=general_query, location__icontains=location).select_related('user')
-			context["generalQuery"] = general_query
-			context["location"] = location
+		if generalQuery and location:
+			"""
+			# Explanation #
+			generalQueryList = ['English', 'Maths', 'tutorname', ...]
+			locationList = ['GB', 'London', 'Manchester', ...]
+			For each TutorProfile, if any items in generalQueryList is found in summary
+			or subjects AND any items in locationList is found in location JSON converted
+			to flat JSON with keys and values to lowercase, then its the required tutor.
+			
+			for i in profiles:
+				for j in generalQueryList:
+					if j.lower() in i.summary.lower() or j.lower() in i.subjects.lower():
+						for k in locationList:
+							flatLocation = pandas.json_normalize(i.location, sep='_').to_dict(orient='records')[0].values()
+							lowerCaseKV = [i.lower() for i in flatLocation]
+							if k.lower() in lowerCaseKV:
+								tutorList.append(i)
+			"""
 
-		elif general_query:
-			tutor_list = TutorProfile.objects.filter(summary__icontains=general_query).select_related('user') | \
-						TutorProfile.objects.filter(subjects__icontains=general_query).select_related('user')
-			context["generalQuery"] = general_query
+			tutorList = [
+				i
+				for k in locationList
+				for j in generalQueryList
+				for i in profiles
+				if j.lower() in i.summary.lower() or j.lower() in i.subjects.lower()
+				if k.lower() in [i.lower() for i in pandas.json_normalize(i.location, sep='_').to_dict(orient='records')[0].values()]
+			]
+
+			context["generalQuery"] = generalQuery
+			context["location"] = location
+			context["tutorList"] = list(set(tutorList))
+
+		elif generalQuery:
+
+			tutorList = [
+				i
+				for j in generalQueryList
+				for i in profiles
+				if j.lower() in i.summary.lower() or j.lower() in i.subjects.lower()
+			]
+
+			context["generalQuery"] = generalQuery
+			context["tutorList"] = list(set(tutorList))
 
 		elif location:
-			tutor_list = TutorProfile.objects.filter(location__icontains=location).select_related('user')
+
+			tutorList = [
+				i
+				for i in profiles
+				for k in locationList
+				if k.lower() in [i.lower() for i in pandas.json_normalize(i.location, sep='_').to_dict(orient='records')[0].values()]
+			]
+
 			context["location"] = location
+			context["tutorList"] = list(set(tutorList))
 
 		else:
-			context["message"] = "Search for a tutor again!"
-			context["alert"] = "alert-danger"
-			return render(request, 'tutoring/mainpage.html', context)
+			context["tutorList"] = []
 
-		context["tutorList"] = tutor_list
+		if len(context["tutorList"]) == 0:
+			messages.error(
+				request,
+				'Sorry, we couldn\'t find you a tutor for your search. Try entering something broad.'
+			)
 
-		if tutor_list.count() == 0:
-			context["message"] = "Sorry, we couldn't find you a tutor for your search. Try entering something broad."
-			context["alert"] = "alert-info" 
-
-		return render(request, 'tutoring/mainpage.html', context)
-
-	return render(request, 'tutoring/mainpage.html', {})
+	return render(request, 'tutoring/mainpage.html', context)
 
 def viewtutorprofile(request, tutor_secondary_key):
 	try:

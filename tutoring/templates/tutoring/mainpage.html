@@ -1,29 +1,18 @@
 {% extends "accounts/account_base.html" %}
 {% load static %}
 {% block content %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/searchBox.css' %}"/>
-<style type="text/css">
-.widget-26{color:#3c4142;font-weight:400}.widget-26 tr:first-child td{border:0}.widget-26 .widget-26-job-emp-img img{width:35px;height:35px;border-radius:50%}.widget-26 .widget-26-job-title{min-width:200px}.widget-26 .widget-26-job-title a{font-weight:400;font-size:.875rem;color:#3c4142;line-height:1.5}.widget-26 .widget-26-job-title a:hover{color:#68cbd7;text-decoration:none}.widget-26 .widget-26-job-title .employer-name{margin:0;line-height:1.5;font-weight:400;color:#3c4142;font-size:.8125rem;color:#3c4142}.widget-26 .widget-26-job-title .employer-name:hover{color:#68cbd7;text-decoration:none}.widget-26 .widget-26-job-info{min-width:100px;font-weight:400}.widget-26 .widget-26-job-info p{line-height:1.5;color:#3c4142;font-size:.8125rem}.widget-26 .widget-26-job-info .location{color:#3c4142}.widget-26 .widget-26-job-salary{min-width:70px;font-weight:400;color:#3c4142;font-size:.8125rem}.widget-26 .widget-26-job-category{padding:.5rem;display:inline-flex;white-space:nowrap;border-radius:15px}.widget-26 .widget-26-job-category .indicator{width:13px;height:13px;margin-right:.5rem;float:left;border-radius:50%}.widget-26 .widget-26-job-category span{font-size:.8125rem;color:#3c4142;font-weight:600}.bg-soft-danger{background-color:#fedce0}.search-body{margin-bottom:1.5rem}.card-margin{margin-bottom:1.875rem}.card-margin{margin-bottom:1.875rem}.card{border:0;box-shadow:0 0 10px 0 rgba(82,63,105,.1);-webkit-box-shadow:0 0 10px 0 rgba(82,63,105,.1);-moz-box-shadow:0 0 10px 0 rgba(82,63,105,.1);-ms-box-shadow:0 0 10px 0 rgba(82,63,105,.1)}.card{position:relative;display:flex;flex-direction:column;min-width:0;word-wrap:break-word;background-color:#fff;background-clip:border-box;border:1px solid #e6e4e9;border-radius:8px}
-</style>
+<link rel="stylesheet" type="text/css" href="{% static 'css/tutoringMainpage.css' %}"/>
 <div class="container">
 	{% if tutorList %}
-		<br><br><br><br><br><br>
+		<br><br>
 		<form method="post">
 			{% csrf_token %}
 			<div class="form-row" style="background: rgba(0, 0, 0, 0.5); padding: 43px 43px; padding-top: 40px;">
 				<div class="col-5">
-					{% if generalQuery %}
-						<input style="border-radius: 0.5px;" type="text" class="form-control" name="generalQuery" placeholder="Try 'GCSE Maths'" value="{{ generalQuery }}">
-					{% else %}
-						<input style="border-radius: 0.5px;" type="text" class="form-control" name="generalQuery" placeholder="Try 'GCES Maths'">
-					{% endif %}
+					<input style="border-radius: 0.5px;" type="text" class="form-control" name="generalQuery" placeholder="Try 'GCES Maths'" value="{{ generalQuery }}">
 				</div>
 				<div class="col-5">
-					{% if location %}
-						<input style="border-radius: 0.5px;" type="text" class="form-control" name="location" placeholder="Try 'London'" value="{{ location }}">
-					{% else %}
-						<input style="border-radius: 0.5px;" type="text" class="form-control" name="location" placeholder="Try 'London'">
-					{% endif %}
+					<input style="border-radius: 0.5px;" type="text" class="form-control" name="location" placeholder="Try 'London'" value="{{ location }}">
 				</div>
 				<div class="col">
 					<input style="border-radius: 0.5px;" class="btn btn-primary" type="submit" value="Submit" style="background-color: #4272d7;">
@@ -41,30 +30,25 @@
 								{% for tutor in tutorList %}
 								<tr id="{{tutor.pk}}">
 									<td>
-										<div class="widget-26-job-emp-img">
+										<div class="widget-tutor-profile">
 											{% if tutor.profilePicture %}
-											<img src="{{ tutor.profilePicture.url }}" alt="Company" />
+											<img class="img-class-tutor-profile-picture" src="{{ tutor.profilePicture.url }}" onerror="profilePictureNotFound()"/>
 											{% else %}
-											<img src="https://icon-library.com/images/default-user-icon/default-user-icon-13.jpg" class="img-responsive" alt="" />
+											<img src='{% static "img/default-user-icon.jpg" %}' class="img-responsive" alt="" onerror="profilePictureNotFound()"/>
 											{% endif %}
 										</div>
 									</td>
 									<td>
-										<div class="widget-26-job-title">
+										<div class="widget-tutor-name">
 											<a href="{% url 'tutoring:viewtutorprofile' tutor.secondary_key %}">{{ tutor.user.first_name }} {{ tutor.user.last_name }}</a>
-											<p class="m-0"><a href="#" class="employer-name">{{ tutor.summary }}</a></p>
+											<p class="m-0"><a href="#" class="tutor-summary">{{ tutor.summary }}</a></p>
 										</div>
 									</td>
 									<td>
-										<div class="widget-26-job-info">
-											<p class="text-muted m-0"><span class="location">{{ tutor.location.address_2 }}, {{ tutor.location.country.name }}</span></p>
-										</div>
+										<div class="widget-tutor-salary">$ 35/hr</div>
 									</td>
 									<td>
-										<div class="widget-26-job-salary">$ 35/hr</div>
-									</td>
-									<td>
-										<div class="widget-26-job-category bg-soft-danger">
+										<div class="widget-tutor-score bg-soft-danger">
 											<i class="indicator bg-danger"></i>
 											<span>Score</span>
 										</div>
@@ -78,33 +62,41 @@
 			</div></div></div>
 		</div>
 	{% else %}
-		{% if message %}
-			<div style="color: black; text-align: center;" class="alert {{alert}}" role="alert">{{message}}</div>
-		{% endif %}
+	<br>
 		{% if messages %}
-			{% for message in messages %}
-				<div style="color: black; text-align: center;" class="alert alert-success" role="alert">{{message}}</div>
-			{% endfor %}
-		{% endif %}
-			<div class="s01">
-				<form method="post">
-					{% csrf_token %}
-					<fieldset>
-						<legend style="color: black;">Shall we find a tutor for you?</legend>
-					</fieldset>
-					<div class="inner-form">
-						<div class="input-field first-wrap">
-							<input type="text" name="generalQuery" placeholder="Try 'GCES Maths'" />
-						</div>
-						<div class="input-field second-wrap">
-							<input type="text" name="location" placeholder="Try 'London'" />
-						</div>
-						<div class="input-field third-wrap">
-							<button class="btn-search" type="submit">Search</button>
-						</div>
+            {% for message in messages %}
+            	{% if message.tags == "error" %}
+            	<div style="color: black; text-align: center;" class="alert alert-danger" role="alert">{{message}}</div>
+            	{% else %}
+            	<div style="color: black; text-align: center;" class="alert alert-{{ message.tags }}" role="alert">{{message}}</div>
+            	{% endif %}
+            {% endfor %}
+        {% endif %}
+		<div class="s01">
+			<form method="post">
+				{% csrf_token %}
+				<fieldset>
+					<legend style="color: black;">Shall we find a tutor for you?</legend>
+				</fieldset>
+				<div class="inner-form">
+					<div class="input-field first-wrap">
+						<input type="text" name="generalQuery" placeholder="Try 'GCES Maths'" />
 					</div>
-				</form>
-			</div>
+					<div class="input-field second-wrap">
+						<input type="text" name="location" placeholder="Try 'London'" />
+					</div>
+					<div class="input-field third-wrap">
+						<button class="btn-search" type="submit">Search</button>
+					</div>
+				</div>
+			</form>
+		</div>
 	{% endif %}
 </div>
+<script type="text/javascript">
+	function profilePictureNotFound()
+	{
+		$('.img-class-tutor-profile-picture').attr('src','{% static "img/default-user-icon.jpg" %}');
+	}
+</script>
 {% endblock %}
