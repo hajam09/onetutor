@@ -7,7 +7,7 @@ from deprecated import deprecated
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core import serializers
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
 
@@ -99,245 +99,198 @@ def mainpage(request):
 
 	return render(request, 'tutoring/mainpage.html', context)
 
-def viewtutorprofile(request, tutor_secondary_key):
+def viewtutorprofile(request, tutorProfileKey):
+
 	try:
-		tutorProfile = TutorProfile.objects.get(secondary_key=tutor_secondary_key)
+		tutorProfile = TutorProfile.objects.get(secondary_key=tutorProfileKey)
 	except TutorProfile.DoesNotExist:
 		return redirect("tutoring:mainpage")
-	
+
 	tutorProfile.subjects = tutorProfile.subjects.replace(", ", ",").split(",")
 
 	if request.is_ajax():
 		functionality = request.GET.get('functionality', None)
 
-		if functionality == "post_question":
-			if not request.user.is_authenticated:
-				response = {
-					"status_code": 401,
-					"message": "Login to post a question."
-				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
+		if not request.user.is_authenticated:
+			response = {
+				'statusCode': HTTPStatus.UNAUTHORIZED
+			}
+			return JsonResponse(response)
 
-			subject, question = request.GET.get('subject', None), request.GET.get('question', None)
-			new_qa = QuestionAnswer.objects.create(
+		if functionality == "postQuestionAnswer":
+
+			subject = request.GET.get('subject', None)
+			question = request.GET.get('question', None)
+
+			questionAnswer = QuestionAnswer.objects.create(
 				subject=subject,
 				question=question,
-				answer="Not answered yet.",
 				questioner=request.user,
 				answerer=tutorProfile.user
 			)
+
 			response = {
-				"new_qa": serializers.serialize("json", [new_qa,]),
-				"created_date": vanilla_JS_date_conversion(new_qa.date),
-				"questioner_first_name": new_qa.questioner.first_name,
-				"questioner_last_name": new_qa.questioner.last_name,
-				"status_code": HTTPStatus.OK
+				'id': questionAnswer.id,
+				'answer': questionAnswer.answer,
+				'questionerFullName': questionAnswer.questioner.get_full_name(),
+				'createdDate': vanilla_JS_date_conversion(questionAnswer.date),
+				'likeCount': 0,
+				'dislikeCount': 0,
+				'statusCode': HTTPStatus.OK
 			}
-			return HttpResponse(json.dumps(response), content_type="application/json")
+			return JsonResponse(response)
 
-		elif functionality == "post_answer":
-			if not request.user.is_authenticated:
-				response = {
-					"status_code": 401,
-					"message": "Login to post an answer."
-				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
+		elif functionality == "answerQuestionAnswer":
 
-			question_id, new_answer = request.GET.get('question_id', None), request.GET.get('new_answer', None)
+			id = request.GET.get('id', None)
+			answer = request.GET.get('answer', None)
 
 			try:
-				this_qa = QuestionAnswer.objects.get(pk=int(question_id))
+				questionAnswer = QuestionAnswer.objects.get(pk=id)
 			except QuestionAnswer.DoesNotExist:
 				response = {
 					"status_code": HTTPStatus.NOT_FOUND,
 					"message": 'We think this question has been deleted!'
 				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
-				
-			this_qa.answer = new_answer
-			this_qa.save(update_fields=['answer'])
+				return JsonResponse(response)
+
+			questionAnswer.answer = answer
+			questionAnswer.save(update_fields=['answer'])
 			response = {
-				"this_qa": serializers.serialize("json", [this_qa,]),
-				"status_code": HTTPStatus.OK
+				"statusCode": HTTPStatus.OK
 			}
-			return HttpResponse(json.dumps(response), content_type="application/json")
+			return JsonResponse(response)
 
-		elif functionality == "delete_question":
-			question_id = request.GET.get('question_id', None)
-			try:
-				QuestionAnswer.objects.get(pk=int(question_id)).delete()
-				response = {
-					"status_code": HTTPStatus.OK
-				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
-			except QuestionAnswer.DoesNotExist:
-				response = {
-					"status_code": HTTPStatus.NOT_FOUND
-				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
+		elif functionality == "deleteQuestionAnswer":
 
+			id = request.GET.get('id', None)
+			QuestionAnswer.objects.filter(pk=id).delete()
 			response = {
-				"status_code": HTTPStatus.BAD_REQUEST,
-				"message": "Bad Request"
+				"statusCode": HTTPStatus.OK
 			}
-			return HttpResponse(json.dumps(response), content_type="application/json")
+			return JsonResponse(response)
 
-		elif functionality == "update_question":
-			question_id, new_subject, new_question = request.GET.get('question_id', None), request.GET.get('new_subject', None), request.GET.get('new_question', None)
+		elif functionality == "updateQuestion":
+
+			id = request.GET.get('id', None)
+			subject = request.GET.get('subject', None)
+			question = request.GET.get('question', None)
 
 			try:
-				this_qa = QuestionAnswer.objects.get(pk=int(question_id))
+				questionAnswer = QuestionAnswer.objects.get(pk=id)
 			except QuestionAnswer.DoesNotExist:
 				response = {
 					"status_code": HTTPStatus.NOT_FOUND,
 					"message": 'We think this question has been deleted!'
 				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
+				return JsonResponse(response)
 
-			this_qa.subject = new_subject
-			this_qa.question = new_question
-			this_qa.save(update_fields=['subject', 'question'])
+			questionAnswer.subject = subject
+			questionAnswer.question = question
+			questionAnswer.save(update_fields=['subject', 'question'])
+
 			response = {
-				"this_qa": serializers.serialize("json", [this_qa,]),
 				"status_code": HTTPStatus.OK
 			}
-			return HttpResponse(json.dumps(response), content_type="application/json")
+			return JsonResponse(response)
 
-		elif functionality == "like_comment":
-			if not request.user.is_authenticated:
-				response = {
-					"status_code": 401,
-					"message": "Login to like the question and answer. "
-				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
+		elif functionality == "likeQuestionAnswer":
 
-			comment_id = request.GET.get('commentId', None)
+			id = request.GET.get('id', None)
 
 			try:
-				this_comment = QuestionAnswer.objects.get(id=int(comment_id))
+				thisComment = QuestionAnswer.objects.get(pk=id)
 			except QuestionAnswer.DoesNotExist:
 				response = {
-					"status_code": HTTPStatus.NOT_FOUND,
+					"statusCode": HTTPStatus.NOT_FOUND,
 					"message": 'We think this question has been deleted!'
 				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
+				return JsonResponse(response)
 
-			this_comment.increase_QuestionAnswer_likes(request)
+			thisComment.like(request)
 
 			response = {
-				"this_comment": serializers.serialize("json", [this_comment,]),
-				"status_code": HTTPStatus.OK
+				"likeCount": thisComment.likes.count(),
+				"dislikeCount": thisComment.dislikes.count(),
+				"statusCode": HTTPStatus.OK
 			}
-			return HttpResponse(json.dumps(response), content_type="application/json")
+			return JsonResponse(response)
 
-		elif functionality == "dislike_comment":
-			if not request.user.is_authenticated:
-				response = {
-					"status_code": 401,
-					"message": "Login to dislike the question and answer. "
-				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
+		elif functionality == "dislikeQuestionAnswer":
 
-			comment_id = request.GET.get('commentId', None)
+			id = request.GET.get('id', None)
 
 			try:
-				this_comment = QuestionAnswer.objects.get(id=int(comment_id))
+				thisComment = QuestionAnswer.objects.get(id=id)
 			except QuestionAnswer.DoesNotExist:
 				response = {
-					"status_code": HTTPStatus.NOT_FOUND,
+					"statusCode": HTTPStatus.NOT_FOUND,
 					"message": 'We think this question has been deleted!'
 				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
+				return JsonResponse(response)
 
-			this_comment.increase_QuestionAnswer_dislikes(request)
-
-			response = {
-				"this_comment": serializers.serialize("json", [this_comment,]),
-				"status_code": 200
-			}
-			return HttpResponse(json.dumps(response), content_type="application/json")
-
-		elif functionality == "delete_tutor_review":
-			if not request.user.is_authenticated:
-				response = {
-					"status_code": 401,
-					"message": "Login to delete this review."
-				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
-
-			review_id = request.GET.get('review_id', None)			
-
-			try:
-				TutorReview.objects.get(pk=review_id).delete()
-				response = {
-					"status_code": HTTPStatus.OK,
-				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
-			except TutorReview.DoesNotExist:
-				response = {
-					"status_code": HTTPStatus.NOT_FOUND
-				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
+			thisComment.dislike(request)
 
 			response = {
-				"status_code": HTTPStatus.BAD_REQUEST,
-				"message": "Bad Request"
+				"likeCount": thisComment.likes.count(),
+				"dislikeCount": thisComment.dislikes.count(),
+				"statusCode": HTTPStatus.OK
 			}
-			return HttpResponse(json.dumps(response), content_type="application/json")
+			return JsonResponse(response)
 
-		elif functionality == "like_tutor_review":
-			if not request.user.is_authenticated:
-				response = {
-					"status_code": 401,
-					"message": "Login to like this tutor review."
-				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
+		elif functionality == "deleteTutorReview":
 
-			review_id = request.GET.get('review_id', None)
+			id = request.GET.get('id', None)
+			TutorReview.objects.filter(pk=id).delete()
+
+			response = {
+				"statusCode": HTTPStatus.OK
+			}
+			return JsonResponse(response)
+
+		elif functionality == "likeTutorReview":
+
+			id = request.GET.get('id', None)
 
 			try:
-				this_tutor_review = TutorReview.objects.get(id=review_id)
+				tutorReview = TutorReview.objects.get(id=id)
 			except TutorReview.DoesNotExist:
 				response = {
 					"status_code": HTTPStatus.NOT_FOUND,
 					"message": 'We think this review has been deleted!'
 				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
+				return JsonResponse(response)
 
-			this_tutor_review.increase_TutorReivew_likes(request)
+			tutorReview.like(request)
 
 			response = {
-				"this_tutor_review": serializers.serialize("json", [this_tutor_review,]),
-				"status_code": HTTPStatus.OK
+				"likeCount": tutorReview.likes.count(),
+				"dislikeCount": tutorReview.dislikes.count(),
+				"statusCode": HTTPStatus.OK
 			}
-			return HttpResponse(json.dumps(response), content_type="application/json")
+			return JsonResponse(response)
 
-		elif functionality == "dislike_tutor_review":
-			if not request.user.is_authenticated:
-				response = {
-					"status_code": 401,
-					"message": "Login to dislike this tutor review."
-				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
+		elif functionality == "dislikeTutorReview":
 
-			review_id = request.GET.get('review_id', None)
+			id = request.GET.get('id', None)
 
 			try:
-				this_tutor_review = TutorReview.objects.get(id=review_id)
+				tutorReview = TutorReview.objects.get(id=id)
 			except TutorReview.DoesNotExist:
 				response = {
 					"status_code": HTTPStatus.NOT_FOUND,
 					"message": 'We think this review has been deleted!'
 				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
+				return JsonResponse(response)
 
-			this_tutor_review.increase_TutorReivew_dislikes(request)
+			tutorReview.dislike(request)
 
 			response = {
-				"this_tutor_review": serializers.serialize("json", [this_tutor_review,]),
-				"status_code": HTTPStatus.OK
+				"likeCount": tutorReview.likes.count(),
+				"dislikeCount": tutorReview.dislikes.count(),
+				"statusCode": HTTPStatus.OK
 			}
-			return HttpResponse(json.dumps(response), content_type="application/json")
+			return JsonResponse(response)
 
 		raise Exception("Unknown functionality viewtutorprofile")
 
@@ -371,7 +324,7 @@ def tutor_questions(request):
 					"message": 'We think this question has been deleted!'
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
-				
+
 			this_qa.answer = new_answer
 			this_qa.save(update_fields=['answer'])
 			response = {
@@ -468,7 +421,7 @@ def question_answer_thread(request, question_id):
 		if functionality == "dislike_comment":
 			# TODO: Manual test the implementation.
 			comment_id = request.GET.get('commentId', None)
-			
+
 			try:
 				this_comment = QAComment.objects.get(id=int(comment_id))
 			except QAComment.DoesNotExist:
@@ -526,7 +479,7 @@ def question_answer_thread(request, question_id):
 				"status_code": HTTPStatus.OK
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
-			
+
 		raise Exception("Unknown functionality question_answer_thread")
 
 	context = {
@@ -628,7 +581,7 @@ def subject_tag(request, tag_name):
 		list_subject = tutors.subjects.replace(", ", ",").split(",")
 		unique_subjects = [subject for subject in list_subject if subject not in list_of_subjects]
 		list_of_subjects.extend(unique_subjects)
-	
+
 	context = {
 		"tutor_list": tutor_list,
 		"list_of_subjects": list_of_subjects

@@ -58,7 +58,7 @@
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-						<button type="submit" class="btn btn-success" onclick="post_question();">Post my Question</button>
+						<button type="submit" class="btn btn-success" onclick="postQuestionAnswer();">Post my Question</button>
 					</div>
 				</div>
 			</div>
@@ -120,59 +120,6 @@
 						</div>
 					</div>
 				</div>
-			</div>
-			<div class="card mt-3" style="color: black;">
-				<ul class="list-group list-group-flush">
-					<li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-						<h6 class="mb-0">
-							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-globe mr-2 icon-inline">
-								<circle cx="12" cy="12" r="10"></circle>
-								<line x1="2" y1="12" x2="22" y2="12"></line>
-								<path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-							</svg>
-							Website
-						</h6>
-						<span class="text-secondary">https://bootdey.com</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-						<h6 class="mb-0">
-							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-github mr-2 icon-inline">
-								<path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
-							</svg>
-							Github
-						</h6>
-						<span class="text-secondary">bootdey</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-						<h6 class="mb-0">
-							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-twitter mr-2 icon-inline text-info">
-								<path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
-							</svg>
-							Twitter
-						</h6>
-						<span class="text-secondary">@bootdey</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-						<h6 class="mb-0">
-							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-instagram mr-2 icon-inline text-danger">
-								<rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-								<path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-								<line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-							</svg>
-							Instagram
-						</h6>
-						<span class="text-secondary">bootdey</span>
-					</li>
-					<li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
-						<h6 class="mb-0">
-							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-facebook mr-2 icon-inline text-primary">
-								<path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
-							</svg>
-							Facebook
-						</h6>
-						<span class="text-secondary">bootdey</span>
-					</li>
-				</ul>
 			</div>
 			<br>
 			<div class="card" style="color: black;">
@@ -327,7 +274,7 @@
 										<input type="text" name="question_id" id="question_id" hidden/>
 										<div class="modal-footer">
 											<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-											<button type="submit" class="btn btn-success" onclick="post_answer();">Post my Answer</button>
+											<button type="submit" class="btn btn-success" onclick="answerQuestionAnswer();">Post my Answer</button>
 										</div>
 										<!-- </form> -->
 									</div>
@@ -360,13 +307,13 @@
 										<input type="text" name="question_id_to_update" id="question_id_to_update" hidden/>
 										<div class="modal-footer">
 											<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-											<button type="submit" class="btn btn-primary" onclick="update_question();">Update my Question</button>
+											<button type="submit" class="btn btn-primary" onclick="updateQuestion();">Update my Question</button>
 										</div>
 									</div>
 								</div>
 							</div>
 						</div>
-						<div style="overflow-y: scroll; overflow-x: hidden; height:866px;" id="tutor_questions">
+						<div style="overflow-y: scroll; overflow-x: hidden; height:866px;" id="div-id-tutor-QuestionAnswer">
 							{% if questionAndAnswers %} {% for qa in questionAndAnswers %}
 							<div class="container question_answer_container_{{qa.id}}" style="width: auto;">
 								<div id="question_answer_id_{{qa.id}}">
@@ -381,7 +328,7 @@
 										<!--Menu-->
 										<div class="dropdown-menu dropdown-primary">
 											{% if qa.questioner.pk == user.pk %}
-											<a class="dropdown-item" href="#" onclick="delete_question('{{qa.id}}');"><i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete question</a>
+											<span class="dropdown-item" style="cursor: pointer;" onclick="deleteQuestionAnswer('{{qa.id}}');"><i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete question</span>
 											<a class="dropdown-item" href="#" data-toggle="modal" data-target="#editQuestionModal" onclick="updateEditQuestionModal('{{ qa.id }}');"><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit question</a>
 											{% endif %}
 											<a class="dropdown-item" href="{% url 'tutoring:question_answer_thread' qa.id %}" target="_blank"><i class="fab fa-discourse"></i>&nbsp;&nbsp;View thread</a>
@@ -392,10 +339,10 @@
 								<br>
 								<div style="width: 970px;" id="qa_answer_{{qa.id}}">{{ qa.answer|linebreaksbr }}</div>
 								<br>
-								<button id="comment_like_id_{{qa.id}}" type="button" class="btn btn-default btn-sm" onclick="like_comment('{{qa.id}}')">
+								<button id="comment_like_id_{{qa.id}}" type="button" class="btn btn-default btn-sm" onclick="likeQuestionAnswer('{{qa.id}}')">
 								<i class='far fa-thumbs-up' style='font-size:15px'></i> ({{qa.likes.count}})
 								</button>
-								<button id="comment_dislike_id_{{qa.id}}" type="button" class="btn btn-default btn-sm" onclick="dislike_comment('{{qa.id}}')">
+								<button id="comment_dislike_id_{{qa.id}}" type="button" class="btn btn-default btn-sm" onclick="dislikeQuestionAnswer('{{qa.id}}')">
 								<i class='far fa-thumbs-down' style='font-size:15px'></i> ({{qa.dislikes.count}})
 								</button><br><br>
 								<span class="badge badge-info" data-toggle="modal" data-target="#answerModal" onclick="updateAnswerModal('{{ qa.id }}');">Answer this question</span>
@@ -644,10 +591,10 @@
 							<p id="tutor_review_comment_container_`+list[i].pk+`">`+list[i].comment+`</p>
 						</div>
 						<div class="reviews-members-footer">
-							<button type="button" class="btn btn-outline-primary" style="border-radius: 35px;" onclick="LikeTutorReivew(`+list[i].pk+`)">
+							<button type="button" class="btn btn-outline-primary" style="border-radius: 35px;" onclick="likeTutorReview(`+list[i].pk+`)">
 								<i class="fa fa-thumbs-o-up"></i> `+list[i].likes_count+`
 							</button>
-							<button type="button" class="btn btn-outline-primary" style="border-radius: 35px;" onclick="DislikeTutorReivew(`+list[i].pk+`)">
+							<button type="button" class="btn btn-outline-primary" style="border-radius: 35px;" onclick="dislikeTutorReview(`+list[i].pk+`)">
 								<i class="fa fa-thumbs-o-down"></i> `+list[i].dislikes_count+`
 							</button>
 							&nbsp;&nbsp;
@@ -662,53 +609,72 @@
 		}
 	}
 
-	function LikeTutorReivew(tutor_review_id) {
-		$.ajax({
-			data: {
-				'functionality': 'like_tutor_review',
-				'review_id': tutor_review_id,
+	function likeTutorReview(tutorReviewId)
+	{
+		$.ajax(
+		{
+			data:
+			{
+				'functionality': 'likeTutorReview',
+				'id': tutorReviewId,
 			},
 			dataType: 'json',
-			success: function (response) {
-				if (response.status_code == 401) {
+			success: function (response)
+			{
+				if (response.statusCode == 401)
+				{
+					window.location.href = "{% url 'accounts:login' %}";
+				}
+
+				if (response.statusCode == 404)
+				{
 					Swal.fire({
 						icon: 'warning',
 						title: "Can't do that!",
 						text: response.message
 					});
-				} else if (response.status_code == 404) {
-					removeTutorReviewFromGlobalReviewList(tutor_review_id);
-				} else if (response.status_code == 200) {
-					var this_tutor_review = eval(response.this_tutor_review)[0];
-					var likesCount = this_tutor_review.fields.likes.length;
-					var dislikeCount = this_tutor_review.fields.dislikes.length;
-					updateTutorReviewLikesAndDislikesFromGlobalReviewList(tutor_review_id, likesCount, dislikeCount);
+					removeTutorReviewFromGlobalReviewList(tutorReviewId);
+				}
+
+				if (response.statusCode == 200)
+				{
+					updateTutorReviewLikesAndDislikesFromGlobalReviewList(tutorReviewId, response.likeCount, response.dislikeCount);
 				}
 			}
 		});
 	}
 
-	function DislikeTutorReivew(tutor_review_id) {
-		$.ajax({
-			data: {
-				'functionality': 'dislike_tutor_review',
-				'review_id': tutor_review_id,
+	function dislikeTutorReview(tutorReviewId)
+	{
+		$.ajax(
+		{
+			data:
+			{
+				'functionality': 'dislikeTutorReview',
+				'id': tutorReviewId,
 			},
 			dataType: 'json',
-			success: function (response) {
-				if (response.status_code == 401) {
+			success: function (response)
+			{
+
+				if (response.statusCode == 401)
+				{
+					window.location.href = "{% url 'accounts:login' %}";
+				}
+
+				if (response.statusCode == 404)
+				{
 					Swal.fire({
 						icon: 'warning',
 						title: "Can't do that!",
 						text: response.message
 					});
-				} else if (response.status_code == 404) {
-					removeTutorReviewFromGlobalReviewList(tutor_review_id);
-				} else if (response.status_code == 200) {
-					var this_tutor_review = eval(response.this_tutor_review)[0];
-					var likesCount = this_tutor_review.fields.likes.length;
-					var dislikeCount = this_tutor_review.fields.dislikes.length;
-					updateTutorReviewLikesAndDislikesFromGlobalReviewList(tutor_review_id, likesCount, dislikeCount);
+					removeTutorReviewFromGlobalReviewList(tutorReviewId);
+				}
+
+				if (response.statusCode == 200)
+				{
+					updateTutorReviewLikesAndDislikesFromGlobalReviewList(tutorReviewId, response.likeCount, response.dislikeCount);
 				}
 			}
 		});
@@ -760,22 +726,28 @@
 		});
 	}
 
-	function DeleteTutorReviewComponent(component_id) {
-		$.ajax({
-			data: {
-				'functionality': 'delete_tutor_review',
-				'review_id': component_id,
+	function DeleteTutorReviewComponent(reviewId)
+	{
+		$.ajax(
+		{
+			data:
+			{
+				'functionality': 'deleteTutorReview',
+				'reviewId': reviewId,
 			},
 			dataType: 'json',
-			success: function (response) {
-				if (response.status_code == 200 || response.status_code == 404) {
-					removeTutorReviewFromGlobalReviewList(component_id);
-				} else {
-					Swal.fire({
-						icon: 'error',
-						title: "Can't do that!",
-						text: response.message
-					});
+			success: function (response)
+			{
+
+				if (response.statusCode == 401)
+				{
+					window.location.href = "{% url 'accounts:login' %}";
+				}
+
+
+				if (response.status_code == 200)
+				{
+					removeTutorReviewFromGlobalReviewList(reviewId);
 				}
 			}
 		});
@@ -857,12 +829,13 @@
 		document.getElementById('question_id_to_update').value = questionId;
 	}
 
-	function update_question() {
+	function updateQuestion()
+	{
+		var questionId = $('#question_id_to_update').val();
 		var subject = $('#editQuestionSubject').find(":selected").text();
 		var question = $('textarea#new_question').val();
 		question = question.replace(/ +(?= )/g,'');
 		question = question.trim();
-
 
 		if (question && !question.trim() || question.length==0) {
 			alert("Enter a question!");
@@ -873,118 +846,118 @@
 		$("#editQuestionModal").modal('hide');
 		$("textarea#new_question").val("");
 
-		$.ajax({
+		$.ajax(
+		{
 			data: {
-				'functionality': 'update_question',
-				'question_id': $('#question_id_to_update').val(),
-				'new_subject': subject,
-				'new_question': question,
+				'functionality': 'updateQuestion',
+				'id': questionId,
+				'subject': subject,
+				'question': question,
 			},
 			dataType: 'json',
-			success: function (response) {
-				if (response.status_code == 200) {
-					var this_qa = eval(response.this_qa)[0];
-					var new_question = this_qa.fields.question;
-					new_question = new_question.replace(/\n\r?/g, '<br />');
-					$('strong#qa_question_'+$('#question_id_to_update').val()).html(new_question);
-					$('#qa_subject_'+$('#question_id_to_update').val()).html(this_qa.fields.subject);
-					$('#qa_subject_'+$('#question_id_to_update').val()).attr("href", "/subject_tag/"+this_qa.fields.subject);
+			success: function (response)
+			{
+				if (response.statusCode == 401)
+				{
+					window.location.href = "{% url 'accounts:login' %}";
+				}
 
-				} else if (response.status_code == 404) {
+				if (response.status_code == 200)
+				{
+					$('strong#qa_question_'+questionId).html(question.replace(/\n\r?/g, '<br />'));
+					$('#qa_subject_'+questionId).html(subject);
+					$('#qa_subject_'+questionId).attr("href", "/subject_tag/"+subject);
+				}
+
+				if (response.status_code == 404)
+				{
 					Swal.fire({
 						icon: 'error',
 						title: "Can't do that!",
 						text: response.message
 					});
-					$( ".question_answer_container_"+$('#question_id_to_update').val() ).remove();
+					$( ".question_answer_container_"+questionId ).remove();
 				}
 			}
 		});
 	}
 
-	function like_comment(commentId) {
-		$.ajax({
-			data: {
-				'functionality': 'like_comment',
-				'commentId': commentId
+	function likeQuestionAnswer(commentId)
+	{
+		$.ajax(
+		{
+			data:
+			{
+				'functionality': 'likeQuestionAnswer',
+				'id': commentId
 			},
 			dataType: 'json',
-			success: function (response) {
-				if (response.status_code == 200) {
-					var this_comment = eval(response.this_comment)[0];
-					var number_of_likes = this_comment.fields.likes.length;
-					var number_of_dislikes = this_comment.fields.dislikes.length;
+			success: function (response)
+			{
+				if (response.statusCode == 200)
+				{
+					$('#comment_like_id_'+commentId).html('<i class="far fa-thumbs-up" style="font-size:15px"></i> ('+ response.likeCount +')');
+					$('#comment_dislike_id_'+commentId).html('<i class="far fa-thumbs-down" style="font-size:15px"></i> ('+ response.dislikeCount +')');
+				}
 
-					$('#comment_like_id_'+commentId).html('<i class="far fa-thumbs-up" style="font-size:15px"></i> ('+ number_of_likes +')');
-					$('#comment_dislike_id_'+commentId).html('<i class="far fa-thumbs-down" style="font-size:15px"></i> ('+ number_of_dislikes +')');
+				if (response.statusCode == 401)
+				{
+					window.location.href = "{% url 'accounts:login' %}";
+				}
 
-				} else if (response.status_code == 401) {
-					Swal.fire({
-						icon: 'warning',
-						title: "Can't do that!",
-						text: response.message
-					});
-
-				} else if (response.status_code == 403) {
+				if (response.statusCode == 404)
+				{
 					Swal.fire({
 						icon: 'error',
 						title: "Can't do that!",
 						text: response.message
 					});
-				} else if (response.status_code == 404) {
-					Swal.fire({
-						icon: 'error',
-						title: "Can't do that!",
-						text: response.message
-					});
+
 					$( ".question_answer_container_"+commentId ).remove();
 				}
 			}
 		});
 	}
 
-	function dislike_comment(commentId) {
-		$.ajax({
-			data: {
-				'functionality': 'dislike_comment',
-				'commentId': commentId
+	function dislikeQuestionAnswer(commentId)
+	{
+		$.ajax(
+		{
+			data:
+			{
+				'functionality': 'dislikeQuestionAnswer',
+				'id': commentId
 			},
 			dataType: 'json',
-			success: function (response) {
-				if(response.status_code == 200) {
-					var this_comment = eval(response.this_comment)[0];
-					var number_of_likes = this_comment.fields.likes.length;
-					var number_of_dislikes = this_comment.fields.dislikes.length;
+			success: function (response)
+			{
+				if (response.statusCode == 200)
+				{
+					$('#comment_like_id_'+commentId).html('<i class="far fa-thumbs-up" style="font-size:15px"></i> ('+ response.likeCount +')');
+					$('#comment_dislike_id_'+commentId).html('<i class="far fa-thumbs-down" style="font-size:15px"></i> ('+ response.dislikeCount +')');
+				}
 
-					$('#comment_like_id_'+commentId).html('<i class="far fa-thumbs-up" style="font-size:15px"></i> ('+ number_of_likes +')');
-					$('#comment_dislike_id_'+commentId).html('<i class="far fa-thumbs-down" style="font-size:15px"></i> ('+ number_of_dislikes +')');
+				if (response.statusCode == 401)
+				{
+					window.location.href = "{% url 'accounts:login' %}";
+				}
 
-				} else if (response.status_code == 401) {
-					Swal.fire({
-						icon: 'warning',
-						title: "Can't do that!",
-						text: response.message
-					});
-
-				} else if (response.status_code == 403) {
+				if (response.statusCode == 404)
+				{
 					Swal.fire({
 						icon: 'error',
 						title: "Can't do that!",
 						text: response.message
 					});
-				} else if (response.status_code == 404) {
-					Swal.fire({
-						icon: 'error',
-						title: "Can't do that!",
-						text: response.message
-					});
+
 					$( ".question_answer_container_"+commentId ).remove();
 				}
 			}
 		});
 	}
 
-	function post_question() {
+	function postQuestionAnswer()
+	{
 		var subject = $('#subject').find(":selected").text();
 		var question = $('textarea#question').val();
 		question = question.replace(/ +(?= )/g,'');
@@ -999,122 +972,126 @@
 		$("#questionModal").modal('hide');
 		$("textarea#question").val("");
 		
-		$.ajax({
-			// url: '{% url "tutoring:viewtutorprofile" tutorProfile.secondary_key %}',
-			data: {
-				'functionality': 'post_question',
+		$.ajax(
+		{
+			data:
+			{
+				'functionality': 'postQuestionAnswer',
 				'subject': subject,
 				'question': question,
 			},
 			dataType: 'json',
-			success: function (response) {
-				if (response.status_code == 200) {
-					var new_qa = eval(response.new_qa)[0];
+			success: function (response)
+			{
+				if (response.statusCode == 401)
+				{
+					window.location.href = "{% url 'accounts:login' %}";
+				}
 
-					var new_question_text = `
-						<div class="container question_answer_container_`+new_qa.pk+`" style="width: auto;">
-							<div id="question_answer_id_`+new_qa.pk+`">
-								<a href="/subject_tag/`+new_qa.fields.subject+`" class="mtgtlDwEfX" style="display:inline-block;" id="qa_subject_`+new_qa.pk+`">`+new_qa.fields.subject+`</a>
-								`+response.questioner_first_name+ " " +response.questioner_last_name+` asked a question at
-								<p style="display:inline-block;" id="tool_tip_date_`+new_qa.pk+`" data-toggle="tooltip" data-placement="top">`+response.created_date+`</p>
-								<div class="dropdown pull-right" style="display:inline-block;">
-									<a class="btn-floating btn-lg black dropdown-toggle"type="button" id="dropdownMenu3" data-toggle="dropdown"
-										aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
-									<br>
-									<div class="dropdown-menu dropdown-primary">
-										<a class="dropdown-item" href="#" onclick="delete_question('`+new_qa.pk+`');"><i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete question</a>
-										<a class="dropdown-item" href="#" data-toggle="modal" data-target="#editQuestionModal" onclick="updateEditQuestionModal('`+new_qa.pk+`');"><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit question</a>
-										<a class="dropdown-item" href="/question_answer_thread/`+new_qa.pk+`" target="_blank"><i class="fab fa-discourse"></i>&nbsp;&nbsp;Answer in a thread</a>
-									</div>
+				if (response.statusCode == 200)
+				{
+					var newQuestionAnswer = `
+					<div class="container question_answer_container_`+response.id+`" style="width: auto;">
+						<div id="question_answer_id_`+response.id+`">
+							<a href="/subject_tag/`+subject+`" class="mtgtlDwEfX" style="display:inline-block;" id="qa_subject_`+response.id+`">`+subject+`</a>
+							`+response.questionerFullName+` asked a question at
+							<p style="display:inline-block;" id="tool_tip_date_`+response.id+`" data-toggle="tooltip" data-placement="top">`+response.createdDate+`</p>
+							<div class="dropdown pull-right" style="display:inline-block;">
+								<a class="btn-floating btn-lg black dropdown-toggle"type="button" id="dropdownMenu3" data-toggle="dropdown"
+									aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
+								<br>
+								<div class="dropdown-menu dropdown-primary">
+									<span class="dropdown-item" href="#" style="cursor: pointer;" onclick="deleteQuestionAnswer('`+response.id+`');"><i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete question</span>
+									<a class="dropdown-item" href="#" data-toggle="modal" data-target="#editQuestionModal" onclick="updateEditQuestionModal('`+response.id+`');"><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit question</a>
+									<a class="dropdown-item" href="/question_answer_thread/`+response.id+`" target="_blank"><i class="fab fa-discourse"></i>&nbsp;&nbsp;Answer in a thread</a>
 								</div>
 							</div>
-							
-							<div><strong id="qa_question_`+new_qa.pk+`">`+new_qa.fields.question.replace(/\n\r?/g, '<br />')+`</strong></div>
-							<br>
-							<div style="width: 970px;" id="qa_answer_`+new_qa.pk+`">`+new_qa.fields.answer.replace(/\n\r?/g, '<br />')+`</div><br>
-							<button id="comment_like_id_`+new_qa.pk+`" type="button" class="btn btn-default btn-sm" onclick="like_comment('`+new_qa.pk+`')">
-								<i class='far fa-thumbs-up' style='font-size:15px'></i> (`+new_qa.fields.likes.length+`)
-							</button>
-							<button id="comment_dislike_id_`+new_qa.pk+`" type="button" class="btn btn-default btn-sm" onclick="dislike_comment('`+new_qa.pk+`')">
-								<i class='far fa-thumbs-down' style='font-size:15px'></i> (`+new_qa.fields.dislikes.length+`)
-							</button><br><br>
-							<span class="badge badge-info" data-toggle="modal" data-target="#answerModal" onclick="updateAnswerModal('`+new_qa.pk+`');">Answer this question</span><hr>
-						</div>`;
+						</div>
+						
+						<div><strong id="qa_question_`+response.id+`">`+question.replace(/\n\r?/g, '<br />')+`</strong></div>
+						<br>
+						<div style="width: 970px;" id="qa_answer_`+response.id+`">`+response.answer.replace(/\n\r?/g, '<br />')+`</div><br>
+						<button id="comment_like_id_`+response.id+`" type="button" class="btn btn-default btn-sm" onclick="likeQuestionAnswer('`+response.id+`')">
+							<i class='far fa-thumbs-up' style='font-size:15px'></i> (`+response.likeCount+`)
+						</button>
+						<button id="comment_dislike_id_`+response.id+`" type="button" class="btn btn-default btn-sm" onclick="dislikeQuestionAnswer('`+response.id+`')">
+							<i class='far fa-thumbs-down' style='font-size:15px'></i> (`+response.dislikeCount+`)
+						</button><br><br>
+						<span class="badge badge-info" data-toggle="modal" data-target="#answerModal" onclick="updateAnswerModal('`+response.id+`');">Answer this question</span><hr>
+					</div>`;
 
-					$( "#tutor_questions" ).prepend( new_question_text );
-
-				} else if (response.status_code == 401) {
-					Swal.fire({
-						icon: 'warning',
-						title: "Can't do that!",
-						text: response.message
-					});
-
+					$( "#div-id-tutor-QuestionAnswer" ).prepend( newQuestionAnswer );
 				}
 			}
 		});
 	}
 
-	function post_answer() {
-		var new_answer = $('textarea#answer_text').val();
-		new_answer = new_answer.trim();
+	function answerQuestionAnswer()
+	{
+		var answer = $('textarea#answer_text').val();
+		answer = answer.trim();
+		var questionId = $('#question_id').val();
 
-		if (new_answer && !new_answer.trim() || new_answer.length==0) {
+		if (answer && !answer.trim() || answer.length==0)
+		{
 			alert("Enter an answer!");
 			return;
 		}
 
 		$("#answerModal").modal('hide');
 
-		$.ajax({
-			data: {
-				'functionality': 'post_answer',
-				'question_id': $('#question_id').val(),
-				'new_answer': new_answer,
+		$.ajax(
+		{
+			data:
+			{
+				'functionality': 'answerQuestionAnswer',
+				'id': questionId,
+				'answer': answer,
 			},
 			dataType: 'json',
-			success: function (response) {
-				if (response.status_code == 200) {
-					var this_qa = eval(response.this_qa)[0];
-					var new_ans = this_qa.fields.answer;
-					new_ans = new_ans.replace(/\n\r?/g, '<br />');
-					$('div#qa_answer_'+$('#question_id').val()).html(new_ans);
+			success: function (response)
+			{
 
-				} else if (response.status_code == 401) {
-					Swal.fire({
-						icon: 'warning',
-						title: "Can't do that!",
-						text: response.message
-					});
+				if (response.statusCode == 401)
+				{
+					window.location.href = "{% url 'accounts:login' %}";
+				}
 
-				} else if (response.status_code == 404) {
-					Swal.fire({
-						icon: 'error',
-						title: "Can't do that!",
-						text: response.message
-					});
-					$( ".question_answer_container_"+$('#question_id').val() ).remove();
+				if (response.statusCode == 200)
+				{
+					$('div#qa_answer_'+questionId).html(answer.replace(/\n\r?/g, '<br />'));
+				}
+
+				if (response.statusCode == 404)
+				{
+					$( ".question_answer_container_"+questionId ).remove();
 				}
 			}
 		});
 	}
 
-	function delete_question(question_id) {
-		$.ajax({
-			data: {
-				'functionality': 'delete_question',
-				'question_id': question_id
+	function deleteQuestionAnswer(questionId)
+	{
+		$.ajax(
+		{
+			data:
+			{
+				'functionality': 'deleteQuestionAnswer',
+				'id': questionId
 			},
 			dataType: 'json',
-			success: function (response) {
-				if (response.status_code == 200 || response.status_code == 404) {
-					$( ".question_answer_container_"+question_id ).remove();
-				} else {
-					Swal.fire({
-						icon: 'error',
-						title: "Can't do that!",
-						text: response.message
-					});
+			success: function (response)
+			{
+
+				if (response.statusCode == 401)
+				{
+					window.location.href = "{% url 'accounts:login' %}";
+				}
+
+
+				if (response.statusCode == 200)
+				{
+					$( ".question_answer_container_"+questionId ).remove();
 				}
 			}
 		});
