@@ -238,6 +238,47 @@ def viewtutorprofile(request, tutorProfileKey):
 			}
 			return JsonResponse(response)
 
+		elif functionality == "createTutorReview":
+
+			rating = request.GET.get('rating', None)
+			comment = request.GET.get('comment', None)
+
+			tutorReview = TutorReview.objects.create(
+				tutor=tutorProfile.user,
+				reviewer=request.user,
+				comment=comment,
+				rating=rating,
+			)
+
+			response = {
+				'id': tutorReview.id,
+				'createdDate': vanilla_JS_date_conversion(tutorReview.date),
+				'statusCode': HTTPStatus.OK
+			}
+			return JsonResponse(response)
+
+		elif functionality == "updateTutorReview":
+
+			id = request.GET.get('id', None)
+			comment = request.GET.get('comment', None)
+
+			try:
+				tutorReview = TutorReview.objects.get(id=id)
+			except TutorReview.DoesNotExist:
+				response = {
+					"status_code": HTTPStatus.NOT_FOUND,
+					"message": 'We think this review has been deleted!'
+				}
+				return JsonResponse(response)
+
+			tutorReview.comment = comment
+			tutorReview.save()
+
+			response = {
+				"statusCode": HTTPStatus.OK
+			}
+			return JsonResponse(response)
+
 		elif functionality == "deleteTutorReview":
 
 			id = request.GET.get('id', None)
