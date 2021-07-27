@@ -313,7 +313,7 @@
                                     <a href="#"><i class="icofont-ui-rating active"></i></a>
                                     <a href="#"><i class="icofont-ui-rating"></i></a> <b class="text-black ml-2" id="b-id-tutor-reviews-count">{{ tutorReviews.count }} total reviews</b>
                                 </div>
-                                <p class="text-black mb-4 mt-2">Rated 3.5 out of 5</p>
+                                <p class="text-black mb-4 mt-2">Rated 0 out of 5</p>
                             </div>
                             <div class="graph-star-rating-body">
                                 <div class="rating-list">
@@ -327,7 +327,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div id="star-5-value" class="rating-list-right text-black">56%</div>
+                                    <div id="star-5-value" class="rating-list-right text-black">0%</div>
                                 </div>
                                 <div class="rating-list">
                                     <div class="rating-list-left text-black">
@@ -699,10 +699,10 @@
 
 		if (canEdit)
 		{
-			response += `<span class="dropdown-item" onclick="DeleteTutorReviewComponent(`+componentId+`);">
+			response += `<span class="dropdown-item" style="cursor: pointer;" onclick="DeleteTutorReviewComponent(`+componentId+`);">
 							<i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete
 						</span>
-						<span class="dropdown-item" onclick="ConvertTextToEditArea(`+componentId+`)">
+						<span class="dropdown-item" style="cursor: pointer;" onclick="ConvertTextToEditArea(`+componentId+`)">
 							<i class="fa fa-edit"></i>&nbsp;&nbsp;Edit
 						</span>`;
 		}
@@ -734,6 +734,49 @@
 			);
 		});
 	}
+
+    function cancelTutorCommentUpdate(componentId)
+    {
+        for (var i = 0; i < listOfReviews.length; i++)
+        {
+            if (listOfReviews[i].pk == componentId)
+            {
+                $('#tutor_review_container_'+componentId).empty();
+
+                var editedText = listOfReviews[i].edited == true ? '(edited)' : '';
+                var userEditDropdown = GetTutorReviewDropdownForUser(listOfReviews[i].canEdit, listOfReviews[i].pk);
+                
+                var existingReviewObject = `
+                <div class="media">
+                    <a href="#"><img alt="Generic placeholder image" src="http://bootdey.com/img/Content/avatar/avatar1.png" class="mr-3 rounded-pill"></a>
+                    <div class="media-body">
+                        <div class="reviews-members-header">
+                            `+userEditDropdown+`
+                            <h6 class="mb-1"><b>`+listOfReviews[i].reviewerFullName+`</b></h6>
+                            <p class="text-gray">`+listOfReviews[i].date+` <span class="text-secondary" >`+editedText+`</span></p>
+                        </div>
+                        <div class="reviews-members-body">
+                            <p id="tutor_review_comment_container_`+listOfReviews[i].pk+`">`+listOfReviews[i].comment+`</p>
+                        </div>
+                        <div class="reviews-members-footer">
+                            <button type="button" class="btn btn-outline-primary" style="border-radius: 35px;" onclick="likeTutorReview(`+listOfReviews[i].pk+`)">
+                                <i class="fa fa-thumbs-o-up"></i> `+listOfReviews[i].likeCount+`
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" style="border-radius: 35px;" onclick="dislikeTutorReview(`+listOfReviews[i].pk+`)">
+                                <i class="fa fa-thumbs-o-down"></i> `+listOfReviews[i].dislikeCount+`
+                            </button>
+                            &nbsp;&nbsp;
+                            `+GenerateStarsFromRating(listOfReviews[i].rating);+`
+                        </div>
+                    </div>
+                </div>
+                <hr>`;
+
+                $('#tutor_review_container_'+componentId).append(existingReviewObject);
+                break;
+            }
+        }
+    }
 
     function updateTutorReview(componentId)
     {
