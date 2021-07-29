@@ -149,7 +149,7 @@ def viewtutorprofile(request, tutorProfileKey):
 				questionAnswer = QuestionAnswer.objects.get(pk=id)
 			except QuestionAnswer.DoesNotExist:
 				response = {
-					"status_code": HTTPStatus.NOT_FOUND,
+					"statusCode": HTTPStatus.NOT_FOUND,
 					"message": 'We think this question has been deleted!'
 				}
 				return JsonResponse(response)
@@ -180,7 +180,7 @@ def viewtutorprofile(request, tutorProfileKey):
 				questionAnswer = QuestionAnswer.objects.get(pk=id)
 			except QuestionAnswer.DoesNotExist:
 				response = {
-					"status_code": HTTPStatus.NOT_FOUND,
+					"statusCode": HTTPStatus.NOT_FOUND,
 					"message": 'We think this question has been deleted!'
 				}
 				return JsonResponse(response)
@@ -190,7 +190,7 @@ def viewtutorprofile(request, tutorProfileKey):
 			questionAnswer.save(update_fields=['subject', 'question'])
 
 			response = {
-				"status_code": HTTPStatus.OK
+				"statusCode": HTTPStatus.OK
 			}
 			return JsonResponse(response)
 
@@ -266,7 +266,7 @@ def viewtutorprofile(request, tutorProfileKey):
 				tutorReview = TutorReview.objects.get(id=id)
 			except TutorReview.DoesNotExist:
 				response = {
-					"status_code": HTTPStatus.NOT_FOUND,
+					"statusCode": HTTPStatus.NOT_FOUND,
 					"message": 'We think this review has been deleted!'
 				}
 				return JsonResponse(response)
@@ -297,7 +297,7 @@ def viewtutorprofile(request, tutorProfileKey):
 				tutorReview = TutorReview.objects.get(id=id)
 			except TutorReview.DoesNotExist:
 				response = {
-					"status_code": HTTPStatus.NOT_FOUND,
+					"statusCode": HTTPStatus.NOT_FOUND,
 					"message": 'We think this review has been deleted!'
 				}
 				return JsonResponse(response)
@@ -319,7 +319,7 @@ def viewtutorprofile(request, tutorProfileKey):
 				tutorReview = TutorReview.objects.get(id=id)
 			except TutorReview.DoesNotExist:
 				response = {
-					"status_code": HTTPStatus.NOT_FOUND,
+					"statusCode": HTTPStatus.NOT_FOUND,
 					"message": 'We think this review has been deleted!'
 				}
 				return JsonResponse(response)

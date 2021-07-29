@@ -45,7 +45,7 @@ class Forum(models.Model):
     image = models.ImageField(upload_to='forum-image/', blank=True, null=True)
     watchers = models.ManyToManyField(User, related_name='forumWatchers', blank=True)
 
-    def increaseForumVote(self, request):
+    def like(self, request):
         if request.user not in self.likes.all():
             self.likes.add(request.user)
         else:
@@ -54,7 +54,7 @@ class Forum(models.Model):
         if request.user in self.dislikes.all():
             self.dislikes.remove(request.user)
 
-    def decreaseForumVote(self, request):
+    def dislike(self, request):
         if request.user not in self.dislikes.all():
             self.dislikes.add(request.user)
         else:
@@ -78,7 +78,7 @@ class ForumComment(models.Model):
     likes = models.ManyToManyField(User, related_name='forumCommentLikes', blank=True, null=True)
     dislikes = models.ManyToManyField(User, related_name='forumCommentDislikes', blank=True, null=True)
 
-    def increase_forum_comment_likes(self, request):
+    def like(self, request):
         if request.user not in self.likes.all():
             self.likes.add(request.user)
         else:
@@ -87,7 +87,7 @@ class ForumComment(models.Model):
         if request.user in self.dislikes.all():
             self.dislikes.remove(request.user)
 
-    def increase_forum_comment_dislikes(self, request):
+    def dislike(self, request):
         if request.user not in self.dislikes.all():
             self.dislikes.add(request.user)
         else:
