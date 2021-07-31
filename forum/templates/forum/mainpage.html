@@ -3,7 +3,48 @@
 {% load crispy_forms_tags %}
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/forumMainPage.css' %}"/>
-<div class="container" style="margin: auto;overflow-x: hidden; color: black;">
+
+<div class="modal fade" id="newCommunityModal" tabindex="-1" role="dialog" aria-labelledby="communityModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="name" name="createCommunity" hidden>
+                <div class="modal-header d-flex align-items-center bg-primary text-white">
+                    <h6 class="modal-title mb-0" id="communityModalLabel">New Community</h6>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Community Title" name="title" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea class="form-control summernote" id="description" name="description" placeholder="Enter something..." rows="5" autofocus=""></textarea>
+                    </div>
+                    <div class="form-group">
+                        <select class="multiple-tags form-control" name="tags" multiple="multiple" required></select>
+                    </div>
+                    <div class="custom-file form-control-sm mt-3" style="max-width: 300px;">
+                        <input type="file" class="custom-file-input" id="image" name="banner" />
+                        <label class="custom-file-label" for="banner">Banner</label>
+                    </div>
+                    <div class="custom-file form-control-sm mt-3" style="max-width: 300px;">
+                        <input type="file" class="custom-file-input" id="image" name="logo" />
+                        <label class="custom-file-label" for="logo">Logo</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid" style="margin: auto;overflow-x: hidden; color: black; max-width: 1500px;">
     <div class="gutters-sm">
         <div style="height:70px;"></div>
         <div class="col-md-12">
@@ -18,144 +59,147 @@
                     <div class="card card-body">
                         <div class="row">
                             <div class="col-12">
-                                <div class="row">
-                                    <div class="col">{{community.community_description}}</div>
-                                </div>
-                                <div class="col-xs-12" style="height:15px;"></div>
-                                <div class="row">
-                                    <div class="col" id="community_members">
-                                        <br><p style="font-size: 14px; font-weight: 500; line-height: 16px; display: inline-block; word-break: break-word;">Member(s)</p>
-                                    </div>
-                                    <div class="col">0
-                                        <br><p style="font-size: 14px; font-weight: 500; line-height: 16px; display: inline-block; word-break: break-word;">Online</p></div>
-                                </div>
-                                <div class="row">
-                                    <div class="col"><hr></div>
-                                </div>
-                                <div class="row">
-                                    <div class="col">Created at {{community.created_at}}</div>
-                                </div>
                             </div>
                         </div>
-                        </div>
+                    </div>
                     <div class="col-xs-12" style="height:30px;"></div>
+                    <button onclick="showModal();" type="button" class="btn btn-info" style="border-radius: 16px;padding: 5px 40px;width: 100%;" >Start your own community</button>
                 </div>
             </div>
         </div>
     </div>
-    
 </div>
 <script type="text/javascript">
 
-    $(document).ready(function () {
-        CollectForums();
-    });
-
-    function CollectForums() {
-        forum_container = [];
-        {% for f in forums %}
-
-        var watchers = '{{ f.watchers.all|join:", " }}'.replace(", ", ",").split(",");
-
-        forum_container.push({
-            'pk': '{{f.id}}',
-            'community_pk': '{{f.community.id}}',
-            'votes': '{{f.forum_likes.count}}' - '{{f.forum_dislikes.count}}',
-            'full_name': '{{f.creator.get_full_name}}',
-            'date': '{{f.created_at}}',
-            'title': '{{f.forum_title|linebreaksbr}}',
-            'description': '{{f.forum_description|linebreaksbr}}',
-            'comment_count': '{{f.forums.count}}',
-            'image': '{{ f.forum_image }}',
-            'can_edit': '{{ user.id }}' == '{{f.creator.id}}' ? true : false,
-            'is_watching': watchers.includes('{{user.email}}') ? true: false,
-            'watchers_count': '{{f.watchers.count}}',
-        });
-
-        {% endfor %}
-
-        ParseCollectedForums(forum_container);
+    function showModal()
+    {
+        verifyLogin()
+        $("#newCommunityModal").modal('show');
     }
 
-    function ParseCollectedForums(list) {
+    function verifyLogin()
+    {
+        {% if not user.is_authenticated %}
+            window.location.href = "{% url 'accounts:login' %}";
+        {% endif %}
+    }
 
-        for (var i = 0; i<list.length; i++) {
 
-            var image_tab = null;
-            if (list[i].image) {
-                image_tab = '<img class="mx-auto d-block" src="../../../media/'+list[i].image+'" style="max-width:100%;max-height:420px;">';
-            } else {
-                image_tab = '<p>'+list[i].description+'</p>';
+    $(document).ready(function ()
+    {
+        $(".multiple-tags").select2(
+            {
+               tags: true,
+            }
+         );
+        renderCollectedForums({{forums|safe}});
+    });
+
+    function renderCollectedForums(list)
+    {
+
+        for (var i = 0; i<list.length; i++)
+        {
+            var imageTab = null;
+            if (list[i].image)
+            {
+                imageTab = '<img class="mx-auto d-block" src="../../../media/'+list[i].image+'" style="max-width:100%;max-height:420px;">';
+            }
+            else
+            {
+                imageTab = '<p>'+list[i].description+'</p>';
             }
 
-            if (list[i].is_watching)
-                var forum_watch_text = `<span onclick="watch_unwatch_forum(`+list[i].community_pk+`,`+list[i].pk+`);" data-toggle="tooltip" data-placement="top" title="You are watching this issue. Click to stop watching this issue."><i class='far fa-eye' style='font-size:15px'></i> (`+list[i].watchers_count+`) Unwatch</span>`;
+            if (list[i].isWatching)
+            {
+                var forumWatchContainer = `<span onclick="watch_unwatch_forum(`+list[i].communityUrl+`,`+list[i].id+`);" data-toggle="tooltip" data-placement="top" title="You are watching this issue. Click to stop watching this issue."><i class='far fa-eye' style='font-size:15px'></i> (`+list[i].watchingCount+`) Unwatch</span>`;
+            }
             else
-                var forum_watch_text = `<span onclick="watch_unwatch_forum(`+list[i].community_pk+`,`+list[i].pk+`);" data-toggle="tooltip" data-placement="top" title="You are not watching this issue. Click to watch this issue."><i class='far fa-eye' style='font-size:15px'></i> (`+list[i].watchers_count+`) Watch</span>`;
+            {
+                var forumWatchContainer = `<span onclick="watch_unwatch_forum(`+list[i].communityUrl+`,`+list[i].id+`);" data-toggle="tooltip" data-placement="top" title="You are not watching this issue. Click to watch this issue."><i class='far fa-eye' style='font-size:15px'></i> (`+list[i].watchingCount+`) Watch</span>`;
+            }
+                
 
-            edit_forum = '';
-            if (list[i].can_edit)
-                edit_forum = "<a href='#'><i class='far fa-edit' style='font-size:15px'></i> Edit</a> &nbsp;";
+            editForum = '';
+            if (list[i].canEdit)
+                editForum = "<a href='#'><i class='far fa-edit' style='font-size:15px'></i> Edit</a> &nbsp;";
 
-            var forum_div_container = `
-            <div class="row border border-secondary QMwdLfHioF" id="container_`+list[i].pk+`" communityurl='`+list[i].community_pk+`' forumurl='`+list[i].pk+`'>
+            var newForum = `
+            <div class="row border border-secondary QMwdLfHioF" id="container_`+list[i].id+`" communityurl='`+list[i].communityUrl+`' forumurl='`+list[i].forumUrl+`'>
                 <div class="col-md-auto text-center border-right border-secondary" style="padding-bottom: 10px; padding-top: 10px;" id="buttons_in_sidebar">
-                    <button type="button" class="btn btn-success" onclick="upvote_forum(`+list[i].community_pk+`,`+list[i].pk+`);"><i class='far fa-thumbs-up' style='font-size:15px'></i></button><br>
-                    <span class='forum_vote_`+list[i].pk+`'>`+list[i].votes+`</span>
-                    <br><button type="button" class="btn btn-danger" onclick="downvote_forum(`+list[i].community_pk+`,`+list[i].pk+`);"><i class='far fa-thumbs-down' style='font-size:15px'></i></button>
+                    <button type="button" class="btn btn-success" onclick="upvote_forum(`+list[i].communityUrl+`,`+list[i].id+`);"><i class='far fa-thumbs-up' style='font-size:15px'></i></button><br>
+                    <span class='forum_vote_`+list[i].id+`'>`+list[i].votes+`</span>
+                    <br><button type="button" class="btn btn-danger" onclick="downvote_forum(`+list[i].communityUrl+`,`+list[i].id+`);"><i class='far fa-thumbs-down' style='font-size:15px'></i></button>
                 </div>
                 <div class="col" style="padding-bottom: 10px; padding-top: 10px;">
                     <div style="max-height: 500px;text-overflow: ellipsis;overflow: hidden;">
-                        <span class="text-secondary">Post by `+list[i].full_name+` at `+list[i].date+`</span>
+                        <span class="text-secondary">Post by `+list[i].creatorFullName+` at `+list[i].date+`</span>
                         <h3>`+list[i].title+`</h3>
-                        `+image_tab+`
+                        `+imageTab+`
                     </div>
                     <div>
-                        <a href="#"><i class='far fa-comment-alt' style='font-size:15px'></i> `+list[i].comment_count+` Comments</a>
-                        &nbsp;
-                        <a href="#"><i class='fas fa-share' style='font-size:15px'></i> Share</a>
-                        &nbsp;
-                        <a href="#"><i class='fas fa-flag' style='font-size:15px'></i> Report</a>
-                        &nbsp;
-                        <a href="#" onclick='return false;' id="forum_watcher`+list[i].pk+`">`+forum_watch_text+`</a>
-                        &nbsp;
-                        `+edit_forum+`
-                        <span id="buttons_in_footer">
-                            <button type="button" class="btn btn-success" style="padding: 2px 2px;" "upvote_forum(`+list[i].community_pk+`,`+list[i].pk+`);"><i class='far fa-thumbs-up' style='font-size:15px;'></i></button>
-                            <span class='forum_vote_`+list[i].pk+`'>`+list[i].votes+`</span>
-                            <button type="button" class="btn btn-danger" style="padding: 2px 2px;" onclick="downvote_forum(`+list[i].community_pk+`,`+list[i].pk+`);"><i class='far fa-thumbs-down' style='font-size:15px;'></i></button>
+                        <span id="bigscreen-footer">
+                            <a href="#"><i class='far fa-comment-alt' style='font-size:15px'></i> `+list[i].commentCount+` Comments</a> &nbsp;
+                            <a href="#"><i class='fas fa-share' style='font-size:15px'></i> Share</a> &nbsp;
+                            <a href="#"><i class='fas fa-flag' style='font-size:15px'></i> Report</a> &nbsp;
+                            <a href="#" onclick='return false;' id="forum_watcher`+list[i].id+`">`+forumWatchContainer+`</a> &nbsp; `+editForum+`
+                        </span>
+                        <span id="smallscreen-footer">
+                            <button type="button" class="btn btn-success" style="padding: 2px 2px;" "upvote_forum(`+list[i].communityUrl+`,`+list[i].id+`);">
+                                <i class='far fa-thumbs-up' style='font-size:15px;'></i>
+                            </button>
+                            <span class='forum_vote_`+list[i].id+`'>`+list[i].votes+`</span>
+                            <button type="button" class="btn btn-danger" style="padding: 2px 2px;" onclick="downvote_forum(`+list[i].communityUrl+`,`+list[i].id+`);">
+                                <i class='far fa-thumbs-down' style='font-size:15px;'></i>
+                            </button>
+                            <a href="#"><i class='far fa-comment-alt' style='font-size:15px'></i> `+list[i].commentCount+` Comments</a> &nbsp;
+
+                            <div class="dropdown" style="display:inline-block;">
+                                <a class="btn-floating btn-lg" type="button" id="dropdownMenu3" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </a>
+                                <br>
+                                <div class="dropdown-menu dropdown-primary">
+                                    <a href="#"><i class='fas fa-share' style='font-size:15px'></i> Share</a> &nbsp;<br>
+                                    <a href="#"><i class='fas fa-flag' style='font-size:15px'></i> Report</a> &nbsp;<br>
+                                    <a href="#" onclick='return false;' id="forum_watcher`+list[i].id+`">`+forumWatchContainer+`</a> &nbsp;<br>
+                                    `+editForum+`
+                                </div>
+                            </div>
+
                         </span>
                     </div>
                 </div>
             </div>
             <div style="height:20px;"></div>`;
 
-            $('#div-id-forum-list-container').append(forum_div_container);
+            $('#div-id-forum-list-container').append(newForum);
         }
     }
 
-    function UpdateWatchers(is_watching, watchers_count, community_pk, forum_id) {
-        if (is_watching)
-            var forum_watch_text = `<span onclick="watch_unwatch_forum(`+community_pk+`,`+forum_id+`);" data-toggle="tooltip" data-placement="top" title="You are watching this issue. Click to stop watching this issue."><i class='far fa-eye' style='font-size:15px'></i> (`+watchers_count+`) Unwatch</span>`;
+    function UpdateWatchers(isWatching, watchingCount, communityUrl, forum_id)
+    {
+        if (isWatching)
+            var forumWatchContainer = `<span onclick="watch_unwatch_forum(`+communityUrl+`,`+forum_id+`);" data-toggle="tooltip" data-placement="top" title="You are watching this issue. Click to stop watching this issue."><i class='far fa-eye' style='font-size:15px'></i> (`+watchingCount+`) Unwatch</span>`;
         else
-            var forum_watch_text = `<span onclick="watch_unwatch_forum(`+community_pk+`,`+forum_id+`);" data-toggle="tooltip" data-placement="top" title="You are not watching this issue. Click to watch this issue."><i class='far fa-eye' style='font-size:15px'></i> (`+watchers_count+`) Watch</span>`;
+            var forumWatchContainer = `<span onclick="watch_unwatch_forum(`+communityUrl+`,`+forum_id+`);" data-toggle="tooltip" data-placement="top" title="You are not watching this issue. Click to watch this issue."><i class='far fa-eye' style='font-size:15px'></i> (`+watchingCount+`) Watch</span>`;
 
-        $('a#forum_watcher'+forum_id).html(forum_watch_text);
+        $('a#forum_watcher'+forum_id).html(forumWatchContainer);
     }
 
-    function watch_unwatch_forum(community_pk, forum_id) {
+    function watch_unwatch_forum(communityUrl, forum_id) {
          $.ajax({
             data: {
                 'functionality': 'watch_unwatch_forum',
             },
-             url: '/forum/c/'+community_pk+'/f/'+forum_id,
+             url: '/forum/c/'+communityUrl+'/f/'+forum_id,
              dataType: 'json',
              success: function (response) {
                 if(response.status_code == 200) {
-                    var watchers_count = response.watch_count;
-                    var is_watching = response.is_watching;
+                    var watchingCount = response.watch_count;
+                    var isWatching = response.isWatching;
 
-                    UpdateWatchers(is_watching, watchers_count, community_pk, forum_id)
+                    UpdateWatchers(isWatching, watchingCount, communityUrl, forum_id)
 
                 } else if (response.status_code == 401) {
                     Swal.fire({
@@ -169,13 +213,13 @@
          });
     }
 
-    function upvote_forum(community_pk, forum_id) {
+    function upvote_forum(communityUrl, forum_id) {
         $.ajax({
             data: {
                 'functionality': 'upvote_forum',
                 'forum_id': forum_id
             },
-            url: '/forum/c/'+community_pk,
+            url: '/forum/c/'+communityUrl,
             dataType: 'json',
             success: function (response) {
                 if(response.status_code == 200) {
@@ -205,13 +249,13 @@
         });
     }
 
-    function downvote_forum(community_pk, forum_id) {
+    function downvote_forum(communityUrl, forum_id) {
         $.ajax({
             data: {
                 'functionality': 'downvote_forum',
                 'forum_id': forum_id
             },
-            url: '/forum/c/'+community_pk,
+            url: '/forum/c/'+communityUrl,
             dataType: 'json',
             success: function (response) {
                 if(response.status_code == 200) {
@@ -268,21 +312,21 @@
 
                             forum_container.push({
                                 'pk': this_forum[i].forumId,
-                                'community_pk': this_forum[i].forumCommunityId,
+                                'communityUrl': this_forum[i].communityUrl,
                                 'votes': this_forum[i].forumVotes,
-                                'full_name': this_forum[i].forumCreatorFullName,
+                                'creatorFullName': this_forum[i].forumCreatorFullName,
                                 'date': this_forum[i].forumCreatedDate,
                                 'title': this_forum[i].forumTitle,
                                 'description': this_forum[i].forumDescription.replace(/\n\r?/g, '<br />'),
-                                'comment_count': this_forum[i].forumCommentCount,
+                                'commentCount': this_forum[i].forumCommentCount,
                                 'image': this_forum[i].forumImage,
-                                'can_edit': this_forum[i].forumEdit,
-                                'is_watching': this_forum[i].forumWatching,
-                                'watchers_count': this_forum[i].forumWatchCount,
+                                'canEdit': this_forum[i].forumEdit,
+                                'isWatching': this_forum[i].forumWatching,
+                                'watchingCount': this_forum[i].forumWatchCount,
                             });
                         }
 
-                        ParseCollectedForums(forum_container);
+                        renderCollectedForums(forum_container);
 
                         NEXT_INDEX = NEXT_INDEX + 1;
                     }
