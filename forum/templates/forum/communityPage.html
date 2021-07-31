@@ -7,29 +7,8 @@
 		width: 100px!important;
 		height: auto
 	}
-
-	#buttons_in_footer
-	{
-		display: none;
-	}
-
-	.QMwdLfHioF
-	{
-		cursor: pointer;
-	}
-
-	@media (max-width: 767px)
-	{
-		#buttons_in_sidebar
-		{
-			display: none;
-		}
-		#buttons_in_footer
-		{
-			display: inline;
-		}
-	}
 </style>
+<link rel="stylesheet" type="text/css" href="{% static 'css/forumMainPage.css' %}"/>
 <div>
 	{% if community.banner %}
 	<img src="{{ community.banner.url }}" class="img-fluid mx-auto d-block" alt="Responsive image">
@@ -139,7 +118,6 @@
 			</div>
 		</div>
 	</div>
-	
 </div>
 <script type="text/javascript">
 
@@ -232,7 +210,6 @@
 
 	function renderCollectedForums(list)
 	{
-
 		for (var i = 0; i<list.length; i++)
 		{
 			var imageTab = null;
@@ -268,22 +245,34 @@
 							`+imageTab+`
 						</div>
 						<div>
-							<a href="#"><i class='far fa-comment-alt' style='font-size:15px'></i> `+list[i].commentCount+` Comments</a>
-							&nbsp;
-							<a href="#"><i class='fas fa-share' style='font-size:15px'></i> Share</a>
-							&nbsp;
-							<a href="#"><i class='fas fa-flag' style='font-size:15px'></i> Report</a>
-							&nbsp;
-							`+editForum+`
-							<span id="buttons_in_footer">
-								<button type="button" class="btn btn-success" style="padding: 2px 2px;" onclick="upvoteForum('`+list[i].id+`');">
-									<i class='far fa-thumbs-up' style='font-size:15px;'></i>
-								</button>
-								<span class='forum-vote-counter`+list[i].id+`'>`+list[i].votes+`</span>
-								<button type="button" class="btn btn-danger" style="padding: 2px 2px;" onclick="downvoteForum('`+list[i].id+`');">
-									<i class='far fa-thumbs-down' style='font-size:15px;'></i>
-								</button>
-							</span>
+						    <span id="bigscreen-footer">
+						        <a href="#"><i class='far fa-comment-alt' style='font-size:15px'></i> `+list[i].commentCount+` Comments</a> &nbsp;
+						        <a href="#"><i class='fas fa-share' style='font-size:15px'></i> Share</a> &nbsp;
+						        <a href="#"><i class='fas fa-flag' style='font-size:15px'></i> Report</a> &nbsp;
+						        `+editForum+`
+						    </span>
+						    <span id="smallscreen-footer">
+						        <button type="button" class="btn btn-success" style="padding: 2px 2px;" onclick="upvoteForum('`+list[i].id+`');">
+						            <i class='far fa-thumbs-up' style='font-size:15px;'></i>
+						        </button>
+						        <span class='forum-vote-counter`+list[i].id+`'>`+list[i].votes+`</span>
+						        <button type="button" class="btn btn-danger" style="padding: 2px 2px;" onclick="downvoteForum('`+list[i].id+`');">
+						            <i class='far fa-thumbs-down' style='font-size:15px;'></i>
+						        </button>
+						        <a href="#"><i class='far fa-comment-alt' style='font-size:15px'></i> `+list[i].commentCount+` Comments</a> &nbsp;
+
+						        <div class="dropdown" style="display:inline-block;">
+						            <a class="btn-floating btn-lg" type="button" id="dropdownMenu3" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						                <i class="fas fa-ellipsis-h"></i>
+						            </a>
+						            <br>
+						            <div class="dropdown-menu dropdown-primary">
+						                <a href="#"><i class='fas fa-share' style='font-size:15px'></i> Share</a> &nbsp;<br>
+						                <a href="#"><i class='fas fa-flag' style='font-size:15px'></i> Report</a> &nbsp;<br>
+						                `+editForum+`
+						            </div>
+						        </div>
+						    </span>
 						</div>
 					</div>
 				</div>
