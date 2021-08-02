@@ -340,7 +340,7 @@ def installForumComment(totalValue):
 		return
 
 	if Forum.objects.count() == 0:
-		return#installForum(40)
+		return
 
 	if ForumComment.objects.count() >= 99:
 		return
