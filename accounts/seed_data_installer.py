@@ -365,19 +365,3 @@ def installForumComment(totalValue):
 	ForumComment.objects.bulk_create(forumComment_bulk_object)
 	print("ForumComment table created and populated")
 	return
-
-def main():
-	# install_TutorProfile()
-	# installCountries()
-	# installSubjects()
-	# installTutor()
-	# installTutorFromFaker()
-
-	# forum app
-	# installCategories()
-	# installCommunity()
-	# installForum()
-	# installForumComment()
-	return
-
-main()
