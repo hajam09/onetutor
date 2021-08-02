@@ -190,7 +190,6 @@ def installTutorFromFaker():
 
 		user = User.objects.create_user(username=email, email=email, password=password, first_name=first_name, last_name=last_name)
 		TutorProfile.objects.create(user=user, summary=summary, about=about, location=location, education=education, subjects=subjects, availability=None)
-	return
 
 def installCountries():
 	if installCountries in CRON:
@@ -206,7 +205,6 @@ def installCountries():
 			Countries.objects.create(alpha=i[0], name=i[1])
 
 	print("Countries table created and populated")
-	return
 
 def installTutor():
 	if installTutor in CRON:
@@ -224,7 +222,6 @@ def installTutor():
 				user = User.objects.create_user(username=d["username"], email=d["email"], password=d["password"], first_name=d["first_name"], last_name=d["last_name"])
 				TutorProfile.objects.create(user=user, summary=d["summary"], about=d["about"],
 											location=d["location"], education=d["education"], subjects=d["subjects"], availability=d["availability"])
-	return
 
 def installSubjects():
 	if installSubjects in CRON:
@@ -239,7 +236,6 @@ def installSubjects():
 		if not Subject.objects.filter(name=i).exists():
 			Subject.objects.create(name=i)
 	print("Subject table created and populated")
-	return
 
 def installCategories():
 	if installCategories in CRON:
@@ -254,7 +250,6 @@ def installCategories():
 		if not Category.objects.filter(name=i).exists():
 			Category.objects.create(name=i)
 	print("Category table created and populated")
-	return
 
 def installCommunity(totalValue):
 	if installCommunity in CRON:
@@ -289,7 +284,6 @@ def installCommunity(totalValue):
 
 	Community.objects.bulk_create(community_bulk_object)
 	print("Community table created and populated")
-	return
 
 
 def installForum(totalValue):
@@ -329,7 +323,6 @@ def installForum(totalValue):
 
 	Forum.objects.bulk_create(forum_bulk_object)
 	print("Forum table created and populated")
-	return
 
 def installForumComment(totalValue):
 	if installForumComment in CRON:
@@ -364,4 +357,3 @@ def installForumComment(totalValue):
 
 	ForumComment.objects.bulk_create(forumComment_bulk_object)
 	print("ForumComment table created and populated")
-	return
