@@ -10,6 +10,7 @@ from django.core import serializers
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from accounts.models import Subject
 from accounts.models import TutorProfile
@@ -345,61 +346,65 @@ def viewtutorprofile(request, tutorProfileKey):
 	return render(request, "tutoring/tutorprofile.html", context)
 
 @login_required
-def tutor_questions(request):
+def tutorsQuestions(request):
+
 	try:
-		tutorProfile = TutorProfile.objects.get(user=request.user.id)
+		tutorProfile = TutorProfile.objects.get(user=request.user)
 	except TutorProfile.DoesNotExist:
 		return redirect("accounts:selectprofile")
 
 	if request.is_ajax():
 		functionality = request.GET.get('functionality', None)
 
-		if functionality == "post_answer":
-			question_id, new_answer = request.GET.get('question_id', None), request.GET.get('new_answer', None)
+		if functionality == "deleteQuestionAnswer":
+			id = request.GET.get('id', None)
+
+			QuestionAnswer.objects.filter(pk=int(id)).delete()
+			response = {
+				"statusCode": HTTPStatus.OK
+			}
+			return JsonResponse(response)
+
+		elif functionality == "updateQuestionAnswer":
+			id = request.GET.get('id', None)
+			answer = request.GET.get('answer', None)
 
 			try:
-				this_qa = QuestionAnswer.objects.get(pk=int(question_id))
+				questionAnswer = QuestionAnswer.objects.get(pk=int(id))
 			except QuestionAnswer.DoesNotExist:
 				response = {
-					"status_code": HTTPStatus.NOT_FOUND,
-					"message": 'We think this question has been deleted!'
+					"statusCode": HTTPStatus.NOT_FOUND,
+					"message": 'Error updating the answer. Please try again later!'
 				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
+				return JsonResponse(response)
 
-			this_qa.answer = new_answer
-			this_qa.save(update_fields=['answer'])
-			response = {
-				"this_qa": serializers.serialize("json", [this_qa,]),
-				"status_code": HTTPStatus.OK
-			}
-			return HttpResponse(json.dumps(response), content_type="application/json")
-
-		elif functionality == "delete_question":
-			question_id = request.GET.get('question_id', None)
-			try:
-				QuestionAnswer.objects.get(pk=int(question_id)).delete()
-				response = {
-					"status_code": HTTPStatus.OK
-				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
-			except QuestionAnswer.DoesNotExist:
-				response = {
-					"status_code": HTTPStatus.NOT_FOUND
-				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
+			questionAnswer.answer = answer
+			questionAnswer.save(update_fields=['answer'])
 
 			response = {
-				"status_code": HTTPStatus.BAD_REQUEST,
-				"message": "Bad Request"
+				"statusCode": HTTPStatus.OK,
+				"answer": questionAnswer.answer.replace("\n", "<br />")
 			}
-			return HttpResponse(json.dumps(response), content_type="application/json")
 
-		raise Exception("Unknown functionality tutor_questions")
+			return JsonResponse(response)
+
+		raise Exception("Unknown functionality tutorsQuestions view.")
+
+	allQuestionAnswers = QuestionAnswer.objects.filter(answerer=tutorProfile.user).select_related('questioner', 'answerer').prefetch_related('likes', 'dislikes').order_by('-id')
+	page = request.GET.get('page', 1)
+	paginator = Paginator(allQuestionAnswers, 15)
+
+	try:
+		questionAndAnswers = paginator.page(page)
+	except PageNotAnInteger:
+		questionAndAnswers = paginator.page(1)
+	except EmptyPage:
+		questionAndAnswers = paginator.page(paginator.num_pages)
 
 	context = {
-		"questionAndAnswers": QuestionAnswer.objects.filter(answerer=tutorProfile.user).select_related('questioner', 'answerer').prefetch_related('likes', 'dislikes').order_by('-id')
+		"questionAndAnswers": questionAndAnswers
 	}
-	return render(request, "tutoring/tutor_questions.html", context)
+	return render(request, "tutoring/tutorsQuestions.html", context)
 
 def viewstudentprofile(request, studentId):
 	print("bb")
