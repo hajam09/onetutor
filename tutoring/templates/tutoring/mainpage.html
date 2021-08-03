@@ -40,7 +40,7 @@
 									</td>
 									<td>
 										<div class="widget-tutor-name">
-											<a href="{% url 'tutoring:viewtutorprofile' tutor.secondary_key %}">{{ tutor.user.first_name }} {{ tutor.user.last_name }}</a>
+											<a href="{{ tutor.getTutoringUrl }}">{{ tutor.user.first_name }} {{ tutor.user.last_name }}</a>
 											<p class="m-0"><a href="#" class="tutor-summary">{{ tutor.summary }}</a></p>
 										</div>
 									</td>

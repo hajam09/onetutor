@@ -74,21 +74,7 @@ def mainpage(request):
                 return JsonResponse(response)
 
             forums = [
-                {
-                    'id': e.id,
-                    'communityUrl': e.community.url,
-                    'forumUrl': e.url,
-                    'votes': intCompromise(e.likes.count() - e.dislikes.count()),
-                    'creatorFullName': e.creator.get_full_name(),
-                    'date': vanilla_JS_date_conversion(e.createdAt),
-                    'title': e.title.replace("\n", "<br />"),
-                    'image': str(e.image),
-                    'description': e.description.replace("\n", "<br />"),
-                    'commentCount': e.forumComments.count(),
-                    'canEdit': True if e.creator == request.user else False,
-                    'isWatching': True if request.user in e.watchers.all() else False,
-                    'watchingCount': e.watchers.count(),
-                }
+                forumComponentJson(request, e)
                 for e in nextForums
             ]
 
@@ -99,21 +85,7 @@ def mainpage(request):
             return JsonResponse(response)
 
     initialForum = [
-        {
-            'id': e.id,
-            'communityUrl': e.community.url,
-            'forumUrl': e.url,
-            'votes': intCompromise(e.likes.count() - e.dislikes.count()),
-            'creatorFullName': e.creator.get_full_name(),
-            'date': vanilla_JS_date_conversion(e.createdAt),
-            'title': e.title.replace("\n", "<br />"),
-            'image': str(e.image),
-            'description': e.description.replace("\n", "<br />"),
-            'commentCount': e.forumComments.count(),
-            'canEdit': True if e.creator == request.user else False,
-            'isWatching': True if request.user in e.watchers.all() else False,
-            'watchingCount': e.watchers.count(),
-        }
+        forumComponentJson(request, e)
         for e in forumsPagination[0] if forumsPagination
     ]
 
@@ -397,21 +369,7 @@ def forumPage(request, communityUrl, forumUrl):
             return JsonResponse(response)
 
     forumJson = [
-        {
-            'id': forum.id,
-            'communityUrl': forum.community.url,
-            'forumUrl': forum.url,
-            'votes': intCompromise(forum.likes.count() - forum.dislikes.count()),
-            'creatorFullName': forum.creator.get_full_name(),
-            'date': vanilla_JS_date_conversion(forum.createdAt),
-            'title': forum.title.replace("\n", "<br />"),
-            'image': str(forum.image),
-            'description': forum.description.replace("\n", "<br />"),
-            'commentCount': forum.forumComments.count(),
-            'canEdit': True if forum.creator == request.user else False,
-            'isWatching': True if request.user in forum.watchers.all() else False,
-            'watchingCount': forum.watchers.count(),
-        }
+        forumComponentJson(request, forum)
     ]
 
     forumComments = [
@@ -490,6 +448,25 @@ def vanilla_JS_date_conversion(pyDate):
     time = datetime.strptime(pyDate.strftime("%H:%M"), "%H:%M")
     time = time.strftime("%I:%M %p").lower().replace("pm", "p.m.").replace("am", "a.m.")
     return str(date + " " + time)
+
+
+def forumComponentJson(request, e):
+    response = {
+        'id': e.id,
+        'communityUrl': e.community.url,
+        'forumUrl': e.url,
+        'votes': intCompromise(e.likes.count() - e.dislikes.count()),
+        'creatorFullName': e.creator.get_full_name(),
+        'date': vanilla_JS_date_conversion(e.createdAt),
+        'title': e.title.replace("\n", "<br />"),
+        'image': str(e.image),
+        'description': e.description.replace("\n", "<br />"),
+        'commentCount': e.forumComments.count(),
+        'canEdit': True if e.creator == request.user else False,
+        'isWatching': True if request.user in e.watchers.all() else False,
+        'watchingCount': e.watchers.count(),
+    }
+    return response
 
 
 def communityOperationsAPI(request, communityUrl):

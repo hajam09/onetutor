@@ -1,8 +1,10 @@
-from datetime import datetime
+import uuid
+
+import jsonfield
 from django.contrib.auth.models import User
 from django.db import models
-import jsonfield
-import uuid
+from django.urls import reverse
+
 
 # TODO: Remove fields: location
 class TutorProfile(models.Model):
@@ -21,6 +23,9 @@ class TutorProfile(models.Model):
 
 	def getSubjectsAsList(self):
 		return self.subjects.split(",")
+
+	def getTutoringUrl(self):
+		return reverse('tutoring:view-tutor-profile', kwargs={'tutorProfileKey': self.secondary_key})
 
 # TODO: Remove fields: location
 class StudentProfile(models.Model):
