@@ -12,6 +12,8 @@ from datetime import datetime
 
 # 	class Meta:
 # 		verbose_name_plural = "BaseComment"
+from django.urls import reverse
+
 
 class QuestionAnswer(models.Model):
 	subject = models.CharField(max_length=1024)
@@ -44,35 +46,40 @@ class QuestionAnswer(models.Model):
 	class Meta:
 		verbose_name_plural = "QuestionAnswer"
 
-class QAComment(models.Model):
-	question_answer = models.ForeignKey(QuestionAnswer, on_delete=models.CASCADE)
+	def questionAnswerThreadUrl(self):
+		return reverse('tutoring:question-answer-thread', kwargs={'questionId': self.id})
+
+
+class QuestionAnswerComment(models.Model):
+	questionAnswer = models.ForeignKey(QuestionAnswer, on_delete=models.CASCADE)
 	creator = models.ForeignKey(User, on_delete=models.CASCADE)
 	comment = models.TextField()
-	likes = models.ManyToManyField(User, related_name='qacomment_likes')
-	dislikes = models.ManyToManyField(User, related_name='qacomment_dislikes')
+	likes = models.ManyToManyField(User, related_name='questionAnswerCommentLikes')
+	dislikes = models.ManyToManyField(User, related_name='questionAnswerCommentDislikes')
 	date = models.DateTimeField(default=datetime.now)
 	edited = models.BooleanField(default=False)
 
-	def increase_qa_comment_likes(self, request):
-		if(request.user not in self.likes.all()):
+	def like(self, request):
+		if request.user not in self.likes.all():
 			self.likes.add(request.user)
 		else:
 			self.likes.remove(request.user)
 
-		if(request.user in self.dislikes.all()):
+		if request.user in self.dislikes.all():
 			self.dislikes.remove(request.user)
 
-	def increase_qa_comment_dislikes(self, request):
-		if(request.user not in self.dislikes.all()):
+	def dislike(self, request):
+		if request.user not in self.dislikes.all():
 			self.dislikes.add(request.user)
 		else:
 			self.dislikes.remove(request.user)
 
-		if(request.user in self.likes.all()):
+		if request.user in self.likes.all():
 			self.likes.remove(request.user)
 
 	class Meta:
-		verbose_name_plural = "QAComments"
+		verbose_name_plural = "QuestionAnswerComments"
+
 
 class TutorReview(models.Model):
 	tutor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="tutor")

@@ -23,7 +23,7 @@ from jira.models import Sprint
 from jira.models import Ticket
 from jira.models import TicketComment
 from jira.models import TicketImage
-from tutoring.models import QAComment
+from tutoring.models import QuestionAnswerComment
 from tutoring.models import QuestionAnswer
 import datetime
 import math
@@ -131,7 +131,7 @@ def get_instance_count_for_each_model():
 		"forum_comments": ForumComment.objects.count(),
 		"communities": Community.objects.count(),
 		"forums": Forum.objects.count(),
-		"qa_comments": QAComment.objects.count(),
+		"qa_comments": QuestionAnswerComment.objects.count(),
 		"question_answer": QuestionAnswer.objects.count()
 	}
 	return instance_count

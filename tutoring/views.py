@@ -14,7 +14,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from accounts.models import Subject
 from accounts.models import TutorProfile
-from tutoring.models import QAComment
+from tutoring.models import QuestionAnswerComment
 from tutoring.models import QuestionAnswer
 from tutoring.models import TutorReview
 
@@ -409,129 +409,121 @@ def viewstudentprofile(request, studentId):
 	print("bb")
 	return render(request, "tutoring/studentprofile.html", {})
 
-def question_answer_thread(request, question_id):
-	qa_object = QuestionAnswer.objects.select_related('questioner').get(id=question_id)
+
+def questionAnswerThread(request, questionId):
+
+	questionAnswer = QuestionAnswer.objects.select_related('questioner').get(id=questionId)
 
 	if request.is_ajax():
 		functionality = request.GET.get('functionality', None)
 
-		response_message = {
-			"post_comment": "Login to post a comment.",
-			"like_comment": "Login to like the comment.",
-			"dislike_comment": "Login to dislike the comment.",
-			"update_comment": "Login to update the comment.",
-		}
-
-		if not request.user.is_authenticated:
-			response = {
-				"status_code": 401,
-				"message": response_message[functionality]
-			}
-			return HttpResponse(json.dumps(response), content_type="application/json")
-
-		if functionality == "post_comment":
+		if functionality == "createQuestionAnswerComment":
 			comment = request.GET.get('comment', None)
-			new_qa_comment = QAComment.objects.create(
-				question_answer = qa_object,
-				creator = request.user,
-				comment = comment,
+
+			questionAnswerComment = QuestionAnswerComment.objects.create(
+				questionAnswer=questionAnswer,
+				creator=request.user,
+				comment=comment
 			)
-			response = {
-				"new_qa_comment": serializers.serialize("json", [new_qa_comment,]),
-				"status_code": HTTPStatus.OK
-			}
-			return HttpResponse(json.dumps(response), content_type="application/json")
 
-		if functionality == "like_comment":
-			# TODO: Manual test the implementation.
-			comment_id = request.GET.get('commentId', None)
+			newComment = {
+				'id': questionAnswerComment.id,
+				'creatorFullName': questionAnswerComment.creator.get_full_name(),
+				'comment': questionAnswerComment.comment.replace("\n", "<br />"),
+				'date': vanilla_JS_date_conversion(questionAnswerComment.date),
+				'likeCount': 0,
+				'dislikeCount': 0,
+				'edited': False,
+				'canEdit': True
+			}
+
+			response = {
+				"statusCode": HTTPStatus.OK,
+				"newComment": newComment,
+			}
+			return JsonResponse(response)
+
+		elif functionality == "deleteQuestionAnswerComment":
+			id = request.GET.get('id', None)
+
+			QuestionAnswerComment.objects.filter(pk=int(id)).delete()
+
+			response = {
+				"statusCode": HTTPStatus.OK,
+			}
+			return JsonResponse(response)
+
+		elif functionality == "updateQuestionAnswerComment":
+			id = request.GET.get('id', None)
+			comment = request.GET.get('comment', None)
 
 			try:
-				this_comment = QAComment.objects.get(id=int(comment_id))
-			except QAComment.DoesNotExist:
+				questionAnswerComment = QuestionAnswerComment.objects.get(id=int(id))
+			except QuestionAnswerComment.DoesNotExist:
 				response = {
-					"status_code": HTTPStatus.NOT_FOUND,
-					"message": 'We think this comment has been deleted!'
+					"statusCode": HTTPStatus.NOT_FOUND,
+					"message": 'Error updating your comment. Please try again later!'
 				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
+				return JsonResponse(response)
 
-			this_comment.increase_qa_comment_likes(request)
+			questionAnswerComment.comment = comment
+			questionAnswerComment.edited = True
+			questionAnswerComment.save(update_fields=['comment', 'edited'])
+
+			updatedComment = {
+				'id': questionAnswerComment.id,
+				'comment': questionAnswerComment.comment.replace("\n", "<br />"),
+				'edited': True,
+			}
 
 			response = {
-				"this_comment": serializers.serialize("json", [this_comment,]),
-				"status_code": HTTPStatus.OK
+				"statusCode": HTTPStatus.OK,
+				"updatedComment": updatedComment,
 			}
-			return HttpResponse(json.dumps(response), content_type="application/json")
+			return JsonResponse(response)
 
-		if functionality == "dislike_comment":
-			# TODO: Manual test the implementation.
-			comment_id = request.GET.get('commentId', None)
+		elif functionality == "likeQuestionAnswerComment" or functionality == "dislikeQuestionAnswerComment":
+			id = request.GET.get('id', None)
 
 			try:
-				this_comment = QAComment.objects.get(id=int(comment_id))
-			except QAComment.DoesNotExist:
+				questionAnswerComment = QuestionAnswerComment.objects.get(id=int(id))
+			except QuestionAnswerComment.DoesNotExist:
 				response = {
-					"status_code": HTTPStatus.NOT_FOUND,
-					"message": 'We think this comment has been deleted!'
+					"statusCode": HTTPStatus.NOT_FOUND,
+					"message": 'Error occurred. Please try again later!'
 				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
+				return JsonResponse(response)
 
-			this_comment.increase_qa_comment_dislikes(request)
+			if functionality == "likeQuestionAnswerComment":
+				questionAnswerComment.like(request)
+			else:
+				questionAnswerComment.dislike(request)
 
 			response = {
-				"this_comment": serializers.serialize("json", [this_comment,]),
-				"status_code": HTTPStatus.OK
+				"statusCode": HTTPStatus.OK,
+				"likeCount": questionAnswerComment.likes.count(),
+				"dislikeCount": questionAnswerComment.dislikes.count(),
 			}
-			return HttpResponse(json.dumps(response), content_type="application/json")
+			return JsonResponse(response)
 
-		if functionality == "delete_qa_comment":
-			comment_id = request.GET.get('comment_id', None)
-			try:
-				QAComment.objects.get(pk=int(comment_id)).delete()
-				response = {
-					"status_code": HTTPStatus.OK
-				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
-			except QAComment.DoesNotExist:
-				response = {
-					"status_code": HTTPStatus.NOT_FOUND
-				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
+		raise Exception("Unknown functionality questionAnswerThread view")
 
-			response = {
-				"status_code": HTTPStatus.BAD_REQUEST,
-				"message": "Bad Request"
-			}
-			return HttpResponse(json.dumps(response), content_type="application/json")
+	allQuestionAnswerComment = QuestionAnswerComment.objects.filter(questionAnswer=questionAnswer).select_related('creator').prefetch_related('likes', 'dislikes').order_by('-id')
+	page = request.GET.get('page', 1)
+	paginator = Paginator(allQuestionAnswerComment, 15)
 
-		if functionality == "update_comment":
-			comment_id, comment_text = request.GET.get('comment_id', None), request.GET.get('comment_text', None)
-
-			try:
-				this_comment = QAComment.objects.get(id=int(comment_id))
-			except QAComment.DoesNotExist:
-				response = {
-					"status_code": HTTPStatus.NOT_FOUND,
-					"message": 'We think this comment has been deleted!'
-				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
-
-			this_comment.comment = comment_text
-			this_comment.edited = True
-			this_comment.save(update_fields=['comment', 'edited'])
-			response = {
-				"this_comment": serializers.serialize("json", [this_comment,]),
-				"status_code": HTTPStatus.OK
-			}
-			return HttpResponse(json.dumps(response), content_type="application/json")
-
-		raise Exception("Unknown functionality question_answer_thread")
+	try:
+		questionAnswerComment = paginator.page(page)
+	except PageNotAnInteger:
+		questionAnswerComment = paginator.page(1)
+	except EmptyPage:
+		questionAnswerComment = paginator.page(paginator.num_pages)
 
 	context = {
-		"qa": qa_object,
-		"qa_comments": QAComment.objects.filter(question_answer=qa_object).select_related('creator').prefetch_related('likes', 'dislikes').order_by('-id')
+		"questionAnswer": questionAnswer,
+		"questionAnswerComment": questionAnswerComment
 	}
-	return render(request, "tutoring/question_answer_thread.html", context)
+	return render(request, "tutoring/questionAnswerThread.html", context)
 
 
 def subject_tag(request, tag_name):

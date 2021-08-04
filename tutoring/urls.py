@@ -9,5 +9,5 @@ urlpatterns = [
 	path('studentprofile/<int:studentId>/', views.viewstudentprofile, name='viewstudentprofile'),
 	path('subject_tag/<slug:tag_name>/', views.subject_tag, name='subject_tag'),
 	path('tutors-questions/', views.tutorsQuestions, name='tutors-questions'),
-	path('question_answer_thread/<int:question_id>/', views.question_answer_thread, name='question_answer_thread'),
+	path('question-answer-thread/<int:questionId>/', views.questionAnswerThread, name='question-answer-thread'),
 ]

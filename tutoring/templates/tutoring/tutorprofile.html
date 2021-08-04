@@ -282,7 +282,7 @@
                                             <span class="dropdown-item" style="cursor: pointer;" onclick="deleteQuestionAnswer('{{qa.id}}');"><i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete question</span>
                                             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editQuestionModal" onclick="updateEditQuestionModal('{{ qa.id }}');"><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit question</a>
                                             {% endif %}
-                                            <a class="dropdown-item" href="{% url 'tutoring:question_answer_thread' qa.id %}" target="_blank"><i class="fab fa-discourse"></i>&nbsp;&nbsp;View thread</a>
+                                            <a class="dropdown-item" href="{{ qa.questionAnswerThreadUrl }}" target="_blank"><i class="fab fa-discourse"></i>&nbsp;&nbsp;View thread</a>
                                         </div>
                                     </div>
                                 </div>

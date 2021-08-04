@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.test import Client
 from django.test import TestCase
 from django.urls import reverse
-from tutoring.models import QAComment
+from tutoring.models import QuestionAnswerComment
 from tutoring.models import QuestionAnswer
 from unittest import skip
 import json
@@ -32,7 +32,7 @@ class TestTutoringViewsQuestionAnswerThread(TestCase):
 			answerer=self.user1
 		)
 
-		self.qaComment = QAComment.objects.create(
+		self.qaComment = QuestionAnswerComment.objects.create(
 			question_answer = self.new_question,
 			creator = self.user1,
 			comment = 'Sample comment'
@@ -131,7 +131,7 @@ class TestTutoringViewsQuestionAnswerThread(TestCase):
 		ajax_reponse = json.loads(response.content)
 		self.assertEquals(response.status_code, 200)
 		self.assertEquals(ajax_reponse["status_code"], 200)
-		self.assertFalse(QAComment.objects.filter(id=self.qaComment.id).exists())
+		self.assertFalse(QuestionAnswerComment.objects.filter(id=self.qaComment.id).exists())
 
 	def test_question_answer_thread_delete_qa_comment_deleted(self):
 		payload = {
@@ -144,7 +144,7 @@ class TestTutoringViewsQuestionAnswerThread(TestCase):
 		ajax_reponse = json.loads(response.content)
 		self.assertEquals(response.status_code, 200)
 		self.assertEquals(ajax_reponse["status_code"], 404)
-		self.assertFalse(QAComment.objects.filter(id=self.qaComment.id).exists())
+		self.assertFalse(QuestionAnswerComment.objects.filter(id=self.qaComment.id).exists())
 
 	def test_question_answer_thread_update_comment(self):
 		payload = {
