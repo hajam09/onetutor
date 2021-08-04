@@ -385,7 +385,6 @@ def tutorsQuestions(request):
 				"statusCode": HTTPStatus.OK,
 				"answer": questionAnswer.answer.replace("\n", "<br />")
 			}
-
 			return JsonResponse(response)
 
 		raise Exception("Unknown functionality tutorsQuestions view.")
@@ -534,89 +533,6 @@ def question_answer_thread(request, question_id):
 	}
 	return render(request, "tutoring/question_answer_thread.html", context)
 
-@deprecated(reason="Implemented in viewtutorprofile views.")
-def like_comment(request):
-	# TODO: Manual test the implementation. Check if used.
-	if not request.is_ajax():
-		response = {
-			"status_code": 403,
-			"message": "Bad Request"
-		}
-		return HttpResponse(json.dumps(response), content_type="application/json")
-
-	if not request.user.is_authenticated:
-		response = {
-			"status_code": 401,
-			"message": "Login to like the question and answer. "
-		}
-		return HttpResponse(json.dumps(response), content_type="application/json")
-
-	comment_id = request.GET.get('commentId', None)
-
-	try:
-		this_comment = QuestionAnswer.objects.get(id=int(comment_id))
-	except QuestionAnswer.DoesNotExist:
-		response = {
-			"status_code": HTTPStatus.NOT_FOUND,
-			"message": 'We think this question has been deleted!'
-		}
-		return HttpResponse(json.dumps(response), content_type="application/json")
-
-	if(request.user not in this_comment.likes.all()):
-		this_comment.likes.add(request.user)
-	else:
-		this_comment.likes.remove(request.user)
-
-	if(request.user in this_comment.dislikes.all()):
-		this_comment.dislikes.remove(request.user)
-
-	response = {
-		"this_comment": serializers.serialize("json", [this_comment,]),
-		"status_code": HTTPStatus.OK
-	}
-	return HttpResponse(json.dumps(response), content_type="application/json")
-
-@deprecated(reason="Implemented in viewtutorprofile views.")
-def dislike_comment(request):
-	# TODO: Manual test the implementation. Check if used.
-	if not request.is_ajax():
-		response = {
-			"status_code": 403,
-			"message": "Bad Request"
-		}
-		return HttpResponse(json.dumps(response), content_type="application/json")
-
-	if not request.user.is_authenticated:
-		response = {
-			"status_code": 401,
-			"message": "Login to dislike the question and answer. "
-		}
-		return HttpResponse(json.dumps(response), content_type="application/json")
-
-	comment_id = request.GET.get('commentId', None)
-
-	try:
-		this_comment = QuestionAnswer.objects.get(id=int(comment_id))
-	except QuestionAnswer.DoesNotExist:
-		response = {
-			"status_code": HTTPStatus.NOT_FOUND,
-			"message": 'We think this question has been deleted!'
-		}
-		return HttpResponse(json.dumps(response), content_type="application/json")
-
-	if(request.user not in this_comment.dislikes.all()):
-		this_comment.dislikes.add(request.user)
-	else:
-		this_comment.dislikes.remove(request.user)
-
-	if(request.user in this_comment.likes.all()):
-		this_comment.likes.remove(request.user)
-
-	response = {
-		"this_comment": serializers.serialize("json", [this_comment,]),
-		"status_code": 200
-	}
-	return HttpResponse(json.dumps(response), content_type="application/json")
 
 def subject_tag(request, tag_name):
 	tutor_list = TutorProfile.objects.filter(subjects__icontains=tag_name)
@@ -633,35 +549,6 @@ def subject_tag(request, tag_name):
 		"list_of_subjects": list_of_subjects
 	}
 	return render(request, "tutoring/resultbysubjects.html", context)
-
-@deprecated(version='1.2.1', reason="Prevents linebreaksbr tag to be applied to the question and answer textfield.")
-def post_question_for_tutor(request):
-	if not request.user.is_authenticated:
-		response = {
-			"status_code": 403,
-			"authenticated": False
-		}
-		return HttpResponse(json.dumps(response), content_type="application/json")
-
-	subject = request.GET.get('subject', None)
-	question = request.GET.get('question', None)
-	tutorId = request.GET.get('tutorId', None)
-
-	tutorProfile = TutorProfile.objects.get(pk=tutorId)
-
-	new_question = QuestionAnswer.objects.create(subject=subject, question=question,
-		answer="Not answered yet.", questioner=request.user, answerer=tutorProfile.user)
-
-	response = {
-		"status_code": 200,
-		"new_question": serializers.serialize("json", [new_question,]),
-		"questioner_first_name": new_question.questioner.first_name,
-		"questioner_last_name": new_question.questioner.last_name,
-		"qa_question": new_question.question,
-		"qa_answer": new_question.answer,
-		"date_time": vanilla_JS_date_conversion(new_question.date),
-	}
-	return HttpResponse(json.dumps(response), content_type="application/json")
 
 def vanilla_JS_date_conversion(python_date):
 	date = python_date.strftime("%b. %d, %Y,")
