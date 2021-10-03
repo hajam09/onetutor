@@ -81,6 +81,11 @@ def register(request):
 
 def logout(request):
 	auth_logout(request)
+
+	previousUrl = request.META.get('HTTP_REFERER')
+	if previousUrl:
+		return redirect(previousUrl)
+
 	return redirect('accounts:login')
 
 @login_required
