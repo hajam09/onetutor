@@ -1,0 +1,243 @@
+<SeedData>
+	<Countries alpha="AF" name="Afghanistan"/>
+	<Countries alpha="AL" name="Albania"/>
+	<Countries alpha="DZ" name="Algeria"/>
+	<Countries alpha="AS" name="American Samoa"/>
+	<Countries alpha="AD" name="Andorra"/>
+	<Countries alpha="AO" name="Angola"/>
+	<Countries alpha="AI" name="Anguilla"/>
+	<Countries alpha="AQ" name="Antarctica"/>
+	<Countries alpha="AG" name="Antigua And Barbuda"/>
+	<Countries alpha="AR" name="Argentina"/>
+	<Countries alpha="AM" name="Armenia"/>
+	<Countries alpha="AW" name="Aruba"/>
+	<Countries alpha="AU" name="Australia"/>
+	<Countries alpha="AT" name="Austria"/>
+	<Countries alpha="AZ" name="Azerbaijan"/>
+	<Countries alpha="BS" name="Bahamas"/>
+	<Countries alpha="BH" name="Bahrain"/>
+	<Countries alpha="BD" name="Bangladesh"/>
+	<Countries alpha="BB" name="Barbados"/>
+	<Countries alpha="BY" name="Belarus"/>
+	<Countries alpha="BE" name="Belgium"/>
+	<Countries alpha="BZ" name="Belize"/>
+	<Countries alpha="BJ" name="Benin"/>
+	<Countries alpha="BM" name="Bermuda"/>
+	<Countries alpha="BT" name="Bhutan"/>
+	<Countries alpha="BO" name="Bolivia"/>
+	<Countries alpha="BA" name="Bosnia And Herzegovina"/>
+	<Countries alpha="BW" name="Botswana"/>
+	<Countries alpha="BV" name="Bouvet Island"/>
+	<Countries alpha="BR" name="Brazil"/>
+	<Countries alpha="IO" name="British Indian Ocean Territory"/>
+	<Countries alpha="BN" name="Brunei Darussalam"/>
+	<Countries alpha="BG" name="Bulgaria"/>
+	<Countries alpha="BF" name="Burkina Faso"/>
+	<Countries alpha="BI" name="Burundi"/>
+	<Countries alpha="KH" name="Cambodia"/>
+	<Countries alpha="CM" name="Cameroon"/>
+	<Countries alpha="CA" name="Canada"/>
+	<Countries alpha="CV" name="Cape Verde"/>
+	<Countries alpha="KY" name="Cayman Islands"/>
+	<Countries alpha="CF" name="Central African Republic"/>
+	<Countries alpha="TD" name="Chad"/>
+	<Countries alpha="CL" name="Chile"/>
+	<Countries alpha="CN" name="China"/>
+	<Countries alpha="CX" name="Christmas Island"/>
+	<Countries alpha="CC" name="Cocos (keeling) Islands"/>
+	<Countries alpha="CO" name="Colombia"/>
+	<Countries alpha="KM" name="Comoros"/>
+	<Countries alpha="CG" name="Congo"/>
+	<Countries alpha="CD" name="Congo, The Democratic Republic Of The"/>
+	<Countries alpha="CK" name="Cook Islands"/>
+	<Countries alpha="CR" name="Costa Rica"/>
+	<Countries alpha="CI" name="Cote D'ivoire"/>
+	<Countries alpha="HR" name="Croatia"/>
+	<Countries alpha="CU" name="Cuba"/>
+	<Countries alpha="CY" name="Cyprus"/>
+	<Countries alpha="CZ" name="Czech Republic"/>
+	<Countries alpha="DK" name="Denmark"/>
+	<Countries alpha="DJ" name="Djibouti"/>
+	<Countries alpha="DM" name="Dominica"/>
+	<Countries alpha="DO" name="Dominican Republic"/>
+	<Countries alpha="TP" name="East Timor"/>
+	<Countries alpha="EC" name="Ecuador"/>
+	<Countries alpha="EG" name="Egypt"/>
+	<Countries alpha="SV" name="El Salvador"/>
+	<Countries alpha="GQ" name="Equatorial Guinea"/>
+	<Countries alpha="ER" name="Eritrea"/>
+	<Countries alpha="EE" name="Estonia"/>
+	<Countries alpha="ET" name="Ethiopia"/>
+	<Countries alpha="FK" name="Falkland Islands (malvinas)"/>
+	<Countries alpha="FO" name="Faroe Islands"/>
+	<Countries alpha="FJ" name="Fiji"/>
+	<Countries alpha="FI" name="Finland"/>
+	<Countries alpha="FR" name="France"/>
+	<Countries alpha="GF" name="French Guiana"/>
+	<Countries alpha="PF" name="French Polynesia"/>
+	<Countries alpha="TF" name="French Southern Territories"/>
+	<Countries alpha="GA" name="Gabon"/>
+	<Countries alpha="GM" name="Gambia"/>
+	<Countries alpha="GE" name="Georgia"/>
+	<Countries alpha="DE" name="Germany"/>
+	<Countries alpha="GH" name="Ghana"/>
+	<Countries alpha="GI" name="Gibraltar"/>
+	<Countries alpha="GR" name="Greece"/>
+	<Countries alpha="GL" name="Greenland"/>
+	<Countries alpha="GD" name="Grenada"/>
+	<Countries alpha="GP" name="Guadeloupe"/>
+	<Countries alpha="GU" name="Guam"/>
+	<Countries alpha="GT" name="Guatemala"/>
+	<Countries alpha="GN" name="Guinea"/>
+	<Countries alpha="GW" name="Guinea-bissau"/>
+	<Countries alpha="GY" name="Guyana"/>
+	<Countries alpha="HT" name="Haiti"/>
+	<Countries alpha="HM" name="Heard Island And Mcdonald Islands"/>
+	<Countries alpha="VA" name="Holy See (vatican City State)"/>
+	<Countries alpha="HN" name="Honduras"/>
+	<Countries alpha="HK" name="Hong Kong"/>
+	<Countries alpha="HU" name="Hungary"/>
+	<Countries alpha="IS" name="Iceland"/>
+	<Countries alpha="IN" name="India"/>
+	<Countries alpha="ID" name="Indonesia"/>
+	<Countries alpha="IR" name="Iran, Islamic Republic Of"/>
+	<Countries alpha="IQ" name="Iraq"/>
+	<Countries alpha="IE" name="Ireland"/>
+	<Countries alpha="IL" name="Israel"/>
+	<Countries alpha="IT" name="Italy"/>
+	<Countries alpha="JM" name="Jamaica"/>
+	<Countries alpha="JP" name="Japan"/>
+	<Countries alpha="JO" name="Jordan"/>
+	<Countries alpha="KZ" name="Kazakstan"/>
+	<Countries alpha="KE" name="Kenya"/>
+	<Countries alpha="KI" name="Kiribati"/>
+	<Countries alpha="KP" name="Korea, Democratic People's Republic Of"/>
+	<Countries alpha="KR" name="Korea, Republic Of"/>
+	<Countries alpha="KV" name="Kosovo"/>
+	<Countries alpha="KW" name="Kuwait"/>
+	<Countries alpha="KG" name="Kyrgyzstan"/>
+	<Countries alpha="LA" name="Lao People's Democratic Republic"/>
+	<Countries alpha="LV" name="Latvia"/>
+	<Countries alpha="LB" name="Lebanon"/>
+	<Countries alpha="LS" name="Lesotho"/>
+	<Countries alpha="LR" name="Liberia"/>
+	<Countries alpha="LY" name="Libyan Arab Jamahiriya"/>
+	<Countries alpha="LI" name="Liechtenstein"/>
+	<Countries alpha="LT" name="Lithuania"/>
+	<Countries alpha="LU" name="Luxembourg"/>
+	<Countries alpha="MO" name="Macau"/>
+	<Countries alpha="MK" name="Macedonia, The Former Yugoslav Republic Of"/>
+	<Countries alpha="MG" name="Madagascar"/>
+	<Countries alpha="MW" name="Malawi"/>
+	<Countries alpha="MY" name="Malaysia"/>
+	<Countries alpha="MV" name="Maldives"/>
+	<Countries alpha="ML" name="Mali"/>
+	<Countries alpha="MT" name="Malta"/>
+	<Countries alpha="MH" name="Marshall Islands"/>
+	<Countries alpha="MQ" name="Martinique"/>
+	<Countries alpha="MR" name="Mauritania"/>
+	<Countries alpha="MU" name="Mauritius"/>
+	<Countries alpha="YT" name="Mayotte"/>
+	<Countries alpha="MX" name="Mexico"/>
+	<Countries alpha="FM" name="Micronesia, Federated States Of"/>
+	<Countries alpha="MD" name="Moldova, Republic Of"/>
+	<Countries alpha="MC" name="Monaco"/>
+	<Countries alpha="MN" name="Mongolia"/>
+	<Countries alpha="MS" name="Montserrat"/>
+	<Countries alpha="ME" name="Montenegro"/>
+	<Countries alpha="MA" name="Morocco"/>
+	<Countries alpha="MZ" name="Mozambique"/>
+	<Countries alpha="MM" name="Myanmar"/>
+	<Countries alpha="NA" name="Namibia"/>
+	<Countries alpha="NR" name="Nauru"/>
+	<Countries alpha="NP" name="Nepal"/>
+	<Countries alpha="NL" name="Netherlands"/>
+	<Countries alpha="AN" name="Netherlands Antilles"/>
+	<Countries alpha="NC" name="New Caledonia"/>
+	<Countries alpha="NZ" name="New Zealand"/>
+	<Countries alpha="NI" name="Nicaragua"/>
+	<Countries alpha="NE" name="Niger"/>
+	<Countries alpha="NG" name="Nigeria"/>
+	<Countries alpha="NU" name="Niue"/>
+	<Countries alpha="NF" name="Norfolk Island"/>
+	<Countries alpha="MP" name="Northern Mariana Islands"/>
+	<Countries alpha="NO" name="Norway"/>
+	<Countries alpha="OM" name="Oman"/>
+	<Countries alpha="PK" name="Pakistan"/>
+	<Countries alpha="PW" name="Palau"/>
+	<Countries alpha="PS" name="Palestinian Territory, Occupied"/>
+	<Countries alpha="PA" name="Panama"/>
+	<Countries alpha="PG" name="Papua New Guinea"/>
+	<Countries alpha="PY" name="Paraguay"/>
+	<Countries alpha="PE" name="Peru"/>
+	<Countries alpha="PH" name="Philippines"/>
+	<Countries alpha="PN" name="Pitcairn"/>
+	<Countries alpha="PL" name="Poland"/>
+	<Countries alpha="PT" name="Portugal"/>
+	<Countries alpha="PR" name="Puerto Rico"/>
+	<Countries alpha="QA" name="Qatar"/>
+	<Countries alpha="RE" name="Reunion"/>
+	<Countries alpha="RO" name="Romania"/>
+	<Countries alpha="RU" name="Russian Federation"/>
+	<Countries alpha="RW" name="Rwanda"/>
+	<Countries alpha="SH" name="Saint Helena"/>
+	<Countries alpha="KN" name="Saint Kitts And Nevis"/>
+	<Countries alpha="LC" name="Saint Lucia"/>
+	<Countries alpha="PM" name="Saint Pierre And Miquelon"/>
+	<Countries alpha="VC" name="Saint Vincent And The Grenadines"/>
+	<Countries alpha="WS" name="Samoa"/>
+	<Countries alpha="SM" name="San Marino"/>
+	<Countries alpha="ST" name="Sao Tome And Principe"/>
+	<Countries alpha="SA" name="Saudi Arabia"/>
+	<Countries alpha="SN" name="Senegal"/>
+	<Countries alpha="RS" name="Serbia"/>
+	<Countries alpha="SC" name="Seychelles"/>
+	<Countries alpha="SL" name="Sierra Leone"/>
+	<Countries alpha="SG" name="Singapore"/>
+	<Countries alpha="SK" name="Slovakia"/>
+	<Countries alpha="SI" name="Slovenia"/>
+	<Countries alpha="SB" name="Solomon Islands"/>
+	<Countries alpha="SO" name="Somalia"/>
+	<Countries alpha="ZA" name="South Africa"/>
+	<Countries alpha="GS" name="South Georgia And The South Sandwich Islands"/>
+	<Countries alpha="ES" name="Spain"/>
+	<Countries alpha="LK" name="Sri Lanka"/>
+	<Countries alpha="SD" name="Sudan"/>
+	<Countries alpha="SR" name="Suriname"/>
+	<Countries alpha="SJ" name="Svalbard And Jan Mayen"/>
+	<Countries alpha="SZ" name="Swaziland"/>
+	<Countries alpha="SE" name="Sweden"/>
+	<Countries alpha="CH" name="Switzerland"/>
+	<Countries alpha="SY" name="Syrian Arab Republic"/>
+	<Countries alpha="TW" name="Taiwan, Province Of China"/>
+	<Countries alpha="TJ" name="Tajikistan"/>
+	<Countries alpha="TZ" name="Tanzania, United Republic Of"/>
+	<Countries alpha="TH" name="Thailand"/>
+	<Countries alpha="TG" name="Togo"/>
+	<Countries alpha="TK" name="Tokelau"/>
+	<Countries alpha="TO" name="Tonga"/>
+	<Countries alpha="TT" name="Trinidad And Tobago"/>
+	<Countries alpha="TN" name="Tunisia"/>
+	<Countries alpha="TR" name="Turkey"/>
+	<Countries alpha="TM" name="Turkmenistan"/>
+	<Countries alpha="TC" name="Turks And Caicos Islands"/>
+	<Countries alpha="TV" name="Tuvalu"/>
+	<Countries alpha="UG" name="Uganda"/>
+	<Countries alpha="UA" name="Ukraine"/>
+	<Countries alpha="AE" name="United Arab Emirates"/>
+	<Countries alpha="GB" name="United Kingdom"/>
+	<Countries alpha="US" name="United States"/>
+	<Countries alpha="UM" name="United States Minor Outlying Islands"/>
+	<Countries alpha="UY" name="Uruguay"/>
+	<Countries alpha="UZ" name="Uzbekistan"/>
+	<Countries alpha="VU" name="Vanuatu"/>
+	<Countries alpha="VE" name="Venezuela"/>
+	<Countries alpha="VN" name="Viet Nam"/>
+	<Countries alpha="VG" name="Virgin Islands, British"/>
+	<Countries alpha="VI" name="Virgin Islands, U.s."/>
+	<Countries alpha="WF" name="Wallis And Futuna"/>
+	<Countries alpha="EH" name="Western Sahara"/>
+	<Countries alpha="YE" name="Yemen"/>
+	<Countries alpha="ZM" name="Zambia"/>
+	<Countries alpha="ZW" name="Zimbabwe"/>
+</SeedData>

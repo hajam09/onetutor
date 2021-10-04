@@ -4,8 +4,8 @@ import os
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate
-from django.contrib.auth import login as auth_login
-from django.contrib.auth import logout as auth_logout
+from django.contrib.auth import login as signIn
+from django.contrib.auth import logout as signOut
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.cache import cache
@@ -80,7 +80,7 @@ def register(request):
 	return render(request, 'accounts/registration.html', context)
 
 def logout(request):
-	auth_logout(request)
+	signOut(request)
 
 	previousUrl = request.META.get('HTTP_REFERER')
 	if previousUrl:
@@ -325,7 +325,7 @@ def user_settings(request):
 					request,
 					'Your password has been updated.'
 				)
-				auth_login(request, user)
+				signIn(request, user)
 			else:
 				messages.warning(
 					request,

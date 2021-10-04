@@ -1,0 +1,121 @@
+[
+  {
+    "model": "forum.category",
+    "pk": 1,
+    "fields": {
+      "name": "Category 1"
+    }
+  },
+  {
+    "model": "forum.category",
+    "pk": 2,
+    "fields": {
+      "name": "Category 2"
+    }
+  },
+  {
+    "model": "forum.category",
+    "pk": 3,
+    "fields": {
+      "name": "Year 9"
+    }
+  },
+  {
+    "model": "forum.category",
+    "pk": 4,
+    "fields": {
+      "name": "GCSE"
+    }
+  },
+  {
+    "model": "forum.category",
+    "pk": 5,
+    "fields": {
+      "name": "IGCSE"
+    }
+  },
+  {
+    "model": "forum.category",
+    "pk": 6,
+    "fields": {
+      "name": "AS level"
+    }
+  },
+  {
+    "model": "forum.category",
+    "pk": 7,
+    "fields": {
+      "name": "A-level"
+    }
+  },
+  {
+    "model": "forum.category",
+    "pk": 8,
+    "fields": {
+      "name": "IB"
+    }
+  },
+  {
+    "model": "forum.category",
+    "pk": 9,
+    "fields": {
+      "name": "National 5"
+    }
+  },
+  {
+    "model": "forum.category",
+    "pk": 10,
+    "fields": {
+      "name": "Highers"
+    }
+  },
+  {
+    "model": "forum.category",
+    "pk": 11,
+    "fields": {
+      "name": "Advanced Highers"
+    }
+  },
+  {
+    "model": "forum.category",
+    "pk": 12,
+    "fields": {
+      "name": "BTEC First"
+    }
+  },
+  {
+    "model": "forum.category",
+    "pk": 13,
+    "fields": {
+      "name": "BTEC National"
+    }
+  },
+  {
+    "model": "forum.category",
+    "pk": 14,
+    "fields": {
+      "name": "Undergraduate"
+    }
+  },
+  {
+    "model": "forum.category",
+    "pk": 15,
+    "fields": {
+      "name": "Postgraduate"
+    }
+  },
+  {
+    "model": "forum.category",
+    "pk": 16,
+    "fields": {
+      "name": "All levels"
+    }
+  },
+  {
+    "model": "forum.category",
+    "pk": 17,
+    "fields": {
+      "name": "Other"
+    }
+  }
+]
