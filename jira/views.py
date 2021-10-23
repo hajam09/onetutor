@@ -1,18 +1,27 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
-from django.http import HttpResponse
-from .models import Sprint, Ticket, TicketComment, TicketImage
-from django.core import serializers
+import datetime
+import json
+import os
 from http import HTTPStatus
-from django.conf import settings
-import json, os, datetime
+
 from deprecated import deprecated
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.core import serializers
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
+
+from jira.enumerations import IssueType
+from jira.enumerations import Priority
+from jira.enumerations import Project
+from jira.enumerations import Status
+from .models import Sprint, Ticket, TicketComment, TicketImage
+
 
 # ONLY SUPER USER IS ALLOWED!
 
 def mainpage(request):
-
 	today = datetime.date.today()
+
 	try:
 		active_sprint = Sprint.objects.get(start_date__lte=today, end_date__gte=today)
 	except Sprint.DoesNotExist:
@@ -21,6 +30,7 @@ def mainpage(request):
 	if active_sprint is not None:
 		return redirect('jira:sprintboard', sprint_url=active_sprint.url)
 	return redirect('jira:backlog')
+
 
 def sprintboard(request, sprint_url):
 
@@ -34,7 +44,8 @@ def sprintboard(request, sprint_url):
 		functionality = request.GET.get('functionality', None)
 
 		if functionality == "update_ticket_status":
-			moved_ticket_url, new_status = request.GET.get('moved_ticket_url', None), request.GET.get('new_status', None)
+			moved_ticket_url, new_status = request.GET.get('moved_ticket_url', None), request.GET.get('new_status',
+																									  None)
 
 			ticket = Ticket.objects.get(url=moved_ticket_url)
 			ticket.status = new_status
@@ -52,7 +63,7 @@ def sprintboard(request, sprint_url):
 			ticket_id = request.GET.get('ticket_code', None)
 			new_priority = request.GET.get('new_priority', None)
 			new_issue_type = request.GET.get('new_issue_type', None)
-			
+
 			Ticket.objects.filter(id=ticket_id).update(
 				summary=new_summary,
 				description=new_description,
@@ -68,12 +79,13 @@ def sprintboard(request, sprint_url):
 	sprint_tickets = Ticket.objects.filter(sprint=active_sprint)
 	context = {
 		"active_sprint": active_sprint,
-		"todo_tickets": [i for i in sprint_tickets if i.status=="Open"],
-		"prog_tickets": [i for i in sprint_tickets if i.status=="Progress"],
-		"done_tickets": [i for i in sprint_tickets if i.status=="Done"],
-		"canc_tickets": [i for i in sprint_tickets if i.status=="Cancelled"],
+		"todo_tickets": [i for i in sprint_tickets if i.status == "Open"],
+		"prog_tickets": [i for i in sprint_tickets if i.status == "Progress"],
+		"done_tickets": [i for i in sprint_tickets if i.status == "Done"],
+		"canc_tickets": [i for i in sprint_tickets if i.status == "Cancelled"],
 	}
-	return render(request,"jira/sprintboard.html", context)
+	return render(request, "jira/sprintboard.html", context)
+
 
 def backlog(request):
 
@@ -108,7 +120,7 @@ def backlog(request):
 		try:
 			url = prefix + str(Ticket.objects.last().pk)
 		except Exception as e:
-			url = prefix+"0"
+			url = prefix + "0"
 
 		Ticket.objects.create(
 			url=url,
@@ -141,7 +153,8 @@ def backlog(request):
 
 		elif functionality == "update_ticket_status":
 			# moving the ticket from active sprint to backlog
-			moved_ticket_url, new_status = request.GET.get('moved_ticket_url', None), request.GET.get('new_status', None)
+			moved_ticket_url, new_status = request.GET.get('moved_ticket_url', None), request.GET.get('new_status',
+																									  None)
 
 			ticket = Ticket.objects.get(url=moved_ticket_url)
 			ticket.status = new_status
@@ -155,17 +168,21 @@ def backlog(request):
 
 	backlog_tickets = Ticket.objects.filter(status="None")
 	context = {
-		"bug_tickets": [i for i in backlog_tickets if i.issue_type=="Bug"],
-		"improvment_tickets": [i for i in backlog_tickets if i.issue_type=="Improvement"],
-		"story_tickets": [i for i in backlog_tickets if i.issue_type=="Story"],
-		"task_tickets": [i for i in backlog_tickets if i.issue_type=="Task"],
-		"test_tickets": [i for i in backlog_tickets if i.issue_type=="Test"],
-		"epic_tickets": [i for i in backlog_tickets if i.issue_type=="Epic"],
+		"bug_tickets": [i for i in backlog_tickets if i.issue_type == "Bug"],
+		"improvment_tickets": [i for i in backlog_tickets if i.issue_type == "Improvement"],
+		"story_tickets": [i for i in backlog_tickets if i.issue_type == "Story"],
+		"task_tickets": [i for i in backlog_tickets if i.issue_type == "Task"],
+		"test_tickets": [i for i in backlog_tickets if i.issue_type == "Test"],
+		"epic_tickets": [i for i in backlog_tickets if i.issue_type == "Epic"],
 		"superusers": User.objects.filter(is_superuser=True),
 		"sprint_tickets": Ticket.objects.filter(sprint=active_sprint).exclude(status="None"),
-		"active_sprint": active_sprint
+		"active_sprint": active_sprint,
+		"project": Project.list(True),
+		"issueType": IssueType.list(True),
+		"priority": Priority.list(False),
 	}
-	return render(request,"jira/backlog.html", context)
+	return render(request, "jira/backlog.html", context)
+
 
 def ticketpage(request, ticket_url):
 	ticket = Ticket.objects.get(url=ticket_url)
@@ -200,12 +217,12 @@ def ticketpage(request, ticket_url):
 		elif functionality == "post_comment_on_ticket":
 			comment = request.GET.get('comment', None)
 			new_ticket_comment = TicketComment.objects.create(
-				ticket = ticket,
-				creator = request.user,
-				comment = comment,
+				ticket=ticket,
+				creator=request.user,
+				comment=comment,
 			)
 			response = {
-				"new_ticket_comment": serializers.serialize("json", [new_ticket_comment,]),
+				"new_ticket_comment": serializers.serialize("json", [new_ticket_comment, ]),
 				"status_code": HTTPStatus.OK
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
@@ -215,7 +232,7 @@ def ticketpage(request, ticket_url):
 
 			try:
 				this_comment = TicketComment.objects.get(id=int(comment_id))
-				# Search for the ticketcomment object from the list defined above.
+			# Search for the ticketcomment object from the list defined above.
 			except TicketComment.DoesNotExist:
 				response = {
 					"status_code": HTTPStatus.NOT_FOUND,
@@ -227,7 +244,7 @@ def ticketpage(request, ticket_url):
 			this_comment.edited = True
 			this_comment.save(update_fields=['comment', 'edited'])
 			response = {
-				"this_comment": serializers.serialize("json", [this_comment,]),
+				"this_comment": serializers.serialize("json", [this_comment, ]),
 				"status_code": HTTPStatus.OK
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
@@ -259,7 +276,7 @@ def ticketpage(request, ticket_url):
 
 			try:
 				this_ticket = TicketComment.objects.get(id=int(commentId))
-				# Search for the ticketcomment object from the list defined above.
+			# Search for the ticketcomment object from the list defined above.
 			except TicketComment.DoesNotExist:
 				response = {
 					"status_code": HTTPStatus.NOT_FOUND,
@@ -270,7 +287,7 @@ def ticketpage(request, ticket_url):
 			this_ticket.increase_ticket_comment_likes(request)
 
 			response = {
-				"this_ticket": serializers.serialize("json", [this_ticket,]),
+				"this_ticket": serializers.serialize("json", [this_ticket, ]),
 				"status_code": HTTPStatus.OK
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
@@ -280,7 +297,7 @@ def ticketpage(request, ticket_url):
 
 			try:
 				this_ticket = TicketComment.objects.get(id=int(commentId))
-				# Search for the ticketcomment object from the list defined above.
+			# Search for the ticketcomment object from the list defined above.
 			except TicketComment.DoesNotExist:
 				response = {
 					"status_code": HTTPStatus.NOT_FOUND,
@@ -291,7 +308,7 @@ def ticketpage(request, ticket_url):
 			this_ticket.increase_ticket_comment_dislikes(request)
 
 			response = {
-				"this_ticket": serializers.serialize("json", [this_ticket,]),
+				"this_ticket": serializers.serialize("json", [this_ticket, ]),
 				"status_code": HTTPStatus.OK
 			}
 			return HttpResponse(json.dumps(response), content_type="application/json")
@@ -318,7 +335,7 @@ def ticketpage(request, ticket_url):
 		try:
 			url = prefix + str(Ticket.objects.last().pk)
 		except Exception as e:
-			url = prefix+"0"
+			url = prefix + "0"
 
 		new_subtask = Ticket.objects.create(
 			url=url,
@@ -341,9 +358,13 @@ def ticketpage(request, ticket_url):
 		"is_watching": True if request.user in ticket.watchers.all() else False,
 		"superusers": User.objects.filter(is_superuser=True),
 		"sub_tasks": ticket.sub_task.all(),
-		"epic_link": Ticket.objects.filter(sub_task__in=[ticket]).first()
+		"epic_link": Ticket.objects.filter(sub_task__in=[ticket]).first(),
+		"project": Project.list(True),
+		"issueType": IssueType.list(True),
+		"priority": Priority.list(True),
 	}
-	return render(request,"jira/ticketpage.html", context)
+	return render(request, "jira/ticketpage.html", context)
+
 
 def editticket(request, ticket_url):
 	ticket = Ticket.objects.get(url=ticket_url)
@@ -379,14 +400,14 @@ def editticket(request, ticket_url):
 		status = request.POST['status']
 		summary = request.POST['summary']
 
-		ticket.assignee=User.objects.get(pk=assignee)
-		ticket.description=description
-		ticket.issue_type=issuetype
-		ticket.points=points
-		ticket.priority=priority
-		ticket.reporter=User.objects.get(pk=reporter)
-		ticket.status=status
-		ticket.summary=summary
+		ticket.assignee = User.objects.get(pk=assignee)
+		ticket.description = description
+		ticket.issue_type = issuetype
+		ticket.points = points
+		ticket.priority = priority
+		ticket.reporter = User.objects.get(pk=reporter)
+		ticket.status = status
+		ticket.summary = summary
 
 		if status != "None":
 			if status != "Cancelled" and ticket.sprint is None:
@@ -413,16 +434,20 @@ def editticket(request, ticket_url):
 	context = {
 		"ticket": ticket,
 		"ticket_images": ticket_images,
-		"superusers": User.objects.all(), #User.objects.filter(is_superuser=True)
-		"incomplete_sprints": Sprint.objects.filter(end_date__gte=datetime.date.today()).order_by('start_date')
+		"superusers": User.objects.all(),  # User.objects.filter(is_superuser=True)
+		"incomplete_sprints": Sprint.objects.filter(end_date__gte=datetime.date.today()).order_by('start_date'),
+		"issueType": IssueType.list(True),
+		"priority": Priority.list(False),
+		"status": Status.list(True),
 	}
-	return render(request,"jira/editticket.html", context)
+	return render(request, "jira/editticket.html", context)
+
 
 def startsprint():
 	today = datetime.date.today()
 	try:
 		Sprint.objects.get(start_date__lte=today, end_date__gte=today)
-		# already a sprint exists as of today. No need to create another.
+	# already a sprint exists as of today. No need to create another.
 	except Sprint.DoesNotExist:
 		prefix = "sprint-"
 		try:
@@ -431,15 +456,15 @@ def startsprint():
 			Sprint.objects.create(
 				url=url,
 				start_date=today,
-				end_date=today+datetime.timedelta(days=14)
+				end_date=today + datetime.timedelta(days=14)
 			)
-			print(today, today+datetime.timedelta(days=14))
+			print(today, today + datetime.timedelta(days=14))
 		except Exception as e:
-			url = prefix+"0"
+			url = prefix + "0"
 			Sprint.objects.create(
 				url=url,
 				start_date=today,
-				end_date=today+datetime.timedelta(days=14)
+				end_date=today + datetime.timedelta(days=14)
 			)
 	return
 

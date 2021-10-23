@@ -63,12 +63,7 @@
 											<div class="col-6">
 												<p>
 													<select class="form-control" name="issuetype" id="issuetype">
-														<option value="Bug">Bug</option>
-														<option value="Improvement">Improvement</option>
-														<option value="Story">Story</option>
-														<option value="Task">Task</option>
-														<option value="Test">Test</option>
-														<option value="Epic">Epic</option>
+														{{issueType|safe}}
 													</select>
 												</p>
 											</div>
@@ -78,10 +73,7 @@
 											<div class="col-6">
 												<p>
 													<select class="form-control" name="priority" id="priority">
-														<option value="Low">Low</option>
-														<option value="Medium">Medium</option>
-														<option value="High">High</option>
-														<option value="None">None</option>
+														{{priority|safe}}
 													</select>
 												</p>
 											</div>
@@ -101,11 +93,7 @@
 											<div class="col-6">
 												<p>
 													<select class="form-control" name="status" id="status">
-														<option value="Open">Open</option>
-														<option value="Progress">Progress</option>
-														<option value="Done">Done</option>
-														<option value="Cancelled">Cancelled</option>
-														<option value="None">None</option>
+														{{status|safe}}
 													</select>
 												</p>
 											</div>

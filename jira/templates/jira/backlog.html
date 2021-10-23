@@ -76,9 +76,7 @@
 								        <label for="project" class="col-sm-2 col-form-label"><b>Project</b></label>
 								        <div class="col-sm-10">
 								            <select class="form-control" name="project">
-												<option>OneTutor (OT)</option>
-												<option>Jira</option>
-												<option>Dashboard</option>
+												{{project|safe}}
 											</select>
 										</div>
 								    </div>
@@ -86,12 +84,7 @@
 								        <label for="issuetype" class="col-sm-2 col-form-label"><b>Issue Type</b></label>
 								        <div class="col-sm-10">
 								            <select class="form-control" name="issuetype">
-								            	<option>Bug</option>
-												<option>Improvement</option>
-												<option>Story</option>
-												<option>Task</option>
-												<option>Test</option>
-												<option>Epic</option>
+								            	{{issueType|safe}}
 											</select>
 										</div>
 								    </div>
@@ -99,10 +92,7 @@
 								        <label for="priority" class="col-sm-2 col-form-label"><b>Priority</b></label>
 								        <div class="col-sm-10">
 								            <select class="form-control" name="priority">
-								            	<option>Low</option>
-												<option>Medium</option>
-												<option>High</option>
-												<option>None</option>
+								            	{{priority|safe}}
 											</select>
 										</div>
 								    </div>
