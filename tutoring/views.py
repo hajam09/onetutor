@@ -144,7 +144,7 @@ def ratingToStars(tutor):
 		numberOfStars = sumOfRating * 5 / outOfPoints
 		nearest05 = round(numberOfStars * 2) / 2
 	except ZeroDivisionError:
-		return ""
+		return "".join(['<i class="far fa-star"></i>' for _ in range(5)])
 
 	starsAsString = "".join(['<i class="fas fa-star"></i>' for _ in range(int(nearest05))])
 
