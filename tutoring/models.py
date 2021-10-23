@@ -82,13 +82,13 @@ class QuestionAnswerComment(models.Model):
 
 
 class TutorReview(models.Model):
-	tutor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="tutor")
+	tutor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="tutorReviews")
 	reviewer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reviewer")
 	date = models.DateTimeField(default=datetime.now)
 	comment = models.TextField()
 	rating = models.PositiveSmallIntegerField()
-	likes = models.ManyToManyField(User, related_name="tutorReviewLikes")
-	dislikes = models.ManyToManyField(User, related_name="tutorReviewDislikes")
+	likes = models.ManyToManyField(User, related_name="tutorReviewLikes", blank=True, null=True)
+	dislikes = models.ManyToManyField(User, related_name="tutorReviewDislikes", blank=True, null=True)
 	edited = models.BooleanField(default=False)
 
 	def like(self, request):

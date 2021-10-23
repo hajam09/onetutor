@@ -1,21 +1,18 @@
-import json
 from datetime import datetime
 from http import HTTPStatus
 
 import pandas
-from deprecated import deprecated
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core import serializers
-from django.http import HttpResponse, JsonResponse
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from accounts.models import Subject
 from accounts.models import TutorProfile
-from tutoring.models import QuestionAnswerComment
 from tutoring.models import QuestionAnswer
+from tutoring.models import QuestionAnswerComment
 from tutoring.models import TutorReview
 
 
@@ -53,7 +50,19 @@ def mainpage(request):
 			"""
 
 			tutorList = [
-				i
+				{
+					"pk": i.pk,
+					"profilePicture": {
+						"url": i.profilePicture.url if i.profilePicture else None
+					},
+					"getTutoringUrl": i.getTutoringUrl(),
+					"user": {
+						"first_name": i.user.first_name,
+						"last_name": i.user.last_name
+					},
+					"summary": i.summary,
+					"averageRating": ratingToStars(i),
+				}
 				for k in locationList
 				for j in generalQueryList
 				for i in profiles
@@ -63,31 +72,55 @@ def mainpage(request):
 
 			context["generalQuery"] = generalQuery
 			context["location"] = location
-			context["tutorList"] = list(set(tutorList))
+			context["tutorList"] = list(tutorList)
 
 		elif generalQuery:
 
 			tutorList = [
-				i
+				{
+					"pk": i.pk,
+					"profilePicture": {
+						"url": i.profilePicture.url if i.profilePicture else None
+					},
+					"getTutoringUrl": i.getTutoringUrl(),
+					"user": {
+						"first_name": i.user.first_name,
+						"last_name": i.user.last_name
+					},
+					"summary": i.summary,
+					"averageRating": ratingToStars(i),
+				}
 				for j in generalQueryList
 				for i in profiles
 				if j.lower() in i.summary.lower() or j.lower() in i.subjects.lower()
 			]
 
 			context["generalQuery"] = generalQuery
-			context["tutorList"] = list(set(tutorList))
+			context["tutorList"] = list(tutorList)
 
 		elif location:
 
 			tutorList = [
-				i
+				{
+					"pk": i.pk,
+					"profilePicture": {
+						"url": i.profilePicture.url if i.profilePicture else None
+					},
+					"getTutoringUrl": i.getTutoringUrl(),
+					"user": {
+						"first_name": i.user.first_name,
+						"last_name": i.user.last_name
+					},
+					"summary": i.summary,
+					"averageRating": ratingToStars(i),
+				}
 				for i in profiles
 				for k in locationList
 				if k.lower() in [i.lower() for i in pandas.json_normalize(i.location, sep='_').to_dict(orient='records')[0].values()]
 			]
 
 			context["location"] = location
-			context["tutorList"] = list(set(tutorList))
+			context["tutorList"] = list(tutorList)
 
 		else:
 			context["tutorList"] = []
@@ -99,6 +132,27 @@ def mainpage(request):
 			)
 
 	return render(request, 'tutoring/mainpage.html', context)
+
+
+def ratingToStars(tutor):
+	# TODO: Need to optimise the tutor reviews rating points. Would be very slow for large number of tutor profiles.
+	tutorReviewsObjects = tutor.user.tutorReviews
+	outOfPoints = tutorReviewsObjects.count() * 5
+	sumOfRating = sum(list(tutorReviewsObjects.values_list('rating', flat=True)))
+
+	try:
+		numberOfStars = sumOfRating * 5 / outOfPoints
+		nearest05 = round(numberOfStars * 2) / 2
+	except ZeroDivisionError:
+		return ""
+
+	starsAsString = "".join(['<i class="fas fa-star"></i>' for _ in range(int(nearest05))])
+
+	if ".5" in str(nearest05):
+		starsAsString += '<i class="fas fa-star-half"></i>'
+
+	return starsAsString
+
 
 def viewtutorprofile(request, tutorProfileKey):
 
