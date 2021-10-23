@@ -329,60 +329,55 @@ def ticketPageView(request, ticket_url):
 	return render(request, "jira/ticketPage.html", context)
 
 
-def editticket(request, ticket_url):
-	ticket = Ticket.objects.get(url=ticket_url)
-	ticket_images = TicketImage.objects.filter(ticket=ticket)
+def editTicketView(request, ticketUrl):
+
+	ticket = Ticket.objects.select_related('reporter', 'assignee', 'sprint').get(url=ticketUrl)
 
 	if request.is_ajax():
 		functionality = request.GET.get('functionality', None)
 
-		if functionality == "delete_ticket_image":
-			image_object_pk = request.GET.get('image_object_pk', None)
-			this_image = TicketImage.objects.get(pk=image_object_pk)
+		if functionality == "deleteTicketImage":
+			imagePk = request.GET.get('imagePk', None)
+			getImage = TicketImage.objects.get(pk=imagePk)
 
-			this_image_location = os.path.join(settings.MEDIA_ROOT, this_image.image.name)
-			if os.path.exists(this_image_location):
-				os.remove(this_image_location)
-				this_image.delete()
+			imageLocation = os.path.join(settings.MEDIA_ROOT, getImage.image.name)
+			if os.path.exists(imageLocation):
+				os.remove(imageLocation)
+				getImage.delete()
 
-			new_ticket_images = TicketImage.objects.filter(ticket=ticket)
+			remainingTicketImages = TicketImage.objects.filter(ticket=ticket)
 			response = {
-				"new_ticket_images": serializers.serialize("json", list(new_ticket_images)),
-				"status_code": HTTPStatus.OK
+				"statusCode": HTTPStatus.OK,
+				"remainingTicketImages": [{"pk": i.pk, "image": "/media/"+str(i.image)} for i in remainingTicketImages],
 			}
-			return HttpResponse(json.dumps(response), content_type="application/json")
+			return JsonResponse(response)
 
-	if request.method == "POST" and "update_ticket_data" in request.POST:
+	if request.method == "POST" and "updateTicket" in request.POST:
 
 		assignee = request.POST['assignee']
-		description = request.POST['description']
-		issuetype = request.POST['issuetype']
-		points = request.POST['points']
-		priority = request.POST['priority']
 		reporter = request.POST['reporter']
 		status = request.POST['status']
-		summary = request.POST['summary']
 
 		ticket.assignee = User.objects.get(pk=assignee)
-		ticket.description = description
-		ticket.issueType = issuetype
-		ticket.points = points
-		ticket.priority = priority
+		ticket.description = request.POST['description']
+		ticket.issueType = request.POST['issueType']
+		ticket.points = request.POST['points']
+		ticket.priority = request.POST['priority']
 		ticket.reporter = User.objects.get(pk=reporter)
 		ticket.status = status
-		ticket.summary = summary
+		ticket.summary = request.POST['summary']
 
 		if status != "None":
 			if status != "Cancelled" and ticket.sprint is None:
-				to_sprint = request.POST['sprint']
-				ticket.sprint = Sprint.objects.get(url=to_sprint)
+				toSprint = request.POST['sprint']
+				ticket.sprint = Sprint.objects.get(url=toSprint)
 		else:
 			# when status is set to none, the ticket is sent to backlog. Set the sprint to none.
 			ticket.sprint = None
 
 		ticket.save()
 
-		# creating an instance for each attachement for this ticket
+		# creating an instance for each attachment for this ticket
 		if "ticket-attachment-files" in request.FILES:
 			attachments = request.FILES.getlist('ticket-attachment-files')
 
@@ -392,18 +387,18 @@ def editticket(request, ticket_url):
 					image=files
 				)
 
-		return redirect('jira:ticketpage', ticket_url=ticket_url)
+		return redirect('jira:ticketpage', ticket_url=ticketUrl)
 
 	context = {
 		"ticket": ticket,
-		"ticket_images": ticket_images,
-		"superusers": User.objects.all(),  # User.objects.filter(is_superuser=True)
-		"incomplete_sprints": Sprint.objects.filter(endDate__gte=datetime.date.today()).order_by('startDate'),
+		"ticketImages": ticket.ticketImages.all(),
+		"superUsers": User.objects.all(),  # User.objects.filter(is_superuser=True)
+		"incompleteSprints": Sprint.objects.filter(endDate__gte=datetime.date.today()).order_by('startDate'),
 		"issueType": IssueType.list(True),
 		"priority": Priority.list(False),
 		"status": Status.list(True),
 	}
-	return render(request, "jira/editticket.html", context)
+	return render(request, "jira/editTicket.html", context)
 
 
 def startsprint():

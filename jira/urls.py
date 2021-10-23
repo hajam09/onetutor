@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path
 from jira import views
 
 app_name = "jira"
@@ -8,5 +8,5 @@ urlpatterns = [
 	path('sprintboard/<slug:sprint_url>/', views.sprintboard, name='sprintboard'),
 	path('backlog/', views.backlog, name='backlog'),
 	path('ticket/<slug:ticket_url>/', views.ticketPageView, name='ticketpage'),
-	path('ticket/<slug:ticket_url>/edit', views.editticket, name='editticket'),
+	path('ticket/<slug:ticketUrl>/edit', views.editTicketView, name='edit-ticket-view'),
 ]
