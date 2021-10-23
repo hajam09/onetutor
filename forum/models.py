@@ -25,7 +25,7 @@ class Community(models.Model):
     likes = models.ManyToManyField(User, related_name='communityLikes', blank=True)
     dislikes = models.ManyToManyField(User, related_name='communityDislikes', blank=True)
     banner = models.ImageField(upload_to='community-banner/', blank=True, null=True)
-    logo = models.ImageField(upload_to='community-logo/', blank=True, null=True, default='community-logo/default-img/default-community-logo.jpg')
+    logo = models.ImageField(upload_to='community-logo/', blank=True, null=True, default='community-logo/default-community-logo.jpg')
     members = models.ManyToManyField(User, related_name='communityMembers', blank=True)
 
     class Meta:

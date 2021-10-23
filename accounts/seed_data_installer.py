@@ -1,24 +1,23 @@
+import json
+import random
+import string
+from pathlib import Path
+from random import randint
+
+from django.contrib.auth.models import User
+from django.db import connection
 from django.template.defaultfilters import slugify
+#
+from essential_generators import DocumentGenerator
+from faker import Faker
 
 from accounts.models import Countries
 from accounts.models import Subject
 from accounts.models import TutorProfile
-from deprecated import deprecated
-from django.contrib.auth.models import User
-from django.db import connection
 from forum.models import Category
 from forum.models import Community
 from forum.models import Forum
 from forum.models import ForumComment
-from pathlib import Path
-from random import randint
-import json
-import random
-import string
-# 
-from essential_generators import DocumentGenerator
-from faker import Faker
-import names
 
 CRON = []
 all_tables = connection.introspection.table_names()
@@ -28,16 +27,16 @@ EMAIL_DOMAINS = ["@yahoo", "@gmail", "@outlook", "@hotmail"]
 DOMAINS = [".co.uk", ".com", ".co.in", ".net", ".us"]
 BOOLEAN = [True, False]
 
-STREET_NAME = ['High Street' , 'Station Road' , 'Main Street' , 'Park Road' , 'Church Road' ,
-				'Church Street' , 'London Road' , 'Victoria Road' , 'Green Lane' , 'Manor Road' ,
-				'Church Lane' , 'Park Avenue' , 'The Avenue' , 'The Crescent' , 'Queens Road' ,
-				'New Road' , 'Grange Road' , 'Kings Road' , 'Kingsway' , 'Windsor Road' ,
-				'Highfield Road' , 'Mill Lane' , 'Alexander Road' , 'York Road' , 'Main Road' ,
-				'Broadway' , 'King Street' , 'Springfield Road' , 'George Street' , 'Park Lane' ,
-				'Victoria Street' , 'Albert Road' , 'Queensway' , 'New Street' , 'Queen Street' ,
-				'West Street' , 'North Street' , 'Manchester Road' , 'The Grove' , 'Richmond Road' ,
-				'Grove Road' , 'South Street' , 'School Lane' , 'The Drive' , 'North Road' , 'Stanley Road' ,
-				'Chester Road' , 'Mill Road']
+STREET_NAME = ['High Street', 'Station Road', 'Main Street', 'Park Road', 'Church Road',
+			   'Church Street', 'London Road', 'Victoria Road', 'Green Lane', 'Manor Road',
+			   'Church Lane', 'Park Avenue', 'The Avenue', 'The Crescent', 'Queens Road',
+			   'New Road', 'Grange Road', 'Kings Road', 'Kingsway', 'Windsor Road',
+			   'Highfield Road', 'Mill Lane', 'Alexander Road', 'York Road', 'Main Road',
+			   'Broadway', 'King Street', 'Springfield Road', 'George Street', 'Park Lane',
+			   'Victoria Street', 'Albert Road', 'Queensway', 'New Street', 'Queen Street',
+			   'West Street', 'North Street', 'Manchester Road', 'The Grove', 'Richmond Road',
+			   'Grove Road', 'South Street', 'School Lane', 'The Drive', 'North Road', 'Stanley Road',
+			   'Chester Road', 'Mill Road']
 
 TOWN = ['Barking', 'Eastham', 'Upton Park', 'Plaistow', 'Westham', 'Mile End', 'Stratford', 'Dagenham', 'Hammersmith',
 		'Islington', 'Templte', 'Westminister', 'Embankment', 'Barbican', 'Blackfriars', 'Angel', 'Marylebone',
@@ -59,6 +58,7 @@ DEGREE = ['Accounting and Finance', 'Biology', 'Actuarial Science', 'Aerospace E
 SCHOOLS = ['Dame Elizabeth Cadbury School', 'Brooke House College', 'Hope Academy', 'Scarisbrick Hall School', 'Exeter Tutorial College',
 			'Valley Park School', 'Bredon School', 'Hurtwood House School']
 
+
 def install_TutorProfile():
 	if 'accounts_tutorprofile' not in all_tables:
 		return
@@ -66,7 +66,7 @@ def install_TutorProfile():
 	if TutorProfile.objects.all().count() >= 20:
 		return
 
-	for __ in range(2):
+	for __ in range(50):
 		fake = Faker()
 		gen = DocumentGenerator()
 
@@ -101,95 +101,67 @@ def install_TutorProfile():
 		uni_end_year = uni_start_year + randint(3, 4)
 
 		education = {
-			  "education_1": {
-			    "school_name": random.choice(UNIVERSITIES),
-			    "qualification": random.choice(DEGREE) + " - " + random.choice(["1st", "2:1", "2:2", "3"]),
-			    "year": str(uni_start_year) + " - " + str(uni_end_year)
-			  },
-			  "education_2": {
-			    "school_name": random.choice(SCHOOLS),
-			    "qualification": "A Levels - A*A*AA (Maths, Computing, Further Maths, Physics)",
-			    "year": str(sixth_form_start_year) + " - " + str(sixth_form_end_year)
-			  },
-			  "education_3": {
-			    "school_name": random.choice(SCHOOLS),
-			    "qualification": "GCSE - 10 x A* ",
-			    "year": str(school_start_year) + " - " + str(school_end_year)
-			  }
+			"education_1": {
+				"school_name": random.choice(UNIVERSITIES),
+				"qualification": random.choice(DEGREE) + " - " + random.choice(["1st", "2:1", "2:2", "3"]),
+				"year": str(uni_start_year) + " - " + str(uni_end_year)
+			},
+			"education_2": {
+				"school_name": random.choice(SCHOOLS),
+				"qualification": "A Levels - A*A*AA (Maths, Computing, Further Maths, Physics)",
+				"year": str(sixth_form_start_year) + " - " + str(sixth_form_end_year)
+			},
+			"education_3": {
+				"school_name": random.choice(SCHOOLS),
+				"qualification": "GCSE - 10 x A* ",
+				"year": str(school_start_year) + " - " + str(school_end_year)
 			}
+		}
 
 		subjects = ', '.join(random.sample(SUBJECTS, 6))
 
 		availability = {
-		  "monday": {
-		    "morning": random.choice(BOOLEAN),
-		    "afternoon": random.choice(BOOLEAN),
-		    "evening": random.choice(BOOLEAN)
-		  },
-		  "tuesday": {
-		    "morning": random.choice(BOOLEAN),
-		    "afternoon": random.choice(BOOLEAN),
-		    "evening": random.choice(BOOLEAN)
-		  },
-		  "wednesday": {
-		    "morning": random.choice(BOOLEAN),
-		    "afternoon": random.choice(BOOLEAN),
-		    "evening": random.choice(BOOLEAN)
-		  },
-		  "thursday": {
-		    "morning": random.choice(BOOLEAN),
-		    "afternoon": random.choice(BOOLEAN),
-		    "evening": random.choice(BOOLEAN)
-		  },
-		  "friday": {
-		    "morning": random.choice(BOOLEAN),
-		    "afternoon": random.choice(BOOLEAN),
-		    "evening": random.choice(BOOLEAN)
-		  },
-		  "saturday": {
-		    "morning": random.choice(BOOLEAN),
-		    "afternoon": random.choice(BOOLEAN),
-		    "evening": random.choice(BOOLEAN)
-		  },
-		  "sunday": {
-		    "morning": random.choice(BOOLEAN),
-		    "afternoon": random.choice(BOOLEAN),
-		    "evening": random.choice(BOOLEAN)
-		  }
+			"monday": {
+				"morning": random.choice(BOOLEAN),
+				"afternoon": random.choice(BOOLEAN),
+				"evening": random.choice(BOOLEAN)
+			},
+			"tuesday": {
+				"morning": random.choice(BOOLEAN),
+				"afternoon": random.choice(BOOLEAN),
+				"evening": random.choice(BOOLEAN)
+			},
+			"wednesday": {
+				"morning": random.choice(BOOLEAN),
+				"afternoon": random.choice(BOOLEAN),
+				"evening": random.choice(BOOLEAN)
+			},
+			"thursday": {
+				"morning": random.choice(BOOLEAN),
+				"afternoon": random.choice(BOOLEAN),
+				"evening": random.choice(BOOLEAN)
+			},
+			"friday": {
+				"morning": random.choice(BOOLEAN),
+				"afternoon": random.choice(BOOLEAN),
+				"evening": random.choice(BOOLEAN)
+			},
+			"saturday": {
+				"morning": random.choice(BOOLEAN),
+				"afternoon": random.choice(BOOLEAN),
+				"evening": random.choice(BOOLEAN)
+			},
+			"sunday": {
+				"morning": random.choice(BOOLEAN),
+				"afternoon": random.choice(BOOLEAN),
+				"evening": random.choice(BOOLEAN)
+			}
 		}
 
 		user = User.objects.create( username=email, email=email, password=password, first_name=first_name, last_name=last_name )
 		TutorProfile.objects.create(user=user,summary=gen.sentence(),about=gen.paragraph(),location=location,education=education,subjects=subjects,availability=availability)
 	return
 
-@deprecated(reason="No longer creates reliable data.")
-def emailaddress(firstname, lastname):
-	firstname = firstname.lower()
-	lastname = lastname.lower()
-	return firstname+"."+lastname+"@gmail.com"
-
-@deprecated(reason="No longer creates reliable data.")
-def installTutorFromFaker():
-	for i in range(2):
-		gen = DocumentGenerator()
-		fake = Faker()
-		# account: username, email, password, first_name, last_name
-		first_name = names.get_first_name()
-		last_name = names.get_last_name()
-		email = emailaddress(first_name, last_name)
-		username = emailaddress(first_name, last_name)
-		password = 'RanDomPasWord56'
-		# TutorProfile: user, summary, about, location, education, subjects, availability, profilePicture
-		summary = gen.sentence()
-		about = gen.paragraph()
-		location = { "address_1": "24 London Road", "address_2": "Barking", "city": "London", "stateProvince": "Essex", "postalZip": "QR11 2TV", "country": { "alpha": "GB", "name": "United Kingdom" } }
-		education = { "education_1": { "school_name": "Imperial College London", "qualification": "Computing (Masters) - 2:1 (2016 - 2020)", "year": "Peter Symonds College" }, "education_2": { "school_name": "Peter Symonds College", "qualification": "A Levels - A*A*AA (Maths, Computing, Further Maths, Physics)", "year": "2014 - 2016" }, "education_3": { "school_name": "Perins School", "qualification": "GCSE - 10 x A* ", "year": "2009 - 2014" } }
-		subjects = "English, Maths, Science, ICT, RE, Statistics, DT, Computing, Games Development, Networks, Web Programming, GUI, Bayesian"
-		availability = None
-		profilePicture = None
-
-		user = User.objects.create_user(username=email, email=email, password=password, first_name=first_name, last_name=last_name)
-		TutorProfile.objects.create(user=user, summary=summary, about=about, location=location, education=education, subjects=subjects, availability=None)
 
 def installCountries():
 	if installCountries in CRON:
@@ -199,12 +171,20 @@ def installCountries():
 		CRON.append(installCountries)
 		return
 
+	countriesList = []
+
 	for i in open("seed-data/countries.txt", "r").readlines():
 		i = i.replace("\n", "").split("|")
 		if not Countries.objects.filter(alpha=i[0]).exists():
-			Countries.objects.create(alpha=i[0], name=i[1])
+			countriesList.append(
+				Countries(alpha=i[0], name=i[1])
+			)
+
+	if len(countriesList) > 0:
+		Countries.objects.bulk_create(countriesList)
 
 	print("Countries table created and populated")
+
 
 def installTutor():
 	if installTutor in CRON:
@@ -223,6 +203,7 @@ def installTutor():
 				TutorProfile.objects.create(user=user, summary=d["summary"], about=d["about"],
 											location=d["location"], education=d["education"], subjects=d["subjects"], availability=d["availability"])
 
+
 def installSubjects():
 	if installSubjects in CRON:
 		CRON.remove(installSubjects)
@@ -231,11 +212,20 @@ def installSubjects():
 		CRON.append(installSubjects)
 		return
 
+	subjectList = []
+
 	for i in open("seed-data/subjects.txt", "r").readlines():
 		i = i.replace("\n", "")
 		if not Subject.objects.filter(name=i).exists():
-			Subject.objects.create(name=i)
+			subjectList.append(
+				Subject(name=i)
+			)
+
+	if len(subjectList) > 0:
+		Subject.objects.bulk_create(subjectList)
+
 	print("Subject table created and populated")
+
 
 def installCategories():
 	if installCategories in CRON:
@@ -245,11 +235,20 @@ def installCategories():
 		CRON.append(installCategories)
 		return
 
+	categoryList = []
+
 	for i in open("seed-data/categories.txt", "r").readlines():
 		i = i.replace("\n", "")
 		if not Category.objects.filter(name=i).exists():
-			Category.objects.create(name=i)
+			categoryList.append(
+				Category(name=i)
+			)
+
+	if len(categoryList) > 0:
+		Category.objects.bulk_create(categoryList)
+
 	print("Category table created and populated")
+
 
 def installCommunity(totalValue):
 	if installCommunity in CRON:
@@ -323,6 +322,7 @@ def installForum(totalValue):
 
 	Forum.objects.bulk_create(forum_bulk_object)
 	print("Forum table created and populated")
+
 
 def installForumComment(totalValue):
 	if installForumComment in CRON:

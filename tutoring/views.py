@@ -157,7 +157,7 @@ def ratingToStars(tutor):
 def viewtutorprofile(request, tutorProfileKey):
 
 	try:
-		tutorProfile = TutorProfile.objects.get(secondary_key=tutorProfileKey)
+		tutorProfile = TutorProfile.objects.get(secondaryKey=tutorProfileKey)
 	except TutorProfile.DoesNotExist:
 		return redirect("tutoring:mainpage")
 

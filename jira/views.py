@@ -23,7 +23,7 @@ def mainpage(request):
 	today = datetime.date.today()
 
 	try:
-		active_sprint = Sprint.objects.get(start_date__lte=today, end_date__gte=today)
+		active_sprint = Sprint.objects.get(startDate__lte=today, endDate__gte=today)
 	except Sprint.DoesNotExist:
 		active_sprint = None
 
@@ -92,7 +92,7 @@ def backlog(request):
 	today = datetime.date.today()
 
 	try:
-		active_sprint = Sprint.objects.get(start_date__lte=today, end_date__gte=today)
+		active_sprint = Sprint.objects.get(startDate__lte=today, endDate__gte=today)
 	except Sprint.DoesNotExist:
 		active_sprint = None
 
@@ -284,7 +284,7 @@ def ticketpage(request, ticket_url):
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
-			this_ticket.increase_ticket_comment_likes(request)
+			this_ticket.increaseTicketCommentLikes(request)
 
 			response = {
 				"this_ticket": serializers.serialize("json", [this_ticket, ]),
@@ -305,7 +305,7 @@ def ticketpage(request, ticket_url):
 				}
 				return HttpResponse(json.dumps(response), content_type="application/json")
 
-			this_ticket.increase_ticket_comment_dislikes(request)
+			this_ticket.increaseTicketCommentDislikes(request)
 
 			response = {
 				"this_ticket": serializers.serialize("json", [this_ticket, ]),
@@ -348,7 +348,7 @@ def ticketpage(request, ticket_url):
 			points=points,
 			priority=priority
 		)
-		ticket.sub_task.add(new_subtask)
+		ticket.subTask.add(new_subtask)
 		return redirect('jira:ticketpage', ticket_url=ticket_url)
 
 	context = {
@@ -357,8 +357,8 @@ def ticketpage(request, ticket_url):
 		"ticket_comments": ticket_comments,
 		"is_watching": True if request.user in ticket.watchers.all() else False,
 		"superusers": User.objects.filter(is_superuser=True),
-		"sub_tasks": ticket.sub_task.all(),
-		"epic_link": Ticket.objects.filter(sub_task__in=[ticket]).first(),
+		"sub_tasks": ticket.subTask.all(),
+		"epic_link": Ticket.objects.filter(subTask_in=[ticket]).first(),
 		"project": Project.list(True),
 		"issueType": IssueType.list(True),
 		"priority": Priority.list(True),
@@ -435,7 +435,7 @@ def editticket(request, ticket_url):
 		"ticket": ticket,
 		"ticket_images": ticket_images,
 		"superusers": User.objects.all(),  # User.objects.filter(is_superuser=True)
-		"incomplete_sprints": Sprint.objects.filter(end_date__gte=datetime.date.today()).order_by('start_date'),
+		"incomplete_sprints": Sprint.objects.filter(endDate__gte=datetime.date.today()).order_by('startDate'),
 		"issueType": IssueType.list(True),
 		"priority": Priority.list(False),
 		"status": Status.list(True),
@@ -446,7 +446,7 @@ def editticket(request, ticket_url):
 def startsprint():
 	today = datetime.date.today()
 	try:
-		Sprint.objects.get(start_date__lte=today, end_date__gte=today)
+		Sprint.objects.get(startDate__lte=today, endDate__gte=today)
 	# already a sprint exists as of today. No need to create another.
 	except Sprint.DoesNotExist:
 		prefix = "sprint-"
@@ -455,16 +455,16 @@ def startsprint():
 			url = prefix + str(last_sprint.pk)
 			Sprint.objects.create(
 				url=url,
-				start_date=today,
-				end_date=today + datetime.timedelta(days=14)
+				startDate=today,
+				endDate=today + datetime.timedelta(days=14)
 			)
 			print(today, today + datetime.timedelta(days=14))
 		except Exception as e:
 			url = prefix + "0"
 			Sprint.objects.create(
 				url=url,
-				start_date=today,
-				end_date=today + datetime.timedelta(days=14)
+				startDate=today,
+				endDate=today + datetime.timedelta(days=14)
 			)
 	return
 
@@ -473,7 +473,7 @@ def createsprint():
 	today = datetime.date.today()
 
 	try:
-		Sprint.objects.get(start_date__lte=today, end_date__gte=today)
+		Sprint.objects.get(startDate__lte=today, endDate_gte=today)
 	except Sprint.DoesNotExist:
 		prefix = "sprint-"
 		try:
@@ -483,16 +483,16 @@ def createsprint():
 			new_sprint_date = end_of_last_sprint + datetime.timedelta(days=1)
 			Sprint.objects.create(
 				url=url,
-				start_date=new_sprint_date,
-				end_date=new_sprint_date+datetime.timedelta(days=14)
+				startDate=new_sprint_date,
+				endDate=new_sprint_date+datetime.timedelta(days=14)
 			)
 			return True
 		except Exception as e:
 			url = prefix+"0"
 		Sprint.objects.create(
 			url=url,
-			start_date=new_sprint_date,
-			end_date=new_sprint_date+datetime.timedelta(days=14)
+			startDate=new_sprint_date,
+			endDate=new_sprint_date+datetime.timedelta(days=14)
 		)
 		return True
 	return False

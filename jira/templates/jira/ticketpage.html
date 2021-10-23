@@ -383,10 +383,10 @@
                                         <!-- post footer begins -->
                                         <footer>
                                             <button id="ticket_comment_like_id_{{tik_com.id}}" type="button" class="btn btn-default btn-sm" onclick="like_comment('{{tik_com.id}}')">
-                                                <i class='far fa-thumbs-up' style='font-size:15px'></i> ({{tik_com.ticket_comment_likes.count}})
+                                                <i class='far fa-thumbs-up' style='font-size:15px'></i> ({{tik_com.ticketCommentLikes.count}})
                                             </button>
                                             <button id="ticket_comment_dislike_id_{{tik_com.id}}" type="button" class="btn btn-default btn-sm" onclick="dislike_comment('{{tik_com.id}}')">
-                                                <i class='far fa-thumbs-down' style='font-size:15px'></i> ({{tik_com.ticket_comment_dislikes.count}})
+                                                <i class='far fa-thumbs-down' style='font-size:15px'></i> ({{tik_com.ticketCommentDislikes.count}})
                                             </button>
                                         </footer>
                                     </div>
@@ -443,11 +443,11 @@
     					<div class="card card-body">
                             <div class="row">
                                 <div class="col col-md-auto">Created:</div>
-                                <div class="col col-md-auto">{{ticket.created_date}}</div>
+                                <div class="col col-md-auto">{{ticket.createdDate}}</div>
                             </div>
                             <div class="row">
                                 <div class="col col-md-auto">Updated:</div>
-                                <div class="col col-md-auto">{{ticket.modified_date}}</div>
+                                <div class="col col-md-auto">{{ticket.modifiedDate}}</div>
                             </div>
     					</div>
     				</div>
@@ -517,8 +517,8 @@
             success: function (response) {
                 if(response.status_code == 200) {
                     var this_ticket = eval(response.this_ticket)[0];
-                    var number_of_likes = this_ticket.fields.ticket_comment_likes.length;
-                    var number_of_dislikes = this_ticket.fields.ticket_comment_dislikes.length;
+                    var number_of_likes = this_ticket.fields.ticketCommentLikes.length;
+                    var number_of_dislikes = this_ticket.fields.ticketCommentDislikes.length;
                     console.log(this_ticket);
 
                     $('#ticket_comment_like_id_'+commentId).html('<i class="far fa-thumbs-up" style="font-size:15px"></i> ('+ number_of_likes +')');
@@ -553,8 +553,8 @@
             success: function (response) {
                 if(response.status_code == 200) {
                     var this_ticket = eval(response.this_ticket)[0];
-                    var number_of_likes = this_ticket.fields.ticket_comment_likes.length;
-                    var number_of_dislikes = this_ticket.fields.ticket_comment_dislikes.length;
+                    var number_of_likes = this_ticket.fields.ticketCommentLikes.length;
+                    var number_of_dislikes = this_ticket.fields.ticketCommentDislikes.length;
 
                     $('#ticket_comment_like_id_'+commentId).html('<i class="far fa-thumbs-up" style="font-size:15px"></i> ('+ number_of_likes +')');
                     $('#ticket_comment_dislike_id_'+commentId).html('<i class="far fa-thumbs-down" style="font-size:15px"></i> ('+ number_of_dislikes +')');
@@ -716,10 +716,10 @@
                                 <!-- post footer begins -->
                                 <footer>
                                     <button id="ticket_comment_like_id_`+new_ticket_comment.pk+`" type="button" class="btn btn-default btn-sm" onclick="like_comment('`+new_ticket_comment.pk+`')">
-                                        <i class='far fa-thumbs-up' style='font-size:15px'></i> (`+new_ticket_comment.fields.ticket_comment_likes.length+`)
+                                        <i class='far fa-thumbs-up' style='font-size:15px'></i> (`+new_ticket_comment.fields.ticketCommentLikes.length+`)
                                     </button>
                                     <button id="ticket_comment_dislike_id_`+new_ticket_comment.pk+`" type="button" class="btn btn-default btn-sm" onclick="dislike_comment('`+new_ticket_comment.pk+`')">
-                                        <i class='far fa-thumbs-down' style='font-size:15px'></i> (`+new_ticket_comment.fields.ticket_comment_dislikes.length+`)
+                                        <i class='far fa-thumbs-down' style='font-size:15px'></i> (`+new_ticket_comment.fields.ticketCommentDislikes.length+`)
                                     </button>
                                 </footer>
                             </div>

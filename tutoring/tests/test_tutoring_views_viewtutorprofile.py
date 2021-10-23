@@ -24,7 +24,7 @@ class TestTutoringViewsViewTutorProfile(TestCase):
 		self.user2 = User.objects.get(email='cisco.ramone@hotmail.com')
 
 		self.tutor_1_profile = TutorProfile.objects.get(user=self.user1)
-		self.url = reverse('tutoring:viewtutorprofile', kwargs={'tutor_secondary_key':self.tutor_1_profile.secondary_key})
+		self.url = reverse('tutoring:viewtutorprofile', kwargs={'tutor_secondary_key':self.tutor_1_profile.secondaryKey})
 
 		self.new_question = QuestionAnswer.objects.create(
 			subject="Maths",

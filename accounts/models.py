@@ -6,17 +6,16 @@ from django.db import models
 from django.urls import reverse
 
 
-# TODO: Remove fields: location
 class TutorProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    secondary_key = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    summary = models.CharField(max_length=128)
+    secondaryKey = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    summary = models.CharField(max_length=128, blank=True, null=True)
     about = models.TextField()
     location = jsonfield.JSONField()
     education = jsonfield.JSONField()
-    subjects = models.CharField(max_length=8192)
+    subjects = models.CharField(max_length=8192, blank=True, null=True)
     availability = jsonfield.JSONField()
-    profilePicture = models.ImageField(upload_to='profilepicture', blank=True, null=True, default='profilepicture/defaultimg/default-profile-picture.jpg')
+    profilePicture = models.ImageField(upload_to='profile-picture', blank=True, null=True, default='profile-picture/default-profile-picture.jpg')
 
     class Meta:
         verbose_name_plural = "TutorProfiles"
@@ -25,15 +24,16 @@ class TutorProfile(models.Model):
         return self.subjects.split(",")
 
     def getTutoringUrl(self):
-        return reverse('tutoring:view-tutor-profile', kwargs={'tutorProfileKey': self.secondary_key})
+        return reverse('tutoring:view-tutor-profile', kwargs={'tutorProfileKey': self.secondaryKey})
 
 
-# TODO: Remove fields: location
 class StudentProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    location = jsonfield.JSONField()
-    subjects = models.CharField(max_length=8192)
-    profilePicture = models.ImageField(upload_to='profilepicture', blank=True, null=True)  # not implemented at the moment
+    secondaryKey = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    about = models.TextField()
+    education = jsonfield.JSONField()
+    subjects = models.CharField(max_length=8192, blank=True, null=True)
+    profilePicture = models.ImageField(upload_to='profile-picture', blank=True, null=True, default='profile-picture/default-profile-picture.jpg')
 
     class Meta:
         verbose_name_plural = "StudentProfiles"
