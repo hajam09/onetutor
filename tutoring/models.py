@@ -2,8 +2,6 @@ from datetime import datetime
 
 from django.contrib.auth.models import User
 from django.db import models
-# 	class Meta:
-# 		verbose_name_plural = "BaseComment"
 from django.urls import reverse
 
 
@@ -22,8 +20,8 @@ class QuestionAnswer(models.Model):
     answer = models.TextField(null=True, default='Not answered yet.')
     questioner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="questioner")  # user who asked the question
     answerer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="answerer")  # user who is being asked the question (tutor)
-    likes = models.ManyToManyField(User, related_name='likes')
-    dislikes = models.ManyToManyField(User, related_name='dislikes')
+    likes = models.ManyToManyField(User, related_name='questionAnswerLikes', blank=True, null=True)
+    dislikes = models.ManyToManyField(User, related_name='questionAnswerDislikes', blank=True, null=True)
     date = models.DateTimeField(default=datetime.now)
 
     def like(self, request):
@@ -55,8 +53,8 @@ class QuestionAnswerComment(models.Model):
     questionAnswer = models.ForeignKey(QuestionAnswer, on_delete=models.CASCADE)
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
     comment = models.TextField()
-    likes = models.ManyToManyField(User, related_name='questionAnswerCommentLikes')
-    dislikes = models.ManyToManyField(User, related_name='questionAnswerCommentDislikes')
+    likes = models.ManyToManyField(User, related_name='questionAnswerCommentLikes', blank=True, null=True)
+    dislikes = models.ManyToManyField(User, related_name='questionAnswerCommentDislikes', blank=True, null=True)
     date = models.DateTimeField(default=datetime.now)
     edited = models.BooleanField(default=False)
 

@@ -26,6 +26,9 @@ class TutorProfile(models.Model):
     def getTutoringUrl(self):
         return reverse('tutoring:view-tutor-profile', kwargs={'tutorProfileKey': self.secondaryKey})
 
+    def __str__(self):
+        return "{} - {}".format(self.user.email, self.user.get_full_name())
+
 
 class StudentProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

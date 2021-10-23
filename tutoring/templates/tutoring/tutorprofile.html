@@ -296,7 +296,9 @@
                                 <button id="comment_dislike_id_{{qa.id}}" type="button" class="btn btn-default btn-sm" onclick="dislikeQuestionAnswer('{{qa.id}}')">
                                 <i class='far fa-thumbs-down' style='font-size:15px'></i> ({{qa.dislikes.count}})
                                 </button><br><br>
+                                {% if request.user == tutorProfile.user %}
                                 <span class="badge badge-info" data-toggle="modal" data-target="#answerModal" style="cursor: pointer;" onclick="updateAnswerModal('{{ qa.id }}');">Answer this question</span>
+                                {% endif %}
                                 <hr>
                             </div>
                             {% endfor %} {% endif %}
@@ -1192,8 +1194,7 @@
 						</button>
 						<button id="comment_dislike_id_`+response.id+`" type="button" class="btn btn-default btn-sm" onclick="dislikeQuestionAnswer('`+response.id+`')">
 							<i class='far fa-thumbs-down' style='font-size:15px'></i> (`+response.dislikeCount+`)
-						</button><br><br>
-						<span class="badge badge-info" data-toggle="modal" data-target="#answerModal" style="cursor: pointer;" onclick="updateAnswerModal('`+response.id+`');">Answer this question</span><hr>
+						</button><br><br><hr>
 					</div>`;
 
 					$( "#div-id-tutor-QuestionAnswer" ).prepend( newQuestionAnswer );
