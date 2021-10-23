@@ -184,7 +184,7 @@ def jira_task_information():
 	"""
 	result = {
 		"no_of_sprints": Sprint.objects.count(),
-		"tickets_in_each_issue_type": list(Ticket.objects.all().values('issue_type').annotate(total=Count('issue_type')).order_by('-total')),
+		"tickets_in_each_issue_type": list(Ticket.objects.all().values('issueType').annotate(total=Count('issueType')).order_by('-total')),
 		"tickets_in_each_priority": list(Ticket.objects.all().values('priority').annotate(total=Count('priority')).order_by('-total')),
 		"tickets_in_each_status": list(Ticket.objects.all().values('status').annotate(total=Count('status')).order_by('-total')),
 		"ticket_image_file_size": convert_file_unit(sum([x.image.size for x in TicketImage.objects.all()])),

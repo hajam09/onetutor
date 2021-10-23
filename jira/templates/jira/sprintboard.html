@@ -128,24 +128,24 @@
 							    		<span>{{ ticket.summary }}</span>
 							    		<span>{{ ticket.description|linebreaksbr }}</span>
 							    		<span>{{ ticket.id}}</span>
-							    		<span>{{ ticket.issue_type}}</span>
+							    		<span>{{ ticket.issueType}}</span>
 							    	</div>
 							        <div class="card card-body">
 							        	<a id="ticket_url" href="{% url 'jira:ticketpage' ticket.url %}" style="color: grey;">{{ticket.url}}</a>
 							            <h6 id="ticket_{{ ticket.id }}_summary_UI_text" class="note-title text-truncate w-75 mb-0">{{ticket.summary}} </h6>
 							            <br>
 							            <div>
-							            	{% if ticket.issue_type == "Bug" %}
+							            	{% if ticket.issueType == "Bug" %}
 						                	<p hidden>Bug</p><img src='{% static "img/bug.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Bug">
-						                	{% elif ticket.issue_type == "Improvement" %}
+						                	{% elif ticket.issueType == "Improvement" %}
 						                	<p hidden>Improvement</p><img src='{% static "img/improvement.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Improvement">
-						                	{% elif ticket.issue_type == "Story" %}
+						                	{% elif ticket.issueType == "Story" %}
 						                	<p hidden>Story</p><img src='{% static "img/story.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Story">
-						                	{% elif ticket.issue_type == "Task" %}
+						                	{% elif ticket.issueType == "Task" %}
 						                	<p hidden>Task</p><img src='{% static "img/task.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Task">
-						                	{% elif ticket.issue_type == "Test" %}
+						                	{% elif ticket.issueType == "Test" %}
 						                	<p hidden>Test</p><img src='{% static "img/test.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Test">
-						                	{% elif ticket.issue_type == "Epic" %}
+						                	{% elif ticket.issueType == "Epic" %}
 						                	<p hidden>Epic</p><img src='{% static "img/epic.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Epic">
 						                	{% else %}
 						                	<p hidden></p><img src='' width="20" height="20">
@@ -179,24 +179,24 @@
 							    		<span>{{ ticket.summary }}</span>
 							    		<span>{{ ticket.description|linebreaksbr }}</span>
 							    		<span>{{ ticket.id}}</span>
-							    		<span>{{ ticket.issue_type}}</span>
+							    		<span>{{ ticket.issueType}}</span>
 							    	</div>
 							        <div class="card card-body">
 							            <a id="ticket_url" href="{% url 'jira:ticketpage' ticket.url %}" style="color: grey;">{{ticket.url}}</a>
 							            <h6 id="ticket_{{ ticket.id }}_summary_UI_text" class="note-title text-truncate w-75 mb-0">{{ticket.summary}} </h6>
 							            <br>
 							            <div>
-							            	{% if ticket.issue_type == "Bug" %}
+							            	{% if ticket.issueType == "Bug" %}
 						                	<p hidden>Bug</p><img src='{% static "img/bug.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Bug">
-						                	{% elif ticket.issue_type == "Improvement" %}
+						                	{% elif ticket.issueType == "Improvement" %}
 						                	<p hidden>Improvement</p><img src='{% static "img/improvement.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Improvement">
-						                	{% elif ticket.issue_type == "Story" %}
+						                	{% elif ticket.issueType == "Story" %}
 						                	<p hidden>Story</p><img src='{% static "img/story.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Story">
-						                	{% elif ticket.issue_type == "Task" %}
+						                	{% elif ticket.issueType == "Task" %}
 						                	<p hidden>Task</p><img src='{% static "img/task.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Task">
-						                	{% elif ticket.issue_type == "Test" %}
+						                	{% elif ticket.issueType == "Test" %}
 						                	<p hidden>Test</p><img src='{% static "img/test.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Test">
-						                	{% elif ticket.issue_type == "Epic" %}
+						                	{% elif ticket.issueType == "Epic" %}
 						                	<p hidden>Epic</p><img src='{% static "img/epic.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Epic">
 						                	{% else %}
 						                	<p hidden></p><img src='' width="20" height="20">
@@ -230,24 +230,24 @@
 							    		<span>{{ ticket.summary }}</span>
 							    		<span>{{ ticket.description|linebreaksbr }}</span>
 							    		<span>{{ ticket.id}}</span>
-							    		<span>{{ ticket.issue_type}}</span>
+							    		<span>{{ ticket.issueType}}</span>
 							    	</div>
 							        <div class="card card-body">
 							            <a id="ticket_url" href="{% url 'jira:ticketpage' ticket.url %}" style="color: grey;">{{ticket.url}}</a>
 							            <h6 id="ticket_{{ ticket.id }}_summary_UI_text" class="note-title text-truncate w-75 mb-0">{{ticket.summary}} </h6>
 							            <br>
 							            <div>
-							            	{% if ticket.issue_type == "Bug" %}
+							            	{% if ticket.issueType == "Bug" %}
 						                	<p hidden>Bug</p><img src='{% static "img/bug.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Bug">
-						                	{% elif ticket.issue_type == "Improvement" %}
+						                	{% elif ticket.issueType == "Improvement" %}
 						                	<p hidden>Improvement</p><img src='{% static "img/improvement.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Improvement">
-						                	{% elif ticket.issue_type == "Story" %}
+						                	{% elif ticket.issueType == "Story" %}
 						                	<p hidden>Story</p><img src='{% static "img/story.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Story">
-						                	{% elif ticket.issue_type == "Task" %}
+						                	{% elif ticket.issueType == "Task" %}
 						                	<p hidden>Task</p><img src='{% static "img/task.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Task">
-						                	{% elif ticket.issue_type == "Test" %}
+						                	{% elif ticket.issueType == "Test" %}
 						                	<p hidden>Test</p><img src='{% static "img/test.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Test">
-						                	{% elif ticket.issue_type == "Epic" %}
+						                	{% elif ticket.issueType == "Epic" %}
 						                	<p hidden>Epic</p><img src='{% static "img/epic.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Epic">
 						                	{% else %}
 						                	<p hidden></p><img src='' width="20" height="20">
@@ -278,24 +278,24 @@
 							    		<span>{{ ticket.summary }}</span>
 							    		<span>{{ ticket.description|linebreaksbr }}</span>
 							    		<span>{{ ticket.id }}</span>
-							    		<span>{{ ticket.issue_type}}</span>
+							    		<span>{{ ticket.issueType}}</span>
 							    	</div>
 							        <div class="card card-body">
 							            <a id="ticket_url" href="{% url 'jira:ticketpage' ticket.url %}" style="color: grey;">{{ticket.url}}</a>
 							            <h6 id="ticket_{{ ticket.id }}_summary_UI_text" class="note-title text-truncate w-75 mb-0">{{ticket.summary}} </h6>
 							            <br>
 							            <div>
-							            	{% if ticket.issue_type == "Bug" %}
+							            	{% if ticket.issueType == "Bug" %}
 						                	<p hidden>Bug</p><img src='{% static "img/bug.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Bug">
-						                	{% elif ticket.issue_type == "Improvement" %}
+						                	{% elif ticket.issueType == "Improvement" %}
 						                	<p hidden>Improvement</p><img src='{% static "img/improvement.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Improvement">
-						                	{% elif ticket.issue_type == "Story" %}
+						                	{% elif ticket.issueType == "Story" %}
 						                	<p hidden>Story</p><img src='{% static "img/story.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Story">
-						                	{% elif ticket.issue_type == "Task" %}
+						                	{% elif ticket.issueType == "Task" %}
 						                	<p hidden>Task</p><img src='{% static "img/task.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Task">
-						                	{% elif ticket.issue_type == "Test" %}
+						                	{% elif ticket.issueType == "Test" %}
 						                	<p hidden>Test</p><img src='{% static "img/test.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Test">
-						                	{% elif ticket.issue_type == "Epic" %}
+						                	{% elif ticket.issueType == "Epic" %}
 						                	<p hidden>Epic</p><img src='{% static "img/epic.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Epic">
 						                	{% else %}
 						                	<p hidden></p><img src='' width="20" height="20">

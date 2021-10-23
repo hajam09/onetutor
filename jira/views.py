@@ -7,7 +7,7 @@ from deprecated import deprecated
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import serializers
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 
 from jira.enumerations import IssueType
@@ -69,7 +69,7 @@ def sprintboard(request, sprint_url):
 				description=new_description,
 				status=new_column,
 				priority=new_priority,
-				issue_type=new_issue_type
+				issueType=new_issue_type
 			)
 			response = {
 				"status_code": HTTPStatus.OK
@@ -125,7 +125,7 @@ def backlog(request):
 		Ticket.objects.create(
 			url=url,
 			project=project,
-			issue_type=issuetype,
+			issueType=issuetype,
 			reporter=User.objects.get(pk=reporter),
 			assignee=User.objects.get(pk=assignee),
 			summary=summary,
@@ -168,12 +168,12 @@ def backlog(request):
 
 	backlog_tickets = Ticket.objects.filter(status="None")
 	context = {
-		"bug_tickets": [i for i in backlog_tickets if i.issue_type == "Bug"],
-		"improvment_tickets": [i for i in backlog_tickets if i.issue_type == "Improvement"],
-		"story_tickets": [i for i in backlog_tickets if i.issue_type == "Story"],
-		"task_tickets": [i for i in backlog_tickets if i.issue_type == "Task"],
-		"test_tickets": [i for i in backlog_tickets if i.issue_type == "Test"],
-		"epic_tickets": [i for i in backlog_tickets if i.issue_type == "Epic"],
+		"bug_tickets": [i for i in backlog_tickets if i.issueType == "Bug"],
+		"improvment_tickets": [i for i in backlog_tickets if i.issueType == "Improvement"],
+		"story_tickets": [i for i in backlog_tickets if i.issueType == "Story"],
+		"task_tickets": [i for i in backlog_tickets if i.issueType == "Task"],
+		"test_tickets": [i for i in backlog_tickets if i.issueType == "Test"],
+		"epic_tickets": [i for i in backlog_tickets if i.issueType == "Epic"],
 		"superusers": User.objects.filter(is_superuser=True),
 		"sprint_tickets": Ticket.objects.filter(sprint=active_sprint).exclude(status="None"),
 		"active_sprint": active_sprint,
@@ -184,146 +184,109 @@ def backlog(request):
 	return render(request, "jira/backlog.html", context)
 
 
-def ticketpage(request, ticket_url):
-	ticket = Ticket.objects.get(url=ticket_url)
-	ticket_images = TicketImage.objects.filter(ticket=ticket)
-	ticket_comments = TicketComment.objects.filter(ticket=ticket).order_by('-id')
+def ticketPageView(request, ticket_url):
+
+	ticket = Ticket.objects.select_related('reporter', 'assignee', 'sprint').prefetch_related('watchers').get(url=ticket_url)
+	ticketComments = TicketComment.objects.filter(ticket=ticket).order_by('-id')
 
 	if request.is_ajax():
 		functionality = request.GET.get('functionality', None)
 
-		if functionality == "watch_unwatch_issue":
-			# TODO: Manual test the implementation.
-			# list_of_watched_tickets = Ticket.objects.filter(watchers__id=request.user.pk)
-			# if(ticket not in list_of_watched_tickets):
-			# 	request.user.watchers.add(ticket)
-			# else:
-			# 	request.user.watchers.remove(ticket)
-
+		if functionality == "watchOrUnwatchIssue":
 			if request.user not in ticket.watchers.all():
 				ticket.watchers.add(request.user)
-				is_watching = True
+				isWatching = True
 			else:
 				ticket.watchers.remove(request.user)
-				is_watching = False
+				isWatching = False
 
 			response = {
-				"is_watching": is_watching,
-				"new_watch_count_for_this_ticket": ticket.watchers.count(),
-				"status_code": HTTPStatus.OK
+				"isWatching": isWatching,
+				"newWatchCount": ticket.watchers.count(),
+				"statusCode": HTTPStatus.OK
 			}
-			return HttpResponse(json.dumps(response), content_type="application/json")
+			return JsonResponse(response)
 
-		elif functionality == "post_comment_on_ticket":
+		elif functionality == "createTicketComment":
 			comment = request.GET.get('comment', None)
-			new_ticket_comment = TicketComment.objects.create(
+			ticketComment = TicketComment.objects.create(
 				ticket=ticket,
 				creator=request.user,
 				comment=comment,
 			)
 			response = {
-				"new_ticket_comment": serializers.serialize("json", [new_ticket_comment, ]),
-				"status_code": HTTPStatus.OK
+				"statusCode": HTTPStatus.OK,
+				"pk": ticketComment.pk,
+				"comment": ticketComment.comment,
+				"likes": ticketComment.likes.count(),
+				"dislikes": ticketComment.dislikes.count(),
 			}
-			return HttpResponse(json.dumps(response), content_type="application/json")
+			return JsonResponse(response)
 
-		elif functionality == "update_ticket_comment":
-			comment_id, comment_text = request.GET.get('comment_id', None), request.GET.get('comment_text', None)
+		elif functionality == "updateTicketComment":
+			commentId = request.GET.get('commentId', None)
+			comment = request.GET.get('comment', None)
 
-			try:
-				this_comment = TicketComment.objects.get(id=int(comment_id))
-			# Search for the ticketcomment object from the list defined above.
-			except TicketComment.DoesNotExist:
+			thisComment = next((c for c in ticketComments if str(c.id) == commentId), None)
+			if thisComment is None:
 				response = {
-					"status_code": HTTPStatus.NOT_FOUND,
+					"statusCode": HTTPStatus.NOT_FOUND,
 					"message": "We think this comment has been deleted!"
 				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
+				return JsonResponse(response)
 
-			this_comment.comment = comment_text
-			this_comment.edited = True
-			this_comment.save(update_fields=['comment', 'edited'])
-			response = {
-				"this_comment": serializers.serialize("json", [this_comment, ]),
-				"status_code": HTTPStatus.OK
-			}
-			return HttpResponse(json.dumps(response), content_type="application/json")
-
-		elif functionality == "delete_ticket_comment":
-			comment_id = request.GET.get('comment_id', None)
-
-			try:
-				TicketComment.objects.get(pk=int(comment_id)).delete()
-				# Search for the ticketcomment object from the list defined above.
-				response = {
-					"status_code": HTTPStatus.OK
-				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
-			except TicketComment.DoesNotExist:
-				response = {
-					"status_code": HTTPStatus.NOT_FOUND
-				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
+			thisComment.comment = comment
+			thisComment.edited = True
+			thisComment.save(update_fields=['comment', 'edited'])
 
 			response = {
-				"status_code": HTTPStatus.BAD_REQUEST,
-				"message": "Bad Request"
+				"statusCode": HTTPStatus.OK,
+				"id": thisComment.id,
+				"comment": thisComment.comment,
 			}
-			return HttpResponse(json.dumps(response), content_type="application/json")
+			return JsonResponse(response)
 
-		elif functionality == "like_ticket_comment":
+		elif functionality == "deleteTicketComment":
 			commentId = request.GET.get('commentId', None)
 
-			try:
-				this_ticket = TicketComment.objects.get(id=int(commentId))
-			# Search for the ticketcomment object from the list defined above.
-			except TicketComment.DoesNotExist:
-				response = {
-					"status_code": HTTPStatus.NOT_FOUND,
-					"message": "We think this comment has been deleted!"
-				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
-
-			this_ticket.increaseTicketCommentLikes(request)
+			thisComment = next((c for c in ticketComments if str(c.id) == commentId), None)
+			if thisComment is None:
+				thisComment.delete()
 
 			response = {
-				"this_ticket": serializers.serialize("json", [this_ticket, ]),
-				"status_code": HTTPStatus.OK
+				"statusCode": HTTPStatus.OK,
 			}
-			return HttpResponse(json.dumps(response), content_type="application/json")
+			return JsonResponse(response)
 
-		elif functionality == "dislike_ticket_comment":
+		elif functionality == "likeTicketComment" or functionality == "dislikeTicketComment":
 			commentId = request.GET.get('commentId', None)
 
-			try:
-				this_ticket = TicketComment.objects.get(id=int(commentId))
-			# Search for the ticketcomment object from the list defined above.
-			except TicketComment.DoesNotExist:
+			thisComment = next((c for c in ticketComments if str(c.id) == commentId), None)
+			if thisComment is None:
 				response = {
-					"status_code": HTTPStatus.NOT_FOUND,
+					"statusCode": HTTPStatus.NOT_FOUND,
 					"message": "We think this comment has been deleted!"
 				}
-				return HttpResponse(json.dumps(response), content_type="application/json")
+				return JsonResponse(response)
 
-			this_ticket.increaseTicketCommentDislikes(request)
+			if functionality == "likeTicketComment":
+				thisComment.like(request)
+			else:
+				thisComment.dislike(request)
 
 			response = {
-				"this_ticket": serializers.serialize("json", [this_ticket, ]),
-				"status_code": HTTPStatus.OK
+				"statusCode": HTTPStatus.OK,
+				"likes": thisComment.likes.count(),
+				"dislikes": thisComment.dislikes.count(),
 			}
-			return HttpResponse(json.dumps(response), content_type="application/json")
+			return JsonResponse(response)
+		raise Exception("Unknown functionality on ticketpage")
 
-		raise Exception("Unknown functionality ticketpage")
+	if request.method == "POST" and "createSubTask" in request.POST:
 
-	if request.method == "POST" and "create_sub_task" in request.POST:
 		project = request.POST['project']
-		issuetype = request.POST['issuetype']
-		priority = request.POST['priority']
 		reporter = request.POST['reporter']
 		assignee = request.POST['assignee']
-		summary = request.POST['summary']
-		description = request.POST['description']
-		points = request.POST['points']
 
 		if "Jira" in project:
 			prefix = "Jira-"
@@ -337,33 +300,33 @@ def ticketpage(request, ticket_url):
 		except Exception as e:
 			url = prefix + "0"
 
-		new_subtask = Ticket.objects.create(
+		newSubTask = Ticket.objects.create(
 			url=url,
 			project=project,
-			issue_type=issuetype,
+			issueType=request.POST['issueType'],
 			reporter=User.objects.get(pk=reporter),
 			assignee=User.objects.get(pk=assignee),
-			summary=summary,
-			description=description,
-			points=points,
-			priority=priority
+			summary=request.POST['summary'],
+			description=request.POST['description'],
+			points=request.POST['points'],
+			priority=request.POST['priority']
 		)
-		ticket.subTask.add(new_subtask)
+		ticket.subTask.add(newSubTask)
 		return redirect('jira:ticketpage', ticket_url=ticket_url)
 
 	context = {
 		"ticket": ticket,
-		"ticket_images": ticket_images,
-		"ticket_comments": ticket_comments,
-		"is_watching": True if request.user in ticket.watchers.all() else False,
+		"ticketImages": ticket.ticketImages.all(),
+		"ticketComments": ticketComments,
+		"isWatching": True if request.user in ticket.watchers.all() else False,
 		"superusers": User.objects.filter(is_superuser=True),
-		"sub_tasks": ticket.subTask.all(),
-		"epic_link": Ticket.objects.filter(subTask_in=[ticket]).first(),
+		"subTasks": ticket.subTask.all(),
+		"epicLink": Ticket.objects.filter(subTask__in=[ticket]).first(),
 		"project": Project.list(True),
 		"issueType": IssueType.list(True),
 		"priority": Priority.list(True),
 	}
-	return render(request, "jira/ticketpage.html", context)
+	return render(request, "jira/ticketPage.html", context)
 
 
 def editticket(request, ticket_url):
@@ -402,7 +365,7 @@ def editticket(request, ticket_url):
 
 		ticket.assignee = User.objects.get(pk=assignee)
 		ticket.description = description
-		ticket.issue_type = issuetype
+		ticket.issueType = issuetype
 		ticket.points = points
 		ticket.priority = priority
 		ticket.reporter = User.objects.get(pk=reporter)

@@ -16,7 +16,7 @@ class Sprint(models.Model):
 class Ticket(models.Model):
     url = models.CharField(max_length=1024)
     project = models.CharField(max_length=1024)
-    issue_type = models.CharField(max_length=1024)
+    issueType = models.CharField(max_length=1024)
     reporter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reporter")
     assignee = models.ForeignKey(User, on_delete=models.CASCADE, related_name="assignee")
     summary = models.CharField(max_length=2048)
@@ -35,7 +35,7 @@ class Ticket(models.Model):
 
 
 class TicketImage(models.Model):
-    ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)
+    ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name='ticketImages')
     image = models.ImageField(upload_to='ticket-images/')
 
     class Meta:
@@ -51,8 +51,7 @@ class TicketComment(models.Model):
     date = models.DateTimeField(default=datetime.datetime.now)
     edited = models.BooleanField(default=False)
 
-    def increaseTicketCommentLikes(self, request):
-
+    def like(self, request):
         if request.user not in self.likes.all():
             self.likes.add(request.user)
         else:
@@ -61,7 +60,7 @@ class TicketComment(models.Model):
         if request.user in self.dislikes.all():
             self.dislikes.remove(request.user)
 
-    def increaseTicketCommentDislikes(self, request):
+    def dislike(self, request):
         if request.user not in self.dislikes.all():
             self.dislikes.add(request.user)
         else:

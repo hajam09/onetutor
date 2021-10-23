@@ -142,17 +142,17 @@
                 <td><a href="{% url 'jira:ticketpage' ticket.url %}">{{ticket.url}}</a></td>
                 <td>{{ticket.summary}}</td>
                 <td>
-                	{% if ticket.issue_type == "Bug" %}
+                	{% if ticket.issueType == "Bug" %}
                 	<p hidden>Bug</p><img src='{% static "img/bug.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Bug">
-                	{% elif ticket.issue_type == "Improvement" %}
+                	{% elif ticket.issueType == "Improvement" %}
                 	<p hidden>Improvement</p><img src='{% static "img/improvement.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Improvement">
-                	{% elif ticket.issue_type == "Story" %}
+                	{% elif ticket.issueType == "Story" %}
                 	<p hidden>Story</p><img src='{% static "img/story.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Story">
-                	{% elif ticket.issue_type == "Task" %}
+                	{% elif ticket.issueType == "Task" %}
                 	<p hidden>Task</p><img src='{% static "img/task.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Task">
-                	{% elif ticket.issue_type == "Test" %}
+                	{% elif ticket.issueType == "Test" %}
                 	<p hidden>Test</p><img src='{% static "img/test.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Test">
-                	{% elif ticket.issue_type == "Epic" %}
+                	{% elif ticket.issueType == "Epic" %}
                 	<p hidden>Epic</p><img src='{% static "img/epic.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Epic">
                 	{% else %}
                 	<p hidden></p><img src='' width="20" height="20">
