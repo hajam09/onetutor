@@ -160,7 +160,7 @@ def get_user_growth_by_month():
 		month = "%02d" % (users.date_joined.month,)
 		year_month = year+"/"+month
 		
-		if (year_month not in dates):
+		if year_month not in dates:
 			dates[year_month] = 1
 		else:
 			dates[year_month] += 1

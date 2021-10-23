@@ -1,10 +1,13 @@
+import random
+
+from essential_generators import DocumentGenerator
+
 from forum.models import Category
 from forum.models import Community
 from forum.models import Forum
 from forum.models import ForumComment
 from onetutor.tests.UserDataHelper import NewUser
-from essential_generators import DocumentGenerator
-import random
+
 
 class ForumBuildHelper:
 
@@ -16,7 +19,7 @@ class ForumBuildHelper:
 		self.newUser = NewUser()
 
 	def categoryBuilder(self):
-		self.category = Category.objects.create(name="Other")
+		return Category.objects.create(name="Other")
 
 	def communityBuilder(self, totalValue):
 		communityList = []
@@ -57,9 +60,9 @@ class ForumBuildHelper:
 
 			forumCommentList.append(
 				ForumComment(
-					forum = forum,
-					creator = self.newUser.user,
-					comment_description = "comment description",
+					forum=forum,
+					creator=self.newUser.user,
+					comment_description=comment_description,
 				)
 			)
 		ForumComment.objects.bulk_create(forumCommentList)

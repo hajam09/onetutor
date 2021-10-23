@@ -18,7 +18,7 @@ def mainpage(request):
 	except Sprint.DoesNotExist:
 		active_sprint = None
 
-	if active_sprint != None:
+	if active_sprint is not None:
 		return redirect('jira:sprintboard', sprint_url=active_sprint.url)
 	return redirect('jira:backlog')
 
@@ -183,7 +183,7 @@ def ticketpage(request, ticket_url):
 			# else:
 			# 	request.user.watchers.remove(ticket)
 
-			if(request.user not in ticket.watchers.all()):
+			if request.user not in ticket.watchers.all():
 				ticket.watchers.add(request.user)
 				is_watching = True
 			else:
@@ -389,7 +389,7 @@ def editticket(request, ticket_url):
 		ticket.summary=summary
 
 		if status != "None":
-			if status != "Cancelled" and ticket.sprint == None:
+			if status != "Cancelled" and ticket.sprint is None:
 				to_sprint = request.POST['sprint']
 				ticket.sprint = Sprint.objects.get(url=to_sprint)
 		else:
