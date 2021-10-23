@@ -98,9 +98,31 @@ def selectprofile(request):
 
 	return render(request, 'accounts/select_profile.html', {})
 
+
 @login_required
 def create_student_profile(request):
-	return render(request,"accounts/create_student_profile.html", {})
+	if request.method == "POST" and "createStudentProfile" in request.POST:
+		about = request.POST["about"]
+		subjects = ', '.join([i.capitalize() for i in request.POST.getlist('subjects')])
+
+		education = {}
+		for i in range(int(request.POST["numberOfEducation"])):
+			education["education_" + str(i + 1)] = {
+				"school_name": request.POST["school_name_" + str(i + 1)],
+				"qualification": request.POST["qualification_" + str(i + 1)],
+				"year": request.POST["year_" + str(i + 1)]
+			}
+
+		StudentProfile.objects.create(
+			user=request.user,
+			about=about,
+			education=education,
+			subjects=subjects
+		)
+
+		return redirect('accounts:studentprofile')
+
+	return render(request, "accounts/create_student_profile.html")
 
 @login_required
 def create_tutor_profile(request):
