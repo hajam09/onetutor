@@ -71,7 +71,7 @@
 			                <div class="modal-body">
 								<form method="post">
 									{% csrf_token %}
-									<input type="text" name="create_ticket" hidden>
+									<input type="text" name="createNewTicket" hidden>
 								    <div class="form-group row">
 								        <label for="project" class="col-sm-2 col-form-label"><b>Project</b></label>
 								        <div class="col-sm-10">
@@ -83,7 +83,7 @@
 								    <div class="form-group row">
 								        <label for="issuetype" class="col-sm-2 col-form-label"><b>Issue Type</b></label>
 								        <div class="col-sm-10">
-								            <select class="form-control" name="issuetype">
+								            <select class="form-control" name="issueType">
 								            	{{issueType|safe}}
 											</select>
 										</div>
@@ -101,9 +101,9 @@
 								        <label for="reporter" class="col-sm-2 col-form-label"><b>Reporter</b></label>
 								        <div class="col-sm-10">
 								            <select class="form-control" name="reporter">
-								            	<!-- TODO: If more superusers, then selected will be this user. -->
-								            	{% for superuser in superusers %}
-												<option value="{{superuser.id}}">{{superuser}}</option>
+								            	<!-- TODO: If more superUsers, then selected will be this user. -->
+								            	{% for superUser in superUsers %}
+												<option value="{{superUser.id}}">{{superUser}}</option>
 								            	{% endfor %}
 											</select>
 										</div>
@@ -112,8 +112,8 @@
 								        <label for="assignee" class="col-sm-2 col-form-label"><b>Assignee</b></label>
 								        <div class="col-sm-10">
 								            <select class="form-control" name="assignee">
-								            	{% for superuser in superusers %}
-												<option value="{{superuser.id}}">{{superuser}}</option>
+								            	{% for superUser in superUsers %}
+												<option value="{{superUser.id}}">{{superUser}}</option>
 								            	{% endfor %}
 											</select>
 										</div>
@@ -153,13 +153,13 @@
     	<div class="col">
     		<div class="row">
     			<div class="col">
-    				{% if active_sprint %}
+    				{% if activeSprint %}
     				<a style="text-decoration: none;" data-toggle="collapse" href="#sprint" role="button" aria-expanded="false" aria-controls="sprint"><i class="fas fa-chevron-circle-down"></i> Sprint</a>
     				<div class="collapse" id="sprint">
     					<div class="card card-body">
     						<div class="row">
-    							<ul class="tickets connectedSortable" id="sortable_0">
-    								{% for ticket in sprint_tickets %}
+    							<ul class="tickets connectedSortable" id="sprintTickets">
+    								{% for ticket in tickets.sprintTickets %}
     								<li class="card shadow mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
     									<div class="card-body">
     										{% if ticket.issueType == "Bug" %}
@@ -205,15 +205,15 @@
     				</div>
     				<div class="col-xs-12" style="height:30px;"></div>
     				{% else %}
-    				<div style="text-align: center;" class="alert alert-warning" role="alert"> You have no active sprint! <form method="post">{% csrf_token %}<input type="text" name="start_sprint" hidden><button style="background: none!important; border: none; padding: 0!important; color: #069; text-decoration: underline; cursor: pointer;" type="submit">Click here to create one</button></div>
+    				<div style="text-align: center;" class="alert alert-warning" role="alert"> You have no active sprint! <form method="post">{% csrf_token %}<input type="text" name="startNewSprint" hidden><button style="background: none!important; border: none; padding: 0!important; color: #069; text-decoration: underline; cursor: pointer;" type="submit">Click here to create one</button></div>
     				{% endif %}
     				<a style="text-decoration: none;" data-toggle="collapse" href="#bug" role="button" aria-expanded="false" aria-controls="bug"><i class="fas fa-chevron-circle-down"></i>
     				<img src='{% static "img/bug.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Bug"> Bug</a>
     				<div class="collapse" id="bug">
     					<div class="card card-body">
     						<div class="row">
-    							<ul class="tickets connectedSortable" id="sortable_1">
-    								{% for ticket in bug_tickets %}
+    							<ul class="tickets connectedSortable" id="bugTickets">
+    								{% for ticket in tickets.bugTickets %}
     								<li class="card shadow mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
     									<div class="card-body">
     										<img src='{% static "img/bug.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Bug">
@@ -249,8 +249,8 @@
     				<div class="collapse" id="improvement">
     					<div class="card card-body">
     						<div class="row">
-    							<ul class="tickets connectedSortable" id="sortable_2">
-    								{% for ticket in improvment_tickets %}
+    							<ul class="tickets connectedSortable" id="improvementTickets">
+    								{% for ticket in tickets.improvementTickets %}
     								<li class="card shadow mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
     									<div class="card-body">
     										<img src='{% static "img/improvement.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Improvement">
@@ -286,8 +286,8 @@
     				<div class="collapse" id="story">
     					<div class="card card-body">
     						<div class="row">
-    							<ul class="tickets connectedSortable" id="sortable_3">
-    								{% for ticket in story_tickets %}
+    							<ul class="tickets connectedSortable" id="storyTickets">
+    								{% for ticket in tickets.storyTickets %}
     								<li class="card shadow mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
     									<div class="card-body">
     										<img src='{% static "img/story.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Story">
@@ -323,8 +323,8 @@
     				<div class="collapse" id="task">
     					<div class="card card-body">
     						<div class="row">
-    							<ul class="tickets connectedSortable" id="sortable_4">
-    								{% for ticket in task_tickets %}
+    							<ul class="tickets connectedSortable" id="taskTickets">
+    								{% for ticket in tickets.taskTickets %}
     								<li class="card shadow mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
     									<div class="card-body">
     										<img src='{% static "img/task.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Task">
@@ -360,8 +360,8 @@
     				<div class="collapse" id="test">
     					<div class="card card-body">
     						<div class="row">
-    							<ul class="tickets connectedSortable" id="sortable_5">
-    								{% for ticket in test_tickets %}
+    							<ul class="tickets connectedSortable" id="testTickets">
+    								{% for ticket in tickets.testTickets %}
     								<li class="card shadow mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
     									<div class="card-body">
     										<img src='{% static "img/test.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Test">
@@ -397,8 +397,8 @@
     				<div class="collapse" id="epic">
     					<div class="card card-body">
     						<div class="row">
-    							<ul class="tickets connectedSortable" id="sortable_6">
-    								{% for ticket in epic_tickets %}
+    							<ul class="tickets connectedSortable" id="epicTickets">
+    								{% for ticket in tickets.epicTickets %}
     								<li class="card shadow mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
     									<div class="card-body">
     										<img src='{% static "img/epic.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Story">
@@ -435,56 +435,58 @@
 </div>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script type="text/javascript">
-	$('#sprint, #bug, #improvement, #story, #task, #test, #epic').collapse({
-		toggle: true
-	})
 
-	$( function() {
-		$( "#sortable_0, #sortable_1, #sortable_2, #sortable_3, #sortable_4, #sortable_5, #sortable_6" ).sortable({
-			// revert: true
-			connectWith: ".connectedSortable"
-		}).disableSelection();
+	$('#sprint, #bug, #improvement, #story, #task, #test, #epic').collapse({ toggle: true })
 
-		$( "#draggable" ).draggable({
-			connectToSortable: "#sortable",
-			helper: "clone",
-			revert: "invalid"
-		});
-		$( "ul, li" ).disableSelection();
+	$( function()
+	{
+		$( "#sprintTickets, #bugTickets, #improvementTickets, #storyTickets, #taskTickets, #testTickets, #epicTickets" ).sortable(
+			{
+				// revert: true
+				connectWith: ".connectedSortable"
+			}).disableSelection();
+
+			$( "#draggable" ).draggable({
+				connectToSortable: "#sortable",
+				helper: "clone",
+				revert: "invalid"
+			});
+			$( "ul, li" ).disableSelection();
 	});
 
-	$("#sortable_0").on('DOMNodeInserted', function(e) {
-		// ticket moved to: this sprint
-		var p_element = e.target.querySelector('a');
+	$("#sprintTickets").on('DOMNodeInserted', function(e)
+	{
+		// ticket moved to: active sprint
+		var anchorElement = e.target.querySelector('a');
 
-		if (p_element != null) {
-			var moved_ticket_url = p_element.innerHTML;
+		if ( anchorElement != null )
+		{
+			var movedTicketUrl = anchorElement.innerHTML;
 
 			$.ajax({
 				data: {
-					'functionality': 'move_ticket_to_active_sprint',
-					'moved_ticket_url': moved_ticket_url,
+					'functionality': 'moveTicketToActiveSprint',
+					'movedTicketUrl': movedTicketUrl,
 				},
 				dataType: 'json',
-				success: function (response) {}
 			});
 		}
 	});
 
-	$("#sortable_1, #sortable_2, #sortable_3, #sortable_4, #sortable_5, #sortable_6").on('DOMNodeInserted', function(e) {
-		// ticket moved to: away from active sprint
-		var p_element = e.target.querySelector('a');
+	$("#bugTickets, #improvementTickets, #storyTickets, #taskTickets, #testTickets, #epicTickets").on('DOMNodeInserted', function(e)
+	{
+		// ticket moved to: away from active sprint to backlog
+		var anchorElement = e.target.querySelector('a');
 
-		if (p_element != null) {
-			var moved_ticket_url = p_element.innerHTML;
+		if ( anchorElement != null )
+		{
+			var movedTicketUrl = anchorElement.innerHTML;
 			$.ajax({
 				data: {
-					'functionality': 'update_ticket_status',
-					'moved_ticket_url': moved_ticket_url,
-					'new_status': 'None'
+					'functionality': 'moveTicketToBacklog',
+					'movedTicketUrl': movedTicketUrl,
 				},
 				dataType: 'json',
-				success: function (response) {}
 			});
 		}
 	});

@@ -3,10 +3,8 @@ import json
 import os
 from http import HTTPStatus
 
-from deprecated import deprecated
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core import serializers
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 
@@ -87,28 +85,22 @@ def sprintboard(request, sprint_url):
 	return render(request, "jira/sprintboard.html", context)
 
 
-def backlog(request):
+def backlogView(request):
 
 	today = datetime.date.today()
 
 	try:
-		active_sprint = Sprint.objects.get(startDate__lte=today, endDate__gte=today)
+		activeSprint = Sprint.objects.get(startDate__lte=today, endDate__gte=today)
 	except Sprint.DoesNotExist:
-		active_sprint = None
+		activeSprint = None
 
-	if request.method == "POST" and "start_sprint" in request.POST:
-		startsprint()
-		return redirect('jira:backlog')
+	if request.method == "POST" and "startNewSprint" in request.POST:
+		activeSprint = startNewSprint()
 
-	if request.method == "POST" and "create_ticket" in request.POST:
+	if request.method == "POST" and "createNewTicket" in request.POST:
 		project = request.POST['project']
-		issuetype = request.POST['issuetype']
-		priority = request.POST['priority']
 		reporter = request.POST['reporter']
 		assignee = request.POST['assignee']
-		summary = request.POST['summary']
-		description = request.POST['description']
-		points = request.POST['points']
 
 		if "Jira" in project:
 			prefix = "Jira-"
@@ -119,64 +111,67 @@ def backlog(request):
 
 		try:
 			url = prefix + str(Ticket.objects.last().pk)
-		except Exception as e:
+		except AttributeError as exception:
 			url = prefix + "0"
 
 		Ticket.objects.create(
 			url=url,
 			project=project,
-			issueType=issuetype,
+			issueType=request.POST['issueType'],
 			reporter=User.objects.get(pk=reporter),
 			assignee=User.objects.get(pk=assignee),
-			summary=summary,
-			description=description,
-			points=points,
-			priority=priority
+			summary=request.POST['summary'],
+			description=request.POST['description'],
+			points=request.POST['points'],
+			priority=request.POST['priority']
 		)
-		return redirect('jira:backlog')
 
 	if request.is_ajax():
 		functionality = request.GET.get('functionality', None)
 
-		if functionality == "move_ticket_to_active_sprint":
-			moved_ticket_url = request.GET.get('moved_ticket_url', None)
+		if functionality == "moveTicketToActiveSprint":
+			movedTicketUrl = request.GET.get('movedTicketUrl', None)
 
-			ticket = Ticket.objects.get(url=moved_ticket_url)
+			ticket = Ticket.objects.get(url=movedTicketUrl)
 			ticket.status = "Open"
-			ticket.sprint = active_sprint
+			ticket.sprint = activeSprint
 			ticket.save()
 
 			response = {
-				"status_code": HTTPStatus.OK
+				"statusCode": HTTPStatus.OK
 			}
-			return HttpResponse(json.dumps(response), content_type="application/json")
+			return JsonResponse(response)
 
-		elif functionality == "update_ticket_status":
-			# moving the ticket from active sprint to backlog
-			moved_ticket_url, new_status = request.GET.get('moved_ticket_url', None), request.GET.get('new_status',
-																									  None)
+		elif functionality == "moveTicketToBacklog":
+			movedTicketUrl = request.GET.get('movedTicketUrl', None)
 
-			ticket = Ticket.objects.get(url=moved_ticket_url)
-			ticket.status = new_status
+			ticket = Ticket.objects.get(url=movedTicketUrl)
+			ticket.status = "None"
 			ticket.sprint = None
 			ticket.save()
 
 			response = {
-				"status_code": HTTPStatus.OK
+				"statusCode": HTTPStatus.OK
 			}
-			return HttpResponse(json.dumps(response), content_type="application/json")
+			return JsonResponse(response)
 
-	backlog_tickets = Ticket.objects.filter(status="None")
+	backlogTickets = Ticket.objects.filter(status=Status.NONE)
+
+	# Think about list comprehension for each line or one for-loop for all.
+	tickets = {
+		"bugTickets": [i for i in backlogTickets if i.issueType == IssueType.BUG.value],
+		"improvementTickets": [i for i in backlogTickets if i.issueType == IssueType.IMPROVEMENT.value],
+		"storyTickets": [i for i in backlogTickets if i.issueType == IssueType.STORY.value],
+		"taskTickets": [i for i in backlogTickets if i.issueType == IssueType.TASK.value],
+		"testTickets": [i for i in backlogTickets if i.issueType == IssueType.TEST.value],
+		"epicTickets": [i for i in backlogTickets if i.issueType == IssueType.EPIC.value],
+		"sprintTickets": Ticket.objects.filter(sprint=activeSprint).exclude(status=Status.NONE)
+	}
+
 	context = {
-		"bug_tickets": [i for i in backlog_tickets if i.issueType == "Bug"],
-		"improvment_tickets": [i for i in backlog_tickets if i.issueType == "Improvement"],
-		"story_tickets": [i for i in backlog_tickets if i.issueType == "Story"],
-		"task_tickets": [i for i in backlog_tickets if i.issueType == "Task"],
-		"test_tickets": [i for i in backlog_tickets if i.issueType == "Test"],
-		"epic_tickets": [i for i in backlog_tickets if i.issueType == "Epic"],
-		"superusers": User.objects.filter(is_superuser=True),
-		"sprint_tickets": Ticket.objects.filter(sprint=active_sprint).exclude(status="None"),
-		"active_sprint": active_sprint,
+		"tickets": tickets,
+		"superUsers": User.objects.filter(is_superuser=True),
+		"activeSprint": activeSprint,
 		"project": Project.list(True),
 		"issueType": IssueType.list(True),
 		"priority": Priority.list(False),
@@ -401,56 +396,24 @@ def editTicketView(request, ticketUrl):
 	return render(request, "jira/editTicket.html", context)
 
 
-def startsprint():
-	today = datetime.date.today()
-	try:
-		Sprint.objects.get(startDate__lte=today, endDate__gte=today)
-	# already a sprint exists as of today. No need to create another.
-	except Sprint.DoesNotExist:
-		prefix = "sprint-"
-		try:
-			last_sprint = Sprint.objects.last()
-			url = prefix + str(last_sprint.pk)
-			Sprint.objects.create(
-				url=url,
-				startDate=today,
-				endDate=today + datetime.timedelta(days=14)
-			)
-			print(today, today + datetime.timedelta(days=14))
-		except Exception as e:
-			url = prefix + "0"
-			Sprint.objects.create(
-				url=url,
-				startDate=today,
-				endDate=today + datetime.timedelta(days=14)
-			)
-	return
-
-@deprecated(version='1.2.1', reason="Rather than creating sprint on a recurring task. Let the user create the sprint.")
-def createsprint():
+def startNewSprint():
 	today = datetime.date.today()
 
+	# if the user wants to start a new sprint, then start it but close any open ones.
+	Sprint.objects.filter(startDate__lte=today, endDate__gte=today).update(endDate=today)
+
+	prefix = "sprint-"
+
 	try:
-		Sprint.objects.get(startDate__lte=today, endDate_gte=today)
-	except Sprint.DoesNotExist:
-		prefix = "sprint-"
-		try:
-			last_sprint = Sprint.objects.last()
-			url = prefix + str(last_sprint.pk)
-			end_of_last_sprint = last_sprint.end_date
-			new_sprint_date = end_of_last_sprint + datetime.timedelta(days=1)
-			Sprint.objects.create(
-				url=url,
-				startDate=new_sprint_date,
-				endDate=new_sprint_date+datetime.timedelta(days=14)
-			)
-			return True
-		except Exception as e:
-			url = prefix+"0"
-		Sprint.objects.create(
-			url=url,
-			startDate=new_sprint_date,
-			endDate=new_sprint_date+datetime.timedelta(days=14)
-		)
-		return True
-	return False
+		url = prefix + str(Sprint.objects.last().pk)
+	except AttributeError as exception:
+		url = prefix + "0"
+		print(exception)
+
+	newSprint = Sprint.objects.create(
+		url=url,
+		startDate=today,
+		endDate=today + datetime.timedelta(days=14)
+	)
+
+	return newSprint

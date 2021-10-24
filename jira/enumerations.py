@@ -10,6 +10,9 @@ class BaseEnum(Enum):
             dropDowns.sort()
         return "".join(dropDowns)
 
+    def __str__(self):
+        return self.value
+
 
 class Project(BaseEnum):
     ONE_TUTOR = "OneTutor (OT)"
