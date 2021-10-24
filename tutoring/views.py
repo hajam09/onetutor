@@ -209,6 +209,13 @@ def viewtutorprofile(request, tutorProfileKey):
 				}
 				return JsonResponse(response)
 
+			if questionAnswer.answerer != request.user:
+				response = {
+					"statusCode": HTTPStatus.FORBIDDEN,
+					"message": 'You are not allowed to answer this question. Only the tutor can answer it.'
+				}
+				return JsonResponse(response)
+
 			questionAnswer.answer = answer
 			questionAnswer.save(update_fields=['answer'])
 			response = {

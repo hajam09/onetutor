@@ -1228,16 +1228,24 @@
 			dataType: 'json',
 			success: function (response)
 			{
+                if (response.statusCode == 200)
+                {
+                    $('div#qa_answer_'+questionId).html(answer.replace(/\n\r?/g, '<br />'));
+                }
 
 				if (response.statusCode == 401)
 				{
 					window.location.href = "{% url 'accounts:login' %}";
 				}
 
-				if (response.statusCode == 200)
-				{
-					$('div#qa_answer_'+questionId).html(answer.replace(/\n\r?/g, '<br />'));
-				}
+                if (response.statusCode == 403)
+                {
+                    Swal.fire({
+                        icon: 'error',
+                        title: "Can't do that!",
+                        text: response.message
+                    });
+                }
 
 				if (response.statusCode == 404)
 				{
