@@ -52,7 +52,12 @@ def sprintBoardView(request, sprintUrl):
 			ticket.status = "Done"
 
 		if functionality == "updateTicketAttributesFromModal":
-			pass
+			ticket.issueType = request.GET.get('newIssueType', None)
+			ticket.summary = request.GET.get('newSummary', None)
+			ticket.description = request.GET.get('newDescription', None)
+			ticket.status = request.GET.get('newStatus', None)
+			ticket.priority = request.GET.get('newPriority', None)
+			# ticket.points = request.GET.get('newPoint', None)
 
 		ticket.save()
 
@@ -61,35 +66,11 @@ def sprintBoardView(request, sprintUrl):
 		}
 		return JsonResponse(response)
 
-		# if functionality == "update_ticket_attributes_from_modal":
-		# 	new_summary = request.GET.get('new_summary', None)
-		# 	new_description = request.GET.get('new_description', None)
-		# 	new_column = request.GET.get('new_column', None)
-		# 	ticket_id = request.GET.get('ticket_code', None)
-		# 	new_priority = request.GET.get('new_priority', None)
-		# 	new_issue_type = request.GET.get('new_issue_type', None)
-		#
-		# 	Ticket.objects.filter(id=ticket_id).update(
-		# 		summary=new_summary,
-		# 		description=new_description,
-		# 		status=new_column,
-		# 		priority=new_priority,
-		# 		issueType=new_issue_type
-		# 	)
-		# 	response = {
-		# 		"status_code": HTTPStatus.OK
-		# 	}
-		# 	return HttpResponse(json.dumps(response), content_type="application/json")
-
-	sprint_tickets = Ticket.objects.filter(sprint=activeSprint)
 	context = {
 		"activeSprint": activeSprint,
-		"openTickets": [i for i in sprint_tickets if i.status == "Open"],
-		"progressTickets": [i for i in sprint_tickets if i.status == "Progress"],
-		"doneTickets": [i for i in sprint_tickets if i.status == "Done"],
-		"cancelledTickets": [i for i in sprint_tickets if i.status == "Cancelled"],
+		"sprintTickets": Ticket.objects.filter(sprint=activeSprint),
 	}
-	return render(request, "jira/sprintboard.html", context)
+	return render(request, "jira/sprintBoard.html", context)
 
 
 def backlogView(request):

@@ -33,6 +33,9 @@ class Ticket(models.Model):
     class Meta:
         verbose_name_plural = "Ticket"
 
+    def __str__(self):
+        return self.url
+
 
 class TicketImage(models.Model):
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name='ticketImages')
