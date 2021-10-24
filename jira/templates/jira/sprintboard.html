@@ -114,13 +114,13 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-body tab-content" style="color: black;">
-                	<h3>One Tutor ({{active_sprint.startDate}} - {{active_sprint.endDate}})</h3>
+                	<h3>One Tutor ({{activeSprint.startDate}} - {{activeSprint.endDate}})</h3>
                 	<hr>
                 	<div class="row">
                 		<div class="col">
                 			<div class="row">TO DO</div>
                 			<ul class="tickets connectedSortable" id="sortable_1">
-                				{% for ticket in todo_tickets %}
+                				{% for ticket in openTickets %}
 							    <li id="jira_ticket_{{ticket.id}}_in_board" isticket="true" class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
 							    	<div id="ticket_details" hidden>
 							    		<span>{{ ticket.status }}</span>
@@ -135,21 +135,9 @@
 							            <h6 id="ticket_{{ ticket.id }}_summary_UI_text" class="note-title text-truncate w-75 mb-0">{{ticket.summary}} </h6>
 							            <br>
 							            <div>
-							            	{% if ticket.issueType == "Bug" %}
-						                	<p hidden>Bug</p><img src='{% static "img/bug.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Bug">
-						                	{% elif ticket.issueType == "Improvement" %}
-						                	<p hidden>Improvement</p><img src='{% static "img/improvement.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Improvement">
-						                	{% elif ticket.issueType == "Story" %}
-						                	<p hidden>Story</p><img src='{% static "img/story.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Story">
-						                	{% elif ticket.issueType == "Task" %}
-						                	<p hidden>Task</p><img src='{% static "img/task.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Task">
-						                	{% elif ticket.issueType == "Test" %}
-						                	<p hidden>Test</p><img src='{% static "img/test.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Test">
-						                	{% elif ticket.issueType == "Epic" %}
-						                	<p hidden>Epic</p><img src='{% static "img/epic.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Epic">
-						                	{% else %}
-						                	<p hidden></p><img src='' width="20" height="20">
-						                	{% endif %}
+							            	
+							            	<p hidden>{{ticket.issueType}}</p>
+							            	<img src='{% static "img/" %}{{ticket.issueType|lower}}.jpg' width="20" height="20" data-toggle="tooltip" data-placement="top" title="{{ticket.issueType}}">
 
 											{% if ticket.priority == "Low" %}
 											<span id="ticket_{{ ticket.id }}_priority_UI_badge" class="badge badge-success">{{ticket.priority}}</span>
@@ -171,7 +159,7 @@
                 		<div class="col">
                 			<div class="row">IN PROGRESS</div>
                 			<ul class="tickets connectedSortable" id="sortable_2">
-                				{% for ticket in prog_tickets %}
+                				{% for ticket in progressTickets %}
 							    <li id="jira_ticket_{{ticket.id}}_in_board" isticket="true" class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
 							    	<div id="ticket_details" hidden>
 							    		<span>{{ ticket.status }}</span>
@@ -186,21 +174,10 @@
 							            <h6 id="ticket_{{ ticket.id }}_summary_UI_text" class="note-title text-truncate w-75 mb-0">{{ticket.summary}} </h6>
 							            <br>
 							            <div>
-							            	{% if ticket.issueType == "Bug" %}
-						                	<p hidden>Bug</p><img src='{% static "img/bug.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Bug">
-						                	{% elif ticket.issueType == "Improvement" %}
-						                	<p hidden>Improvement</p><img src='{% static "img/improvement.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Improvement">
-						                	{% elif ticket.issueType == "Story" %}
-						                	<p hidden>Story</p><img src='{% static "img/story.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Story">
-						                	{% elif ticket.issueType == "Task" %}
-						                	<p hidden>Task</p><img src='{% static "img/task.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Task">
-						                	{% elif ticket.issueType == "Test" %}
-						                	<p hidden>Test</p><img src='{% static "img/test.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Test">
-						                	{% elif ticket.issueType == "Epic" %}
-						                	<p hidden>Epic</p><img src='{% static "img/epic.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Epic">
-						                	{% else %}
-						                	<p hidden></p><img src='' width="20" height="20">
-						                	{% endif %}
+
+							            	<p hidden>{{ticket.issueType}}</p>
+							            	<img src='{% static "img/" %}{{ticket.issueType|lower}}.jpg' width="20" height="20" data-toggle="tooltip" data-placement="top" title="{{ticket.issueType}}">
+
 
 						                	{% if ticket.priority == "Low" %}
 											<span id="ticket_{{ ticket.id }}_priority_UI_badge" class="badge badge-success">{{ticket.priority}}</span>
@@ -222,7 +199,7 @@
                 		<div class="col">
                 			<div class="row">DONE</div>
                 			<ul class="tickets connectedSortable" id="sortable_3">
-                				{% for ticket in done_tickets %}
+                				{% for ticket in doneTickets %}
 							    <li id="jira_ticket_{{ticket.id}}_in_board" isticket="true" class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
 							    	<div id="ticket_details" hidden>
 							    		<span>{{ ticket.status }}</span>
@@ -237,21 +214,9 @@
 							            <h6 id="ticket_{{ ticket.id }}_summary_UI_text" class="note-title text-truncate w-75 mb-0">{{ticket.summary}} </h6>
 							            <br>
 							            <div>
-							            	{% if ticket.issueType == "Bug" %}
-						                	<p hidden>Bug</p><img src='{% static "img/bug.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Bug">
-						                	{% elif ticket.issueType == "Improvement" %}
-						                	<p hidden>Improvement</p><img src='{% static "img/improvement.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Improvement">
-						                	{% elif ticket.issueType == "Story" %}
-						                	<p hidden>Story</p><img src='{% static "img/story.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Story">
-						                	{% elif ticket.issueType == "Task" %}
-						                	<p hidden>Task</p><img src='{% static "img/task.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Task">
-						                	{% elif ticket.issueType == "Test" %}
-						                	<p hidden>Test</p><img src='{% static "img/test.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Test">
-						                	{% elif ticket.issueType == "Epic" %}
-						                	<p hidden>Epic</p><img src='{% static "img/epic.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Epic">
-						                	{% else %}
-						                	<p hidden></p><img src='' width="20" height="20">
-						                	{% endif %}
+
+							            	<p hidden>{{ticket.issueType}}</p>
+							            	<img src='{% static "img/" %}{{ticket.issueType|lower}}.jpg' width="20" height="20" data-toggle="tooltip" data-placement="top" title="{{ticket.issueType}}">
 
 						                	{% if ticket.priority == "Low" %}
 											<span id="ticket_{{ ticket.id }}_priority_UI_badge" class="badge badge-success">{{ticket.priority}}</span>
@@ -270,7 +235,7 @@
 							    {% endfor %}
 
 							    <!-- Cancelled Tickets -->
-							    {% for ticket in canc_tickets %}
+							    {% for ticket in cancelledTickets %}
 							    <li id="jira_ticket_{{ticket.id}}_in_board" isticket="true" class="single-note-item all-category shadow p-3 mb-2 bg-white rounded" style="width: 100%; cursor: move;" draggable="true">
 							    	<div id="ticket_details" hidden>
 							    		<span>{{ ticket.status }}</span>
@@ -285,21 +250,9 @@
 							            <h6 id="ticket_{{ ticket.id }}_summary_UI_text" class="note-title text-truncate w-75 mb-0">{{ticket.summary}} </h6>
 							            <br>
 							            <div>
-							            	{% if ticket.issueType == "Bug" %}
-						                	<p hidden>Bug</p><img src='{% static "img/bug.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Bug">
-						                	{% elif ticket.issueType == "Improvement" %}
-						                	<p hidden>Improvement</p><img src='{% static "img/improvement.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Improvement">
-						                	{% elif ticket.issueType == "Story" %}
-						                	<p hidden>Story</p><img src='{% static "img/story.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Story">
-						                	{% elif ticket.issueType == "Task" %}
-						                	<p hidden>Task</p><img src='{% static "img/task.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Task">
-						                	{% elif ticket.issueType == "Test" %}
-						                	<p hidden>Test</p><img src='{% static "img/test.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Test">
-						                	{% elif ticket.issueType == "Epic" %}
-						                	<p hidden>Epic</p><img src='{% static "img/epic.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="Epic">
-						                	{% else %}
-						                	<p hidden></p><img src='' width="20" height="20">
-						                	{% endif %}
+
+							            	<p hidden>{{ticket.issueType}}</p>
+							            	<img src='{% static "img/" %}{{ticket.issueType|lower}}.jpg' width="20" height="20" data-toggle="tooltip" data-placement="top" title="{{ticket.issueType}}">
 
 						                	{% if ticket.priority == "Low" %}
 											<span id="ticket_{{ ticket.id }}_priority_UI_badge" class="badge badge-success">{{ticket.priority}}</span>
@@ -328,73 +281,78 @@
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script type="text/javascript">
-	$( function() {
-		$( "#sortable_1, #sortable_2, #sortable_3" ).sortable({
+
+	$( function()
+	{
+		$( "#sortable_1, #sortable_2, #sortable_3" ).sortable(
+		{
 			// revert: true
 			connectWith: ".connectedSortable"
 		}).disableSelection();
 
-		$( "#draggable" ).draggable({
+		$( "#draggable" ).draggable(
+		{
 			connectToSortable: "#sortable",
 			helper: "clone",
 			revert: "invalid"
 		});
+
 		$( "ul, li" ).disableSelection();
 	});
 
-	$("#sortable_1").on('DOMNodeInserted', function(e) {
+	$("#sortable_1").on('DOMNodeInserted', function(e)
+	{
 		// ticket moved to: TO DO
-		var p_element = e.target.querySelector('a');
+		var anchorElement = e.target.querySelector('a');
 
-		if (p_element != null) {
-			var moved_ticket_url = p_element.innerHTML;
+		if (anchorElement != null)
+		{
+			var ticketUrl = anchorElement.innerHTML;
 
 			$.ajax({
 				data: {
-					'functionality': 'update_ticket_status',
-					'moved_ticket_url': moved_ticket_url,
-					'new_status': 'Open'
+					'functionality': 'moveTicketToOpen',
+					'ticketUrl': ticketUrl,
 				},
 				dataType: 'json',
-				success: function (response) {}
 			});
 		}
 	});
 
-	$("#sortable_2").on('DOMNodeInserted', function(e) {
+	$("#sortable_2").on('DOMNodeInserted', function(e)
+	{
 		// ticket moved to: IN PROGRESS
-		var p_element = e.target.querySelector('a');
+		var anchorElement = e.target.querySelector('a');
 
-		if (p_element != null) {
-			var moved_ticket_url = p_element.innerHTML;
+		if (anchorElement != null)
+		{
+			var ticketUrl = anchorElement.innerHTML;
 
 			$.ajax({
 				data: {
-					'functionality': 'update_ticket_status',
-					'moved_ticket_url': moved_ticket_url,
-					'new_status': 'Progress'
+					'functionality': 'moveTicketToProgress',
+					'ticketUrl': ticketUrl,
 				},
 				dataType: 'json',
-				success: function (response) {}
 			});
 		}
 	});
 
-	$("#sortable_3").on('DOMNodeInserted', function(e) {
+	$("#sortable_3").on('DOMNodeInserted', function(e)
+	{
 		// ticket moved to: IN DONE
-		var p_element = e.target.querySelector('a');
+		var anchorElement = e.target.querySelector('a');
 
-		if (p_element != null) {
-			var moved_ticket_url = p_element.innerHTML;
+		if (anchorElement != null)
+		{
+			var ticketUrl = anchorElement.innerHTML;
 
 			$.ajax({
 				data: {
-					'functionality': 'update_ticket_status',
-					'moved_ticket_url': moved_ticket_url,
-					'new_status': 'Done'
+					'functionality': 'moveTicketToDone',
+					'ticketUrl': ticketUrl,
 				},
 				dataType: 'json',
-				success: function (response) {}
 			});
 		}
 	});
@@ -563,26 +521,26 @@
     	if (isChanged) {
     		// either the summary or the description has been changed. Update in the DB.
     		console.log("update in db");
-    		$.ajax({
-				data: {
-					'functionality': 'update_ticket_attributes_from_modal',
-					'new_summary': new_summary,
-					'new_description': new_description,
-					'ticket_code': ticket_code,
-					'new_column': new_column,
-					'new_priority': new_priority,
-					'new_issue_type': new_issue_type,
-				},
-				dataType: 'json',
-				success: function (response) {
-					$("#ticket_"+ticket_code+"_summary_UI_text").text(new_summary);
-					updateTicketNewPriorityBadgeInUI(ticket_code, new_priority);
-					updateTicketNewIssueTypeInUI(ticket_code, new_issue_type);
-					updateTIcketNewColumnInUI(ticket_code, new_column);
-					// TODO: once the update is complete in the db, then in the UI background update:
-					// issue type and labels
-				}
-			});
+   //  		$.ajax({
+			// 	data: {
+			// 		'functionality': 'update_ticket_attributes_from_modal',
+			// 		'new_summary': new_summary,
+			// 		'new_description': new_description,
+			// 		'ticket_code': ticket_code,
+			// 		'new_column': new_column,
+			// 		'new_priority': new_priority,
+			// 		'new_issue_type': new_issue_type,
+			// 	},
+			// 	dataType: 'json',
+			// 	success: function (response) {
+			// 		$("#ticket_"+ticket_code+"_summary_UI_text").text(new_summary);
+			// 		updateTicketNewPriorityBadgeInUI(ticket_code, new_priority);
+			// 		updateTicketNewIssueTypeInUI(ticket_code, new_issue_type);
+			// 		updateTIcketNewColumnInUI(ticket_code, new_column);
+			// 		// TODO: once the update is complete in the db, then in the UI background update:
+			// 		// issue type and labels
+			// 	}
+			// });
 
     	}
     	$("#changeMade").attr("value","false");

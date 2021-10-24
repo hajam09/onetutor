@@ -26,61 +26,68 @@ def mainpage(request):
 		active_sprint = None
 
 	if active_sprint is not None:
-		return redirect('jira:sprintboard', sprint_url=active_sprint.url)
+		return redirect('jira:sprintboard', sprintUrl=active_sprint.url)
 	return redirect('jira:backlog')
 
 
-def sprintboard(request, sprint_url):
+def sprintBoardView(request, sprintUrl):
 
 	try:
-		active_sprint = Sprint.objects.get(url=sprint_url)
+		activeSprint = Sprint.objects.get(url=sprintUrl)
 	except Sprint.DoesNotExist:
-		# redirect to sprint does not exists page
-		pass
+		return redirect('jira:backlog')  # or redirect to 404 page
 
 	if request.is_ajax():
 		functionality = request.GET.get('functionality', None)
+		ticketUrl = request.GET.get('ticketUrl', None)
+		ticket = Ticket.objects.get(url=ticketUrl)
 
-		if functionality == "update_ticket_status":
-			moved_ticket_url, new_status = request.GET.get('moved_ticket_url', None), request.GET.get('new_status',
-																									  None)
+		if functionality == "moveTicketToOpen":
+			ticket.status = "Open"
 
-			ticket = Ticket.objects.get(url=moved_ticket_url)
-			ticket.status = new_status
-			ticket.save()
+		if functionality == "moveTicketToProgress":
+			ticket.status = "Progress"
 
-			response = {
-				"status_code": HTTPStatus.OK
-			}
-			return HttpResponse(json.dumps(response), content_type="application/json")
+		if functionality == "moveTicketToDone":
+			ticket.status = "Done"
 
-		if functionality == "update_ticket_attributes_from_modal":
-			new_summary = request.GET.get('new_summary', None)
-			new_description = request.GET.get('new_description', None)
-			new_column = request.GET.get('new_column', None)
-			ticket_id = request.GET.get('ticket_code', None)
-			new_priority = request.GET.get('new_priority', None)
-			new_issue_type = request.GET.get('new_issue_type', None)
+		if functionality == "updateTicketAttributesFromModal":
+			pass
 
-			Ticket.objects.filter(id=ticket_id).update(
-				summary=new_summary,
-				description=new_description,
-				status=new_column,
-				priority=new_priority,
-				issueType=new_issue_type
-			)
-			response = {
-				"status_code": HTTPStatus.OK
-			}
-			return HttpResponse(json.dumps(response), content_type="application/json")
+		ticket.save()
 
-	sprint_tickets = Ticket.objects.filter(sprint=active_sprint)
+		response = {
+			"statusCode": HTTPStatus.OK
+		}
+		return JsonResponse(response)
+
+		# if functionality == "update_ticket_attributes_from_modal":
+		# 	new_summary = request.GET.get('new_summary', None)
+		# 	new_description = request.GET.get('new_description', None)
+		# 	new_column = request.GET.get('new_column', None)
+		# 	ticket_id = request.GET.get('ticket_code', None)
+		# 	new_priority = request.GET.get('new_priority', None)
+		# 	new_issue_type = request.GET.get('new_issue_type', None)
+		#
+		# 	Ticket.objects.filter(id=ticket_id).update(
+		# 		summary=new_summary,
+		# 		description=new_description,
+		# 		status=new_column,
+		# 		priority=new_priority,
+		# 		issueType=new_issue_type
+		# 	)
+		# 	response = {
+		# 		"status_code": HTTPStatus.OK
+		# 	}
+		# 	return HttpResponse(json.dumps(response), content_type="application/json")
+
+	sprint_tickets = Ticket.objects.filter(sprint=activeSprint)
 	context = {
-		"active_sprint": active_sprint,
-		"todo_tickets": [i for i in sprint_tickets if i.status == "Open"],
-		"prog_tickets": [i for i in sprint_tickets if i.status == "Progress"],
-		"done_tickets": [i for i in sprint_tickets if i.status == "Done"],
-		"canc_tickets": [i for i in sprint_tickets if i.status == "Cancelled"],
+		"activeSprint": activeSprint,
+		"openTickets": [i for i in sprint_tickets if i.status == "Open"],
+		"progressTickets": [i for i in sprint_tickets if i.status == "Progress"],
+		"doneTickets": [i for i in sprint_tickets if i.status == "Done"],
+		"cancelledTickets": [i for i in sprint_tickets if i.status == "Cancelled"],
 	}
 	return render(request, "jira/sprintboard.html", context)
 
