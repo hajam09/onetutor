@@ -79,6 +79,7 @@ def register(request):
 	}
 	return render(request, 'accounts/registration.html', context)
 
+
 def logout(request):
 	signOut(request)
 
@@ -87,6 +88,7 @@ def logout(request):
 		return redirect(previousUrl)
 
 	return redirect('accounts:login')
+
 
 @login_required
 def selectprofile(request):

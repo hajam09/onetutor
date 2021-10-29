@@ -92,7 +92,7 @@ def mainpage(request):
 				}
 				for j in generalQueryList
 				for i in profiles
-				if j.lower() in i.summary.lower() or j.lower() in i.subjects.lower()
+				if j.casefold() in i.summary.casefold() or j.casefold() in i.subjects.casefold() or j.casefold() in i.user.get_full_name().casefold()
 			]
 
 			context["generalQuery"] = generalQuery
