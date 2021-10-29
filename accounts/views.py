@@ -9,7 +9,7 @@ from django.contrib.auth import logout as signOut
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.utils.encoding import force_text
@@ -227,16 +227,23 @@ def tutorprofileedit(request):
 	}
 	return render(request, "accounts/tutorprofileedit.html", context)
 
+
 @login_required
-def studentprofile(request):
-	return render(request,"accounts/studentprofile.html", {})
+def studentProfileView(request):
+
+	
+
+
+	return render(request, "accounts/studentProfile.html")
+
 
 @login_required
 def studentprofileedit(request):
-	return render(request,"accounts/studentprofile.html", {})
+	return render(request, "accounts/studentprofile.html")
+
 
 @login_required
-def user_settings(request):
+def userSettings(request):
 	# TODO: Change this view to tutor settins and create separate for student settings.
 	# TODO: Implement TFA.
 
@@ -377,7 +384,7 @@ def user_settings(request):
 			'Account delete code is incorrect, please try again later.'
 		)
 
-	return render(request, "accounts/user_settings.html")
+	return render(request, "accounts/tutorSettings.html")
 
 def rules(request, rule_type):
 	if rule_type == "privacy_policy":
@@ -467,17 +474,17 @@ def requestDeleteCode(request):
 
 	if not request.is_ajax():
 		response = {
-			"status_code": 403,
+			"statusCode": 403,
 			"message": "Bad Request"
 		}
-		return HttpResponse(json.dumps(response), content_type="application/json")
+		return JsonResponse(response)
 
 	if not request.user.is_authenticated:
 		response = {
-			"status_code": 401,
+			"statusCode": 401,
 			"message": "Login to request a code."
 		}
-		return HttpResponse(json.dumps(response), content_type="application/json")
+		return JsonResponse(response)
 
 	if not request.session.session_key:
 		request.session.save()
@@ -485,7 +492,7 @@ def requestDeleteCode(request):
 	emailOperations.sendEmailForAccountDeletionCode(request, request.user)
 
 	response = {
-		"status_code": 200,
+		"statusCode": 200,
 		"message": "Check your email for the code."
 	}
-	return HttpResponse(json.dumps(response), content_type="application/json")
+	return JsonResponse(response)
