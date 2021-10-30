@@ -10,6 +10,7 @@ from django.shortcuts import redirect
 from django.shortcuts import render
 
 from accounts.models import Subject
+from accounts.models import Education
 from accounts.models import TutorProfile
 from tutoring.models import QuestionAnswer
 from tutoring.models import QuestionAnswerComment

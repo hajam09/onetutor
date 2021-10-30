@@ -53,8 +53,8 @@
                      <input type="text" name="updateGeneralInformation" hidden>
                      {% csrf_token %}
                      <div class="card-body media align-items-center">
-                        {% if request.user.tutorprofile.profilePicture %}
-                        <img src="{{ request.user.tutorprofile.profilePicture.url }}" alt="" class="d-block ui-w-80 rounded-circle">
+                        {% if request.user.studentprofile.profilePicture %}
+                        <img src="{{ request.user.studentprofile.profilePicture.url }}" alt="" class="d-block ui-w-80 rounded-circle">
                         {% else %}
                         <img src="https://icon-library.com/images/default-user-icon/default-user-icon-13.jpg" alt="" class="d-block ui-w-80 rounded-circle">
                         {% endif %}
@@ -71,11 +71,11 @@
                         <div class="row">
                            <div class="col">
                               <label for="fullName">First Name</label>
-                              <input type="text" class="form-control" id="firstName" name="firstName" placeholder="First Name" value="{{ request.user.tutorprofile.user.first_name }}" required>
+                              <input type="text" class="form-control" id="firstName" name="firstName" placeholder="First Name" value="{{ request.user.studentprofile.user.first_name }}" required>
                            </div>
                            <div class="col">
                               <label for="fullName">Last Name</label>
-                              <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Last Name" value="{{ request.user.tutorprofile.user.last_name }}" required>
+                              <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Last Name" value="{{ request.user.studentprofile.user.last_name }}" required>
                            </div>
                         </div>
                         <small id="fullNameHelp" class="form-text text-muted">Your name may appear around here where you are mentioned.</small>
@@ -88,7 +88,7 @@
                      <div class="form-group">
                         <label for="url">Profile page</label>
                         <br>
-                        <a href="http://{{ request.META.HTTP_HOST }}/tutorprofile/{{ request.user.tutorprofile.secondaryKey }}/">http://{{ request.META.HTTP_HOST }}/tutorprofile/{{ request.user.tutorprofile.secondaryKey }}/</a>
+                        <a href="http://{{ request.META.HTTP_HOST }}/studentprofile/{{ request.user.studentprofile.secondaryKey }}/">http://{{ request.META.HTTP_HOST }}/studentprofile/{{ request.user.studentprofile.secondaryKey }}/</a>
                      </div>
                      <div class="form-group small text-muted">
                         Some of the fields on this page are mandatory and by filling them out, you're giving us consent to share this data wherever your user profile appears.
@@ -99,46 +99,38 @@
                </div>
                <div class="tab-pane" id="biography" style="color: black;">
                   <h6>BIOGRAPHY</h6>
-                  <hr>
                   <form method="post">
                      {% csrf_token %}
-                     <div class="form-group">
-                        <h4 for="summary">Summary</h4>
-                        <input type="text" class="form-control" id="summary" name="summary" value="{{ request.user.tutorprofile.summary }}" required>
-                     </div>
                      <hr>
                      <div class="form-group">
                         <h4 for="about">About</h4>
-                        <textarea class="form-control autosize" id="about" name="about" rows="15" required>{{ request.user.tutorprofile.about }}</textarea>
+                        <textarea class="form-control autosize" id="about" name="about" rows="15" required>{{ request.user.studentprofile.about }}</textarea>
                      </div>
                      <hr>
                      <div class="form-group" id="education">
                         <h4 for="education" style="display:inline;">Education</h4>
                         <div id="listOfEducation">
-                           {% for e in request.user.education.all %}
-                           <div class="row">
-                              <div class="col-md-3 panel-pad-10">
+                           {% for key,value in request.user.studentprofile.education.items %}
+                           <div class="row" id="education_{{ forloop.counter }}">
+                              <div class="col-md-4 panel-pad-10">
                                  <div class="card">
-                                    <input type="text" name="schoolName" class="form-control" placeholder="School Name" value="{{e.schoolName}}"
-                                    data-toggle="tooltip" data-placement="top" title="School Name" required>
+                                    <input type="text" class="form-control" id="school_name_{{ forloop.counter }}"
+                                       name="school_name_{{ forloop.counter }}" placeholder="School Name" value="{{value.school_name}}"
+                                       required>
                                  </div>
                               </div>
-                              <div class="col-md-3 panel-pad-10">
+                              <div class="col-md-4 panel-pad-10">
                                  <div class="card">
-                                    <input type="text" name="qualification" class="form-control" placeholder="Qualification &amp; Grade(s)" value="{{e.qualification}}"
-                                    data-toggle="tooltip" data-placement="top" title="Qualification &amp; Grade(s)" required>
+                                    <input type="text" class="form-control" id="qualification_{{ forloop.counter }}"
+                                       name="qualification_{{ forloop.counter }}" placeholder="Qualification &amp; Grade(s)"
+                                       value="{{value.qualification}}" required>
                                  </div>
                               </div>
-                              <div class="col-md-3 panel-pad-10">
+                              <div class="col-md-4 panel-pad-10">
                                  <div class="card">
-                                    <input type="date" name="startDate" class="form-control" placeholder="Attended From" value="{{e.startDate|date:'Y-m-d'}}"
-                                    data-toggle="tooltip" data-placement="top" title="Attenderd from" required>
-                                 </div>
-                              </div>
-                              <div class="col-md-3 panel-pad-10">
-                                 <div class="card">
-                                    <input type="date" name="endDate" class="form-control" placeholder="Attended To" value="{{e.endDate|date:'Y-m-d'}}"
-                                    data-toggle="tooltip" data-placement="top" title="Attenderd To" required>
+                                    <input type="text" class="form-control" id="year_{{ forloop.counter }}"
+                                       name="year_{{ forloop.counter }}" placeholder="Attended Years" value="{{value.year}}"
+                                       required>
                                  </div>
                               </div>
                            </div>
@@ -148,92 +140,9 @@
                      </div>
                      <hr>
                      <div class="form-group">
-                        <h4 for="availability">Availability</h4>
-                        <table class="table" id="availabilitySchedule" style="width: auto; margin-left: -10px;">
-                           <thead>
-                              <tr>
-                                 <th scope="col"></th>
-                                 <th scope="col" style="padding-left:0px">Morning</th>
-                                 <th scope="col" style="padding-left:0px">Afternoon</th>
-                                 <th scope="col" style="padding-left:0px">Evening</th>
-                              </tr>
-                           </thead>
-                           <tbody>
-                              {% for key,value in request.user.tutorprofile.availability.items %}
-                              <tr>
-                                 <th style="vertical-align: middle; padding-left:0px" scope="row">{{key|title}}</th>
-                                 <td style="text-align: center; padding-left:0px">
-                                    {% if value.morning %}
-                                    <div class="card_2">
-                                       <div class="checkbox-container circular-container">
-                                          <label class="checkbox-label">
-                                          <input type="checkbox" name="availabilityChoices" value="{{key}}_morning" checked>
-                                          <span class="checkbox-custom circular"></span>
-                                          </label>
-                                       </div>
-                                    </div>
-                                    {% else %}
-                                    <div class="card_2">
-                                       <div class="checkbox-container circular-container">
-                                          <label class="checkbox-label">
-                                          <input type="checkbox" name="availabilityChoices" value="{{key}}_morning">
-                                          <span class="checkbox-custom circular"></span>
-                                          </label>
-                                       </div>
-                                    </div>
-                                    {% endif %}
-                                 </td>
-                                 <td style="text-align: center; padding-left:0px">
-                                    {% if value.afternoon %}
-                                    <div class="card_2">
-                                       <div class="checkbox-container circular-container">
-                                          <label class="checkbox-label">
-                                          <input type="checkbox" name="availabilityChoices" value="{{key}}_afternoon" checked>
-                                          <span class="checkbox-custom circular"></span>
-                                          </label>
-                                       </div>
-                                    </div>
-                                    {% else %}
-                                    <div class="card_2">
-                                       <div class="checkbox-container circular-container">
-                                          <label class="checkbox-label">
-                                          <input type="checkbox" name="availabilityChoices" value="{{key}}_afternoon">
-                                          <span class="checkbox-custom circular"></span>
-                                          </label>
-                                       </div>
-                                    </div>
-                                    {% endif %}
-                                 </td>
-                                 <td style="text-align: center; padding-left:0px">
-                                    {% if value.evening %}
-                                    <div class="card_2">
-                                       <div class="checkbox-container circular-container">
-                                          <label class="checkbox-label">
-                                          <input type="checkbox" name="availabilityChoices" value="{{key}}_evening" checked>
-                                          <span class="checkbox-custom circular"></span>
-                                          </label>
-                                       </div>
-                                    </div>
-                                    {% else %}
-                                    <div class="card_2">
-                                       <div class="checkbox-container circular-container">
-                                          <label class="checkbox-label">
-                                          <input type="checkbox" name="availabilityChoices" value="{{key}}_evening">
-                                          <span class="checkbox-custom circular"></span>
-                                          </label>
-                                       </div>
-                                    </div>
-                                    {% endif %}
-                                 </td>
-                                 {% endfor %}
-                           </tbody>
-                        </table>
-                     </div>
-                     <hr>
-                     <div class="form-group">
                         <h2 for="subjects">Subjects</h2>
                         <select class="multiple-subjects form-control" name="subjects" multiple="multiple" required>
-                           {% for subject in request.user.tutorprofile.getSubjectsAsList %}
+                           {% for subject in request.user.studentprofile.getSubjectsAsList %}
                            <option selected="selected">{{subject}}</option>
                            {% endfor %}
                         </select>
@@ -248,7 +157,8 @@
                         </div>
                         &#xA0;
                      </div>
-                     <input type="hidden" name="updateTutorProfile">
+                     <input type="hidden" name="numberOfEducation" value="1">
+                     <input type="hidden" name="updateStudentProfile">
                   </form>
                </div>
                <div class="tab-pane" id="security">
@@ -290,7 +200,7 @@
                         <br>
                         <div class="custom-control custom-checkbox">
                            <input type="checkbox" class="custom-control-input" id="questionAnswerNotification" name="questionAnswerNotification">
-                           <label class="custom-control-label" for="questionAnswerNotification">Email me when someone asks me a question.</label>
+                           <label class="custom-control-label" for="questionAnswerNotification">Email me when the tutor answers my question</label>
                         </div>
                         <br>
                         <div class="custom-control custom-checkbox">
@@ -300,7 +210,7 @@
                         <br>
                         <div class="custom-control custom-checkbox">
                            <input type="checkbox" class="custom-control-input" id="messageOnChat" name="messageOnChat">
-                           <label class="custom-control-label" for="messageOnChat">Email me when someone messages me on the chat.</label>
+                           <label class="custom-control-label" for="messageOnChat">Email me when someone messages me on the chat</label>
                         </div>
                      </div>
                      <hr>
@@ -345,59 +255,60 @@
       }
    );
 
+	var numberOfEducation = {{ request.user.tutorprofile.education|length }};
+	$('input[name=numberOfEducation]').val(numberOfEducation);
+
 	addRemoveEducationBtn();
 	
 	function addEducationRow()
 	{
+		addRemoveEducationBtn();
+		numberOfEducation = numberOfEducation + 1;
 
-		var newRow = `
-         <div class="row">
-            <div class="col-md-3 panel-pad-10">
-               <div class="card">
-                  <input type="text" name="schoolName" class="form-control" placeholder="School Name"
-                  data-toggle="tooltip" data-placement="top" title="School Name" required>
-               </div>
-            </div>
-            <div class="col-md-3 panel-pad-10">
-               <div class="card">
-                  <input type="text" name="qualification" class="form-control" placeholder="Qualification &amp; Grade(s)"
-                  data-toggle="tooltip" data-placement="top" title="Qualification &amp; Grade(s)" required>
-               </div>
-            </div>
-            <div class="col-md-3 panel-pad-10">
-               <div class="card">
-                  <input type="date" name="startDate" class="form-control" placeholder="Attended From"
-                  data-toggle="tooltip" data-placement="top" title="Attenderd from" required>
-               </div>
-            </div>
-            <div class="col-md-3 panel-pad-10">
-               <div class="card">
-                  <input type="date" name="endDate" class="form-control" placeholder="Attended To"
-                  data-toggle="tooltip" data-placement="top" title="Attenderd To" required>
-               </div>
-            </div>
-         </div>`;
+		var newRow = `<div class="row" id="education_`+numberOfEducation+`">
+					    <div class="col-md-4 panel-pad-10">
+					        <div class="card">
+					            <input type="text" class="form-control" id="school_name_`+numberOfEducation+`"
+					                name="school_name_`+numberOfEducation+`" placeholder="School Name" required>
+					        </div>
+					    </div>
+					    <div class="col-md-4 panel-pad-10">
+					        <div class="card">
+					            <input type="text" class="form-control" id="qualification_`+numberOfEducation+`"
+					                name="qualification_`+numberOfEducation+`" placeholder="Qualification &amp; Grade(s)"
+					                required>
+					        </div>
+					    </div>
+					    <div class="col-md-4 panel-pad-10">
+					        <div class="card">
+					            <input type="text" class="form-control" id="year_`+numberOfEducation+`" name="year_`+numberOfEducation+`"
+					                placeholder="Attended Years" required>
+					        </div>
+					    </div>
+					</div>`;
 
+		$('input[name=numberOfEducation]').val(numberOfEducation);
 		$('#listOfEducation').append(newRow);
-
-      addRemoveEducationBtn();
 	}
 
 	function removeEducationRow()
 	{
 		$('#listOfEducation').children().last().remove();
+		numberOfEducation = numberOfEducation - 1;
 
-      addRemoveEducationBtn();
+		$('input[name=numberOfEducation]').val(numberOfEducation);
+
+		if ($('#listOfEducation').children().length == 0)
+			$('#removeRow').remove();
 	}
 
 	function addRemoveEducationBtn()
-   {
-      if ( $('#listOfEducation').children().length == 0 )
-         $('#removeRow').remove();
-      else
-         if ( $('#removeRow').length == 0 )
-            $('#education').append('<button type="button" id="removeRow" class="btn btn-danger btn-sm" onclick="removeEducationRow();">Remove Row</button>'); 
-   }
+	{
+		if ($('#removeRow').length > 0)
+			return
+
+		$('#education').append('<button type="button" id="removeRow" class="btn btn-danger btn-sm" onclick="removeEducationRow();">Remove Row</button>');
+	}
 
 	function requestDeleteCode()
    {

@@ -41,6 +41,9 @@ class StudentProfile(models.Model):
     class Meta:
         verbose_name_plural = "StudentProfiles"
 
+    def getSubjectsAsList(self):
+        return self.subjects.split(",")
+
 
 class Subject(models.Model):
     name = models.CharField(max_length=64)
@@ -74,3 +77,14 @@ class SocialConnection(models.Model):
 
     class Meta:
         verbose_name_plural = "SocialConnection"
+
+
+class Education(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='education')
+    schoolName = models.CharField(max_length=256, blank=True, null=True)
+    qualification = models.CharField(max_length=256, blank=True, null=True)
+    startDate = models.DateField(blank=True, null=True)
+    endDate = models.DateField(blank=True, null=True)
+
+    class Meta:
+        verbose_name_plural = "Education"

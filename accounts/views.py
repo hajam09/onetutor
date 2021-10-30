@@ -1,4 +1,3 @@
-import json
 import os
 
 from django.conf import settings
@@ -9,7 +8,7 @@ from django.contrib.auth import logout as signOut
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.utils.encoding import force_text
@@ -17,6 +16,7 @@ from django.utils.http import urlsafe_base64_decode
 
 from accounts.forms import LoginForm
 from accounts.forms import RegistrationForm
+from accounts.models import Education
 from accounts.models import StudentProfile
 from accounts.models import TutorProfile
 from accounts.utils import generate_token
@@ -168,6 +168,7 @@ def create_tutor_profile(request):
 
 @login_required
 def tutorprofile(request):
+	# TODO: consider removing this view.
 	try:
 		tutorProfile = TutorProfile.objects.get(user=request.user.id)
 	except TutorProfile.DoesNotExist:
@@ -178,7 +179,7 @@ def tutorprofile(request):
 
 @login_required
 def tutorprofileedit(request):
-
+	# TODO: consider removing this view.
 	try:
 		tutorProfile = TutorProfile.objects.get(user=request.user)
 	except TutorProfile.DoesNotExist:
@@ -229,11 +230,7 @@ def tutorprofileedit(request):
 
 
 @login_required
-def studentProfileView(request):
-
-	
-
-
+def studentprofile(request):
 	return render(request, "accounts/studentProfile.html")
 
 
@@ -244,27 +241,111 @@ def studentprofileedit(request):
 
 @login_required
 def userSettings(request):
-	# TODO: Change this view to tutor settins and create separate for student settings.
-	# TODO: Implement TFA.
 
 	try:
-		tutorProfile = TutorProfile.objects.get(user=request.user)
+		profile = TutorProfile.objects.get(user=request.user)
 	except TutorProfile.DoesNotExist:
+		profile = StudentProfile.objects.get(user=request.user)
+	except StudentProfile.DoesNotExist:
 		return redirect('accounts:selectprofile')
+
+	if isinstance(profile, TutorProfile):
+		# functions specific to tutors.
+		templateName = "accounts/tutorSettings.html"
+
+		if request.method == "POST" and "updateTutorProfile" in request.POST:
+			summary = request.POST["summary"]
+			about = request.POST["about"]
+			subjects = ', '.join([i.capitalize() for i in request.POST.getlist('subjects')])
+			availabilityChoices = request.POST.getlist('availabilityChoices')
+
+			availability = {
+				"monday": {"morning": False, "afternoon": False, "evening": False},
+				"tuesday": {"morning": False, "afternoon": False, "evening": False},
+				"wednesday": {"morning": False, "afternoon": False, "evening": False},
+				"thursday": {"morning": False, "afternoon": False, "evening": False},
+				"friday": {"morning": False, "afternoon": False, "evening": False},
+				"saturday": {"morning": False, "afternoon": False, "evening": False},
+				"sunday": {"morning": False, "afternoon": False, "evening": False}
+			}
+
+			for i in availabilityChoices:
+				i = i.split("_")
+				weekDay = i[0]
+				dayTime = i[1]
+				availability[weekDay][dayTime] = True
+
+			# Delete all previous education for this user and create new object(s).
+			schoolNames = request.POST.getlist('schoolName')
+			qualifications = request.POST.getlist('qualification')
+			startDates = request.POST.getlist('startDate')
+			endDates = request.POST.getlist('endDate')
+
+			if len(schoolNames) == len(qualifications) == len(startDates) == len(endDates):
+				request.user.education.all().delete()
+				Education.objects.bulk_create(
+					[
+						Education(
+							user=request.user,
+							schoolName=schoolName,
+							qualification=qualification,
+							startDate=startDate,
+							endDate=endDate
+						)
+						for schoolName, qualification, startDate, endDate in zip(schoolNames, qualifications, startDates, endDates)
+					]
+				)
+
+			profile.summary = summary
+			profile.about = about
+			profile.subjects = subjects
+			profile.availability = availability
+			profile.save()
+
+			messages.success(
+				request,
+				'Your biography and other details has been updated successfully.'
+			)
+
+	else:
+		# functions specific to students .
+		templateName = "accounts/studentSettings.html"
+
+		if request.method == "POST" and "updateStudentProfile" in request.POST:
+			about = request.POST["about"]
+			subjects = ', '.join([i.capitalize() for i in request.POST.getlist('subjects')])
+
+			education = {}
+			for i in range(int(request.POST["numberOfEducation"])):
+				education["education_" + str(i + 1)] = {
+					"school_name": request.POST["school_name_" + str(i + 1)],
+					"qualification": request.POST["qualification_" + str(i + 1)],
+					"year": request.POST["year_" + str(i + 1)]
+				}
+
+			profile.about = about
+			profile.education = education
+			profile.subjects = subjects
+			profile.save()
+
+			messages.success(
+				request,
+				'Your biography and other details has been updated successfully.'
+			)
 
 	if request.method == "POST" and "updateGeneralInformation" in request.POST:
 		firstname = request.POST["firstName"].strip()
 		lastname = request.POST["lastName"].strip()
 
 		if "profilePicture" in request.FILES:
-			if tutorProfile.profilePicture and 'profilepicture/defaultimg/' not in tutorProfile.profilePicture.url:
-				previousProfileImage = os.path.join(settings.MEDIA_ROOT, tutorProfile.profilePicture.name)
+			if profile.profilePicture and 'profilepicture/defaultimg/' not in profile.profilePicture.url:
+				previousProfileImage = os.path.join(settings.MEDIA_ROOT, profile.profilePicture.name)
 				if os.path.exists(previousProfileImage):
 					os.remove(previousProfileImage)
 
 			profilePicture = request.FILES["profilePicture"]
-			tutorProfile.profilePicture = profilePicture
-			tutorProfile.save(update_fields=['profilePicture'])
+			profile.profilePicture = profilePicture
+			profile.save(update_fields=['profilePicture'])
 
 		user = request.user
 		user.first_name = firstname
@@ -274,48 +355,6 @@ def userSettings(request):
 		messages.success(
 			request,
 			'Your personal details has been updated successfully.'
-		)
-
-	if request.method == "POST" and "updateTutorProfile" in request.POST:
-		summary = request.POST["summary"]
-		about = request.POST["about"]
-		subjects = ', '.join([i.capitalize() for i in request.POST.getlist('subjects')])
-		availabilityChoices = request.POST.getlist('availabilityChoices')
-
-		availability = {
-			"monday": {"morning": False, "afternoon": False, "evening": False},
-			"tuesday": {"morning": False, "afternoon": False, "evening": False},
-			"wednesday": {"morning": False, "afternoon": False, "evening": False},
-			"thursday": {"morning": False, "afternoon": False, "evening": False},
-			"friday": {"morning": False, "afternoon": False, "evening": False},
-			"saturday": {"morning": False, "afternoon": False, "evening": False},
-			"sunday": {"morning": False, "afternoon": False, "evening": False}
-		}
-
-		for i in availabilityChoices:
-			i = i.split("_")
-			weekDay = i[0]
-			dayTime = i[1]
-			availability[weekDay][dayTime] = True
-
-		education = {}
-		for i in range(int(request.POST["numberOfEducation"])):
-			education["education_" + str(i + 1)] = {
-				"school_name": request.POST["school_name_" + str(i + 1)],
-				"qualification": request.POST["qualification_" + str(i + 1)],
-				"year": request.POST["year_" + str(i + 1)]
-			}
-
-		tutorProfile.summary = summary
-		tutorProfile.about = about
-		tutorProfile.education = education
-		tutorProfile.subjects = subjects
-		tutorProfile.availability = availability
-		tutorProfile.save()
-
-		messages.success(
-			request,
-			'Your biography and other details has been updated successfully.'
 		)
 
 	if request.method == "POST" and "changePassword" in request.POST:
@@ -366,7 +405,7 @@ def userSettings(request):
 
 	if request.method == "POST" and "notificationSettings" in request.POST:
 		loginAttemptNotification = True if request.POST.get('loginAttemptNotification') else False
-		questionNotification = True if request.POST.get('questionNotification') else False
+		questionAnswerNotification = True if request.POST.get('questionAnswerNotification') else False
 		answerOnForum = True if request.POST.get('answerOnForum') else False
 		messageOnChat = True if request.POST.get('messageOnChat') else False
 		# TODO: Need to create a Notifications table for each user and add it to event listener.
@@ -384,7 +423,7 @@ def userSettings(request):
 			'Account delete code is incorrect, please try again later.'
 		)
 
-	return render(request, "accounts/tutorSettings.html")
+	return render(request, templateName)
 
 def rules(request, rule_type):
 	if rule_type == "privacy_policy":
