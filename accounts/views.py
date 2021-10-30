@@ -127,20 +127,12 @@ def create_student_profile(request):
 	return render(request, "accounts/create_student_profile.html")
 
 @login_required
-def create_tutor_profile(request):
+def createTutorProfile(request):
 
 	if request.method == "POST" and "createTutorProfile" in request.POST:
 		summary = request.POST["summary"]
 		about = request.POST["about"]
 		subjects = ', '.join([i.capitalize() for i in request.POST.getlist('subjects')])
-
-		education = {}
-		for i in range(int(request.POST["numberOfEducation"])):
-			education["education_" + str(i + 1)] = {
-				"school_name": request.POST["school_name_" + str(i + 1)],
-				"qualification": request.POST["qualification_" + str(i + 1)],
-				"year": request.POST["year_" + str(i + 1)]
-			}
 
 		availability = {
 			"monday": {"morning": False, "afternoon": False, "evening": False},
@@ -152,19 +144,37 @@ def create_tutor_profile(request):
 			"sunday": {"morning": False, "afternoon": False, "evening": False}
 		}
 
-		# TODO: Remove location field.
+		# Delete all previous education for this user and create new object(s).
+		schoolNames = request.POST.getlist('schoolName')
+		qualifications = request.POST.getlist('qualification')
+		startDates = request.POST.getlist('startDate')
+		endDates = request.POST.getlist('endDate')
+
+		if len(schoolNames) == len(qualifications) == len(startDates) == len(endDates):
+			request.user.education.all().delete()
+			Education.objects.bulk_create(
+				[
+					Education(
+						user=request.user,
+						schoolName=schoolName,
+						qualification=qualification,
+						startDate=startDate,
+						endDate=endDate
+					)
+					for schoolName, qualification, startDate, endDate in zip(schoolNames, qualifications, startDates, endDates)
+				]
+			)
+
 		TutorProfile.objects.create(
 			user=request.user,
 			summary=summary,
 			about=about,
-			location={},
-			education=education,
 			subjects=subjects,
 			availability=availability
 			)
 		return redirect('accounts:tutorprofile')
 
-	return render(request, "accounts/create_tutor_profile.html")
+	return render(request, "accounts/createTutorProfile.html")
 
 @login_required
 def tutorprofile(request):

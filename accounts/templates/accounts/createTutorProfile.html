@@ -1,0 +1,147 @@
+{% extends "accounts/account_base.html" %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/tutorProfileEditPage.css' %}"/>
+<div class="container-fluid " style="margin: auto;overflow-x: hidden; max-width: 1500px;">
+    <br>
+    {% if messages %}
+	    {% for message in messages %}
+	    	{% if message.tags == "error" %}
+	    	<div style="color: black; text-align: center;" class="alert alert-danger" role="alert">{{message}}</div>
+	    	{% else %}
+	    	<div style="color: black; text-align: center;" class="alert alert-{{ message.tags }}" role="alert">{{message}}</div>
+	    	{% endif %}
+	    {% endfor %}
+	{% endif %}
+    <div class="row gutters-sm">
+        <div class="col-md-12" style="color: black;">
+            <form method="post">
+				{% csrf_token %}
+				<div class="form-group">
+					<h2 for="summary">Summary</h2>
+					<input type="text" class="form-control" id="summary" name="summary" required>
+				</div>
+				<hr>
+				<div class="form-group">
+					<h2 for="about">About</h2>
+					<textarea class="form-control" id="about" name="about" rows="5" required></textarea>
+				</div>
+				<hr>
+				<div class="form-group" id="education">
+                        <h4 for="education" style="display:inline;">Education</h4>
+                        <div id="listOfEducation">
+                           {% for e in request.user.education.all %}
+                           <div class="row">
+                              <div class="col-md-3 panel-pad-10">
+                                 <div class="card">
+                                    <input type="text" name="schoolName" class="form-control" placeholder="School Name" value="{{e.schoolName}}"
+                                    data-toggle="tooltip" data-placement="top" title="School Name" required>
+                                 </div>
+                              </div>
+                              <div class="col-md-3 panel-pad-10">
+                                 <div class="card">
+                                    <input type="text" name="qualification" class="form-control" placeholder="Qualification &amp; Grade(s)" value="{{e.qualification}}"
+                                    data-toggle="tooltip" data-placement="top" title="Qualification &amp; Grade(s)" required>
+                                 </div>
+                              </div>
+                              <div class="col-md-3 panel-pad-10">
+                                 <div class="card">
+                                    <input type="date" name="startDate" class="form-control" placeholder="Attended From" value="{{e.startDate|date:'Y-m-d'}}"
+                                    data-toggle="tooltip" data-placement="top" title="Attenderd from" required>
+                                 </div>
+                              </div>
+                              <div class="col-md-3 panel-pad-10">
+                                 <div class="card">
+                                    <input type="date" name="endDate" class="form-control" placeholder="Attended To" value="{{e.endDate|date:'Y-m-d'}}"
+                                    data-toggle="tooltip" data-placement="top" title="Attenderd To" required>
+                                 </div>
+                              </div>
+                           </div>
+                           {% endfor %}
+                        </div>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="addEducationRow();">Add another</button>
+                     </div>
+				<hr>
+				<div class="form-group">
+					<h2 for="subjects">Subjects</h2>
+					<select class="multiple-subjects form-control" name="subjects" multiple="multiple" required>
+					</select>
+				</div>
+				<hr>
+				<div class="form-group">
+					<button type="submit" class="btn btn-success btn-lg btn-block">Create Profile</button>
+				</div>
+				<input type="hidden" name="createTutorProfile">
+			</form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+	$(document).ready(function()
+		{
+			$(".multiple-subjects").select2(
+				{
+					tags: true,
+				}
+			);
+		}
+	);
+
+	addRemoveEducationBtn();
+	
+	function addEducationRow()
+	{
+
+		var newRow = `
+         <div class="row">
+            <div class="col-md-3 panel-pad-10">
+               <div class="card">
+                  <input type="text" name="schoolName" class="form-control" placeholder="School Name"
+                  data-toggle="tooltip" data-placement="top" title="School Name" required>
+               </div>
+            </div>
+            <div class="col-md-3 panel-pad-10">
+               <div class="card">
+                  <input type="text" name="qualification" class="form-control" placeholder="Qualification &amp; Grade(s)"
+                  data-toggle="tooltip" data-placement="top" title="Qualification &amp; Grade(s)" required>
+               </div>
+            </div>
+            <div class="col-md-3 panel-pad-10">
+               <div class="card">
+                  <input type="date" name="startDate" class="form-control" placeholder="Attended From"
+                  data-toggle="tooltip" data-placement="top" title="Attenderd from" required>
+               </div>
+            </div>
+            <div class="col-md-3 panel-pad-10">
+               <div class="card">
+                  <input type="date" name="endDate" class="form-control" placeholder="Attended To"
+                  data-toggle="tooltip" data-placement="top" title="Attenderd To" required>
+               </div>
+            </div>
+         </div>`;
+
+		$('#listOfEducation').append(newRow);
+
+      addRemoveEducationBtn();
+	}
+
+	function removeEducationRow()
+	{
+		$('#listOfEducation').children().last().remove();
+
+      addRemoveEducationBtn();
+	}
+
+	function addRemoveEducationBtn()
+   {
+      if ( $('#listOfEducation').children().length == 0 )
+         $('#removeRow').remove();
+      else
+         if ( $('#removeRow').length == 0 )
+            $('#education').append('<button type="button" id="removeRow" class="btn btn-danger btn-sm" onclick="removeEducationRow();">Remove Row</button>'); 
+   }
+
+</script>
+{% endblock %}
