@@ -114,7 +114,7 @@ def communityPage(request, communityUrl):
 
         try:
             image = request.FILES["image"]
-        except KeyError as e:
+        except KeyError:
             image = None
 
         Forum.objects.create(
@@ -128,90 +128,25 @@ def communityPage(request, communityUrl):
         return redirect('forum:forumPage', communityUrl=communityUrl, forumUrl=url)
 
     forums = Forum.objects.filter(community=community).order_by('-id').select_related('creator').prefetch_related('likes', 'dislikes')
-    forumsPagination = [forums[i:i + 15] for i in range(0, len(forums), 15)]
+    paginator = Paginator(forums, 15)
+    pageStartNumber = 1
 
     if request.is_ajax():
         functionality = request.GET.get('functionality', None)
 
-        if functionality == "joinCommunity":
-            community.members.add(request.user)
-
-            response = {
-                "statusCode": HTTPStatus.OK
-            }
-            return JsonResponse(response)
-
-        elif functionality == "leaveCommunity":
-            community.members.remove(request.user)
-
-            response = {
-                "statusCode": HTTPStatus.OK
-            }
-            return JsonResponse(response)
-
-        elif functionality == "upvoteForum":
-            id = request.GET.get('forumId', None)
-            forum = next((f for f in forums if str(f.id) == id), None)
-
-            if forum is None:
-                response = {
-                    "statusCode": HTTPStatus.NOT_FOUND,
-                    "message": 'Error up voting this forum!',
-                }
-                return JsonResponse(response)
-
-            forum.like(request)
-
-            response = {
-                "statusCode": HTTPStatus.OK,
-                "likeCount": forum.likes.count(),
-                "dislikeCount": forum.dislikes.count(),
-            }
-            return JsonResponse(response)
-
-        elif functionality == "downvoteForum":
-            id = request.GET.get('forumId', None)
-            forum = next((f for f in forums if str(f.id) == id), None)
-
-            if forum is None:
-                response = {
-                    "statusCode": HTTPStatus.NOT_FOUND,
-                    "message": 'Error up voting this forum!',
-                }
-                return JsonResponse(response)
-
-            forum.dislike(request)
-
-            response = {
-                "statusCode": HTTPStatus.OK,
-                "likeCount": forum.likes.count(),
-                "dislikeCount": forum.dislikes.count(),
-            }
-            return JsonResponse(response)
-
         if functionality == "fetchForums":
-            nextIndex = request.GET.get('nextIndex', None)
+            nextIndex = int(request.GET.get('nextIndex', None)) + pageStartNumber
 
             try:
-                nextForums = forumsPagination[int(nextIndex)]
-            except IndexError:
+                nextForums = paginator.page(nextIndex)
+            except EmptyPage:
                 response = {
                     "statusCode": HTTPStatus.NO_CONTENT
                 }
                 return JsonResponse(response)
 
             forums = [
-                {
-                    'id': e.id,
-                    'votes': intCompromise(e.likes.count() - e.dislikes.count()),
-                    'creatorFullName': e.creator.get_full_name(),
-                    'date': vanilla_JS_date_conversion(e.createdAt),
-                    'title': e.title.replace("\n", "<br />"),
-                    'image': str(e.image),
-                    'description': e.description.replace("\n", "<br />"),
-                    'commentCount': e.forumComments.count(),
-                    'canEdit': True if e.creator == request.user else False,
-                }
+                forumComponentJson(request, e)
                 for e in nextForums
             ]
 
@@ -223,9 +158,14 @@ def communityPage(request, communityUrl):
 
         raise Exception("Unknown functionality in communityPage")
 
+    initialForum = [
+        forumComponentJson(request, e)
+        for e in paginator.page(1) if paginator.num_pages > 0
+    ]
+
     context = {
         "community": community,
-        "forums": forumsPagination[0] if len(forumsPagination) > 0 else [],
+        "forums": json.dumps(initialForum),
         "inCommunity": True if request.user in community.members.all() else False
     }
     return render(request, "forum/communityPage.html", context)
@@ -239,7 +179,7 @@ def forumPage(request, communityUrl, forumUrl):
                                                                                       'forumComments__likes',
                                                                                       'forumComments__dislikes',
                                                                                       'forumComments__creator',
-                                                                                      'forumComments__reply').get(url=forumUrl)
+                                                                                      'forumComments__reply').get(url=forumUrl, community__url=communityUrl)
     except Forum.DoesNotExist:
         raise Http404
 
@@ -250,81 +190,7 @@ def forumPage(request, communityUrl, forumUrl):
     if request.is_ajax():
         functionality = request.GET.get('functionality', None)
 
-        if functionality == "joinCommunity":
-            forum.community.members.add(request.user)
-
-            response = {
-                "statusCode": HTTPStatus.OK
-            }
-            return JsonResponse(response)
-
-        elif functionality == "leaveCommunity":
-            forum.community.members.remove(request.user)
-
-            response = {
-                "statusCode": HTTPStatus.OK
-            }
-            return JsonResponse(response)
-
-        elif functionality == "upvoteForum":
-            forum.like(request)
-
-            response = {
-                "statusCode": HTTPStatus.OK,
-                "votes": intCompromise(forum.likes.count() - forum.dislikes.count())
-            }
-            return JsonResponse(response)
-
-        elif functionality == "downvoteForum":
-            forum.dislike(request)
-
-            response = {
-                "statusCode": HTTPStatus.OK,
-                "votes": intCompromise(forum.likes.count() - forum.dislikes.count())
-            }
-            return JsonResponse(response)
-
-        elif functionality == "likeComment":
-            id = request.GET.get('id', None)
-            comment = next((c for c in forum.forumComments.all() if str(c.id) == id), None)
-
-            if comment is None:
-                response = {
-                    "statusCode": HTTPStatus.NOT_FOUND,
-                    "message": 'Sorry. Something went wrong!',
-                }
-                return JsonResponse(response)
-
-            comment.like(request)
-
-            response = {
-                "statusCode": HTTPStatus.OK,
-                "likeCount": comment.likes.count(),
-                "dislikeCount": comment.dislikes.count(),
-            }
-            return JsonResponse(response)
-
-        elif functionality == "dislikeComment":
-            id = request.GET.get('id', None)
-            comment = next((c for c in forum.forumComments.all() if str(c.id) == id), None)
-
-            if comment is None:
-                response = {
-                    "statusCode": HTTPStatus.NOT_FOUND,
-                    "message": 'Sorry. Something went wrong!',
-                }
-                return JsonResponse(response)
-
-            comment.dislike(request)
-
-            response = {
-                "statusCode": HTTPStatus.OK,
-                "likeCount": comment.likes.count(),
-                "dislikeCount": comment.dislikes.count(),
-            }
-            return JsonResponse(response)
-
-        elif functionality == "deleteForumComment":
+        if functionality == "deleteForumComment":
             id = request.GET.get('id', None)
             comment = next((c for c in forum.forumComments.all() if str(c.id) == id), None)
 
@@ -396,7 +262,7 @@ def forumPage(request, communityUrl, forumUrl):
         "forumComments": json.dumps(forumComments),
         "inCommunity": True if request.user in forum.community.members.all() else False
     }
-    return render(request, "forum/forumpage.html", context)
+    return render(request, "forum/forumPage.html", context)
 
 
 def GetPopularPosts():
@@ -475,6 +341,39 @@ def forumComponentJson(request, e):
 
 
 def communityOperationsAPI(request, communityId):
+
+    if not request.user.is_authenticated:
+        response = {
+            "statusCode": HTTPStatus.UNAUTHORIZED,
+            "message": "Please login to perform this action."
+        }
+        return JsonResponse(response)
+
+    try:
+        community = Community.objects.get(id=communityId)
+    except Community.DoesNotExist:
+        response = {
+            'statusCode': HTTPStatus.NOT_FOUND,
+            'message': 'Could not find a community with id {}'.format(communityId)
+        }
+        return JsonResponse(response)
+
+    functionality = request.GET.get('functionality', None)
+    if functionality == "joinOrLeaveCommunity":
+
+        if request.user not in community.members.all():
+            community.members.add(request.user)
+            inCommunity = True
+        else:
+            community.members.remove(request.user)
+            inCommunity = False
+
+        response = {
+            "inCommunity": inCommunity,
+            "statusCode": HTTPStatus.OK
+        }
+        return JsonResponse(response)
+
     response = {
         'statusCode': HTTPStatus.OK
     }
@@ -482,8 +381,6 @@ def communityOperationsAPI(request, communityId):
 
 
 def forumOperationsAPI(request, forumId):
-
-    functionality = request.GET.get('functionality', None)
 
     if not request.user.is_authenticated:
         response = {
@@ -501,6 +398,7 @@ def forumOperationsAPI(request, forumId):
         }
         return JsonResponse(response)
 
+    functionality = request.GET.get('functionality', None)
     if functionality == "watchUnwatchForum":
 
         if request.user not in forum.watchers.all():
@@ -529,6 +427,7 @@ def forumOperationsAPI(request, forumId):
         return JsonResponse(response)
 
     elif functionality == "downVoteForum":
+
         forum.dislike(request)
 
         response = {
@@ -545,6 +444,46 @@ def forumOperationsAPI(request, forumId):
 
 
 def forumCommentOperationsAPI(request, commentId):
+
+    if not request.user.is_authenticated:
+        response = {
+            "statusCode": HTTPStatus.UNAUTHORIZED,
+            "message": "Please login to perform this action."
+        }
+        return JsonResponse(response)
+
+    try:
+        forumComment = ForumComment.objects.get(id=commentId)
+    except ForumComment.DoesNotExist:
+        response = {
+            'statusCode': HTTPStatus.NOT_FOUND,
+            'message': 'Could not find a forum comment with id {}'.format(commentId)
+        }
+        return JsonResponse(response)
+
+    functionality = request.GET.get('functionality', None)
+
+    if functionality == "likeForumComment":
+
+        forumComment.like(request)
+
+        response = {
+            "statusCode": HTTPStatus.OK,
+            "likeCount": forumComment.likes.count(),
+            "dislikeCount": forumComment.dislikes.count(),
+        }
+        return JsonResponse(response)
+
+    elif functionality == "dislikeForumComment":
+        forumComment.dislike(request)
+
+        response = {
+            "statusCode": HTTPStatus.OK,
+            "likeCount": forumComment.likes.count(),
+            "dislikeCount": forumComment.dislikes.count(),
+        }
+        return JsonResponse(response)
+
     response = {
         'statusCode': HTTPStatus.OK
     }

@@ -69,9 +69,9 @@
 									<div class="col">
 										<div id="div-id-join-leave-community-button">
 											{% if inCommunity %}
-											<button type="button" class="btn btn-danger" style="border-radius: 16px;padding: 5px 40px;width: 100%;" onclick="leaveCommunity();">Leave</button>
+											<button type="button" class="btn btn-danger" style="border-radius: 16px;padding: 5px 40px;width: 100%;" onclick="joinOrLeaveCommunity();">Leave</button>
 											{% else %}
-											<button type="button" class="btn btn-primary" style="border-radius: 16px;padding: 5px 40px;width: 100%;" onclick="joinCommunity();">Join</button>
+											<button type="button" class="btn btn-primary" style="border-radius: 16px;padding: 5px 40px;width: 100%;" onclick="joinOrLeaveCommunity();">Join</button>
 											{% endif %}
 										</div>
 									</div>
@@ -100,68 +100,81 @@
 		{% endif %}
 	}
 
+	function intCompromise(value)
+	{
+		var suffixes = ["", "k", "m", "b","t"];
+		var suffixNum = Math.floor((""+value).length/3);
+		var shortValue = parseFloat((suffixNum != 0 ? (value / Math.pow(1000,suffixNum)) : value).toPrecision(2));
+
+		if (shortValue % 1 != 0)
+			shortValue = shortValue.toFixed(1);
+
+		return shortValue+suffixes[suffixNum];
+	}
+
 	function updateReplyModal(masterCommentId)
 	{
 		document.getElementById('masterCommentId').value = masterCommentId;
 	}
 
-    function renderForumComponent(list)
+    function renderForumComponent(forums)
     {
-        for (var i = 0; i<list.length; i++)
+        for (const forum of forums)
         {
             var imageTab = null;
-            if (list[i].image)
+            var forumWatchContainer = null;
+            if (forum.image)
             {
-                imageTab = '<img class="mx-auto d-block" src="../../../../media/'+list[i].image+'" style="max-width:100%;max-height:420px;">';
+                imageTab = '<img class="mx-auto d-block" src="../../../media/'+forum.image+'" style="max-width:100%;max-height:420px;">';
             }
             else
             {
-                imageTab = '<p>'+list[i].description+'</p>';
+                imageTab = '<p>'+forum.description+'</p>';
             }
 
-            if (list[i].isWatching)
+            if (forum.isWatching)
             {
-                var forumWatchContainer = `<span onclick="watch_unwatch_forum(`+list[i].communityUrl+`,`+list[i].id+`);" data-toggle="tooltip" data-placement="top" title="You are watching this issue. Click to stop watching this issue."><i class='far fa-eye' style='font-size:15px'></i> (`+list[i].watchingCount+`) Unwatch</span>`;
+                forumWatchContainer = `<span onclick="watchUnwatchForum(`+forum.forumId+`);" data-toggle="tooltip" data-placement="top" title="You are watching this issue. Click to stop watching this issue."><i class='far fa-eye' style='font-size:15px'></i> (`+forum.watchingCount+`) Unwatch</span>`;
             }
             else
             {
-                var forumWatchContainer = `<span onclick="watch_unwatch_forum(`+list[i].communityUrl+`,`+list[i].id+`);" data-toggle="tooltip" data-placement="top" title="You are not watching this issue. Click to watch this issue."><i class='far fa-eye' style='font-size:15px'></i> (`+list[i].watchingCount+`) Watch</span>`;
+                forumWatchContainer = `<span onclick="watchUnwatchForum(`+forum.forumId+`);" data-toggle="tooltip" data-placement="top" title="You are not watching this issue. Click to watch this issue."><i class='far fa-eye' style='font-size:15px'></i> (`+forum.watchingCount+`) Watch</span>`;
             }
 
 
             editForum = '';
-            if (list[i].canEdit)
-                editForum = "<a href='#'><i class='far fa-edit' style='font-size:15px'></i> Edit</a> &nbsp;";
+			if (forum.canEdit)
+				editForum = "<a href='#'><i class='far fa-edit' style='font-size:15px'></i> Edit</a> &nbsp;";
 
             var newForum = `
-            <div class="row border border-secondary QMwdLfHioF" id="container_`+list[i].id+`" communityurl='`+list[i].communityUrl+`' forumurl='`+list[i].forumUrl+`'>
+            <div class="row border border-secondary QMwdLfHioF" communityurl='`+forum.communityUrl+`' forumurl='`+forum.forumUrl+`'>
                 <div class="col-md-auto text-center border-right border-secondary" style="padding-bottom: 10px; padding-top: 10px;" id="buttons_in_sidebar">
-                    <button type="button" class="btn btn-success" onclick="upvoteForum();"><i class='far fa-thumbs-up' style='font-size:15px'></i></button><br>
-                    <span class='forum-vote-counter'>`+list[i].votes+`</span>
-                    <br><button type="button" class="btn btn-danger" onclick="downvoteForum();"><i class='far fa-thumbs-down' style='font-size:15px'></i></button>
+                    <button type="button" class="btn btn-success" onclick="upVoteForum('`+forum.forumId+`');"><i class='far fa-thumbs-up' style='font-size:15px'></i></button><br>
+                    <span class='forum-vote-counter'>`+forum.votes+`</span>
+                    <br><button type="button" class="btn btn-danger" onclick="downVoteForum('`+forum.forumId+`');"><i class='far fa-thumbs-down' style='font-size:15px'></i></button>
                 </div>
                 <div class="col" style="padding-bottom: 10px; padding-top: 10px;">
                     <div style="max-height: 500px;text-overflow: ellipsis;overflow: hidden;">
-                        <span class="text-secondary">Post by `+list[i].creatorFullName+` at `+list[i].date+`</span>
-                        <h3>`+list[i].title+`</h3>
+                        <span class="text-secondary">Post by `+forum.creatorFullName+` at `+forum.date+`</span>
+                        <h3>`+forum.title+`</h3>
                         `+imageTab+`
                     </div>
                     <div>
                         <span id="bigscreen-footer">
-                            <a href="#"><i class='far fa-comment-alt' style='font-size:15px'></i> `+list[i].commentCount+` Comments</a> &nbsp;
+                            <a href="#"><i class='far fa-comment-alt' style='font-size:15px'></i> `+forum.commentCount+` Comments</a> &nbsp;
                             <a href="#"><i class='fas fa-share' style='font-size:15px'></i> Share</a> &nbsp;
                             <a href="#"><i class='fas fa-flag' style='font-size:15px'></i> Report</a> &nbsp;
-                            <a href="#" onclick='return false;' id="forum_watcher`+list[i].id+`">`+forumWatchContainer+`</a> &nbsp; `+editForum+`
+                            <a href="#" onclick='return false;' id="a-id-forum-watcher`+forum.forumId+`">`+forumWatchContainer+`</a> &nbsp; `+editForum+`
                         </span>
                         <span id="smallscreen-footer">
-                            <button type="button" class="btn btn-success" style="padding: 2px 2px;" onclick="upvoteForum();">
+                            <button type="button" class="btn btn-success" style="padding: 2px 2px;" onclick="upVoteForum('`+forum.forumId+`');">
                                 <i class='far fa-thumbs-up' style='font-size:15px;'></i>
                             </button>
-                            <span class='forum-vote-counter'>`+list[i].votes+`</span>
-                            <button type="button" class="btn btn-danger" style="padding: 2px 2px;" onclick="downvoteForum();">
+                            <span class='forum-vote-counter'>`+forum.votes+`</span>
+                            <button type="button" class="btn btn-danger" style="padding: 2px 2px;" onclick="downVoteForum('`+forum.forumId+`');">
                                 <i class='far fa-thumbs-down' style='font-size:15px;'></i>
                             </button>
-                            <a href="#"><i class='far fa-comment-alt' style='font-size:15px'></i> `+list[i].commentCount+` Comments</a> &nbsp;
+                            <a href="#"><i class='far fa-comment-alt' style='font-size:15px'></i> `+forum.commentCount+` Comments</a> &nbsp;
 
                             <div class="dropdown" style="display:inline-block;">
                                 <a class="btn-floating btn-lg" type="button" id="dropdownMenu3" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -171,7 +184,7 @@
                                 <div class="dropdown-menu dropdown-primary">
                                     <a href="#"><i class='fas fa-share' style='font-size:15px'></i> Share</a> &nbsp;<br>
                                     <a href="#"><i class='fas fa-flag' style='font-size:15px'></i> Report</a> &nbsp;<br>
-                                    <a href="#" onclick='return false;' id="forum_watcher`+list[i].id+`">`+forumWatchContainer+`</a> &nbsp;<br>
+                                    <a href="#" onclick='return false;' id="a-id-forum-watcher`+forum.forumId+`">`+forumWatchContainer+`</a> &nbsp;<br>
                                     `+editForum+`
                                 </div>
                             </div>
@@ -185,91 +198,6 @@
             $('#forum-container').append(newForum);
         }
     }
-
-    function joinCommunity()
-	{
-		verifyLogin();
-
-		$.ajax(
-		{
-			data:
-			{
-				'functionality': 'joinCommunity'
-			},
-			dataType: 'json',
-			success: function (response)
-			{
-				if (response.statusCode == 200)
-				{
-					$('#div-id-join-leave-community-button').empty();
-					$("#div-id-join-leave-community-button").append('<button type="button" class="btn btn-danger" style="border-radius: 16px;padding: 5px 40px;width: 100%;" onclick="leaveCommunity();">Leave</button>');
-				}
-			}
-		});
-
-	}
-
-	function leaveCommunity()
-	{
-		$.ajax(
-		{
-			data:
-			{
-				'functionality': 'leaveCommunity'
-			},
-			dataType: 'json',
-			success: function (response)
-			{
-				if (response.statusCode == 200)
-				{
-					$('#div-id-join-leave-community-button').empty();
-					$("#div-id-join-leave-community-button").append('<button type="button" class="btn btn-primary" style="border-radius: 16px;padding: 5px 40px;width: 100%;" onclick="joinCommunity();">Join</button>');
-				}
-			}
-		});
-	}
-
-	function upvoteForum()
-	{
-		$.ajax(
-		{
-			data:
-			{
-				'functionality': 'upvoteForum'
-			},
-			dataType: 'json',
-			success: function (response)
-			{
-				if(response.statusCode == 200)
-				{
-					var votes = eval(response.votes);
-					$('.forum-vote-counter').text(votes);
-
-				}
-			}
-		});
-	}
-
-	function downvoteForum()
-	{
-		$.ajax(
-		{
-			data:
-			{
-				'functionality': 'downvoteForum'
-			},
-			dataType: 'json',
-			success: function (response)
-			{
-				if(response.statusCode == 200)
-				{
-					var votes = eval(response.votes);
-					$('.forum-vote-counter').text(votes);
-
-				}
-			}
-		});
-	}
 
 	function createForumComment()
 	{
@@ -334,27 +262,27 @@
 		});
 	}
 
-	function renderForumComments(list)
+	function renderForumComments(forumComments)
 	{
-		if (list.length==0)
+		if (forumComments.length==0)
 			return;
 
 		var unidentifiedComments = [];
 
-		for (var i = 0; i<list.length; i++)
+		for (const comment of forumComments)
 		{
 
 			var editDeleteDropdown = '';
-			if (list[i].canEdit)
+			if (comment.canEdit)
 			{
 				editDeleteDropdown = `
-					<a href="#" onclick="edit_forum_comment_text_area(`+list[i].id+`);"><i class='far fa-edit' style='font-size:15px'></i> Edit</a>
+					<a href="#" onclick="edit_forum_comment_text_area(`+comment.id+`);"><i class='far fa-edit' style='font-size:15px'></i> Edit</a>
 					&nbsp;
-					<a href="#" onclick="deleteForumComment(`+list[i].id+`);return false;"><i class='far fa-trash-alt' style='font-size:15px'></i> Delete</a>`;
+					<a href="#" onclick="deleteForumComment(`+comment.id+`);return false;"><i class='far fa-trash-alt' style='font-size:15px'></i> Delete</a>`;
 			}
 
 			var forumCommentComponent = `
-			<div class="div-id-forum-comment-component`+list[i].id+`">
+			<div class="div-id-forum-comment-component`+comment.id+`">
 				<div class="container">
 					<div class="row m-0">
 						<div class="">
@@ -364,34 +292,34 @@
 						</div>
 						<div class="flex-grow-1 pl-2">
 							<a class="text-decoration-none" href="#">
-								<span class="text-capitalize mb-0">`+list[i].creatorFullName+`</span>
-								<span class="small text-secondary m-0 mt-1" id="date_and_edited_msg_`+list[i].id+`">1 day ago {% if f.edited %}(edited){% endif %}</span>
+								<span class="text-capitalize mb-0">`+comment.creatorFullName+`</span>
+								<span class="small text-secondary m-0 mt-1" id="date_and_edited_msg_`+comment.id+`">1 day ago {% if f.edited %}(edited){% endif %}</span>
 							</a>
 						</div>
 					</div>
 					<div class="">
-						<p class="my-2" id="forum_comment_text_`+list[i].id+`">
-							`+list[i].comment+`
+						<p class="my-2" id="forum_comment_text_`+comment.id+`">
+							`+comment.comment+`
 						</p>
 					</div>
 					<footer>
-						<span id="comment_like_id_`+list[i].id+`" type="button" class="btn btn-default btn-sm" onclick="likeComment(`+list[i].id+`)">
-							<i class='far fa-thumbs-up' style='font-size:15px'></i> (`+list[i].likeCount+`)
+						<span id="forum-comment-like-id-`+comment.id+`" type="button" class="btn btn-default btn-sm" onclick="likeForumComment(`+comment.id+`)">
+							<i class='far fa-thumbs-up' style='font-size:15px'></i> (`+comment.likeCount+`)
 						</span>
-						<span id="comment_dislike_id_`+list[i].id+`" type="button" class="btn btn-default btn-sm" onclick="dislikeComment(`+list[i].id+`)">
-							<i class='far fa-thumbs-down' style='font-size:15px'></i> (`+list[i].dislikeCount+`)
+						<span id="forum-comment-dislike-id-`+comment.id+`" type="button" class="btn btn-default btn-sm" onclick="dislikeForumComment(`+comment.id+`)">
+							<i class='far fa-thumbs-down' style='font-size:15px'></i> (`+comment.dislikeCount+`)
 						</span>
 						&nbsp;
-						<a href="#"  data-toggle="modal" data-target="#replyModal" onclick="updateReplyModal(`+list[i].id+`);return false;"><i class='far fa-comment-alt' style='font-size:15px'></i> Reply</a>
+						<a href="#"  data-toggle="modal" data-target="#replyModal" onclick="updateReplyModal(`+comment.id+`);return false;"><i class='far fa-comment-alt' style='font-size:15px'></i> Reply</a>
 						&nbsp;
 						`+editDeleteDropdown+`
 					</footer>
 					<hr>
-					<div class="div-class-child-comments-container`+list[i].id+`"></div>
+					<div class="div-class-child-comments-container`+comment.id+`"></div>
 				</div>
 			</div>`;
 
-			if(!list[i].masterCommentId)
+			if(!comment.masterCommentId)
 			{
 				// master comment. reply field is null.
 				$('#div-id-forum-master-comment').prepend( forumCommentComponent );
@@ -399,78 +327,14 @@
 			else
 			{
 				// this comment does have a master comment. Needs to be under appropriate comment object.
-				if( $('.div-class-child-comments-container'+list[i].masterCommentId)[0] )
-					$('.div-class-child-comments-container'+list[i].masterCommentId).append( forumCommentComponent );
+				if( $('.div-class-child-comments-container'+comment.masterCommentId)[0] )
+					$('.div-class-child-comments-container'+comment.masterCommentId).append( forumCommentComponent );
 				else
-					unidentifiedComments.push(list[i]);
+					unidentifiedComments.push(comment);
 			}
 		}
 
 		return renderForumComments(unidentifiedComments);
-	}
-
-	function likeComment(commentId)
-	{
-		verifyLogin();
-
-		$.ajax(
-		{
-			data:
-			{
-				'id': commentId,
-				'functionality': 'likeComment'
-			},
-			dataType: 'json',
-			success: function (response)
-			{
-				if(response.statusCode == 200)
-				{
-					$('#comment_like_id_'+commentId).html('<i class="far fa-thumbs-up" style="font-size:15px"></i> ('+ response.likeCount +')');
-					$('#comment_dislike_id_'+commentId).html('<i class="far fa-thumbs-down" style="font-size:15px"></i> ('+ response.dislikeCount +')');
-				}
-
-				if(response.statusCode == 404)
-				{
-					Swal.fire({
-	            		icon: 'warning',
-	            		title: "Can't do that!",
-	            		text: response.message
-	            	});
-				}
-			}
-		});
-	}
-
-	function dislikeComment(commentId)
-	{
-		verifyLogin();
-
-		$.ajax(
-		{
-			data:
-			{
-				'id': commentId,
-				'functionality': 'dislikeComment'
-			},
-			dataType: 'json',
-			success: function (response)
-			{
-				if(response.statusCode == 200)
-				{
-					$('#comment_like_id_'+commentId).html('<i class="far fa-thumbs-up" style="font-size:15px"></i> ('+ response.likeCount +')');
-					$('#comment_dislike_id_'+commentId).html('<i class="far fa-thumbs-down" style="font-size:15px"></i> ('+ response.dislikeCount +')');
-				}
-
-				if(response.statusCode == 404)
-				{
-					Swal.fire({
-	            		icon: 'warning',
-	            		title: "Can't do that!",
-	            		text: response.message
-	            	});
-				}
-			}
-		});
 	}
 
 	function deleteForumComment(commentId)
@@ -497,43 +361,223 @@
 	}
 
 
-	// --------------------------------------------------------------------------- //
+    // --------------------------------------------------------------------------- //
 
 	// --------------------------------------------------------------------------- //
 
+	function likeForumComment(commentId)
+	{
+		verifyLogin();
 
-	
+		$.ajax(
+			{
+				data:
+				{
+					'functionality': 'likeForumComment'
+				},
+				url: '/forum/api/v1/forumCommentOperations/'+commentId,
+				dataType: 'json',
+				success: function (response)
+				{
+					if(response.statusCode == 200)
+					{
+						$('#forum-comment-like-id-'+commentId).html('<i class="far fa-thumbs-up" style="font-size:15px"></i> ('+ response.likeCount +')');
+						$('#forum-comment-dislike-id-'+commentId).html('<i class="far fa-thumbs-down" style="font-size:15px"></i> ('+ response.dislikeCount +')');
+					}
 
-	function watchers(is_watching, watchers_count) {
-		if (is_watching)
-			var forum_watch_text = `<span onclick="watch_unwatch_forum();" data-toggle="tooltip" data-placement="top" title="You are watching this issue. Click to stop watching this issue."><i class='far fa-eye' style='font-size:15px'></i> (`+watchers_count+`) Unwatch</span>`;
-		else
-			var forum_watch_text = `<span onclick="watch_unwatch_forum();" data-toggle="tooltip" data-placement="top" title="You are not watching this issue. Click to watch this issue."><i class='far fa-eye' style='font-size:15px'></i> (`+watchers_count+`) Watch</span>`;
+					if(response.statusCode == 404)
+					{
+						Swal.fire(
+							{
+			            		icon: 'warning',
+			            		title: "Can't do that!",
+			            		text: response.message
+			            	}
+		            	);
+					}
+				}
+			}
+		);
+	}
 
-        $('a#forum_watcher').html(forum_watch_text);
+	function dislikeForumComment(commentId)
+	{
+		verifyLogin();
+
+		$.ajax(
+			{
+				data:
+				{
+					'functionality': 'dislikeForumComment'
+				},
+				url: '/forum/api/v1/forumCommentOperations/'+commentId,
+				dataType: 'json',
+				success: function (response)
+				{
+					if(response.statusCode == 200)
+					{
+						$('#forum-comment-like-id-'+commentId).html('<i class="far fa-thumbs-up" style="font-size:15px"></i> ('+ response.likeCount +')');
+						$('#forum-comment-dislike-id-'+commentId).html('<i class="far fa-thumbs-down" style="font-size:15px"></i> ('+ response.dislikeCount +')');
+					}
+
+					if(response.statusCode == 404)
+					{
+						Swal.fire(
+							{
+								icon: 'warning',
+								title: "Can't do that!",
+								text: response.message
+							}
+						);
+					}
+				}
+			}
+		);
+	}
+
+	function updateWatchers(isWatching, watchingCount, forumId)
+    {
+    	var forumWatchContainer = null;
+        if (isWatching)
+            forumWatchContainer = `<span onclick="watchUnwatchForum(`+forumId+`);" data-toggle="tooltip" data-placement="top" title="You are watching this issue. Click to stop watching this issue."><i class='far fa-eye' style='font-size:15px'></i> (`+watchingCount+`) Unwatch</span>`;
+        else
+            forumWatchContainer = `<span onclick="watchUnwatchForum(`+forumId+`);" data-toggle="tooltip" data-placement="top" title="You are not watching this issue. Click to watch this issue."><i class='far fa-eye' style='font-size:15px'></i> (`+watchingCount+`) Watch</span>`;
+
+        $('a#a-id-forum-watcher'+forumId).html(forumWatchContainer);
     }
 
-    function watch_unwatch_forum() {
-    	$.ajax({
-            data: {
-                'functionality': 'watch_unwatch_forum'
+    function watchUnwatchForum(forumId)
+    {
+         $.ajax(
+         {
+            data:
+            {
+                'functionality': 'watchUnwatchForum',
             },
+            url: '/forum/api/v1/forumOperations/'+forumId,
             dataType: 'json',
-            success: function (response) {
-                if (response.statusCode == 200) {
-                    var watchers_count = response.watch_count;
-                    var is_watching = response.is_watching;
-                    watchers(is_watching, watchers_count);
-
-                } else if (response.statusCode == 401) {
-	            	Swal.fire({
-	            		icon: 'warning',
-	            		title: "Can't do that!",
-	            		text: response.message
-	            	});
-	            }
-            }
-        });
+            success: function (response)
+            {
+                if(response.statusCode == 200)
+                {
+                    updateWatchers(response.isWatching, response.newWatchCount, forumId);
+                }
+                else
+                {
+                    Swal.fire(
+                        {
+                            icon: 'warning',
+                            title: "Can't do that!",
+                            text: response.message
+                        }
+                    );
+                }
+             }
+         });
     }
+
+	function upVoteForum(forumId)
+	{
+		verifyLogin();
+		$.ajax(
+			{
+				data:
+				{
+					'functionality': 'upVoteForum',
+				},
+				url: "{% url 'forum:forumOperationsAPI' forumId='FORUMURLID' %}".replace("FORUMURLID", forumId),
+				dataType: 'json',
+				success: function (response)
+				{
+
+					if(response.statusCode == 200)
+					{
+						$('.forum-vote-counter'+forumId).text(intCompromise(response.likeCount-response.dislikeCount));
+					}
+					else
+					{
+						Swal.fire(
+							{
+			            		icon: 'error',
+			            		title: "Can't do that!",
+			            		text: response.message
+			            	}
+		            	);
+					}
+				}
+			}
+		);
+	}
+
+	function downVoteForum(forumId)
+	{
+		verifyLogin();
+		$.ajax(
+			{
+				data:
+				{
+					'functionality': 'downVoteForum',
+				},
+				url: "{% url 'forum:forumOperationsAPI' forumId='FORUMURLID' %}".replace("FORUMURLID", forumId),
+				dataType: 'json',
+				success: function (response)
+				{
+
+					if(response.statusCode == 200)
+					{
+						$('.forum-vote-counter'+forumId).text(intCompromise(response.likeCount-response.dislikeCount));
+					}
+					else
+					{
+						Swal.fire(
+							{
+			            		icon: 'error',
+			            		title: "Can't do that!",
+			            		text: response.message
+			            	}
+		            	);
+					}
+				}
+			}
+		);
+	}
+
+
+    function joinOrLeaveCommunity()
+	{
+		verifyLogin();
+
+		$.ajax(
+			{
+				data:
+				{
+					'functionality': 'joinOrLeaveCommunity'
+				},
+				url: "{% url 'forum:communityOperationsAPI' communityId=community.id %}",
+				dataType: 'json',
+				success: function (response)
+				{
+					if (response.statusCode == 200)
+					{
+						$('#div-id-join-leave-community-button').find('button').first().remove();
+
+						var joinLeaveCommunityButton = null;
+						if (response.inCommunity)
+						{
+							joinLeaveCommunityButton = '<button type="button" class="btn btn-danger" style="border-radius: 16px;padding: 5px 40px;width: 100%;" onclick="joinOrLeaveCommunity();">Leave</button>'
+						}
+						else
+						{
+							joinLeaveCommunityButton = '<button type="button" class="btn btn-primary" style="border-radius: 16px;padding: 5px 40px;width: 100%;" onclick="joinOrLeaveCommunity();">Join</button>';
+						}
+						$("#div-id-join-leave-community-button").prepend(joinLeaveCommunityButton);
+					}
+				}
+			}
+		);
+	}
+
+
+
 </script>
 {% endblock %}
