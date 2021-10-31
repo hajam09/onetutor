@@ -12,6 +12,8 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.template.defaultfilters import slugify
 from sklearn.preprocessing import MinMaxScaler
+from django.core.paginator import Paginator
+from django.core.paginator import EmptyPage
 
 from forum.models import Community, ForumComment
 from forum.models import Forum
@@ -57,17 +59,19 @@ def mainpage(request):
                                                                                          'dislikes',
                                                                                          'watchers',
                                                                                          'forumComments').order_by('-id')
-    forumsPagination = [forums[i:i + 15] for i in range(0, len(forums), 15)]
+
+    paginator = Paginator(forums, 15)
+    pageStartNumber = 1
 
     if request.is_ajax():
         functionality = request.GET.get('functionality', None)
 
         if functionality == "fetchForums":
-            nextIndex = request.GET.get('nextIndex', None)
+            nextIndex = int(request.GET.get('nextIndex', None)) + pageStartNumber
 
             try:
-                nextForums = forumsPagination[int(nextIndex)]
-            except IndexError:
+                nextForums = paginator.page(nextIndex)
+            except EmptyPage:
                 response = {
                     "statusCode": HTTPStatus.NO_CONTENT
                 }
@@ -86,7 +90,7 @@ def mainpage(request):
 
     initialForum = [
         forumComponentJson(request, e)
-        for e in forumsPagination[0] if forumsPagination
+        for e in paginator.page(1) if paginator.num_pages > 0
     ]
 
     context = {
@@ -452,9 +456,10 @@ def vanilla_JS_date_conversion(pyDate):
 
 def forumComponentJson(request, e):
     response = {
-        'id': e.id,
-        'communityUrl': e.community.url,
+        'forumId': e.id,
+        'communityId': e.community.id,
         'forumUrl': e.url,
+        'communityUrl': e.community.url,
         'votes': intCompromise(e.likes.count() - e.dislikes.count()),
         'creatorFullName': e.creator.get_full_name(),
         'date': vanilla_JS_date_conversion(e.createdAt),
@@ -469,21 +474,77 @@ def forumComponentJson(request, e):
     return response
 
 
-def communityOperationsAPI(request, communityUrl):
+def communityOperationsAPI(request, communityId):
     response = {
         'statusCode': HTTPStatus.OK
     }
     return JsonResponse(response)
 
 
-def forumOperationsAPI(request, communityUrl, forumUrl):
+def forumOperationsAPI(request, forumId):
+
+    functionality = request.GET.get('functionality', None)
+
+    if not request.user.is_authenticated:
+        response = {
+            "statusCode": HTTPStatus.UNAUTHORIZED,
+            "message": "Please login to perform this action."
+        }
+        return JsonResponse(response)
+
+    try:
+        forum = Forum.objects.get(id=forumId)
+    except Forum.DoesNotExist:
+        response = {
+            'statusCode': HTTPStatus.NOT_FOUND,
+            'message': 'Could not find a forum with id {}'.format(forumId)
+        }
+        return JsonResponse(response)
+
+    if functionality == "watchUnwatchForum":
+
+        if request.user not in forum.watchers.all():
+            forum.watchers.add(request.user)
+            isWatching = True
+        else:
+            forum.watchers.remove(request.user)
+            isWatching = False
+
+        response = {
+            "isWatching": isWatching,
+            "newWatchCount": forum.watchers.count(),
+            "statusCode": HTTPStatus.OK
+        }
+        return JsonResponse(response)
+
+    elif functionality == "upVoteForum":
+
+        forum.like(request)
+
+        response = {
+            "statusCode": HTTPStatus.OK,
+            "likeCount": forum.likes.count(),
+            "dislikeCount": forum.dislikes.count(),
+        }
+        return JsonResponse(response)
+
+    elif functionality == "downVoteForum":
+        forum.dislike(request)
+
+        response = {
+            "statusCode": HTTPStatus.OK,
+            "likeCount": forum.likes.count(),
+            "dislikeCount": forum.dislikes.count(),
+        }
+        return JsonResponse(response)
+
     response = {
         'statusCode': HTTPStatus.OK
     }
     return JsonResponse(response)
 
 
-def forumCommentOperationsAPI(request, communityUrl, forumUrl, commentId):
+def forumCommentOperationsAPI(request, commentId):
     response = {
         'statusCode': HTTPStatus.OK
     }

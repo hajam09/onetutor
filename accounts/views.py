@@ -241,11 +241,13 @@ def tutorprofileedit(request):
 
 @login_required
 def studentprofile(request):
+	# TODO: consider removing this view.
 	return render(request, "accounts/studentProfile.html")
 
 
 @login_required
 def studentprofileedit(request):
+	# TODO: consider removing this view.
 	return render(request, "accounts/studentprofile.html")
 
 
