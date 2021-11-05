@@ -75,8 +75,8 @@ class ForumComment(models.Model):
     anonymous = models.BooleanField(default=False)
     edited = models.BooleanField(default=False)
     reply = models.ForeignKey('ForumComment', null=True, blank=True, related_name='replies', on_delete=models.CASCADE)
-    likes = models.ManyToManyField(User, related_name='forumCommentLikes', blank=True, null=True)
-    dislikes = models.ManyToManyField(User, related_name='forumCommentDislikes', blank=True, null=True)
+    likes = models.ManyToManyField(User, related_name='forumCommentLikes', blank=True)
+    dislikes = models.ManyToManyField(User, related_name='forumCommentDislikes', blank=True)
 
     def like(self, request):
         if request.user not in self.likes.all():

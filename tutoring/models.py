@@ -20,8 +20,8 @@ class QuestionAnswer(models.Model):
     answer = models.TextField(null=True, default='Not answered yet.')
     questioner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="questioner")  # user who asked the question
     answerer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="answerer")  # user who is being asked the question (tutor)
-    likes = models.ManyToManyField(User, related_name='questionAnswerLikes', blank=True, null=True)
-    dislikes = models.ManyToManyField(User, related_name='questionAnswerDislikes', blank=True, null=True)
+    likes = models.ManyToManyField(User, related_name='questionAnswerLikes', blank=True)
+    dislikes = models.ManyToManyField(User, related_name='questionAnswerDislikes', blank=True)
     date = models.DateTimeField(default=datetime.now)
 
     def like(self, request):
@@ -53,8 +53,8 @@ class QuestionAnswerComment(models.Model):
     questionAnswer = models.ForeignKey(QuestionAnswer, on_delete=models.CASCADE)
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
     comment = models.TextField()
-    likes = models.ManyToManyField(User, related_name='questionAnswerCommentLikes', blank=True, null=True)
-    dislikes = models.ManyToManyField(User, related_name='questionAnswerCommentDislikes', blank=True, null=True)
+    likes = models.ManyToManyField(User, related_name='questionAnswerCommentLikes', blank=True)
+    dislikes = models.ManyToManyField(User, related_name='questionAnswerCommentDislikes', blank=True)
     date = models.DateTimeField(default=datetime.now)
     edited = models.BooleanField(default=False)
 
@@ -86,8 +86,8 @@ class TutorReview(models.Model):
     date = models.DateTimeField(default=datetime.now)
     comment = models.TextField()
     rating = models.PositiveSmallIntegerField()
-    likes = models.ManyToManyField(User, related_name="tutorReviewLikes", blank=True, null=True)
-    dislikes = models.ManyToManyField(User, related_name="tutorReviewDislikes", blank=True, null=True)
+    likes = models.ManyToManyField(User, related_name="tutorReviewLikes", blank=True)
+    dislikes = models.ManyToManyField(User, related_name="tutorReviewDislikes", blank=True)
     edited = models.BooleanField(default=False)
 
     def like(self, request):
