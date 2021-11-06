@@ -1,28 +1,22 @@
 {% extends "accounts/account_base.html" %}
 {% load static %}
 {% block content %}
-
 <link rel="stylesheet" type="text/css" href="{% static 'css/tutorProfileEditPage.css' %}"/>
-<div class="container-fluid " style="margin: auto;overflow-x: hidden; max-width: 1500px;">
+<div class="container" style="margin: auto;overflow-x: hidden;">
    <br>
    {% if messages %}
-      {% for message in messages %}
-         {% if message.tags == "error" %}
-            <div style="color: black; text-align: center;" class="alert alert-danger" role="alert">{{message}}</div>
-         {% else %}
-            <div style="color: black; text-align: center;" class="alert alert-{{ message.tags }}" role="alert">{{message}}</div>
-         {% endif %}
-      {% endfor %}
+	   {% for message in messages %}
+		   {% if message.tags == "error" %}
+		   		<div style="color: black; text-align: center;" class="alert alert-danger" role="alert">{{message}}</div>
+		   {% else %}
+		   		<div style="color: black; text-align: center;" class="alert alert-{{ message.tags }}" role="alert">{{message}}</div>
+		   {% endif %}
+	   {% endfor %}
    {% endif %}
    <div class="row gutters-sm">
       <div class="col-md-12" style="color: black;">
          <form method="post">
             {% csrf_token %}
-            <div class="form-group">
-               <h2 for="summary">Summary</h2>
-               <input type="text" class="form-control" id="summary" name="summary" required>
-            </div>
-            <hr>
             <div class="form-group">
                <h2 for="about">About</h2>
                <textarea class="form-control" id="about" name="about" rows="5" required></textarea>
@@ -72,7 +66,8 @@
             <div class="form-group">
                <button type="submit" class="btn btn-success btn-lg btn-block">Create Profile</button>
             </div>
-            <input type="hidden" name="createTutorProfile">
+            <input type="hidden" name="numberOfEducation" value="0">
+            <input type="hidden" name="createStudentProfile">
          </form>
       </div>
    </div>

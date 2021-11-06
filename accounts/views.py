@@ -98,33 +98,45 @@ def selectprofile(request):
 	if StudentProfile.objects.filter(user=request.user.id).exists():
 		return render("accounts:studentprofile")
 
-	return render(request, 'accounts/select_profile.html', {})
+	return render(request, 'accounts/select_profile.html')
 
 
 @login_required
-def create_student_profile(request):
+def createStudentProfile(request):
+
 	if request.method == "POST" and "createStudentProfile" in request.POST:
 		about = request.POST["about"]
 		subjects = ', '.join([i.capitalize() for i in request.POST.getlist('subjects')])
 
-		education = {}
-		for i in range(int(request.POST["numberOfEducation"])):
-			education["education_" + str(i + 1)] = {
-				"school_name": request.POST["school_name_" + str(i + 1)],
-				"qualification": request.POST["qualification_" + str(i + 1)],
-				"year": request.POST["year_" + str(i + 1)]
-			}
+		schoolNames = request.POST.getlist('schoolName')
+		qualifications = request.POST.getlist('qualification')
+		startDates = request.POST.getlist('startDate')
+		endDates = request.POST.getlist('endDate')
+
+		if len(schoolNames) == len(qualifications) == len(startDates) == len(endDates):
+			# Delete all previous education for this user and create new object(s).
+			request.user.education.all().delete()
+			Education.objects.bulk_create(
+				[
+					Education(
+						user=request.user,
+						schoolName=schoolName,
+						qualification=qualification,
+						startDate=startDate,
+						endDate=endDate
+					)
+					for schoolName, qualification, startDate, endDate in zip(schoolNames, qualifications, startDates, endDates)
+				]
+			)
 
 		StudentProfile.objects.create(
 			user=request.user,
 			about=about,
-			education=education,
 			subjects=subjects
 		)
-
 		return redirect('accounts:studentprofile')
 
-	return render(request, "accounts/create_student_profile.html")
+	return render(request, "accounts/createStudentProfile.html")
 
 @login_required
 def createTutorProfile(request):
@@ -237,18 +249,6 @@ def tutorprofileedit(request):
 		"tutorProfile": tutorProfile
 	}
 	return render(request, "accounts/tutorprofileedit.html", context)
-
-
-@login_required
-def studentprofile(request):
-	# TODO: consider removing this view.
-	return render(request, "accounts/studentProfile.html")
-
-
-@login_required
-def studentprofileedit(request):
-	# TODO: consider removing this view.
-	return render(request, "accounts/studentprofile.html")
 
 
 @login_required
