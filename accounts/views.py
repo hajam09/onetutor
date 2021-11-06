@@ -21,6 +21,7 @@ from accounts.models import StudentProfile
 from accounts.models import TutorProfile
 from accounts.utils import generate_token
 from onetutor.operations import emailOperations
+from tutoring.models import Availability
 
 
 def login(request):
@@ -146,16 +147,6 @@ def createTutorProfile(request):
 		about = request.POST["about"]
 		subjects = ', '.join([i.capitalize() for i in request.POST.getlist('subjects')])
 
-		availability = {
-			"monday": {"morning": False, "afternoon": False, "evening": False},
-			"tuesday": {"morning": False, "afternoon": False, "evening": False},
-			"wednesday": {"morning": False, "afternoon": False, "evening": False},
-			"thursday": {"morning": False, "afternoon": False, "evening": False},
-			"friday": {"morning": False, "afternoon": False, "evening": False},
-			"saturday": {"morning": False, "afternoon": False, "evening": False},
-			"sunday": {"morning": False, "afternoon": False, "evening": False}
-		}
-
 		# Delete all previous education for this user and create new object(s).
 		schoolNames = request.POST.getlist('schoolName')
 		qualifications = request.POST.getlist('qualification')
@@ -182,8 +173,11 @@ def createTutorProfile(request):
 			summary=summary,
 			about=about,
 			subjects=subjects,
-			availability=availability
 			)
+
+		Availability.objects.create(
+			user=request.user
+		)
 		return redirect('accounts:tutorprofile')
 
 	return render(request, "accounts/createTutorProfile.html")
@@ -209,26 +203,14 @@ def userSettings(request):
 			subjects = ', '.join([i.capitalize() for i in request.POST.getlist('subjects')])
 			availabilityChoices = request.POST.getlist('availabilityChoices')
 
-			availability = {
-				"monday": {"morning": False, "afternoon": False, "evening": False},
-				"tuesday": {"morning": False, "afternoon": False, "evening": False},
-				"wednesday": {"morning": False, "afternoon": False, "evening": False},
-				"thursday": {"morning": False, "afternoon": False, "evening": False},
-				"friday": {"morning": False, "afternoon": False, "evening": False},
-				"saturday": {"morning": False, "afternoon": False, "evening": False},
-				"sunday": {"morning": False, "afternoon": False, "evening": False}
-			}
-
+			availability = Availability.objects.get_or_create(user=request.user)[0]
 			for i in availabilityChoices:
-				i = i.split("_")
-				weekDay = i[0]
-				dayTime = i[1]
-				availability[weekDay][dayTime] = True
+				setattr(availability, i, True)
+			availability.save()
 
 			profile.summary = summary
 			profile.about = about
 			profile.subjects = subjects
-			profile.availability = availability
 			profile.save()
 
 			messages.success(

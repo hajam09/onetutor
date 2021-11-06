@@ -13,6 +13,30 @@ from django.urls import reverse
 # 	date = models.DateTimeField(default=datetime.now)
 # 	edited = models.BooleanField(default=False)
 
+class Availability(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+    sundayMorning = models.BooleanField(default=False)
+    sundayAfternoon = models.BooleanField(default=False)
+    sundayEvening = models.BooleanField(default=False)
+    mondayMorning = models.BooleanField(default=False)
+    mondayAfternoon = models.BooleanField(default=False)
+    mondayEvening = models.BooleanField(default=False)
+    tuesdayMorning = models.BooleanField(default=False)
+    tuesdayAfternoon = models.BooleanField(default=False)
+    tuesdayEvening = models.BooleanField(default=False)
+    wednesdayMorning = models.BooleanField(default=False)
+    wednesdayAfternoon = models.BooleanField(default=False)
+    wednesdayEvening = models.BooleanField(default=False)
+    thursdayMorning = models.BooleanField(default=False)
+    thursdayAfternoon = models.BooleanField(default=False)
+    thursdayEvening = models.BooleanField(default=False)
+    fridayMorning = models.BooleanField(default=False)
+    fridayAfternoon = models.BooleanField(default=False)
+    fridayEvening = models.BooleanField(default=False)
+    saturdayMorning = models.BooleanField(default=False)
+    saturdayAfternoon = models.BooleanField(default=False)
+    saturdayEvening = models.BooleanField(default=False)
+
 
 class QuestionAnswer(models.Model):
     subject = models.CharField(max_length=1024)
