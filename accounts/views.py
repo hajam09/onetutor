@@ -188,76 +188,14 @@ def createTutorProfile(request):
 
 	return render(request, "accounts/createTutorProfile.html")
 
-@login_required
-def tutorprofile(request):
-	# TODO: consider removing this view.
-	try:
-		tutorProfile = TutorProfile.objects.get(user=request.user.id)
-	except TutorProfile.DoesNotExist:
-		return redirect('accounts:selectprofile')
-
-	tutorProfile.subjects = tutorProfile.subjects.replace(", ", ",").split(",")
-	return render(request,"accounts/tutorprofile.html", {"tutorProfile": tutorProfile})
-
-@login_required
-def tutorprofileedit(request):
-	# TODO: consider removing this view.
-	try:
-		tutorProfile = TutorProfile.objects.get(user=request.user)
-	except TutorProfile.DoesNotExist:
-		return redirect('accounts:selectprofile')
-
-	if request.method == "POST" and "updateTutorProfile" in request.POST:
-		summary = request.POST["summary"]
-		about = request.POST["about"]
-		subjects = ', '.join([i.capitalize() for i in request.POST.getlist('subjects')])
-		availabilityChoices = request.POST.getlist('availabilityChoices')
-
-		availability = {
-			"monday": {"morning": False, "afternoon": False, "evening": False},
-			"tuesday": {"morning": False, "afternoon": False, "evening": False},
-			"wednesday": {"morning": False, "afternoon": False, "evening": False},
-			"thursday": {"morning": False, "afternoon": False, "evening": False},
-			"friday": {"morning": False, "afternoon": False, "evening": False},
-			"saturday": {"morning": False, "afternoon": False, "evening": False},
-			"sunday": {"morning": False, "afternoon": False, "evening": False}
-		}
-
-		for i in availabilityChoices:
-			i = i.split("_")
-			weekDay = i[0]
-			dayTime = i[1]
-			availability[weekDay][dayTime] = True
-
-		education = {}
-		for i in range(int(request.POST["numberOfEducation"])):
-			education["education_" + str(i + 1)] = {
-				"school_name": request.POST["school_name_" + str(i + 1)],
-				"qualification": request.POST["qualification_" + str(i + 1)],
-				"year": request.POST["year_" + str(i + 1)]
-			}
-
-		tutorProfile.summary = summary
-		tutorProfile.about = about
-		tutorProfile.education = education
-		tutorProfile.subjects = subjects
-		tutorProfile.availability = availability
-		tutorProfile.save()
-		return redirect("accounts:tutorprofile")
-
-	context = {
-		"tutorProfile": tutorProfile
-	}
-	return render(request, "accounts/tutorprofileedit.html", context)
-
 
 @login_required
 def userSettings(request):
 
 	try:
-		profile = TutorProfile.objects.get(user=request.user)
+		profile = TutorProfile.objects.select_related('user').get(user=request.user)
 	except TutorProfile.DoesNotExist:
-		profile = StudentProfile.objects.get(user=request.user)
+		profile = StudentProfile.objects.select_related('user').get(user=request.user)
 	except StudentProfile.DoesNotExist:
 		return redirect('accounts:selectprofile')
 
@@ -287,27 +225,6 @@ def userSettings(request):
 				dayTime = i[1]
 				availability[weekDay][dayTime] = True
 
-			# Delete all previous education for this user and create new object(s).
-			schoolNames = request.POST.getlist('schoolName')
-			qualifications = request.POST.getlist('qualification')
-			startDates = request.POST.getlist('startDate')
-			endDates = request.POST.getlist('endDate')
-
-			if len(schoolNames) == len(qualifications) == len(startDates) == len(endDates):
-				request.user.education.all().delete()
-				Education.objects.bulk_create(
-					[
-						Education(
-							user=request.user,
-							schoolName=schoolName,
-							qualification=qualification,
-							startDate=startDate,
-							endDate=endDate
-						)
-						for schoolName, qualification, startDate, endDate in zip(schoolNames, qualifications, startDates, endDates)
-					]
-				)
-
 			profile.summary = summary
 			profile.about = about
 			profile.subjects = subjects
@@ -327,22 +244,36 @@ def userSettings(request):
 			about = request.POST["about"]
 			subjects = ', '.join([i.capitalize() for i in request.POST.getlist('subjects')])
 
-			education = {}
-			for i in range(int(request.POST["numberOfEducation"])):
-				education["education_" + str(i + 1)] = {
-					"school_name": request.POST["school_name_" + str(i + 1)],
-					"qualification": request.POST["qualification_" + str(i + 1)],
-					"year": request.POST["year_" + str(i + 1)]
-				}
-
 			profile.about = about
-			profile.education = education
 			profile.subjects = subjects
 			profile.save()
 
 			messages.success(
 				request,
 				'Your biography and other details has been updated successfully.'
+			)
+
+	if request.method == "POST" and "updateEducation" in request.POST:
+
+		# Delete all previous education for this user and create new object(s).
+		schoolNames = request.POST.getlist('schoolName')
+		qualifications = request.POST.getlist('qualification')
+		startDates = request.POST.getlist('startDate')
+		endDates = request.POST.getlist('endDate')
+
+		if len(schoolNames) == len(qualifications) == len(startDates) == len(endDates):
+			request.user.education.all().delete()
+			Education.objects.bulk_create(
+				[
+					Education(
+						user=request.user,
+						schoolName=schoolName,
+						qualification=qualification,
+						startDate=startDate,
+						endDate=endDate
+					)
+					for schoolName, qualification, startDate, endDate in zip(schoolNames, qualifications, startDates, endDates)
+				]
 			)
 
 	if request.method == "POST" and "updateGeneralInformation" in request.POST:
@@ -435,7 +366,10 @@ def userSettings(request):
 			'Account delete code is incorrect, please try again later.'
 		)
 
-	return render(request, templateName)
+	context = {
+		"profile": profile
+	}
+	return render(request, templateName, context)
 
 def rules(request, rule_type):
 	if rule_type == "privacy_policy":

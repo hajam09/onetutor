@@ -53,8 +53,8 @@
                      <input type="text" name="updateGeneralInformation" hidden>
                      {% csrf_token %}
                      <div class="card-body media align-items-center">
-                        {% if request.user.tutorprofile.profilePicture %}
-                        <img src="{{ request.user.tutorprofile.profilePicture.url }}" alt="" class="d-block ui-w-80 rounded-circle">
+                        {% if profile.profilePicture %}
+                        <img src="{{ profile.profilePicture.url }}" alt="" class="d-block ui-w-80 rounded-circle">
                         {% else %}
                         <img src="https://icon-library.com/images/default-user-icon/default-user-icon-13.jpg" alt="" class="d-block ui-w-80 rounded-circle">
                         {% endif %}
@@ -71,11 +71,11 @@
                         <div class="row">
                            <div class="col">
                               <label for="fullName">First Name</label>
-                              <input type="text" class="form-control" id="firstName" name="firstName" placeholder="First Name" value="{{ request.user.tutorprofile.user.first_name }}" required>
+                              <input type="text" class="form-control" id="firstName" name="firstName" placeholder="First Name" value="{{ profile.user.first_name }}" required>
                            </div>
                            <div class="col">
                               <label for="fullName">Last Name</label>
-                              <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Last Name" value="{{ request.user.tutorprofile.user.last_name }}" required>
+                              <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Last Name" value="{{ profile.user.last_name }}" required>
                            </div>
                         </div>
                         <small id="fullNameHelp" class="form-text text-muted">Your name may appear around here where you are mentioned.</small>
@@ -88,7 +88,7 @@
                      <div class="form-group">
                         <label for="url">Profile page</label>
                         <br>
-                        <a href="http://{{ request.META.HTTP_HOST }}/tutorprofile/{{ request.user.tutorprofile.secondaryKey }}/">http://{{ request.META.HTTP_HOST }}/tutorprofile/{{ request.user.tutorprofile.secondaryKey }}/</a>
+                        <a href="http://{{ request.META.HTTP_HOST }}/tutorprofile/{{ profile.secondaryKey }}/">http://{{ request.META.HTTP_HOST }}/tutorprofile/{{ profile.secondaryKey }}/</a>
                      </div>
                      <div class="form-group small text-muted">
                         Some of the fields on this page are mandatory and by filling them out, you're giving us consent to share this data wherever your user profile appears.
@@ -104,12 +104,12 @@
                      {% csrf_token %}
                      <div class="form-group">
                         <h4 for="summary">Summary</h4>
-                        <input type="text" class="form-control" id="summary" name="summary" value="{{ request.user.tutorprofile.summary }}" required>
+                        <input type="text" class="form-control" id="summary" name="summary" value="{{ profile.summary }}" required>
                      </div>
                      <hr>
                      <div class="form-group">
                         <h4 for="about">About</h4>
-                        <textarea class="form-control autosize" id="about" name="about" rows="15" required>{{ request.user.tutorprofile.about }}</textarea>
+                        <textarea class="form-control autosize" id="about" name="about" rows="15" required>{{ profile.about }}</textarea>
                      </div>
                      <hr>
                      <div class="form-group" id="education">
@@ -159,7 +159,7 @@
                               </tr>
                            </thead>
                            <tbody>
-                              {% for key,value in request.user.tutorprofile.availability.items %}
+                              {% for key,value in profile.availability.items %}
                               <tr>
                                  <th style="vertical-align: middle; padding-left:0px" scope="row">{{key|title}}</th>
                                  <td style="text-align: center; padding-left:0px">
@@ -233,7 +233,7 @@
                      <div class="form-group">
                         <h2 for="subjects">Subjects</h2>
                         <select class="multiple-subjects form-control" name="subjects" multiple="multiple" required>
-                           {% for subject in request.user.tutorprofile.getSubjectsAsList %}
+                           {% for subject in profile.getSubjectsAsList %}
                            <option selected="selected">{{subject}}</option>
                            {% endfor %}
                         </select>
@@ -249,6 +249,7 @@
                         &#xA0;
                      </div>
                      <input type="hidden" name="updateTutorProfile">
+                     <input type="hidden" name="updateEducation">
                   </form>
                </div>
                <div class="tab-pane" id="security">
