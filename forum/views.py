@@ -2,21 +2,22 @@ import json
 import math
 import random
 import string
-from datetime import datetime
 from http import HTTPStatus
 
 import pandas as pd
 from django.contrib import messages
+from django.core.paginator import EmptyPage
+from django.core.paginator import Paginator
 from django.http import Http404, HttpResponse
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.template.defaultfilters import slugify
 from sklearn.preprocessing import MinMaxScaler
-from django.core.paginator import Paginator
-from django.core.paginator import EmptyPage
 
-from forum.models import Community, ForumComment
+from forum.models import Community
 from forum.models import Forum
+from forum.models import ForumComment
+from onetutor.operations import dateOperations
 
 
 def mainpage(request):
@@ -313,13 +314,6 @@ def intCompromise(interger):
     return '{:.0f}{}'.format(floatNumber / 10 ** (3 * milliDx), millNames[milliDx])
 
 
-def vanilla_JS_date_conversion(pyDate):
-    date = pyDate.strftime("%b. %d, %Y,")
-    time = datetime.strptime(pyDate.strftime("%H:%M"), "%H:%M")
-    time = time.strftime("%I:%M %p").lower().replace("pm", "p.m.").replace("am", "a.m.")
-    return str(date + " " + time)
-
-
 def forumComponentJson(request, e):
     response = {
         'forumId': e.id,
@@ -328,7 +322,7 @@ def forumComponentJson(request, e):
         'communityUrl': e.community.url,
         'votes': intCompromise(e.likes.count() - e.dislikes.count()),
         'creatorFullName': e.creator.get_full_name(),
-        'date': vanilla_JS_date_conversion(e.createdAt),
+        'date': dateOperations.humanizePythonDate(e.createdAt),
         'title': e.title.replace("\n", "<br />"),
         'image': str(e.image),
         'description': e.description.replace("\n", "<br />"),

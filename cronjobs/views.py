@@ -15,4 +15,4 @@ def runTasks(functionName, wait_time):
 def startCronJobs():
 	runTasks(executeDeleteCacheFromLogin, 10)
 
-startCronJobs()
+# startCronJobs()

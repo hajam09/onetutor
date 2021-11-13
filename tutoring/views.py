@@ -8,9 +8,9 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
+from onetutor.operations import dateOperations
 
 from accounts.models import Subject
-from accounts.models import Education
 from accounts.models import TutorProfile
 from tutoring.models import QuestionAnswer
 from tutoring.models import QuestionAnswerComment
@@ -28,7 +28,7 @@ def mainpage(request):
 		generalQueryList = generalQuery.split()
 		locationList = location.split()
 
-		profiles = TutorProfile.objects.all().select_related('user')
+		profiles = TutorProfile.objects.all().select_related('user').prefetch_related("user__tutorReviews")
 
 		# user may want to find a particular tutor by name(s).
 		if generalQuery and location:
@@ -51,19 +51,7 @@ def mainpage(request):
 			"""
 
 			tutorList = [
-				{
-					"pk": i.pk,
-					"profilePicture": {
-						"url": i.profilePicture.url if i.profilePicture else None
-					},
-					"getTutoringUrl": i.getTutoringUrl(),
-					"user": {
-						"first_name": i.user.first_name,
-						"last_name": i.user.last_name
-					},
-					"summary": i.summary,
-					"averageRating": ratingToStars(i),
-				}
+				getTutorProfileForMainPage(i)
 				for k in locationList
 				for j in generalQueryList
 				for i in profiles
@@ -78,19 +66,7 @@ def mainpage(request):
 		elif generalQuery:
 
 			tutorList = [
-				{
-					"pk": i.pk,
-					"profilePicture": {
-						"url": i.profilePicture.url if i.profilePicture else None
-					},
-					"getTutoringUrl": i.getTutoringUrl(),
-					"user": {
-						"first_name": i.user.first_name,
-						"last_name": i.user.last_name
-					},
-					"summary": i.summary,
-					"averageRating": ratingToStars(i),
-				}
+				getTutorProfileForMainPage(i)
 				for j in generalQueryList
 				for i in profiles
 				if j.casefold() in i.summary.casefold() or j.casefold() in i.subjects.casefold() or j.casefold() in i.user.get_full_name().casefold()
@@ -102,19 +78,7 @@ def mainpage(request):
 		elif location:
 
 			tutorList = [
-				{
-					"pk": i.pk,
-					"profilePicture": {
-						"url": i.profilePicture.url if i.profilePicture else None
-					},
-					"getTutoringUrl": i.getTutoringUrl(),
-					"user": {
-						"first_name": i.user.first_name,
-						"last_name": i.user.last_name
-					},
-					"summary": i.summary,
-					"averageRating": ratingToStars(i),
-				}
+				getTutorProfileForMainPage(i)
 				for i in profiles
 				for k in locationList
 				if k.lower() in [i.lower() for i in pandas.json_normalize(i.location, sep='_').to_dict(orient='records')[0].values()]
@@ -136,10 +100,10 @@ def mainpage(request):
 
 
 def ratingToStars(tutor):
-	# TODO: Need to optimise the tutor reviews rating points. Would be very slow for large number of tutor profiles.
+	# TODO: Add the remaining stars to fill up the rating.
 	tutorReviewsObjects = tutor.user.tutorReviews
 	outOfPoints = tutorReviewsObjects.count() * 5
-	sumOfRating = sum(list(tutorReviewsObjects.values_list('rating', flat=True)))
+	sumOfRating = sum([i.rating for i in tutorReviewsObjects.all()])
 
 	try:
 		numberOfStars = sumOfRating * 5 / outOfPoints
@@ -155,7 +119,24 @@ def ratingToStars(tutor):
 	return starsAsString
 
 
-def viewtutorprofile(request, tutorProfileKey):
+def getTutorProfileForMainPage(profile):
+	data = {
+		"pk": profile.pk,
+		"profilePicture": {
+			"url": profile.profilePicture.url if profile.profilePicture else None
+		},
+		"getTutoringUrl": profile.getTutoringUrl(),
+		"user": {
+			"first_name": profile.user.first_name,
+			"last_name": profile.user.last_name
+		},
+		"summary": profile.summary,
+		"averageRating": ratingToStars(profile),
+	}
+	return data
+
+
+def viewTutorProfile(request, tutorProfileKey):
 
 	try:
 		tutorProfile = TutorProfile.objects.get(secondaryKey=tutorProfileKey)
@@ -189,7 +170,7 @@ def viewtutorprofile(request, tutorProfileKey):
 				'id': questionAnswer.id,
 				'answer': questionAnswer.answer,
 				'questionerFullName': questionAnswer.questioner.get_full_name(),
-				'createdDate': vanilla_JS_date_conversion(questionAnswer.date),
+				'createdDate': dateOperations.humanizePythonDate(questionAnswer.date),
 				'likeCount': 0,
 				'dislikeCount': 0,
 				'statusCode': HTTPStatus.OK
@@ -315,7 +296,7 @@ def viewtutorprofile(request, tutorProfileKey):
 
 			response = {
 				'id': tutorReview.id,
-				'createdDate': vanilla_JS_date_conversion(tutorReview.date),
+				'createdDate': dateOperations.humanizePythonDate(tutorReview.date),
 				'statusCode': HTTPStatus.OK
 			}
 			return JsonResponse(response)
@@ -396,7 +377,7 @@ def viewtutorprofile(request, tutorProfileKey):
 			}
 			return JsonResponse(response)
 
-		raise Exception("Unknown functionality viewtutorprofile")
+		raise Exception("Unknown functionality in viewTutorProfile")
 
 	context = {
 		"tutorProfile": tutorProfile,
@@ -492,7 +473,7 @@ def questionAnswerThread(request, questionId):
 				'id': questionAnswerComment.id,
 				'creatorFullName': questionAnswerComment.creator.get_full_name(),
 				'comment': questionAnswerComment.comment.replace("\n", "<br />"),
-				'date': vanilla_JS_date_conversion(questionAnswerComment.date),
+				'date': dateOperations.humanizePythonDate(questionAnswerComment.date),
 				'likeCount': 0,
 				'dislikeCount': 0,
 				'edited': False,
@@ -603,10 +584,3 @@ def subject_tag(request, tag_name):
 		"list_of_subjects": list_of_subjects
 	}
 	return render(request, "tutoring/resultbysubjects.html", context)
-
-def vanilla_JS_date_conversion(python_date):
-	date = python_date.strftime("%b. %d, %Y,")
-	time = datetime.strptime( python_date.strftime("%H:%M"), "%H:%M")
-	time = time.strftime("%I:%M %p").lower().replace("pm", "p.m.").replace("am", "a.m.")
-	date_time = str(date + " " + time)
-	return date_time
