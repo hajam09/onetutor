@@ -49,7 +49,7 @@ def sendEmailToChangePassword(request, user: User):
             You have recently request to change your account password.
             Please click this link below to change your account password.
             \n
-            http://{}/accounts/password_change/{}/{}
+            http://{}/accounts/passwordChange/{}/{}
             \n
             Thanks,
             The OneTutor Team

@@ -1,4 +1,5 @@
 import os
+from http import HTTPStatus
 
 from django.conf import settings
 from django.contrib import messages
@@ -12,6 +13,7 @@ from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.utils.encoding import force_text
+from django.utils.encoding import DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_decode
 
 from accounts.forms import LoginForm
@@ -23,6 +25,7 @@ from accounts.utils import generate_token
 from onetutor.operations import emailOperations
 from tutoring.models import Availability
 
+#TODO: Use Availability from the model rather than from TutorProfile
 
 def login(request):
 
@@ -362,12 +365,12 @@ def rules(request, rule_type):
 def not_found_page(request, *args, **argv):
 	return render(request,"accounts/404.html", {})
 
-def activateaccount(request, uidb64, token):
+def activateAccount(request, uidb64, token):
 
 	try:
 		uid = force_text(urlsafe_base64_decode(uidb64))
 		user = User.objects.get(pk=uid)
-	except Exception as e:
+	except (DjangoUnicodeDecodeError, ValueError, User.DoesNotExist):
 		user = None
 
 	if user is not None and generate_token.check_token(user, token):
@@ -379,9 +382,9 @@ def activateaccount(request, uidb64, token):
 		)
 		return redirect('accounts:login')
 
-	return render(request, "accounts/activate_failed.html", status=401)
+	return render(request, "accounts/activateFailed.html", status=HTTPStatus.UNAUTHORIZED)
 
-def password_request(request):
+def passwordRequest(request):
 
 	if request.method == "POST":
 		email = request.POST["email"]
@@ -397,15 +400,15 @@ def password_request(request):
 		messages.info(
 			request, 'Check your email for a password change link.'
 		)
-		return redirect('accounts:password_request')
-	return render(request, "accounts/password_request.html", {})
 
-def password_change(request, uidb64, token):
+	return render(request, "accounts/passwordRequest.html")
+
+def passwordChange(request, uidb64, token):
 
 	try:
 		uid = force_text(urlsafe_base64_decode(uidb64))
 		user = User.objects.get(pk=uid)
-	except Exception as e:
+	except (DjangoUnicodeDecodeError, ValueError, User.DoesNotExist):
 		user = None
 
 	if request.method == "POST" and user is not None and generate_token.check_token(user, token):
@@ -418,7 +421,7 @@ def password_change(request, uidb64, token):
 					request,
 					'Your new password and confirm password does not match.'
 				)
-				return redirect("accounts:password_change", uidb64=uidb64, token=token)
+				return redirect("accounts:password-change", uidb64=uidb64, token=token)
 
 			if len(newPassword) < 8 or not any(letter.isalpha() for letter in newPassword) or not any(
 					capital.isupper() for capital in newPassword) or not any(
@@ -427,28 +430,27 @@ def password_change(request, uidb64, token):
 					request,
 					'Your new password is not strong enough.'
 				)
-				return redirect("accounts:password_change", uidb64=uidb64, token=token)
+				return redirect("accounts:password-change", uidb64=uidb64, token=token)
 
 			user.set_password(newPassword)
 			user.save()
 			return redirect("accounts:login")
 
-	if user is not None and generate_token.check_token(user, token):
-		return render(request, 'accounts/password_reset_form.html')
-	return render(request, "accounts/activate_failed.html", status=401)
+	TEMPLATE = 'passwordResetForm' if user is not None and generate_token.check_token(user, token) else 'activateFailed'
+	return render(request, 'accounts/{}.html'.format(TEMPLATE))
 
 def requestDeleteCode(request):
 
 	if not request.is_ajax():
 		response = {
-			"statusCode": 403,
+			"statusCode": HTTPStatus.FORBIDDEN,
 			"message": "Bad Request"
 		}
 		return JsonResponse(response)
 
 	if not request.user.is_authenticated:
 		response = {
-			"statusCode": 401,
+			"statusCode": HTTPStatus.BAD_REQUEST,
 			"message": "Login to request a code."
 		}
 		return JsonResponse(response)
@@ -459,7 +461,7 @@ def requestDeleteCode(request):
 	emailOperations.sendEmailForAccountDeletionCode(request, request.user)
 
 	response = {
-		"statusCode": 200,
+		"statusCode": HTTPStatus.OK,
 		"message": "Check your email for the code."
 	}
 	return JsonResponse(response)
