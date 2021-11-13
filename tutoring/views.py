@@ -413,7 +413,7 @@ def tutorsQuestions(request):
 	try:
 		tutorProfile = TutorProfile.objects.get(user=request.user)
 	except TutorProfile.DoesNotExist:
-		return redirect("accounts:selectprofile")
+		return redirect("accounts:select-profile")
 
 	if request.is_ajax():
 		functionality = request.GET.get('functionality', None)

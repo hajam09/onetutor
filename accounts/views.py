@@ -95,7 +95,7 @@ def logout(request):
 
 
 @login_required
-def selectprofile(request):
+def selectProfile(request):
 	if TutorProfile.objects.filter(user=request.user.id).exists():
 		return redirect("accounts:tutorprofile")
 
@@ -194,7 +194,7 @@ def userSettings(request):
 	except TutorProfile.DoesNotExist:
 		profile = StudentProfile.objects.select_related('user').get(user=request.user)
 	except StudentProfile.DoesNotExist:
-		return redirect('accounts:selectprofile')
+		return redirect('accounts:select-profile')
 
 	if isinstance(profile, TutorProfile):
 		# functions specific to tutors.
