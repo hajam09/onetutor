@@ -29,8 +29,6 @@ urlpatterns = [
     path('', include('tutoring.urls')),
 ]
 
-handler404 = 'accounts.views.not_found_page'
-
 if settings.DEBUG:
     import debug_toolbar
 

@@ -358,17 +358,16 @@ def userSettings(request):
 
 def rules(request, ruleType):
 
-	TEMPLATE = None
-
 	if ruleType == "privacyPolicy":
 		TEMPLATE = "accounts/privacyPolicy.html"
 	elif ruleType == "termsAndConditions":
 		TEMPLATE = "accounts/termsAndConditions.html"
+	else:
+		# TODO: create a custom 404 page and redirect it to there.
+		pass
 
 	return render(request, TEMPLATE)
 
-def not_found_page(request, *args, **argv):
-	return render(request,"accounts/404.html", {})
 
 def activateAccount(request, uidb64, token):
 
