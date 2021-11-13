@@ -356,11 +356,16 @@ def userSettings(request):
 	}
 	return render(request, templateName, context)
 
-def rules(request, rule_type):
-	if rule_type == "privacy_policy":
-		return render(request,"accounts/privacypolicy.html")
-	if rule_type == "terms_and_conditions":
-		return render(request,"accounts/termsandconditions.html")
+def rules(request, ruleType):
+
+	TEMPLATE = None
+
+	if ruleType == "privacyPolicy":
+		TEMPLATE = "accounts/privacyPolicy.html"
+	elif ruleType == "termsAndConditions":
+		TEMPLATE = "accounts/termsAndConditions.html"
+
+	return render(request, TEMPLATE)
 
 def not_found_page(request, *args, **argv):
 	return render(request,"accounts/404.html", {})

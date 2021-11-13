@@ -33,7 +33,7 @@
 				</div>
 				<div class="loginbox-social">
 					<div class="social-title ">
-						<p class="small text-center">By clicking the Register Now button, you agree to our <br><a href="/accounts/rules/terms_and_conditions/" target="_blank">Terms &amp; Conditions</a>, and <a href="/accounts/rules/privacy_policy/" target="_blank">Privacy Policy</a>
+						<p class="small text-center">By clicking the Register Now button, you agree to our <br><a href="{% url 'accounts:rules' ruleType='termsAndConditions' %}" target="_blank">Terms &amp; Conditions</a>, and <a href="{% url 'accounts:rules' ruleType='privacyPolicy' %}" target="_blank">Privacy Policy</a>
 						</p>
 					</div>
 					<div class="social-title ">Already have an account? <a href="{% url 'accounts:login' %}">Sign in</a></div>

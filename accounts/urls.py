@@ -14,7 +14,7 @@ urlpatterns = [
 	path('activate/<uidb64>/<token>', views.activateAccount, name='activate'),
 	path('passwordRequest/', views.passwordRequest, name='password-request'),
 	path('passwordChange/<uidb64>/<token>', views.passwordChange, name='password-change'),
-	path('rules/<slug:rule_type>/', views.rules, name='rules'),
+	path('rules/<slug:ruleType>/', views.rules, name='rules'),
 	path('requestDeleteCode/', views.requestDeleteCode, name='requestDeleteCode'),
 	path('user-settings/', views.userSettings, name='user-settings'),
 ]
