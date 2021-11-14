@@ -181,7 +181,7 @@ def createTutorProfile(request):
 		Availability.objects.create(
 			user=request.user
 		)
-		return redirect('accounts:tutorprofile')
+		return redirect('tutoring:mainpage')
 
 	return render(request, "accounts/createTutorProfile.html")
 

@@ -1,9 +1,17 @@
+import os
+import random
 import uuid
 
 import jsonfield
 from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
+
+from onetutor import settings
+
+
+def getRandomImageForAvatar():
+    return "avatars/" + random.choice(os.listdir(os.path.join(settings.MEDIA_ROOT, "avatars/")))
 
 
 class TutorProfile(models.Model):
@@ -15,7 +23,7 @@ class TutorProfile(models.Model):
     education = jsonfield.JSONField(blank=True, null=True)
     subjects = models.CharField(max_length=8192, blank=True, null=True)
     availability = jsonfield.JSONField()
-    profilePicture = models.ImageField(upload_to='profile-picture', blank=True, null=True, default='profile-picture/default-profile-picture.jpg')
+    profilePicture = models.ImageField(upload_to='profile-picture', blank=True, null=True, default=getRandomImageForAvatar())
 
     class Meta:
         verbose_name_plural = "TutorProfiles"
@@ -36,7 +44,7 @@ class StudentProfile(models.Model):
     about = models.TextField()
     education = jsonfield.JSONField(blank=True, null=True)
     subjects = models.CharField(max_length=8192, blank=True, null=True)
-    profilePicture = models.ImageField(upload_to='profile-picture', blank=True, null=True, default='profile-picture/default-profile-picture.jpg')
+    profilePicture = models.ImageField(upload_to='profile-picture', blank=True, null=True, default=getRandomImageForAvatar())
 
     class Meta:
         verbose_name_plural = "StudentProfiles"
