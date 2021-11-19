@@ -159,71 +159,41 @@
                               </tr>
                            </thead>
                            <tbody>
-                              {% for key,value in profile.availability.items %}
+                              {% for key, value in profile.user.availability.getAvailability.items %}
                               <tr>
                                  <th style="vertical-align: middle; padding-left:0px" scope="row">{{key|title}}</th>
                                  <td style="text-align: center; padding-left:0px">
-                                    {% if value.morning %}
                                     <div class="card_2">
                                        <div class="checkbox-container circular-container">
                                           <label class="checkbox-label">
-                                          <input type="checkbox" name="availabilityChoices" value="{{key}}Morning" checked>
+                                          <input type="checkbox" name="availabilityChoices" value="{{key}}Morning"
+                                          {% if value.morning %} checked {% endif %}>
                                           <span class="checkbox-custom circular"></span>
                                           </label>
                                        </div>
                                     </div>
-                                    {% else %}
-                                    <div class="card_2">
-                                       <div class="checkbox-container circular-container">
-                                          <label class="checkbox-label">
-                                          <input type="checkbox" name="availabilityChoices" value="{{key}}Morning">
-                                          <span class="checkbox-custom circular"></span>
-                                          </label>
-                                       </div>
-                                    </div>
-                                    {% endif %}
                                  </td>
                                  <td style="text-align: center; padding-left:0px">
-                                    {% if value.afternoon %}
                                     <div class="card_2">
                                        <div class="checkbox-container circular-container">
                                           <label class="checkbox-label">
-                                          <input type="checkbox" name="availabilityChoices" value="{{key}}Afternoon" checked>
+                                          <input type="checkbox" name="availabilityChoices" value="{{key}}Afternoon"
+                                          {% if value.afternoon %} checked {% endif %}>
                                           <span class="checkbox-custom circular"></span>
                                           </label>
                                        </div>
                                     </div>
-                                    {% else %}
-                                    <div class="card_2">
-                                       <div class="checkbox-container circular-container">
-                                          <label class="checkbox-label">
-                                          <input type="checkbox" name="availabilityChoices" value="{{key}}Afternoon">
-                                          <span class="checkbox-custom circular"></span>
-                                          </label>
-                                       </div>
-                                    </div>
-                                    {% endif %}
                                  </td>
                                  <td style="text-align: center; padding-left:0px">
-                                    {% if value.evening %}
                                     <div class="card_2">
                                        <div class="checkbox-container circular-container">
                                           <label class="checkbox-label">
-                                          <input type="checkbox" name="availabilityChoices" value="{{key}}Evening" checked>
+                                          <input type="checkbox" name="availabilityChoices" value="{{key}}Evening"
+                                          {% if value.evening %} checked {% endif %}>
                                           <span class="checkbox-custom circular"></span>
                                           </label>
                                        </div>
                                     </div>
-                                    {% else %}
-                                    <div class="card_2">
-                                       <div class="checkbox-container circular-container">
-                                          <label class="checkbox-label">
-                                          <input type="checkbox" name="availabilityChoices" value="{{key}}Evening">
-                                          <span class="checkbox-custom circular"></span>
-                                          </label>
-                                       </div>
-                                    </div>
-                                    {% endif %}
                                  </td>
                                  {% endfor %}
                            </tbody>

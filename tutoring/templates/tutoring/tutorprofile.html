@@ -124,13 +124,13 @@
                         <div>
                             <h3>Education</h3>
                             <div>
-                                {% for key,value in tutorProfile.education.items %}
+                                {% for e in tutorProfile.user.education.all %}
                                 <div style="display: flex; flex-direction: row; align-items: flex-start; justify-content: flex-start; margin-bottom: 15px;">
                                     <img src='{% static "img/university.png" %}'
                                         style="width: 50px; height: 50px; margin-right: 13px; -o-object-fit: contain; object-fit: contain; border-radius: 4px;">
                                     <div style="flex: 1 1; flex-direction: column;">
-                                        <b style="margin-bottom: 5px;">{{value.school_name}}</b>
-                                        <p style="margin-bottom: 0;">{{value.qualification}} ({{value.year}})</p>
+                                        <b style="margin-bottom: 5px;">{{e.schoolName}}</b>
+                                        <p style="margin-bottom: 0;">{{e.qualification}} ({{e.startDate}} - {{e.endDate}})</p>
                                     </div>
                                 </div>
                                 {% endfor %}
@@ -152,47 +152,35 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {% for key,value in tutorProfile.availability.items %}
+                                            {% for key, value in tutorProfile.user.availability.getAvailability.items %}
                                             <tr>
                                                 <th style="vertical-align: middle;" scope="row">{{key|title}}</th>
                                                 <td style="text-align: center">
-                                                    {% if value.morning %}
                                                     <div class="btn-group" data-toggle="buttons">
-                                                        <label class="btn btn-success" disabled> <i class="fas fa-check"></i>
-                                                        </label>
+                                                        {% if value.morning %}
+                                                        <label class="btn btn-success" disabled><i class="fas fa-check"></i></label>
+                                                        {% else %}
+                                                        <label class="btn btn-danger" disabled><i class="fas fa-times"></i></label>
+                                                        {% endif %}
                                                     </div>
-                                                    {% else %}
-                                                    <div class="btn-group" data-toggle="buttons">
-                                                        <label class="btn btn-danger" disabled> <i class="fas fa-times"></i>
-                                                        </label>
-                                                    </div>
-                                                    {% endif %}
                                                 </td>
                                                 <td style="text-align: center">
-                                                    {% if value.afternoon %}
                                                     <div class="btn-group" data-toggle="buttons">
-                                                        <label class="btn btn-success" disabled> <i class="fas fa-check"></i>
-                                                        </label>
+                                                        {% if value.afternoon %}
+                                                        <label class="btn btn-success" disabled> <i class="fas fa-check"></i></label>
+                                                        {% else %}
+                                                        <label class="btn btn-danger" disabled> <i class="fas fa-times"></i></label>
+                                                        {% endif %}
                                                     </div>
-                                                    {% else %}
-                                                    <div class="btn-group" data-toggle="buttons">
-                                                        <label class="btn btn-danger" disabled> <i class="fas fa-times"></i>
-                                                        </label>
-                                                    </div>
-                                                    {% endif %}
                                                 </td>
                                                 <td style="text-align: center">
-                                                    {% if value.evening %}
                                                     <div class="btn-group" data-toggle="buttons">
-                                                        <label class="btn btn-success" disabled> <i class="fas fa-check"></i>
-                                                        </label>
+                                                        {% if value.evening %}
+                                                        <label class="btn btn-success" disabled><i class="fas fa-check"></i></label>
+                                                        {% else %}
+                                                        <label class="btn btn-danger" disabled><i class="fas fa-times"></i></label>
+                                                        {% endif %}
                                                     </div>
-                                                    {% else %}
-                                                    <div class="btn-group" data-toggle="buttons">
-                                                        <label class="btn btn-danger" disabled> <i class="fas fa-times"></i>
-                                                        </label>
-                                                    </div>
-                                                    {% endif %}
                                                 </td>
                                             </tr>
                                             {% endfor %}

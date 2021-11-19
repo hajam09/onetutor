@@ -23,6 +23,7 @@ from accounts.models import StudentProfile
 from accounts.models import TutorProfile
 from accounts.utils import generate_token
 from onetutor.operations import emailOperations
+from onetutor.operations import generalOperations
 from tutoring.models import Availability
 
 #TODO: Use Availability from the model rather than from TutorProfile
@@ -206,7 +207,8 @@ def userSettings(request):
 			subjects = ', '.join([i.capitalize() for i in request.POST.getlist('subjects')])
 			availabilityChoices = request.POST.getlist('availabilityChoices')
 
-			availability = Availability.objects.get_or_create(user=request.user)[0]
+			request.user.availability.delete()
+			availability = Availability.objects.create(user=request.user)
 			for i in availabilityChoices:
 				setattr(availability, i, True)
 			availability.save()
@@ -305,9 +307,7 @@ def userSettings(request):
 					'Your new password and confirm password does not match.'
 				)
 
-			if len(newPassword) < 8 or not any(letter.isalpha() for letter in newPassword) or not any(
-					capital.isupper() for capital in newPassword) or not any(
-					number.isdigit() for number in newPassword):
+			if not generalOperations.isPasswordStrong(newPassword):
 				messages.warning(
 					request,
 					'Your new password is not strong enough.'
@@ -427,9 +427,7 @@ def passwordChange(request, uidb64, token):
 				)
 				return redirect("accounts:password-change", uidb64=uidb64, token=token)
 
-			if len(newPassword) < 8 or not any(letter.isalpha() for letter in newPassword) or not any(
-					capital.isupper() for capital in newPassword) or not any(
-				number.isdigit() for number in newPassword):
+			if not generalOperations.isPasswordStrong(newPassword):
 				messages.warning(
 					request,
 					'Your new password is not strong enough.'

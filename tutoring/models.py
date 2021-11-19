@@ -14,7 +14,7 @@ from django.urls import reverse
 # 	edited = models.BooleanField(default=False)
 
 class Availability(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True, related_name='availability')
     sundayMorning = models.BooleanField(default=False)
     sundayAfternoon = models.BooleanField(default=False)
     sundayEvening = models.BooleanField(default=False)
@@ -36,6 +36,61 @@ class Availability(models.Model):
     saturdayMorning = models.BooleanField(default=False)
     saturdayAfternoon = models.BooleanField(default=False)
     saturdayEvening = models.BooleanField(default=False)
+
+    def getAvailability(self):
+        monday = {
+            "morning": self.mondayMorning,
+            "afternoon": self.mondayAfternoon,
+            "evening": self.mondayEvening
+        }
+
+        tuesday = {
+            "morning": self.tuesdayMorning,
+            "afternoon": self.tuesdayAfternoon,
+            "evening": self.tuesdayEvening
+        }
+
+        wednesday = {
+            "morning": self.wednesdayMorning,
+            "afternoon": self.wednesdayAfternoon,
+            "evening": self.wednesdayEvening
+        }
+
+        thursday = {
+            "morning": self.thursdayMorning,
+            "afternoon": self.thursdayAfternoon,
+            "evening": self.thursdayEvening
+        }
+
+        friday = {
+            "morning": self.fridayMorning,
+            "afternoon": self.fridayAfternoon,
+            "evening": self.fridayEvening
+        }
+
+        saturday = {
+            "morning": self.saturdayMorning,
+            "afternoon": self.saturdayAfternoon,
+            "evening": self.saturdayEvening
+        }
+
+        sunday = {
+            "morning": self.sundayMorning,
+            "afternoon": self.sundayAfternoon,
+            "evening": self.sundayEvening
+        }
+
+        schedule = {
+            "sunday": sunday,
+            "monday": monday,
+            "tuesday": tuesday,
+            "wednesday": wednesday,
+            "thursday": thursday,
+            "friday": friday,
+            "saturday": saturday
+        }
+
+        return schedule
 
 
 class QuestionAnswer(models.Model):
