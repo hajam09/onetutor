@@ -20,9 +20,7 @@ class TutorProfile(models.Model):
     summary = models.CharField(max_length=128, blank=True, null=True)
     about = models.TextField()
     location = jsonfield.JSONField(blank=True, null=True)
-    education = jsonfield.JSONField(blank=True, null=True)
     subjects = models.CharField(max_length=8192, blank=True, null=True)
-    availability = jsonfield.JSONField()
     profilePicture = models.ImageField(upload_to='profile-picture', blank=True, null=True, default=getRandomImageForAvatar())
 
     class Meta:
