@@ -36,8 +36,35 @@ RAM_USAGE = [0,0,0,0,0,0,0,0,0,0]
 
 @login_required
 def index(request, template="index"):
-	metric(request)
+	print(getAccountDomains())
 	return render(request, "dashboard/"+template+".html")
+
+def getUsersLoggedInToday():
+	return User.objects.filter(last_login__startswith=timezone.now().date()).exclude(is_superuser=True)
+
+def getDatabaseSize():
+	"""
+		Need to ensure that the file size is received in linux OS
+	"""
+	fileSize =  os.stat(os.getcwd()+"\\db.sqlite3").st_size
+	for unit in ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']:
+		if abs(fileSize) < 1024.0:
+			return "%3.1f%s%s" % (fileSize, unit, 'B')
+		fileSize /= 1024.0
+	return "%.1f%s%s" % (fileSize, 'Yi', 'B')
+
+def getAccountDomains():
+	domains = {}
+	for users in User.objects.all().exclude(is_superuser=True):
+		try:
+			domainEmail = users.email.split("@")[1].split(".")[0]
+			if domainEmail not in domains:
+				domains[domainEmail] = 1
+			else:
+				domains[domainEmail] += 1
+		except IndexError:
+			pass
+	return dict(sorted(domains.items(), key=operator.itemgetter(1),reverse=True))
 
 @login_required
 def pages(request):
@@ -58,10 +85,7 @@ def pages(request):
 		html_template = loader.get_template( 'dashboard/page-500.html' )
 		return HttpResponse(html_template.render({}, request))
 
-def metric(request):
-	x = jira_task_information()
-	# print(x)
-	return
+
 
 def get_all_logged_in_users():
 	"""
@@ -87,19 +111,6 @@ def get_all_inactive_users():
 	users = User.objects.filter(Q(last_login__lte=thirty_days_ago))
 	return users
 
-def get_all_users_logged_in_today():
-	return User.objects.filter(last_login__startswith=timezone.now().date()).exclude(is_superuser=True)
-
-def get_database_size():
-	"""
-		need to ensure that the file size is received in linux OS
-	"""
-	file_size =  os.stat(os.getcwd()+"\\db.sqlite3").st_size
-	for unit in ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']:
-		if abs(file_size) < 1024.0:
-			return "%3.1f%s%s" % (file_size, unit, 'B')
-		file_size /= 1024.0
-	return "%.1f%s%s" % (file_size, 'Yi', 'B')
 
 def get_number_of_tutors_and_students():
 	all_users = User.objects.all()
@@ -107,20 +118,7 @@ def get_number_of_tutors_and_students():
 	students = StudentProfile.objects.all()
 	return [all_users, tutors, students]
 
-def get_account_domains():
-	all_users = User.objects.all().exclude(is_superuser=True)
-	domains = {}
-	for users in all_users:
-		try:
-			domain_email = users.email.split("@")[1].split(".")[0]
-			if domain_email not in domains:
-				domains[domain_email] = 1
-			else:
-				domains[domain_email] += 1
-			print(domain_email)
-		except:
-			pass
-	return dict(sorted(domains.items(), key=operator.itemgetter(1),reverse=True))
+
 
 def get_instance_count_for_each_model():
 	instance_count = {
