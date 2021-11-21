@@ -8,6 +8,7 @@ from django.db import models
 from django.urls import reverse
 
 from onetutor import settings
+from tutoring.models import Feature
 
 
 def getRandomImageForAvatar():
@@ -21,7 +22,9 @@ class TutorProfile(models.Model):
     about = models.TextField()
     location = jsonfield.JSONField(blank=True, null=True)
     subjects = models.CharField(max_length=8192, blank=True, null=True)
-    profilePicture = models.ImageField(upload_to='profile-picture', blank=True, null=True, default=getRandomImageForAvatar())
+    profilePicture = models.ImageField(upload_to='profile-picture', blank=True, null=True, default=getRandomImageForAvatar)
+    chargeRate = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+    features = models.ManyToManyField(Feature, related_name='tutorFeatures', blank=True)
 
     class Meta:
         verbose_name_plural = "TutorProfiles"
@@ -42,7 +45,7 @@ class StudentProfile(models.Model):
     about = models.TextField()
     education = jsonfield.JSONField(blank=True, null=True)
     subjects = models.CharField(max_length=8192, blank=True, null=True)
-    profilePicture = models.ImageField(upload_to='profile-picture', blank=True, null=True, default=getRandomImageForAvatar())
+    profilePicture = models.ImageField(upload_to='profile-picture', blank=True, null=True, default=getRandomImageForAvatar)
 
     class Meta:
         verbose_name_plural = "StudentProfiles"

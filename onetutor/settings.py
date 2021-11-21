@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'chat',
     'crispy_forms',
     'cronjobs',
+    'colorfield',
     'coverage',
     'debug_toolbar',
     'dashboard',

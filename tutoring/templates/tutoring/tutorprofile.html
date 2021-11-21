@@ -256,7 +256,7 @@
                             {% if questionAndAnswers %} {% for qa in questionAndAnswers %}
                             <div class="container question_answer_container_{{qa.id}}" style="width: auto;">
                                 <div id="question_answer_id_{{qa.id}}">
-                                    <a href="/subject_tag/{{qa.subject}}" class="mtgtlDwEfX" style="display:inline-block;" id="qa_subject_{{qa.id}}">{{ qa.subject }}</a>
+                                    <a href="/result/{{qa.subject}}" class="mtgtlDwEfX" style="display:inline-block;" id="qa_subject_{{qa.id}}">{{ qa.subject }}</a>
                                     {{ qa.questioner.first_name }} {{ qa.questioner.last_name }} asked a question at
                                     <p style="display:inline-block;" id="tool_tip_date_{{qa.id}}" data-toggle="tooltip" data-placement="top">{{ qa.date }}</p>
                                     <div class="dropdown pull-right" style="display:inline-block;">
@@ -887,7 +887,7 @@
 
 			var subjectName = "{{subject}}".replace(/\s+/g, '-');
 			var subjectObject = `
-				<a href="/subject_tag/`+subjectName+`" style="margin: 0 10px 10px 0;">
+				<a href="/result/`+subjectName+`" style="margin: 0 10px 10px 0;">
 					<dir class="mtgtlDwEfX">
 						{{ subject }}
 					</dir>
@@ -970,7 +970,7 @@
 				{
 					$('strong#qa_question_'+questionId).html(question.replace(/\n\r?/g, '<br />'));
 					$('#qa_subject_'+questionId).html(subject);
-					$('#qa_subject_'+questionId).attr("href", "/subject_tag/"+subject);
+					$('#qa_subject_'+questionId).attr("href", "/result/"+subject);
 				}
 
 				if (response.statusCode == 404)
@@ -1159,7 +1159,7 @@
 					var newQuestionAnswer = `
 					<div class="container question_answer_container_`+response.id+`" style="width: auto;">
 						<div id="question_answer_id_`+response.id+`">
-							<a href="/subject_tag/`+subject+`" class="mtgtlDwEfX" style="display:inline-block;" id="qa_subject_`+response.id+`">`+subject+`</a>
+							<a href="/result/`+subject+`" class="mtgtlDwEfX" style="display:inline-block;" id="qa_subject_`+response.id+`">`+subject+`</a>
 							`+response.questionerFullName+` asked a question at
 							<p style="display:inline-block;" id="tool_tip_date_`+response.id+`" data-toggle="tooltip" data-placement="top">`+response.createdDate+`</p>
 							<div class="dropdown pull-right" style="display:inline-block;">

@@ -1,6 +1,8 @@
 from datetime import datetime
 
+from colorfield.fields import ColorField
 from django.contrib.auth.models import User
+from django.core.validators import MaxValueValidator
 from django.db import models
 from django.urls import reverse
 
@@ -12,6 +14,7 @@ from django.urls import reverse
 # 	dislikes = models.ManyToManyField(User, related_name='dislikes')
 # 	date = models.DateTimeField(default=datetime.now)
 # 	edited = models.BooleanField(default=False)
+
 
 class Availability(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True, related_name='availability')
@@ -189,3 +192,21 @@ class TutorReview(models.Model):
 
     class Meta:
         verbose_name_plural = "TutorReview"
+
+
+class Lesson(models.Model):
+    tutor = models.ForeignKey("accounts.TutorProfile", on_delete=models.SET_NULL, null=True, related_name="tutorLessons")
+    student = models.ForeignKey("accounts.StudentProfile", on_delete=models.SET_NULL, null=True, related_name="studentLessons")
+    hoursTaught = models.DecimalField(max_digits=4, decimal_places=2)
+    dateTime = models.DateTimeField(auto_now_add=True)
+    points = models.PositiveSmallIntegerField(validators=[MaxValueValidator(10)])
+    amount = models.DecimalField(max_digits=5, decimal_places=2)  # amount = hoursTaught * tutor.chargeRate
+
+
+class Feature(models.Model):
+    name = models.CharField(max_length=1024)
+    code = models.CharField(max_length=1024)
+    colour = ColorField(default='#FF0000')
+
+    def __str__(self):
+        return self.name

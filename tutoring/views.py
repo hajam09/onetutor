@@ -1,102 +1,104 @@
-from datetime import datetime
 from http import HTTPStatus
 
-import pandas
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
-from onetutor.operations import dateOperations
 
 from accounts.models import Subject
 from accounts.models import TutorProfile
+from onetutor.operations import dateOperations
 from tutoring.models import QuestionAnswer
 from tutoring.models import QuestionAnswerComment
 from tutoring.models import TutorReview
 
 
 def mainpage(request):
+
 	context = {}
-
-	if request.method == "POST":
-
-		generalQuery = request.POST["generalQuery"]
-		location = request.POST["location"]
-
-		generalQueryList = generalQuery.split()
-		locationList = location.split()
-
-		profiles = TutorProfile.objects.all().select_related('user').prefetch_related("user__tutorReviews")
-
-		# user may want to find a particular tutor by name(s).
-		if generalQuery and location:
-			"""
-			# Explanation #
-			generalQueryList = ['English', 'Maths', 'tutorname', ...]
-			locationList = ['GB', 'London', 'Manchester', ...]
-			For each TutorProfile, if any items in generalQueryList is found in summary
-			or subjects AND any items in locationList is found in location JSON converted
-			to flat JSON with keys and values to lowercase, then its the required tutor.
-			
-			for i in profiles:
-				for j in generalQueryList:
-					if j.lower() in i.summary.lower() or j.lower() in i.subjects.lower():
-						for k in locationList:
-							flatLocation = pandas.json_normalize(i.location, sep='_').to_dict(orient='records')[0].values()
-							lowerCaseKV = [i.lower() for i in flatLocation]
-							if k.lower() in lowerCaseKV:
-								tutorList.append(i)
-			"""
-
-			tutorList = [
-				getTutorProfileForMainPage(i)
-				for k in locationList
-				for j in generalQueryList
-				for i in profiles
-				if j.lower() in i.summary.lower() or j.lower() in i.subjects.lower()
-				if k.lower() in [i.lower() for i in pandas.json_normalize(i.location, sep='_').to_dict(orient='records')[0].values()]
-			]
-
-			context["generalQuery"] = generalQuery
-			context["location"] = location
-			context["tutorList"] = list(tutorList)
-
-		elif generalQuery:
-
-			tutorList = [
-				getTutorProfileForMainPage(i)
-				for j in generalQueryList
-				for i in profiles
-				if j.casefold() in i.summary.casefold() or j.casefold() in i.subjects.casefold() or j.casefold() in i.user.get_full_name().casefold()
-			]
-
-			context["generalQuery"] = generalQuery
-			context["tutorList"] = list(tutorList)
-
-		elif location:
-
-			tutorList = [
-				getTutorProfileForMainPage(i)
-				for i in profiles
-				for k in locationList
-				if k.lower() in [i.lower() for i in pandas.json_normalize(i.location, sep='_').to_dict(orient='records')[0].values()]
-			]
-
-			context["location"] = location
-			context["tutorList"] = list(tutorList)
-
-		else:
-			context["tutorList"] = []
-
-		if len(context["tutorList"]) == 0:
-			messages.error(
-				request,
-				'Sorry, we couldn\'t find you a tutor for your search. Try entering something broad.'
-			)
+	if request.method == "POST" and request.POST["generalQuery"]:
+		return redirect("tutoring:searchBySubjectAndFilter", searchParameters=request.POST["generalQuery"])
 
 	return render(request, 'tutoring/mainpage.html', context)
+
+
+def searchBySubjectAndFilter(request, searchParameters=""):
+
+	# TODO: DO NOT USE AND REMOVE USAGE OF 'features-all-type' FROM HTML.
+
+	searchParametersSplit = searchParameters.split("/")
+	subject = searchParametersSplit[0]
+
+	if request.method == "POST" and request.POST["generalQuery"]:
+		return redirect("tutoring:searchBySubjectAndFilter", searchParameters=request.POST["generalQuery"])
+
+	try:
+		filters = eval(searchParameters.split("/")[1].replace("true", "True").replace("false", "False"))
+	except IndexError:
+		filters = {'features-inPersonLessons': True, 'features-onlineLessons': True, 'features-pro': True, 'priceFrom': 0, 'priceTo': 100, 'scoreFrom': 0, 'scoreTo': 5000}
+
+	inPersonLessons = filters['features-inPersonLessons'] if 'features-inPersonLessons' in filters else True
+	onlineLessons = filters['features-onlineLessons'] if 'features-onlineLessons' in filters else True
+	pro = filters['features-pro'] if 'features-pro' in filters else True
+	priceFrom = filters['priceFrom'] if 'priceFrom' in filters else 0
+	priceTo = filters['priceTo'] if 'priceTo' in filters else 100
+	scoreFrom = filters['scoreFrom'] if 'scoreFrom' in filters else 0
+	scoreTo = filters['scoreTo'] if 'scoreTo' in filters else 2000
+
+	featuresTicked = [filters[key] for key in filters if 'features' in key]
+
+	if all(x == featuresTicked[0] for x in featuresTicked):
+		# If all items in featuresTicked is True OR all items in featuresTicked is False then then show all results.
+		tutorList = TutorProfile.objects.filter(subjects__icontains=subject, chargeRate__gte=priceFrom, chargeRate__lte=priceTo).select_related('user').prefetch_related('tutorLessons')
+	else:
+		# If only some is ticked, then need to filter results for the ticked criteria.
+		tutorList = TutorProfile.objects.filter(subjects__icontains=subject, chargeRate__gte=priceFrom, chargeRate__lte=priceTo).select_related('user').prefetch_related('tutorLessons')
+		requiredFilters = [key.split("-")[1] for key in filters if 'features' in key and filters[key]]
+		tutorList = tutorList.filter(features__code__in=requiredFilters)
+
+	tutorList = [item for item in tutorList if scoreFrom <= sum([i.points for i in item.tutorLessons.all()]) <= scoreTo]
+
+	if len(tutorList) == 0:
+		messages.error(
+			request,
+			"Sorry, we couldn't find you a tutor for your search. Try entering something broad."
+		)
+
+	defaultPriceValues = {"priceFrom": priceFrom, "priceTo": priceTo}
+	defaultScoreValues = {"scoreFrom": scoreFrom, "scoreTo": scoreTo}
+
+	# TODO: using defaultFeatureValues check/tick the checkbox in the html page.
+	defaultFeatureValues = {"features-inPersonLessons": inPersonLessons, "features-onlineLessons": onlineLessons, "features-pro": pro}
+
+	# If nothing from Features filter is ticked, then show all results.
+	# If at least one is ticket, then filter result by the ticked criteria.
+	# If all ticked, then filter results by all the ticked criteria.
+
+	context = {
+		"generalQuery": subject,
+		"tutorList": tutorList,
+		"defaultPriceValues": defaultPriceValues,
+		"defaultScoreValues": defaultScoreValues,
+		"defaultFeatureValues": defaultFeatureValues,
+	}
+	return render(request, 'tutoring/mainpage.html', context)
+
+# def searchBySubjectAndFilter(request, subject, additionalFilters):
+# 	tutorList = TutorProfile.objects.filter(subjects__icontains=subject).select_related('user').prefetch_related('tutorLessons')
+#
+# 	if tutorList.count() == 0:
+# 		messages.error(
+# 			request,
+# 			"Sorry, we couldn't find you a tutor for your search. Try entering something broad."
+# 		)
+#
+# 	context = {
+# 		"generalQuery": subject,
+# 		"tutorList": tutorList
+# 	}
+# 	return render(request, 'tutoring/mainpage.html', context)
 
 
 def ratingToStars(tutor):
@@ -567,20 +569,3 @@ def questionAnswerThread(request, questionId):
 		"questionAnswerComment": questionAnswerComment
 	}
 	return render(request, "tutoring/questionAnswerThread.html", context)
-
-
-def subject_tag(request, tag_name):
-	tutor_list = TutorProfile.objects.filter(subjects__icontains=tag_name)
-
-	list_of_subjects = []
-
-	for tutors in tutor_list:
-		list_subject = tutors.subjects.replace(", ", ",").split(",")
-		unique_subjects = [subject for subject in list_subject if subject not in list_of_subjects]
-		list_of_subjects.extend(unique_subjects)
-
-	context = {
-		"tutor_list": tutor_list,
-		"list_of_subjects": list_of_subjects
-	}
-	return render(request, "tutoring/resultbysubjects.html", context)
