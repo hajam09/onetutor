@@ -210,3 +210,20 @@ class Feature(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class PaymentMethod(models.Model):
+    name = models.CharField(max_length=1024)
+    code = models.CharField(max_length=1024)
+    icon = models.CharField(max_length=1024)
+
+    def __str__(self):
+        return self.name
+
+
+class Payment(models.Model):
+    payer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="paymentPayer")
+    payee = models.ForeignKey(User, on_delete=models.CASCADE, related_name="paymentPayee")
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name="paymentLesson")
+    paymentMethod = models.ForeignKey(PaymentMethod, on_delete=models.SET_NULL, null=True, related_name="paymentMethod")
+    dateTime = models.DateTimeField(auto_now_add=True)
