@@ -12,10 +12,11 @@ from django.core.cache import cache
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
-from django.utils.encoding import force_text
 from django.utils.encoding import DjangoUnicodeDecodeError
+from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_decode
 
+from accounts.forms import GetInTouchForm
 from accounts.forms import LoginForm
 from accounts.forms import RegistrationForm
 from accounts.models import Education
@@ -25,6 +26,7 @@ from accounts.utils import generate_token
 from onetutor.operations import emailOperations
 from onetutor.operations import generalOperations
 from tutoring.models import Availability
+
 
 #TODO: Use Availability from the model rather than from TutorProfile
 
@@ -467,3 +469,24 @@ def requestDeleteCode(request):
 		"message": "Check your email for the code."
 	}
 	return JsonResponse(response)
+
+
+def getInTouch(request):
+
+	if request.method == "POST":
+		form = GetInTouchForm(request.POST)
+
+		if form.is_valid():
+			form.save()
+
+			messages.success(
+				request, 'Your message has been received, We will contact you soon.'
+			)
+			return redirect("accounts:getInTouch")
+	else:
+		form = GetInTouchForm()
+
+	context = {
+		"form": form,
+	}
+	return render(request, 'accounts/getInTouch.html', context)

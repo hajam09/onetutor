@@ -97,3 +97,14 @@ class Education(models.Model):
 
     class Meta:
         verbose_name_plural = "Education"
+
+
+class GetInTouch(models.Model):
+    fullName = models.CharField(max_length=256, blank=True, null=True)
+    email = models.EmailField(max_length=256, blank=True, null=True)
+    subject = models.CharField(max_length=256, blank=True, null=True)
+    message = models.TextField()
+    dateTime = models.DateTimeField(auto_now_add=True, editable=True, blank=True, null=True)
+
+    class Meta:
+        verbose_name_plural = "GetInTouch"

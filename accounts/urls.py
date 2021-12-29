@@ -18,3 +18,8 @@ urlpatterns = [
 	path('requestDeleteCode/', views.requestDeleteCode, name='requestDeleteCode'),
 	path('user-settings/', views.userSettings, name='user-settings'),
 ]
+
+# footer links
+urlpatterns += [
+	path('getInTouch/', views.getInTouch, name='getInTouch'),
+]

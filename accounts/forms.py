@@ -5,6 +5,8 @@ from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
+from accounts.models import GetInTouch
+
 
 class RegistrationForm(UserCreationForm):
     first_name = forms.CharField(
@@ -79,7 +81,7 @@ class RegistrationForm(UserCreationForm):
         return password1
 
     def save(self):
-        newUser =  User.objects.create_user(
+        newUser = User.objects.create_user(
             username=self.cleaned_data.get("email"),
             email=self.cleaned_data.get("email"),
             password=self.cleaned_data.get("password1"),
@@ -89,6 +91,7 @@ class RegistrationForm(UserCreationForm):
         newUser.is_active = settings.DEBUG
         newUser.save()
         return newUser
+
 
 class LoginForm(forms.ModelForm):
     email = forms.EmailField(
@@ -136,3 +139,59 @@ class LoginForm(forms.ModelForm):
             return
 
         raise forms.ValidationError("Username or Password did not match! ")
+
+
+class GetInTouchForm(forms.ModelForm):
+    fullName = forms.CharField(
+        label='',
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': 'Full Name'
+            }
+        )
+    )
+
+    email = forms.EmailField(
+        label='',
+        widget=forms.EmailInput(
+            attrs={
+                'placeholder': 'Email'
+            }
+        )
+    )
+
+    subject = forms.CharField(
+        label='',
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': 'Subject'
+            }
+        )
+    )
+
+    message = forms.CharField(
+        label='',
+        widget=forms.Textarea(
+            attrs={
+                'placeholder': 'Message',
+                'rows': 3,
+            }
+        )
+
+    )
+
+    class Meta:
+        model = GetInTouch
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super(GetInTouchForm, self).__init__(*args, **kwargs)
+        # TODO: make the fullName and email input side-by-side
+
+    def save(self):
+        GetInTouch.objects.create(
+            fullName=self.cleaned_data.get("fullName"),
+            email=self.cleaned_data.get("email"),
+            subject=self.cleaned_data.get("subject"),
+            message=self.cleaned_data.get("message")
+        )
