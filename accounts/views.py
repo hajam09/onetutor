@@ -192,11 +192,19 @@ def createTutorProfile(request):
 @login_required
 def userSettings(request):
 
+	# TODO: Find a good code design for the below try/catch.
 	try:
 		profile = TutorProfile.objects.select_related('user').get(user=request.user)
 	except TutorProfile.DoesNotExist:
-		profile = StudentProfile.objects.select_related('user').get(user=request.user)
-	except StudentProfile.DoesNotExist:
+		profile = None
+
+	if profile is None:
+		try:
+			profile = StudentProfile.objects.select_related('user').get(user=request.user)
+		except StudentProfile.DoesNotExist:
+			profile = None
+
+	if profile is None:
 		return redirect('accounts:select-profile')
 
 	if isinstance(profile, TutorProfile):
@@ -467,6 +475,38 @@ def requestDeleteCode(request):
 	response = {
 		"statusCode": HTTPStatus.OK,
 		"message": "Check your email for the code."
+	}
+	return JsonResponse(response)
+
+def requestCopyOfData(request):
+
+	if not request.is_ajax():
+		response = {
+			"statusCode": HTTPStatus.FORBIDDEN,
+			"message": "Bad Request"
+		}
+		return JsonResponse(response)
+
+	if not request.user.is_authenticated:
+		response = {
+			"statusCode": HTTPStatus.BAD_REQUEST,
+			"message": "Login to request your data."
+		}
+		return JsonResponse(response)
+
+	try:
+		profile = request.user.tutorProfile
+	except TutorProfile.DoesNotExist:
+		profile = request.user.studentProfile
+
+	if isinstance(profile, TutorProfile):
+		requestedData = generalOperations.getTutorCopyOfStoredData(request, request.user)
+		emailOperations.sendTutorUserCopyOfStoredData(request.user, requestedData)
+
+
+	response = {
+		"statusCode": HTTPStatus.OK,
+		"message": "A copy is sent to your email."
 	}
 	return JsonResponse(response)
 

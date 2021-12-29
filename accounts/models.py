@@ -16,7 +16,7 @@ def getRandomImageForAvatar():
 
 
 class TutorProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='tutorProfile')
     secondaryKey = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     summary = models.CharField(max_length=128, blank=True, null=True)
     about = models.TextField()
@@ -40,7 +40,7 @@ class TutorProfile(models.Model):
 
 
 class StudentProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='studentProfile')
     secondaryKey = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     about = models.TextField()
     education = jsonfield.JSONField(blank=True, null=True)

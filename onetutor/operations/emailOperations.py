@@ -2,6 +2,8 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import get_template
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
@@ -79,4 +81,20 @@ def sendEmailForAccountDeletionCode(request, user: User):
 
     emailMessage = EmailMessage(emailSubject, message, settings.EMAIL_HOST_USER, [user.email])
     emailMessage.send()
+    return
+
+
+def sendTutorUserCopyOfStoredData(user, data):
+    emailSubject = "Your stored information at OneTutor"
+    htmlTemplate = get_template("newsletters/tutorRequestedData.html").render({'data': data})
+
+    emailMultiAlternatives = EmailMultiAlternatives(
+        subject=emailSubject,
+        body='',
+        from_email=settings.EMAIL_HOST_USER,
+        to=[user.email]
+    )
+
+    emailMultiAlternatives.attach_alternative(htmlTemplate, "text/html")
+    emailMultiAlternatives.send()
     return
