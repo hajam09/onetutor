@@ -84,7 +84,7 @@ def sendEmailForAccountDeletionCode(request, user: User):
     return
 
 
-def sendTutorUserCopyOfStoredData(user, data):
+def sendTutorRequestedStoredData(user, data):
     emailSubject = "Your stored information at OneTutor"
     htmlTemplate = get_template("newsletters/tutorRequestedData.html").render({'data': data})
 

@@ -7,6 +7,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import login as signIn
 from django.contrib.auth import logout as signOut
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.http import JsonResponse
@@ -23,6 +24,7 @@ from accounts.models import Education
 from accounts.models import StudentProfile
 from accounts.models import TutorProfile
 from accounts.utils import generate_token
+from dashboard.models import UserSession
 from onetutor.operations import emailOperations
 from onetutor.operations import generalOperations
 from tutoring.models import Availability
@@ -500,13 +502,51 @@ def requestCopyOfData(request):
 		profile = request.user.studentProfile
 
 	if isinstance(profile, TutorProfile):
-		requestedData = generalOperations.getTutorCopyOfStoredData(request, request.user)
-		emailOperations.sendTutorUserCopyOfStoredData(request.user, requestedData)
+		requestedData = generalOperations.getTutorRequestedStoredData(request, request.user)
+		emailOperations.sendTutorRequestedStoredData(request.user, requestedData)
 
 
 	response = {
 		"statusCode": HTTPStatus.OK,
 		"message": "A copy is sent to your email."
+	}
+	return JsonResponse(response)
+
+def cookieConsent(request):
+
+	if not request.is_ajax():
+		response = {
+			"statusCode": HTTPStatus.FORBIDDEN,
+			"message": "Bad Request"
+		}
+		return JsonResponse(response)
+
+	if not request.session.session_key:
+		request.session.save()
+
+	consentStage = request.GET.get('consentStage')
+
+	if consentStage == "ASKED":
+		if UserSession.objects.filter(sessionKey=request.session.session_key).exists():
+			askConsent = False
+		else:
+			askConsent = True
+
+	elif consentStage == "CONFIRMED":
+		user = None if isinstance(request.user, AnonymousUser) else request.user
+		UserSession.objects.create(
+			user=user,
+			ipAddress=generalOperations.getClientInternetProtocolAddress(request),
+			userAgent=request.META['HTTP_USER_AGENT'],
+			sessionKey=request.session.session_key
+		)
+		askConsent = False
+	elif consentStage == "REJECTED":
+		askConsent = False
+
+	response = {
+		"statusCode": HTTPStatus.OK,
+		"askConsent": askConsent
 	}
 	return JsonResponse(response)
 

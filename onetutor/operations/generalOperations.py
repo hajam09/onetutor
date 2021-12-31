@@ -2,7 +2,6 @@ from django.contrib.auth.models import User
 
 from accounts.models import Education
 from accounts.models import SocialConnection
-from tutoring.models import Availability
 
 
 def isPasswordStrong(password):
@@ -21,9 +20,7 @@ def isPasswordStrong(password):
     return True
 
 
-def getTutorCopyOfStoredData(request, user: User):
-    availability = Availability.objects.get(user=user)
-
+def getTutorRequestedStoredData(request, user: User):
     userData = {
         "user": {
             "firstName": request.user.first_name,
@@ -41,7 +38,7 @@ def getTutorCopyOfStoredData(request, user: User):
             }
             for e in Education.objects.filter(user=request.user)
         ],
-        "availability": availability.getAvailability(),
+        "availability": user.availability.getAvailability(),
         "lessons": [
             {
                 "tutor": l.tutor.user.get_full_name(),
@@ -71,3 +68,14 @@ def getHoursTaught(time):
     hours = int(time)
     minutes = (time * 60) % 60
     return "%d:%02d" % (hours, minutes)
+
+
+def getClientInternetProtocolAddress(request):
+    forwardedFor = request.META.get('HTTP_X_FORWARDED_FOR')
+
+    if forwardedFor:
+        ip = forwardedFor.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+
+    return ip

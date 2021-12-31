@@ -17,6 +17,7 @@ urlpatterns = [
 	path('rules/<slug:ruleType>/', views.rules, name='rules'),
 	path('requestDeleteCode/', views.requestDeleteCode, name='requestDeleteCode'),
 	path('requestCopyOfData/', views.requestCopyOfData, name='requestCopyOfData'),
+	path('cookieConsent/', views.cookieConsent, name='cookieConsent'),
 	path('user-settings/', views.userSettings, name='user-settings'),
 ]
 
