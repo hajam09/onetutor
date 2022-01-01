@@ -108,7 +108,7 @@ def logout(request):
 	latestUserLogin.logoutTime = datetime.datetime.now()
 	latestUserLogin.save()
 
-	# logout user without flushing the session
+	# logout the user without flushing the session
 	user = getattr(request, 'user', None)
 	if not getattr(user, 'is_authenticated', True):
 		user = None
@@ -540,6 +540,7 @@ def requestCopyOfData(request):
 
 def cookieConsent(request):
 
+	global askConsent
 	if not request.is_ajax():
 		response = {
 			"statusCode": HTTPStatus.FORBIDDEN,
@@ -595,4 +596,7 @@ def getInTouch(request):
 	context = {
 		"form": form,
 	}
-	return render(request, 'accounts/getInTouch.html', context)
+	return render(request, 'footer/getInTouch.html', context)
+
+def ourFeatures(request):
+	return render(request, 'footer/ourFeatures.html')
