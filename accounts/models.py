@@ -9,7 +9,6 @@ from django.urls import reverse
 
 from onetutor import settings
 from tutoring.models import Component
-from tutoring.models import Feature
 
 
 def getRandomImageForAvatar():
@@ -25,7 +24,6 @@ class TutorProfile(models.Model):
     subjects = models.CharField(max_length=8192, blank=True, null=True)
     profilePicture = models.ImageField(upload_to='profile-picture', blank=True, null=True, default=getRandomImageForAvatar)
     chargeRate = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
-    features = models.ManyToManyField(Feature, related_name='tutorFeatures', blank=True)
     components = models.ManyToManyField(Component, related_name='tutorComponents', blank=True, limit_choices_to={'componentGroup__code': 'TUTOR_FEATURE'})
 
     class Meta:

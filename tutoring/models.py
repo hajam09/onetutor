@@ -215,8 +215,6 @@ class Feature(models.Model):
         return self.name
 
 
-
-
 class ComponentGroup(models.Model):
     internalKey = models.CharField(max_length=2048, blank=True, null=True)
     reference = models.CharField(max_length=2048, blank=True, null=True)
