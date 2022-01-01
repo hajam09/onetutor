@@ -1,6 +1,8 @@
 from django.contrib import admin
 
 from tutoring.models import Availability
+from tutoring.models import Component
+from tutoring.models import ComponentGroup
 from tutoring.models import Feature
 from tutoring.models import Lesson
 from tutoring.models import Payment
@@ -18,10 +20,12 @@ class LessonAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Availability)
-admin.site.register(QuestionAnswerComment)
-admin.site.register(QuestionAnswer)
+admin.site.register(Component)
+admin.site.register(ComponentGroup)
 admin.site.register(Feature)
-admin.site.register(TutorReview)
 admin.site.register(Lesson, LessonAdmin)
 admin.site.register(Payment)
 admin.site.register(PaymentMethod)
+admin.site.register(QuestionAnswer)
+admin.site.register(QuestionAnswerComment)
+admin.site.register(TutorReview)

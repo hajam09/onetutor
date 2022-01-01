@@ -79,3 +79,15 @@ def getClientInternetProtocolAddress(request):
         ip = request.META.get('REMOTE_ADDR')
 
     return ip
+
+
+def convertRatingToStars(value):
+    pureRating = int(value)
+    decimalPart = value - pureRating
+    finalScore = "+" * pureRating
+
+    if decimalPart >= 0.75:
+        finalScore += "+"
+    elif decimalPart >= 0.25:
+        finalScore += "_"
+    return finalScore.replace('+', '<i class="far fa-star"></i>').replace('_', '<i class="fas fa-star-half"></i>')

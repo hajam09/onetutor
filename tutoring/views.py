@@ -2,7 +2,9 @@ from http import HTTPStatus
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.core.paginator import EmptyPage
+from django.core.paginator import PageNotAnInteger
+from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
@@ -10,17 +12,24 @@ from django.shortcuts import render
 from accounts.models import Subject
 from accounts.models import TutorProfile
 from onetutor.operations import dateOperations
+from onetutor.operations import tutorOperations
+from onetutor.operations import generalOperations
 from tutoring.models import QuestionAnswer
+from tutoring.models import ComponentGroup
+from tutoring.models import Component
 from tutoring.models import QuestionAnswerComment
 from tutoring.models import TutorReview
 
 
 def mainpage(request):
 
-	context = {}
 	if request.method == "POST" and request.POST["generalQuery"]:
 		return redirect("tutoring:searchBySubjectAndFilter", searchParameters=request.POST["generalQuery"])
 
+	context = {
+		"defaultPriceValues": {"priceFrom": 0, "priceTo": 100},
+		"defaultScoreValues": {"scoreFrom": 0, "scoreTo": 2000},
+	}
 	return render(request, 'tutoring/mainpage.html', context)
 
 
@@ -51,10 +60,10 @@ def searchBySubjectAndFilter(request, searchParameters=""):
 
 	if all(x == featuresTicked[0] for x in featuresTicked):
 		# If all items in featuresTicked is True OR all items in featuresTicked is False then then show all results.
-		tutorList = TutorProfile.objects.filter(subjects__icontains=subject, chargeRate__gte=priceFrom, chargeRate__lte=priceTo).select_related('user').prefetch_related('tutorLessons')
+		tutorList = TutorProfile.objects.filter(subjects__icontains=subject, chargeRate__gte=priceFrom, chargeRate__lte=priceTo).select_related('user').prefetch_related('tutorLessons', 'features')
 	else:
 		# If only some is ticked, then need to filter results for the ticked criteria.
-		tutorList = TutorProfile.objects.filter(subjects__icontains=subject, chargeRate__gte=priceFrom, chargeRate__lte=priceTo).select_related('user').prefetch_related('tutorLessons')
+		tutorList = TutorProfile.objects.filter(subjects__icontains=subject, chargeRate__gte=priceFrom, chargeRate__lte=priceTo).select_related('user').prefetch_related('tutorLessons', 'features')
 		requiredFilters = [key.split("-")[1] for key in filters if 'features' in key and filters[key]]
 		tutorList = tutorList.filter(features__code__in=requiredFilters)
 
@@ -66,9 +75,6 @@ def searchBySubjectAndFilter(request, searchParameters=""):
 			"Sorry, we couldn't find you a tutor for your search. Try entering something broad."
 		)
 
-	defaultPriceValues = {"priceFrom": priceFrom, "priceTo": priceTo}
-	defaultScoreValues = {"scoreFrom": scoreFrom, "scoreTo": scoreTo}
-
 	# TODO: using defaultFeatureValues check/tick the checkbox in the html page.
 	defaultFeatureValues = {"features-inPersonLessons": inPersonLessons, "features-onlineLessons": onlineLessons, "features-pro": pro}
 
@@ -76,52 +82,21 @@ def searchBySubjectAndFilter(request, searchParameters=""):
 	# If at least one is ticket, then filter result by the ticked criteria.
 	# If all ticked, then filter results by all the ticked criteria.
 
+	tutorFeatureGroupComponent = ComponentGroup.objects.get(code='TUTOR_FEATURE')
+
 	context = {
 		"generalQuery": subject,
 		"tutorList": tutorList,
-		"defaultPriceValues": defaultPriceValues,
-		"defaultScoreValues": defaultScoreValues,
+		"defaultPriceValues": {"priceFrom": priceFrom, "priceTo": priceTo},
+		"defaultScoreValues": {"scoreFrom": scoreFrom, "scoreTo": scoreTo},
 		"defaultFeatureValues": defaultFeatureValues,
+		"tutorFeatureGroupComponent": tutorFeatureGroupComponent,
 	}
 	return render(request, 'tutoring/mainpage.html', context)
 
-# def searchBySubjectAndFilter(request, subject, additionalFilters):
-# 	tutorList = TutorProfile.objects.filter(subjects__icontains=subject).select_related('user').prefetch_related('tutorLessons')
-#
-# 	if tutorList.count() == 0:
-# 		messages.error(
-# 			request,
-# 			"Sorry, we couldn't find you a tutor for your search. Try entering something broad."
-# 		)
-#
-# 	context = {
-# 		"generalQuery": subject,
-# 		"tutorList": tutorList
-# 	}
-# 	return render(request, 'tutoring/mainpage.html', context)
-
-
-def ratingToStars(tutor):
-	# TODO: Add the remaining stars to fill up the rating.
-	tutorReviewsObjects = tutor.user.tutorReviews
-	outOfPoints = tutorReviewsObjects.count() * 5
-	sumOfRating = sum([i.rating for i in tutorReviewsObjects.all()])
-
-	try:
-		numberOfStars = sumOfRating * 5 / outOfPoints
-		nearest05 = round(numberOfStars * 2) / 2
-	except ZeroDivisionError:
-		return "".join(['<i class="far fa-star"></i>' for _ in range(5)])
-
-	starsAsString = "".join(['<i class="fas fa-star"></i>' for _ in range(int(nearest05))])
-
-	if ".5" in str(nearest05):
-		starsAsString += '<i class="fas fa-star-half"></i>'
-
-	return starsAsString
-
 
 def getTutorProfileForMainPage(profile):
+	ratingValue = tutorOperations.getTutorsAverageRating(profile)
 	data = {
 		"pk": profile.pk,
 		"profilePicture": {
@@ -133,7 +108,10 @@ def getTutorProfileForMainPage(profile):
 			"last_name": profile.user.last_name
 		},
 		"summary": profile.summary,
-		"averageRating": ratingToStars(profile),
+		"averageRating": {
+			"value": ratingValue,
+			"stars": generalOperations.convertRatingToStars(ratingValue)
+		},
 	}
 	return data
 

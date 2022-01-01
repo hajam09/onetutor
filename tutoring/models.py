@@ -231,26 +231,39 @@ class Payment(models.Model):
     paymentMethod = models.ForeignKey(PaymentMethod, on_delete=models.SET_NULL, null=True, related_name="paymentMethod")
     dateTime = models.DateTimeField(auto_now_add=True)
 
-# class ComponentGroup(models.Model):
-#     internalKey = models.CharField(max_length=1024, blank=True, null=True)
-#     reference = models.CharField(max_length=1024, blank=True, null=True)
-#     code = models.CharField(max_length=1024, blank=True, null=True)
-#     icon = models.CharField(max_length=1024, blank=True, null=True)
-#     deleteFl = models.BooleanField(default=False)
-#     versionNo = models.IntegerField(default=1, blank=True, null=True)
-#
-#     def __str__(self):
-#         return self.internalKey
-#
-# class Component(models.Model):
-#     componentGroup = models.ForeignKey(ComponentGroup, on_delete=models.CASCADE, related_name="componentGroup")
-#     internalKey = models.CharField(max_length=1024, blank=True, null=True)
-#     code = models.CharField(max_length=1024, blank=True, null=True)
-#     icon = models.CharField(max_length=1024, blank=True, null=True)
-#     reference = models.CharField(max_length=1024, blank=True, null=True)
-#     deleteFl = models.BooleanField(default=False)
-#     colour = ColorField(default='#FF0000')
-#     versionNo = models.IntegerField(default=1, blank=True, null=True)
-#
-#     def __str__(self):
-#         return self.internalKey
+
+class ComponentGroup(models.Model):
+    internalKey = models.CharField(max_length=2048, blank=True, null=True)
+    reference = models.CharField(max_length=2048, blank=True, null=True)
+    languageKey = models.CharField(max_length=2048, blank=True, null=True)
+    code = models.CharField(max_length=2048, blank=True, null=True)
+    icon = models.CharField(max_length=2048, blank=True, null=True)
+    deleteFl = models.BooleanField(default=False)
+    colour = ColorField(default='#FF0000')
+    orderNo = models.IntegerField(default=1, blank=True, null=True)
+    versionNo = models.IntegerField(default=1, blank=True, null=True)
+
+    def __str__(self):
+        return self.internalKey
+
+    def getRelatedComponentByOrderNo(self):
+        return self.components.all().order_by('orderNo')
+
+    def getRelatedComponentByOrderNoForId(self):
+        return ["features-{}".format(i.code) for i in self.components.all().order_by('orderNo')]
+
+
+class Component(models.Model):
+    componentGroup = models.ForeignKey(ComponentGroup, on_delete=models.CASCADE, related_name="components")
+    internalKey = models.CharField(max_length=2048, blank=True, null=True)
+    reference = models.CharField(max_length=2048, blank=True, null=True)
+    languageKey = models.CharField(max_length=2048, blank=True, null=True)
+    code = models.CharField(max_length=2048, blank=True, null=True)
+    icon = models.CharField(max_length=2048, blank=True, null=True)
+    deleteFl = models.BooleanField(default=False)
+    colour = ColorField(default='#FF0000')
+    orderNo = models.IntegerField(default=1, blank=True, null=True)
+    versionNo = models.IntegerField(default=1, blank=True, null=True)
+
+    def __str__(self):
+        return self.internalKey

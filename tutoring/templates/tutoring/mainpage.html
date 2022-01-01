@@ -66,23 +66,13 @@
                              </div>
                           </a>
                           <div id="collapseOne" class="collapse show" aria-labelledby="headingOne">
-                             <div class="card-body p-0">
-                                <div class="custom-control custom-checkbox">
-                                   <input type="checkbox" class="custom-control-input all-select" id="features-all-type">
-                                   <label class="custom-control-label ml-1 text-muted f-15" for="features-all-type">All Type</label>
+                             <div class="card-body p-0" id="listOfTutorFeaturesFilter">
+                              {% for f in tutorFeatureGroupComponent.getRelatedComponentByOrderNo %}
+                                 <div class="custom-control custom-checkbox">
+                                   <input type="checkbox" class="custom-control-input all-select" id="features-{{f.code}}">
+                                   <label class="custom-control-label ml-1 text-muted f-15" for="features-{{f.code}}">{{f}}</label>
                                 </div>
-                                <div class="custom-control custom-checkbox">
-                                   <input type="checkbox" class="custom-control-input all-select" id="features-pro">
-                                   <label class="custom-control-label ml-1 text-muted f-15" for="features-pro">Pro</label>
-                                </div>
-                                <div class="custom-control custom-checkbox">
-                                   <input type="checkbox" class="custom-control-input all-select" id="features-onlineLessons">
-                                   <label class="custom-control-label ml-1 text-muted f-15" for="features-onlineLessons">Online Lessons</label>
-                                </div>
-                                <div class="custom-control custom-checkbox">
-                                   <input type="checkbox" class="custom-control-input all-select" id="features-inPersonLessons">
-                                   <label class="custom-control-label ml-1 text-muted f-15" for="features-inPersonLessons">In Person Lessons</label>
-                                </div>
+                              {% endfor %}
                              </div>
                           </div>
                        </div>
@@ -257,31 +247,24 @@
 
     window.onload = function()
     {
-        // parseTutorProfileComponent();
         renderTutorProfiles();
+        var currentLocation = window.location;
+
+        if (currentLocation.pathname != "/")
+        {
+         var formData = currentLocation.pathname.split("/")[3];
+         var decodedData = decodeURIComponent(formData);
+         var jsonObject = JSON.parse(decodedData);
+
+         for (key in jsonObject)
+         {
+            if (key.includes('features'))
+            {
+              $('#'+key).prop('checked', jsonObject[key]);
+            }
+         }
+        }
     };
-
-    function parseTutorProfileComponent()
-    {
-        var components = [];
-
-        {% for tutor in tutorList %}
-
-            components.push(
-                {
-                    "profileImage": "{{ tutor.getTutoringUrl }}",
-                    "profilePageUrl": "{{ tutor.getTutoringUrl }}",
-                    "chargeRate": "{{tutor.chargeRate}}",
-                    "summary": "{{tutor.summary}}",
-                    "about": "{{tutor.about|linebreaks}}",
-                }
-            );
-
-        {% endfor %}
-
-        renderTutorProfiles(components);
-
-    }
 
     function renderTutorProfiles()
     {
@@ -449,91 +432,86 @@
         }
     );
 
+
+   let featureCheckBoxes = eval("{{tutorFeatureGroupComponent.getRelatedComponentByOrderNoForId|safe}}");
+
    $('input:checkbox').change(
       function()
       {
-         if ($(this).is(':checked'))
+         if(this.id.includes("features"))
          {
-            // for feature filters
-            if (this.id.includes("features"))
+            if ($(this).is(':checked'))
             {
-               let listOfCheckBoxes = ["features-all-type", "features-inPersonLessons", "features-onlineLessons", "features-pro"];
-
-               if (this.id == listOfCheckBoxes[0])
+               if(this.id == featureCheckBoxes[0])
                {
-                  for (var i = 1; i < listOfCheckBoxes.length; i++)
+                  for (var i = 1; i < featureCheckBoxes.length; i++)
                   {
-                     $('#'+listOfCheckBoxes[i]).prop('checked', true);
+                     $('#'+featureCheckBoxes[i]).prop('checked', true);
                   }
                }
                else
                {
                   var allChecked = true;
-                  for (var i = 1; i < listOfCheckBoxes.length; i++)
+                  for (var i = 1; i < featureCheckBoxes.length; i++)
                   {
-                     if(!$('#' + listOfCheckBoxes[i]).is(":checked"))
+                     if(!$('#'+featureCheckBoxes[i]).is(":checked"))
                         allChecked = false;
                   }
 
                   if (allChecked)
-                     $('#'+listOfCheckBoxes[0]).prop('checked', true);
+                     $('#'+featureCheckBoxes[0]).prop('checked', true);
+
                }
             }
-         }
-         else
-         {
-            if (this.id.includes("features"))
+            else
             {
-               let listOfCheckBoxes = ["features-all-type", "features-inPersonLessons", "features-onlineLessons", "features-pro"];
-
-               if (this.id == listOfCheckBoxes[0])
+               if(this.id == featureCheckBoxes[0])
                {
-                  for (var i = 1; i < listOfCheckBoxes.length; i++)
+                  for (var i = 1; i < featureCheckBoxes.length; i++)
                   {
-                     $('#'+listOfCheckBoxes[i]).prop('checked', false);
+                     $('#'+featureCheckBoxes[i]).prop('checked', false);
                   }
                }
                else
                {
                   var allChecked = false;
-                  for (var i = 1; i < listOfCheckBoxes.length; i++)
+                  for (var i = 1; i < featureCheckBoxes.length; i++)
                   {
-                     if(!$('#' + listOfCheckBoxes[i]).is(":checked"))
+                     if(!$('#'+featureCheckBoxes[i]).is(":checked"))
                         allChecked = true;
                   }
 
                   if (allChecked)
-                     $('#'+listOfCheckBoxes[0]).prop('checked', false);
+                     $('#'+featureCheckBoxes[0]).prop('checked', false);
+
                }
             }
          }
       }
    );
 
-
-
     function searchBySubjectAndFilter()
     {
-      let listOfCheckBoxes = ["features-inPersonLessons", "features-onlineLessons", "features-pro"];
-      var requestedFilter = {};
+      // let listOfCheckBoxes = ["features-inPersonLessons", "features-onlineLessons", "features-pro"];
+      // var requestedFilter = {};
 
-      for (const checks of listOfCheckBoxes)
-      {
-         requestedFilter[checks] = $('#' + checks).is(":checked")
-      }
+      // for (const checks of listOfCheckBoxes)
+      // {
+      //    requestedFilter[checks] = $('#' + checks).is(":checked")
+      // }
 
-      requestedFilter["priceFrom"] = PRICE_FROM;
-      requestedFilter["priceTo"] = PRICE_TO;
+      // requestedFilter["priceFrom"] = PRICE_FROM;
+      // requestedFilter["priceTo"] = PRICE_TO;
 
-      requestedFilter["scoreFrom"] = TUTOR_SCORE_FROM;
-      requestedFilter["scoreTo"] = TUTOR_SCORE_TO;
+      // requestedFilter["scoreFrom"] = TUTOR_SCORE_FROM;
+      // requestedFilter["scoreTo"] = TUTOR_SCORE_TO;
 
-       ["my-education-primary", "my-education-secondary", "my-education-gcse", "my-education-alevel", "my-education-undergraduate", "my-education-other"]
+      //  ["my-education-primary", "my-education-secondary", "my-education-gcse", "my-education-alevel", "my-education-undergraduate", "my-education-other"]
 
-       var newFilters = "{{ generalQuery }}/" + JSON.stringify(requestedFilter);
+      //  var newFilters = "{{ generalQuery }}/" + JSON.stringify(requestedFilter);
 
-      console.log(newFilters);
-        window.location.href = "{% url 'tutoring:searchBySubjectAndFilter' searchParameters='data' %}".replace("data", newFilters);
+      // console.log(newFilters);
+      //   window.location.href = "{% url 'tutoring:searchBySubjectAndFilter' searchParameters='data' %}".replace("data", newFilters);
     }
 
 </script>
