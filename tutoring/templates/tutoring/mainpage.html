@@ -9,8 +9,17 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/css/ion.rangeSlider.min.css"/>
 
 <div class="container">
-	{% if tutorList %}
+	{% if showResult %}
 		<br><br>
+		{% if messages %}
+			{% for message in messages %}
+				{% if message.tags == "error" %}
+					<div style="color: black; text-align: center;" class="alert alert-danger" role="alert">{{message}}</div>
+				{% else %}
+					<div style="color: black; text-align: center;" class="alert alert-{{ message.tags }}" role="alert">{{message}}</div>
+				{% endif %}
+			{% endfor %}
+		{% endif %}
 		<form method="post">
 			{% csrf_token %}
 			<div class="form-row" style="background: rgba(0, 0, 0, 0.5); padding: 43px 43px; padding-top: 40px;">
@@ -29,7 +38,7 @@
 				<div class="col-lg-12">
 					<div class="show-results mt-5">
 						<div class="float-left">
-							<h5 class="text-dark mb-0 pt-2">Showing  Results : 1-6 of 540</h5>
+							<h5 class="text-dark mb-0 pt-2">Showing  Results : 1-6 of {{tutorList|length}}</h5>
 						</div>
 						<div class="sort-button float-right">
 							<ul class="list-inline mb-0">
@@ -67,7 +76,7 @@
 								</a>
 								<div id="collapseOne" class="collapse show" aria-labelledby="headingOne">
 									<div class="card-body p-0" id="listOfTutorFeaturesFilter">
-										{% for f in tutorFeatureGroupComponent.getRelatedComponentByOrderNo %}
+										{% for f in tutorFeatureGroupComponent.components.all %}
 										<div class="custom-control custom-checkbox">
 											<input type="checkbox" class="custom-control-input all-select" id="features-{{f.code}}">
 											<label class="custom-control-label ml-1 text-muted f-15" for="features-{{f.code}}">{{f}}</label>
@@ -174,24 +183,51 @@
 			</div>
 			<div class="row">
 				<div class="col-lg-12">
-					<nav aria-label="Page navigation example">
-						<ul class="pagination job-pagination justify-content-center mt-5 mb-5">
-							<li class="page-item disabled">
-								<a class="page-link" href="#" tabindex="-1" aria-disabled="true">
-								<i class="mdi mdi-chevron-double-left f-15"></i>
-								</a>
-							</li>
-							<li class="page-item active"><a class="page-link" href="#">1</a></li>
-							<li class="page-item"><a class="page-link" href="#">2</a></li>
-							<li class="page-item"><a class="page-link" href="#">3</a></li>
-							<li class="page-item"><a class="page-link" href="#">4</a></li>
-							<li class="page-item">
-								<a class="page-link" href="#">
-								<i class="mdi mdi-chevron-double-right f-15"></i>
-								</a>
-							</li>
-						</ul>
-					</nav>
+					{% if tutorList.has_other_pages %}
+						<nav aria-label="Page navigation example">
+							<ul class="pagination job-pagination justify-content-center mt-5 mb-5">
+								{% if tutorList.has_previous %}
+								<li class="page-item">
+									<a class="page-link" href="?page={{ tutorList.previous_page_number }}" aria-label="Previous">
+										<span aria-hidden="true">&laquo;</span>
+										<span class="sr-only">Previous</span>
+									</a>
+								</li>
+								{% else %}
+								<li class="page-item disabled">
+									<a class="page-link" aria-label="Previous">
+										<span aria-hidden="true">&laquo;</span>
+										<span class="sr-only">Previous</span>
+									</a>
+								</li>
+								{% endif %}
+
+								{% for i in tutorList.paginator.page_range %}
+								{% if tutorList.number == i %}
+								<li class="page-item active"><span class="page-link"> {{ i }} <span class="sr-only">(current)</span></span></li>
+								{% else %}
+								<li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+								{% endif %}
+								{% endfor %}
+
+								{% if tutorList.has_next %}
+								<li class="page-item">
+									<a class="page-link" href="?page={{ tutorList.next_page_number }}" aria-label="Next">
+										<span aria-hidden="true">&raquo;</span>
+										<span class="sr-only">Next</span>
+									</a>
+								</li>
+								{% else %}
+								<li class="page-item disabled">
+									<a class="page-link" aria-label="Next">
+										<span aria-hidden="true">&raquo;</span>
+										<span class="sr-only">Next</span>
+									</a>
+								</li>
+								{% endif %}
+							</ul>
+						</nav>
+					{% endif %}
 				</div>
 			</div>
 		</div>
@@ -275,7 +311,7 @@
 
 		var featureBadges = "";
 
-		{% for feature in tutor.getTutorFeatureComponents %}
+		{% for feature in tutor.components.all %}
 		 featureBadges += '<span class="badge badge-primary" style="background-color: {{feature.colour}};">{{feature.internalKey|upper}}</span>&nbsp;&nbsp;'
 		{% endfor %}
 
@@ -293,7 +329,7 @@
 						</span>
 						<ul class="list-inline mb-0">
 							<li class="list-inline-item">
-								<p class="text-muted f-15 mb-0"><i class="far fa-star"></i>  Earned `+score+` tutor score </p>
+								<p class="text-muted f-15 mb-0">{{ tutor.getTutorRatingAsStars|safe }}  Earned `+score+` tutor score </p>
 							</li>
 
 							<li class="list-inline-item">
@@ -423,17 +459,17 @@
    let featureCheckBoxes = eval("{{tutorFeatureGroupComponent.getRelatedComponentByOrderNoForId|safe}}");
 
    $('#filterOptions').change(
-   		function()
-   		{
-   			var searchQuery = "";
+		function()
+		{
+			var searchQuery = "";
 
-   			var featureStringAdded = false;
-   			for (const checks of featureCheckBoxes)
-   			{            
-   				if($('#' + checks).is(":checked"))
-   				{
-   					if (!featureStringAdded)
-   					{
+			var featureStringAdded = false;
+			for (const checks of featureCheckBoxes)
+			{            
+				if($('#' + checks).is(":checked"))
+				{
+					if (!featureStringAdded)
+					{
 						searchQuery += "tutorFeature:"
 						featureStringAdded = true;
 					}

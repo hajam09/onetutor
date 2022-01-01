@@ -35,9 +35,28 @@ class TutorProfile(models.Model):
     def getTutoringUrl(self):
         return reverse('tutoring:view-tutor-profile', kwargs={'tutorProfileKey': self.secondaryKey})
 
-    def getTutorFeatureComponents(self):
-        # regular use of components.all in template should work now because of the limit_choices_to and the validation from the TutorProfileForm
-        return self.components.filter(componentGroup__code="TUTOR_FEATURE")
+    @property
+    def getTutorRatingAsStars(self):
+        tutorReviewsObjects = self.user.tutorReviews
+        outOfPoints = tutorReviewsObjects.count() * 5
+        sumOfRating = sum([i.rating for i in tutorReviewsObjects.all()])
+
+        try:
+            averageRating = sumOfRating * 5 / outOfPoints
+            roundedRating = round(averageRating * 2) / 2
+        except ZeroDivisionError:
+            roundedRating = 0
+
+        pureRating = int(roundedRating)
+        decimalPart = roundedRating - pureRating
+        finalScore = "+" * pureRating
+
+        if decimalPart >= 0.75:
+            finalScore += "+"
+        elif decimalPart >= 0.25:
+            finalScore += "_"
+        # <i class="far fa-star"></i> for empty star
+        return finalScore.replace('+', '<i class="fas fa-star"></i>').replace('_', '<i class="fas fa-star-half"></i>')
 
     def __str__(self):
         return "{} - {}".format(self.user.email, self.user.get_full_name())

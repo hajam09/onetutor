@@ -29,6 +29,7 @@ def mainpage(request):
 	context = {
 		"defaultPriceValues": {"priceFrom": 0, "priceTo": 100},
 		"defaultScoreValues": {"scoreFrom": 0, "scoreTo": 2000},
+		"showResult": False,
 	}
 	return render(request, 'tutoring/mainpage.html', context)
 
@@ -52,8 +53,7 @@ def searchBySubjectAndFilter(request, searchParameters=""):
 	maximumScore = 2000
 	tickedTutorFeature = []
 
-	tutorList = TutorProfile.objects.filter(subjects__icontains=subject).select_related('user').prefetch_related('features', 'tutorLessons')
-
+	tutorList = TutorProfile.objects.filter(subjects__icontains=subject).select_related('user').prefetch_related('tutorLessons', 'user__tutorReviews', 'components__componentGroup')
 	if filters is not None:
 		for f in filters.split("&"):
 			r = f.split(":")
@@ -74,8 +74,8 @@ def searchBySubjectAndFilter(request, searchParameters=""):
 				])
 
 			if r[0] == "tutorScore":
-				minimumScore = f.split(":")[1].split(",")[0]
-				maximumScore = f.split(":")[1].split(",")[1]
+				minimumScore = int(f.split(":")[1].split(",")[0])
+				maximumScore = int(f.split(":")[1].split(",")[1])
 				tutorList = set([
 					t for t in tutorList
 					if minimumScore <= sum([p.points for p in t.tutorLessons.all()]) <= maximumScore
@@ -87,8 +87,21 @@ def searchBySubjectAndFilter(request, searchParameters=""):
 			"Sorry, we couldn't find you a tutor for your search. Try entering something broad."
 		)
 
-	tutorFeatureGroupComponent = ComponentGroup.objects.get(code='TUTOR_FEATURE')
+	# only doing this because list to queryset is not possible and queryset is needed for Paginator.
+	finalResultIds = [ t.id for t in tutorList]
+	tutorList = TutorProfile.objects.filter(id__in=finalResultIds).select_related('user').prefetch_related('tutorLessons', 'user__tutorReviews', 'components__componentGroup')
 
+	page = request.GET.get('page', 1)
+	paginator = Paginator(tutorList, 15)
+
+	try:
+		tutorList = paginator.page(page)
+	except PageNotAnInteger:
+		tutorList = paginator.page(1)
+	except EmptyPage:
+		tutorList = paginator.page(paginator.num_pages)
+
+	tutorFeatureGroupComponent = ComponentGroup.objects.get(code='TUTOR_FEATURE')
 	context = {
 		"generalQuery": subject,
 		"tutorList": tutorList,
@@ -96,6 +109,7 @@ def searchBySubjectAndFilter(request, searchParameters=""):
 		"defaultScoreValues": {"scoreFrom": minimumScore, "scoreTo": maximumScore},
 		"tickedTutorFeature": tickedTutorFeature,
 		"tutorFeatureGroupComponent": tutorFeatureGroupComponent,
+		"showResult": True,
 	}
 	return render(request, 'tutoring/mainpage.html', context)
 

@@ -233,7 +233,7 @@ class ComponentGroup(models.Model):
         return self.components.all().order_by('orderNo')
 
     def getRelatedComponentByOrderNoForId(self):
-        return ["features-{}".format(i.code) for i in self.components.all().order_by('orderNo')]
+        return ["features-{}".format(i.code) for i in self.components.all()]
 
 
 class Component(models.Model):
@@ -250,6 +250,9 @@ class Component(models.Model):
 
     def __str__(self):
         return self.internalKey
+
+    class Meta:
+        ordering = ['componentGroup', 'orderNo']
 
 
 class Payment(models.Model):
