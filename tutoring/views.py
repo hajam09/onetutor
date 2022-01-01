@@ -35,39 +35,51 @@ def mainpage(request):
 
 def searchBySubjectAndFilter(request, searchParameters=""):
 
-	# TODO: DO NOT USE AND REMOVE USAGE OF 'features-all-type' FROM HTML.
+	if request.method == "POST" and request.POST["generalQuery"]:
+		return redirect("tutoring:searchBySubjectAndFilter", searchParameters=request.POST["generalQuery"])
 
 	searchParametersSplit = searchParameters.split("/")
 	subject = searchParametersSplit[0]
 
-	if request.method == "POST" and request.POST["generalQuery"]:
-		return redirect("tutoring:searchBySubjectAndFilter", searchParameters=request.POST["generalQuery"])
-
 	try:
-		filters = eval(searchParameters.split("/")[1].replace("true", "True").replace("false", "False"))
+		filters = searchParametersSplit[1]
 	except IndexError:
-		filters = {'features-inPersonLessons': True, 'features-onlineLessons': True, 'features-pro': True, 'priceFrom': 0, 'priceTo': 100, 'scoreFrom': 0, 'scoreTo': 5000}
+		filters = None
 
-	inPersonLessons = filters['features-inPersonLessons'] if 'features-inPersonLessons' in filters else True
-	onlineLessons = filters['features-onlineLessons'] if 'features-onlineLessons' in filters else True
-	pro = filters['features-pro'] if 'features-pro' in filters else True
-	priceFrom = filters['priceFrom'] if 'priceFrom' in filters else 0
-	priceTo = filters['priceTo'] if 'priceTo' in filters else 100
-	scoreFrom = filters['scoreFrom'] if 'scoreFrom' in filters else 0
-	scoreTo = filters['scoreTo'] if 'scoreTo' in filters else 2000
+	hourlyMinimumRate = 0
+	hourlyMaximumRate = 100
+	minimumScore = 0
+	maximumScore = 2000
+	tickedTutorFeature = []
 
-	featuresTicked = [filters[key] for key in filters if 'features' in key]
+	tutorList = TutorProfile.objects.filter(subjects__icontains=subject).select_related('user').prefetch_related('features', 'tutorLessons')
 
-	if all(x == featuresTicked[0] for x in featuresTicked):
-		# If all items in featuresTicked is True OR all items in featuresTicked is False then then show all results.
-		tutorList = TutorProfile.objects.filter(subjects__icontains=subject, chargeRate__gte=priceFrom, chargeRate__lte=priceTo).select_related('user').prefetch_related('tutorLessons', 'features')
-	else:
-		# If only some is ticked, then need to filter results for the ticked criteria.
-		tutorList = TutorProfile.objects.filter(subjects__icontains=subject, chargeRate__gte=priceFrom, chargeRate__lte=priceTo).select_related('user').prefetch_related('tutorLessons', 'features')
-		requiredFilters = [key.split("-")[1] for key in filters if 'features' in key and filters[key]]
-		tutorList = tutorList.filter(features__code__in=requiredFilters)
+	if filters is not None:
+		for f in filters.split("&"):
+			r = f.split(":")
 
-	tutorList = [item for item in tutorList if scoreFrom <= sum([i.points for i in item.tutorLessons.all()]) <= scoreTo]
+			if r[0] == "tutorFeature":
+				tickedTutorFeature = f.split(":")[1].split(",")
+				tutorList = set([ t
+					   for t in tutorList
+					   for c in t.components.all()
+					   if c.code in tickedTutorFeature ])
+
+			if r[0] == "hourlyPrice":
+				hourlyMinimumRate = int(f.split(":")[1].split(",")[0])
+				hourlyMaximumRate = int(f.split(":")[1].split(",")[1])
+				tutorList = set([
+					t for t in tutorList
+					if hourlyMinimumRate <= t.chargeRate <= hourlyMaximumRate
+				])
+
+			if r[0] == "tutorScore":
+				minimumScore = f.split(":")[1].split(",")[0]
+				maximumScore = f.split(":")[1].split(",")[1]
+				tutorList = set([
+					t for t in tutorList
+					if minimumScore <= sum([p.points for p in t.tutorLessons.all()]) <= maximumScore
+				])
 
 	if len(tutorList) == 0:
 		messages.error(
@@ -75,21 +87,14 @@ def searchBySubjectAndFilter(request, searchParameters=""):
 			"Sorry, we couldn't find you a tutor for your search. Try entering something broad."
 		)
 
-	# TODO: using defaultFeatureValues check/tick the checkbox in the html page.
-	defaultFeatureValues = {"features-inPersonLessons": inPersonLessons, "features-onlineLessons": onlineLessons, "features-pro": pro}
-
-	# If nothing from Features filter is ticked, then show all results.
-	# If at least one is ticket, then filter result by the ticked criteria.
-	# If all ticked, then filter results by all the ticked criteria.
-
 	tutorFeatureGroupComponent = ComponentGroup.objects.get(code='TUTOR_FEATURE')
 
 	context = {
 		"generalQuery": subject,
 		"tutorList": tutorList,
-		"defaultPriceValues": {"priceFrom": priceFrom, "priceTo": priceTo},
-		"defaultScoreValues": {"scoreFrom": scoreFrom, "scoreTo": scoreTo},
-		"defaultFeatureValues": defaultFeatureValues,
+		"defaultPriceValues": {"priceFrom": hourlyMinimumRate, "priceTo": hourlyMaximumRate},
+		"defaultScoreValues": {"scoreFrom": minimumScore, "scoreTo": maximumScore},
+		"tickedTutorFeature": tickedTutorFeature,
 		"tutorFeatureGroupComponent": tutorFeatureGroupComponent,
 	}
 	return render(request, 'tutoring/mainpage.html', context)

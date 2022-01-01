@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from accounts.forms import TutorProfileForm
 from accounts.models import Countries
 from accounts.models import Education
 from accounts.models import GetInTouch
@@ -17,6 +18,9 @@ class GetInTouchAdmin(admin.ModelAdmin):
     search_fields = ['fullName', 'email', 'subject', 'message', 'dateTime']
     # list_editable = [field.name for field in GetInTouch._meta.get_fields()]
 
+class TutorProfileAdmin(admin.ModelAdmin):
+    form = TutorProfileForm
+
 
 admin.site.register(Countries)
 admin.site.register(GetInTouch, GetInTouchAdmin)
@@ -24,4 +28,4 @@ admin.site.register(Education)
 admin.site.register(SocialConnection)
 admin.site.register(StudentProfile)
 admin.site.register(Subject)
-admin.site.register(TutorProfile)
+admin.site.register(TutorProfile, TutorProfileAdmin)

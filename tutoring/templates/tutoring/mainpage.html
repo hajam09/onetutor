@@ -56,10 +56,10 @@
            </div>
            <div class="row">
               <div class="col-lg-3">
-                 <div class="left-sidebar">
+                 <div class="left-sidebar" id="filterOptions">
                     <div class="accordion" id="accordionExample">
                        <div class="card mt-4">
-                          <button type="button" class="btn btn-primary btn-block" onclick="searchBySubjectAndFilter();">Update Filter</button>
+                          <button type="button" class="btn btn-primary btn-block">Update Filter</button>
                           <a data-toggle="collapse" href="#collapseOne" class="job-list" aria-expanded="true" aria-controls="collapseOne">
                              <div class="card-header" id="headingOne">
                                 <h6 class="mb-0 text-dark f-18">Features</h6>
@@ -247,24 +247,18 @@
 
     window.onload = function()
     {
+      updateFeaturesCheckBox();
         renderTutorProfiles();
-        var currentLocation = window.location;
-
-        if (currentLocation.pathname != "/")
-        {
-         var formData = currentLocation.pathname.split("/")[3];
-         var decodedData = decodeURIComponent(formData);
-         var jsonObject = JSON.parse(decodedData);
-
-         for (key in jsonObject)
-         {
-            if (key.includes('features'))
-            {
-              $('#'+key).prop('checked', jsonObject[key]);
-            }
-         }
-        }
     };
+
+    function updateFeaturesCheckBox()
+    {
+      var listOfTickedFeatures = eval("{{tickedTutorFeature|safe}}");
+      for (const feature of listOfTickedFeatures)
+      {
+         $('#features-'+feature).prop('checked', true);
+      }
+    }
 
     function renderTutorProfiles()
     {
@@ -287,8 +281,8 @@
 
         var featureBadges = "";
 
-        {% for feature in tutor.features.all %}
-         featureBadges += '<span class="badge badge-primary" style="background-color: {{feature.colour}};">{{feature.name|upper}}</span>&nbsp;&nbsp;'
+        {% for feature in tutor.getTutorFeatureComponents %}
+         featureBadges += '<span class="badge badge-primary" style="background-color: {{feature.colour}};">{{feature.internalKey|upper}}</span>&nbsp;&nbsp;'
         {% endfor %}
 
         var newComponent = `
@@ -432,87 +426,67 @@
         }
     );
 
+    // tutor features checkboxes
 
    let featureCheckBoxes = eval("{{tutorFeatureGroupComponent.getRelatedComponentByOrderNoForId|safe}}");
 
-   $('input:checkbox').change(
+   $('#filterOptions').change(
       function()
       {
-         if(this.id.includes("features"))
-         {
-            if ($(this).is(':checked'))
+         var searchQuery = "";
+
+         var featureStringAdded = false;
+         for (const checks of featureCheckBoxes)
+         {            
+            if($('#' + checks).is(":checked"))
             {
-               if(this.id == featureCheckBoxes[0])
+               if (!featureStringAdded)
                {
-                  for (var i = 1; i < featureCheckBoxes.length; i++)
-                  {
-                     $('#'+featureCheckBoxes[i]).prop('checked', true);
-                  }
+                  searchQuery += "tutorFeature:"
+                  featureStringAdded = true;
                }
-               else
-               {
-                  var allChecked = true;
-                  for (var i = 1; i < featureCheckBoxes.length; i++)
-                  {
-                     if(!$('#'+featureCheckBoxes[i]).is(":checked"))
-                        allChecked = false;
-                  }
 
-                  if (allChecked)
-                     $('#'+featureCheckBoxes[0]).prop('checked', true);
-
-               }
-            }
-            else
-            {
-               if(this.id == featureCheckBoxes[0])
-               {
-                  for (var i = 1; i < featureCheckBoxes.length; i++)
-                  {
-                     $('#'+featureCheckBoxes[i]).prop('checked', false);
-                  }
-               }
-               else
-               {
-                  var allChecked = false;
-                  for (var i = 1; i < featureCheckBoxes.length; i++)
-                  {
-                     if(!$('#'+featureCheckBoxes[i]).is(":checked"))
-                        allChecked = true;
-                  }
-
-                  if (allChecked)
-                     $('#'+featureCheckBoxes[0]).prop('checked', false);
-
-               }
+               var featureCode = checks.split("-")[1];
+               searchQuery +=featureCode + ",";
             }
          }
+
+         searchQuery = searchQuery.substring(0, searchQuery.length - 1);
+
+         var priceAdded = false;
+         if (PRICE_FROM > 0 || PRICE_TO < 100)
+         {
+            if(!priceAdded)
+            {
+               if (searchQuery.length != 0)
+               {
+                  searchQuery += "&";
+               }
+               searchQuery += "hourlyPrice:"
+               priceAdded = true;
+            }
+            searchQuery += PRICE_FROM + "," + PRICE_TO;
+         }
+
+         var scoreAdded = false;
+         if (TUTOR_SCORE_FROM > 0 || TUTOR_SCORE_TO < 100)
+         {
+            if(!scoreAdded)
+            {
+               if (searchQuery.length != 0)
+               {
+                  searchQuery += "&";
+               }
+               searchQuery += "tutorScore:"
+               scoreAdded = true;
+            }
+            searchQuery += TUTOR_SCORE_FROM + "," + TUTOR_SCORE_TO;
+         }
+
+         console.log(searchQuery);
+         var newFilters = "{{ generalQuery }}/" + searchQuery;
+         window.location.href = "{% url 'tutoring:searchBySubjectAndFilter' searchParameters='data' %}".replace("data", newFilters);
       }
    );
-
-    function searchBySubjectAndFilter()
-    {
-      // let listOfCheckBoxes = ["features-inPersonLessons", "features-onlineLessons", "features-pro"];
-      // var requestedFilter = {};
-
-      // for (const checks of listOfCheckBoxes)
-      // {
-      //    requestedFilter[checks] = $('#' + checks).is(":checked")
-      // }
-
-      // requestedFilter["priceFrom"] = PRICE_FROM;
-      // requestedFilter["priceTo"] = PRICE_TO;
-
-      // requestedFilter["scoreFrom"] = TUTOR_SCORE_FROM;
-      // requestedFilter["scoreTo"] = TUTOR_SCORE_TO;
-
-      //  ["my-education-primary", "my-education-secondary", "my-education-gcse", "my-education-alevel", "my-education-undergraduate", "my-education-other"]
-
-      //  var newFilters = "{{ generalQuery }}/" + JSON.stringify(requestedFilter);
-
-      // console.log(newFilters);
-      //   window.location.href = "{% url 'tutoring:searchBySubjectAndFilter' searchParameters='data' %}".replace("data", newFilters);
-    }
-
 </script>
 {% endblock %}

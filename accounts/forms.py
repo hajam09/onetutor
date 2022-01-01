@@ -4,8 +4,10 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 
 from accounts.models import GetInTouch
+from accounts.models import TutorProfile
 
 
 class RegistrationForm(UserCreationForm):
@@ -195,3 +197,22 @@ class GetInTouchForm(forms.ModelForm):
             subject=self.cleaned_data.get("subject"),
             message=self.cleaned_data.get("message")
         )
+
+
+class TutorProfileForm(forms.ModelForm):
+    class Meta:
+        model = TutorProfile
+        fields = "__all__"
+
+    def clean(self):
+        """
+        check that the component added is from the componentGroup.code = "TUTOR_FEATURE"
+        At the moment the limit_choices_to in TutorProfile.components only show components.componentGroup.code = "TUTOR_FEATURE"
+        """
+        components = self.cleaned_data.get('components')
+        if components:
+            for component in components:
+                if component.componentGroup.code != "TUTOR_FEATURE":
+                    raise ValidationError("Only add component(s) which belong to the 'Tutor Feature' component group.")
+
+        return self.cleaned_data

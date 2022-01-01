@@ -8,6 +8,7 @@ from django.db import models
 from django.urls import reverse
 
 from onetutor import settings
+from tutoring.models import Component
 from tutoring.models import Feature
 
 
@@ -25,6 +26,7 @@ class TutorProfile(models.Model):
     profilePicture = models.ImageField(upload_to='profile-picture', blank=True, null=True, default=getRandomImageForAvatar)
     chargeRate = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
     features = models.ManyToManyField(Feature, related_name='tutorFeatures', blank=True)
+    components = models.ManyToManyField(Component, related_name='tutorComponents', blank=True, limit_choices_to={'componentGroup__code': 'TUTOR_FEATURE'})
 
     class Meta:
         verbose_name_plural = "TutorProfiles"
@@ -34,6 +36,10 @@ class TutorProfile(models.Model):
 
     def getTutoringUrl(self):
         return reverse('tutoring:view-tutor-profile', kwargs={'tutorProfileKey': self.secondaryKey})
+
+    def getTutorFeatureComponents(self):
+        # regular use of components.all in template should work now because of the limit_choices_to and the validation from the TutorProfileForm
+        return self.components.filter(componentGroup__code="TUTOR_FEATURE")
 
     def __str__(self):
         return "{} - {}".format(self.user.email, self.user.get_full_name())
