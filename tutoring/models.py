@@ -215,21 +215,6 @@ class Feature(models.Model):
         return self.name
 
 
-class PaymentMethod(models.Model):
-    name = models.CharField(max_length=1024)
-    code = models.CharField(max_length=1024)
-    icon = models.CharField(max_length=1024)
-
-    def __str__(self):
-        return self.name
-
-
-class Payment(models.Model):
-    payer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="paymentPayer")
-    payee = models.ForeignKey(User, on_delete=models.CASCADE, related_name="paymentPayee")
-    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name="paymentLesson")
-    paymentMethod = models.ForeignKey(PaymentMethod, on_delete=models.SET_NULL, null=True, related_name="paymentMethod")
-    dateTime = models.DateTimeField(auto_now_add=True)
 
 
 class ComponentGroup(models.Model):
@@ -267,3 +252,11 @@ class Component(models.Model):
 
     def __str__(self):
         return self.internalKey
+
+
+class Payment(models.Model):
+    payer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="paymentPayer")
+    payee = models.ForeignKey(User, on_delete=models.CASCADE, related_name="paymentPayee")
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name="paymentLesson")
+    paymentComponent = models.ForeignKey(Component, on_delete=models.SET_NULL, null=True, related_name="paymentComponent", limit_choices_to={'componentGroup__code': 'PAYMENT_METHOD'})
+    dateTime = models.DateTimeField(auto_now_add=True)
