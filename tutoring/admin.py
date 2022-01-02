@@ -17,9 +17,17 @@ class LessonAdmin(admin.ModelAdmin):
     search_fields = ['tutor']
 
 
+class ComponentInline(admin.TabularInline):
+    model = Component
+
+
+class ComponentGroupAdmin(admin.ModelAdmin):
+    inlines = [ComponentInline]
+
+
 admin.site.register(Availability)
 admin.site.register(Component)
-admin.site.register(ComponentGroup)
+admin.site.register(ComponentGroup, ComponentGroupAdmin)
 admin.site.register(Lesson, LessonAdmin)
 admin.site.register(Payment)
 admin.site.register(QuestionAnswer)
