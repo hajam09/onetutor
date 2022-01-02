@@ -54,6 +54,7 @@ def searchBySubjectAndFilter(request, searchParameters=""):
 	minimumScore = 0
 	maximumScore = 2000
 	tickedTutorFeature = []
+	selectedEducationLevel = None
 
 	if "and" in subject:
 		requiredOperator = operator.and_
@@ -90,6 +91,15 @@ def searchBySubjectAndFilter(request, searchParameters=""):
 					if minimumScore <= sum([p.points for p in t.tutorLessons.all()]) <= maximumScore
 				])
 
+			if r[0] == "myEducationLevel":
+				selectedEducationLevel = f.split(":")[1]
+				# use this to check the tutor teaching level.
+				tutorList = set([
+					t for t in tutorList
+					for c in t.teachingLevels.all()
+					if c.code in selectedEducationLevel
+				])
+
 	if len(tutorList) == 0:
 		messages.error(
 			request,
@@ -118,6 +128,7 @@ def searchBySubjectAndFilter(request, searchParameters=""):
 		"defaultPriceValues": {"priceFrom": hourlyMinimumRate, "priceTo": hourlyMaximumRate},
 		"defaultScoreValues": {"scoreFrom": minimumScore, "scoreTo": maximumScore},
 		"tickedTutorFeature": tickedTutorFeature,
+		"selectedEducationLevel": selectedEducationLevel,
 		"tutorFeatureGroupComponent": next(i for i in requiredComponentGroup if i.code=='TUTOR_FEATURE'),
 		"educationLevelComponent": next(i for i in requiredComponentGroup if i.code=='EDUCATION_LEVEL'),
 		"qualificationComponent": next(i for i in requiredComponentGroup if i.code=='QUALIFICATION'),

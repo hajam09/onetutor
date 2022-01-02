@@ -124,10 +124,10 @@
 								<div id="collapsetwo" class="collapse show" aria-labelledby="headingtwo">
 									<div class="card-body p-0" id="listOfEducationLevelFilter">
 										{% for e in educationLevelComponent.components.all %}
-										<div class="custom-control custom-checkbox">
-											<input type="checkbox" class="custom-control-input all-select" id="education-{{e.code}}">
-											<label class="custom-control-label ml-1 text-muted f-15" for="education-{{e.code}}">{{e}}</label>
-										</div>
+										<div class="custom-control custom-radio">
+		                                    <input type="radio" id="education-{{e.code}}" name="myEducationCheckBox" class="custom-control-input" value="{{e.code}}">
+		                                    <label class="custom-control-label ml-1 text-muted f-15" for="education-{{e.code}}">{{e}}</label>
+		                                </div>
 										{% endfor %}
 									</div>
 								</div>
@@ -258,17 +258,19 @@
 
 	window.onload = function()
 	{
-		updateFeaturesCheckBox();
+		updateFilterComponent();
 		renderTutorProfiles();
 	};
 
-	function updateFeaturesCheckBox()
+	function updateFilterComponent()
 	{
 		var listOfTickedFeatures = eval("{{tickedTutorFeature|safe}}");
 		for (const feature of listOfTickedFeatures)
 		{
 			$('#features-'+feature).prop('checked', true);
 		}
+
+		$('#education-{{selectedEducationLevel}}').prop('checked', true);
 	}
 
 	function renderTutorProfiles()
@@ -467,7 +469,7 @@
 						searchQuery += "&";
 					}
 
-					searchQuery += "hourlyPrice:"
+					searchQuery += "hourlyPrice:";
 					priceAdded = true;
 				}
 				searchQuery += PRICE_FROM + "," + PRICE_TO;
@@ -483,12 +485,24 @@
 					{
 						searchQuery += "&";
 					}
-					searchQuery += "tutorScore:"
+					searchQuery += "tutorScore:";
 					scoreAdded = true;
 				}
 				searchQuery += TUTOR_SCORE_FROM + "," + TUTOR_SCORE_TO;
 			}
 
+			var myEducationCheckBox = $('input[name="myEducationCheckBox"]:checked').val();
+			if (myEducationCheckBox)
+			{
+				if(searchQuery)
+				{
+					searchQuery += "&";
+				}
+				
+				searchQuery += "myEducationLevel:";
+				searchQuery += myEducationCheckBox;
+			}
+			
 			var newFilters = "{{ generalQuery }}/" + searchQuery;
 			window.location.href = "{% url 'tutoring:searchBySubjectAndFilter' searchParameters='data' %}".replace("data", newFilters);
 		}
