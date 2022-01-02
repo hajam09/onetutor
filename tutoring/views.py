@@ -63,7 +63,7 @@ def searchBySubjectAndFilter(request, searchParameters=""):
 		requiredOperator = operator.or_
 
 	query = reduce(requiredOperator, (Q(subjects__icontains=s) for s in subject))
-	tutorList = TutorProfile.objects.filter(query).select_related('user').prefetch_related('tutorLessons', 'user__tutorReviews', 'components__componentGroup')
+	tutorList = TutorProfile.objects.filter(query).select_related('user').prefetch_related('tutorLessons', 'user__tutorReviews', 'features', 'teachingLevels')
 	if filters is not None:
 		for f in filters.split("&"):
 			r = f.split(":")
@@ -72,7 +72,7 @@ def searchBySubjectAndFilter(request, searchParameters=""):
 				tickedTutorFeature = f.split(":")[1].split(",")
 				tutorList = set([ t
 					   for t in tutorList
-					   for c in t.components.all()
+					   for c in t.features.all()
 					   if c.code in tickedTutorFeature ])
 
 			if r[0] == "hourlyPrice":
@@ -108,7 +108,7 @@ def searchBySubjectAndFilter(request, searchParameters=""):
 
 	# only doing this because list to queryset is not possible and queryset is needed for Paginator.
 	finalResultIds = [ t.id for t in tutorList]
-	tutorList = TutorProfile.objects.filter(id__in=finalResultIds).select_related('user').prefetch_related('tutorLessons', 'user__tutorReviews', 'components__componentGroup')
+	tutorList = TutorProfile.objects.filter(id__in=finalResultIds).select_related('user').prefetch_related('tutorLessons', 'user__tutorReviews', 'features', 'teachingLevels')
 
 	page = request.GET.get('page', 1)
 	paginator = Paginator(tutorList, 15)

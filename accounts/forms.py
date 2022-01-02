@@ -207,12 +207,12 @@ class TutorProfileForm(forms.ModelForm):
     def clean(self):
         """
         check that the component added is from the componentGroup.code = "TUTOR_FEATURE"
-        At the moment the limit_choices_to in TutorProfile.components only show components.componentGroup.code = "TUTOR_FEATURE"
+        At the moment the limit_choices_to in TutorProfile.features only show features.componentGroup.code = "TUTOR_FEATURE"
         """
-        components = self.cleaned_data.get('components')
-        if components:
-            for component in components:
-                if component.componentGroup.code != "TUTOR_FEATURE":
+        features = self.cleaned_data.get('features')
+        if features:
+            for f in features:
+                if f.componentGroup.code != "TUTOR_FEATURE":
                     raise ValidationError("Only add component(s) which belong to the 'Tutor Feature' component group.")
 
         return self.cleaned_data

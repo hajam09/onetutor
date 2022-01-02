@@ -229,10 +229,10 @@ class ComponentGroup(models.Model):
     def __str__(self):
         return self.internalKey
 
-    def getRelatedComponentByOrderNo(self):
+    def getRelatedFeatureComponentByOrderNo(self):
         return self.components.all().order_by('orderNo')
 
-    def getRelatedComponentByOrderNoForId(self):
+    def getRelatedFeatureComponentByOrderNoForId(self):
         return ["features-{}".format(i.code) for i in self.components.all()]
 
 
