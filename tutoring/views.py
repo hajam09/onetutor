@@ -126,27 +126,6 @@ def searchBySubjectAndFilter(request, searchParameters=""):
 	return render(request, 'tutoring/mainpage.html', context)
 
 
-def getTutorProfileForMainPage(profile):
-	ratingValue = tutorOperations.getTutorsAverageRating(profile)
-	data = {
-		"pk": profile.pk,
-		"profilePicture": {
-			"url": profile.profilePicture.url if profile.profilePicture else None
-		},
-		"getTutoringUrl": profile.getTutoringUrl(),
-		"user": {
-			"first_name": profile.user.first_name,
-			"last_name": profile.user.last_name
-		},
-		"summary": profile.summary,
-		"averageRating": {
-			"value": ratingValue,
-			"stars": generalOperations.convertRatingToStars(ratingValue)
-		},
-	}
-	return data
-
-
 def viewTutorProfile(request, tutorProfileKey):
 
 	try:
