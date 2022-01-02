@@ -225,7 +225,11 @@
 
 	$(document).ready(function()
 		{
-			submitCookieConsent('ASKED');
+			let consentStage = sessionStorage.getItem('consentStage');
+			if (consentStage != 'CONFIRMED')
+			{
+				submitCookieConsent('ASKED');
+			}
 		}
 	);
 
@@ -247,6 +251,7 @@
 		            		$('#cookieModal').modal('show');
 		            	}
 		            }
+		            sessionStorage.setItem('consentStage', 'CONFIRMED');
 		        }
 		    }
 	    );
