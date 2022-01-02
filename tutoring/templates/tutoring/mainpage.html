@@ -122,31 +122,13 @@
 									</div>
 								</a>
 								<div id="collapsetwo" class="collapse show" aria-labelledby="headingtwo">
-									<div class="card-body p-0">
+									<div class="card-body p-0" id="listOfEducationLevelFilter">
+										{% for e in educationLevelComponent.components.all %}
 										<div class="custom-control custom-checkbox">
-											<input type="checkbox" class="custom-control-input" id="customCheck5">
-											<label class="custom-control-label ml-1 text-muted f-15" for="customCheck5">Primary</label>
+											<input type="checkbox" class="custom-control-input all-select" id="education-{{e.code}}">
+											<label class="custom-control-label ml-1 text-muted f-15" for="education-{{e.code}}">{{e}}</label>
 										</div>
-										<div class="custom-control custom-checkbox">
-											<input type="checkbox" class="custom-control-input" id="customCheck6">
-											<label class="custom-control-label ml-1 text-muted f-15" for="customCheck6">Secondary</label>
-										</div>
-										<div class="custom-control custom-checkbox">
-											<input type="checkbox" class="custom-control-input" id="customCheck7">
-											<label class="custom-control-label ml-1 text-muted f-15" for="customCheck7">GCSE</label>
-										</div>
-										<div class="custom-control custom-checkbox">
-											<input type="checkbox" class="custom-control-input" id="customCheck8">
-											<label class="custom-control-label ml-1 text-muted f-15" for="customCheck8">A-Level</label>
-										</div>
-										<div class="custom-control custom-checkbox">
-											<input type="checkbox" class="custom-control-input" id="customCheck9">
-											<label class="custom-control-label ml-1 text-muted f-15" for="customCheck9">Undergraduate</label>
-										</div>
-										<div class="custom-control custom-checkbox">
-											<input type="checkbox" class="custom-control-input" id="customCheck10">
-											<label class="custom-control-label ml-1 text-muted f-15" for="customCheck10">Other</label>
-										</div>
+										{% endfor %}
 									</div>
 								</div>
 							</div>
@@ -157,19 +139,13 @@
 									</div>
 								</a>
 								<div id="collapsetwo" class="collapse show" aria-labelledby="headingtwo">
-									<div class="card-body p-0">
+									<div class="card-body p-0" id="listOfQualificationFilter">
+										{% for q in qualificationComponent.components.all %}
 										<div class="custom-control custom-checkbox">
-											<input type="checkbox" class="custom-control-input" id="customCheck19">
-											<label class="custom-control-label ml-1 text-muted f-15" for="customCheck19">Higher Secondary</label>
+											<input type="checkbox" class="custom-control-input all-select" id="qualification-{{q.code}}">
+											<label class="custom-control-label ml-1 text-muted f-15" for="qualification-{{q.code}}">{{q}}</label>
 										</div>
-										<div class="custom-control custom-checkbox">
-											<input type="checkbox" class="custom-control-input" id="customCheck20">
-											<label class="custom-control-label ml-1 text-muted f-15" for="customCheck20">Bachelor Degree</label>
-										</div>
-										<div class="custom-control custom-checkbox">
-											<input type="checkbox" class="custom-control-input" id="customCheck21">
-											<label class="custom-control-label ml-1 text-muted f-15" for="customCheck21">Master Degree</label>
-										</div>
+										{% endfor %}
 									</div>
 								</div>
 							</div>

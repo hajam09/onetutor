@@ -1,3 +1,5 @@
+import operator
+from functools import reduce
 from http import HTTPStatus
 
 from django.contrib import messages
@@ -5,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import EmptyPage
 from django.core.paginator import PageNotAnInteger
 from django.core.paginator import Paginator
+from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
@@ -12,11 +15,10 @@ from django.shortcuts import render
 from accounts.models import Subject
 from accounts.models import TutorProfile
 from onetutor.operations import dateOperations
-from onetutor.operations import tutorOperations
 from onetutor.operations import generalOperations
-from tutoring.models import QuestionAnswer
+from onetutor.operations import tutorOperations
 from tutoring.models import ComponentGroup
-from tutoring.models import Component
+from tutoring.models import QuestionAnswer
 from tutoring.models import QuestionAnswerComment
 from tutoring.models import TutorReview
 
@@ -40,7 +42,7 @@ def searchBySubjectAndFilter(request, searchParameters=""):
 		return redirect("tutoring:searchBySubjectAndFilter", searchParameters=request.POST["generalQuery"])
 
 	searchParametersSplit = searchParameters.split("/")
-	subject = searchParametersSplit[0]
+	subject = searchParametersSplit[0].lower().split(" ")
 
 	try:
 		filters = searchParametersSplit[1]
@@ -53,7 +55,14 @@ def searchBySubjectAndFilter(request, searchParameters=""):
 	maximumScore = 2000
 	tickedTutorFeature = []
 
-	tutorList = TutorProfile.objects.filter(subjects__icontains=subject).select_related('user').prefetch_related('tutorLessons', 'user__tutorReviews', 'components__componentGroup')
+	if "and" in subject:
+		requiredOperator = operator.and_
+		subject = list(filter("and".__ne__, subject))
+	else:
+		requiredOperator = operator.or_
+
+	query = reduce(requiredOperator, (Q(subjects__icontains=s) for s in subject))
+	tutorList = TutorProfile.objects.filter(query).select_related('user').prefetch_related('tutorLessons', 'user__tutorReviews', 'components__componentGroup')
 	if filters is not None:
 		for f in filters.split("&"):
 			r = f.split(":")
@@ -101,14 +110,17 @@ def searchBySubjectAndFilter(request, searchParameters=""):
 	except EmptyPage:
 		tutorList = paginator.page(paginator.num_pages)
 
-	tutorFeatureGroupComponent = ComponentGroup.objects.get(code='TUTOR_FEATURE')
+	requiredComponentGroup = ComponentGroup.objects.filter(code__in=['TUTOR_FEATURE', 'EDUCATION_LEVEL', 'QUALIFICATION']).prefetch_related("components")
+
 	context = {
-		"generalQuery": subject,
+		"generalQuery": searchParametersSplit[0],
 		"tutorList": tutorList,
 		"defaultPriceValues": {"priceFrom": hourlyMinimumRate, "priceTo": hourlyMaximumRate},
 		"defaultScoreValues": {"scoreFrom": minimumScore, "scoreTo": maximumScore},
 		"tickedTutorFeature": tickedTutorFeature,
-		"tutorFeatureGroupComponent": tutorFeatureGroupComponent,
+		"tutorFeatureGroupComponent": next(i for i in requiredComponentGroup if i.code=='TUTOR_FEATURE'),
+		"educationLevelComponent": next(i for i in requiredComponentGroup if i.code=='EDUCATION_LEVEL'),
+		"qualificationComponent": next(i for i in requiredComponentGroup if i.code=='QUALIFICATION'),
 		"showResult": True,
 	}
 	return render(request, 'tutoring/mainpage.html', context)
