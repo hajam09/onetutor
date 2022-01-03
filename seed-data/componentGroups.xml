@@ -1,6 +1,8 @@
 <SeedData>
     <ComponentGroup internalKey="Tutor Feature" code="TUTOR_FEATURE"/>
     <ComponentGroup internalKey="Payment Method" code="PAYMENT_METHOD"/>
+    <ComponentGroup internalKey="Education Level" code="EDUCATION_LEVEL"/>
+    <ComponentGroup internalKey="Qualification" code="QUALIFICATION"/>
 
     <Component componentGroup.internalKey="Tutor Feature" internalKey="In Person Lessons" code="inPersonLessons" colour="#009C2F" orderNo="1"/>
     <Component componentGroup.internalKey="Tutor Feature" internalKey="Online lessons" code="onlineLessons" colour="#6C5CE7" orderNo="2"/>
@@ -13,4 +15,17 @@
     <Component componentGroup.internalKey="Payment Method" internalKey="PayPal" code="PAYPAL" icon="fa fa-cc-paypal"/>
     <Component componentGroup.internalKey="Payment Method" internalKey="Stripe" code="STRIPE" icon="fa fa-cc-stripe"/>
     <Component componentGroup.internalKey="Payment Method" internalKey="Visa" code="VISA" icon="fa fa-cc-visa"/>
+
+    <Component componentGroup.internalKey="Education Level" internalKey="SATs" code="SATS" orderNo="1"/>
+    <Component componentGroup.internalKey="Education Level" internalKey="GCSE" code="GCSE" orderNo="2"/>
+    <Component componentGroup.internalKey="Education Level" internalKey="AS-Level" code="ASLEVEL" orderNo="3"/>
+    <Component componentGroup.internalKey="Education Level" internalKey="A-Level" code="ALEVEL" orderNo="4"/>
+    <Component componentGroup.internalKey="Education Level" internalKey="Undergraduate" code="UNDERGRADUATE" orderNo="5"/>
+    <Component componentGroup.internalKey="Education Level" internalKey="Postgraduate" code="POSTGRADUATE" orderNo="6"/>
+
+    <Component componentGroup.internalKey="Qualification" internalKey="Higher Secondary" code="higherSecondary" orderNo="1"/>
+    <Component componentGroup.internalKey="Qualification" internalKey="Foundation Degree" code="foundationDegree" orderNo="2"/>
+    <Component componentGroup.internalKey="Qualification" internalKey="Bachelor Degree" code="bachelorDegree" orderNo="3"/>
+    <Component componentGroup.internalKey="Qualification" internalKey="Master Degree" code="masterDegree" orderNo="4"/>
+    <Component componentGroup.internalKey="Qualification" internalKey="Doctorate" code="doctorate" orderNo="5"/>
 </SeedData>

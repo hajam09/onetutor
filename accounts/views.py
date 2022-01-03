@@ -5,9 +5,9 @@ from http import HTTPStatus
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate
-from django.contrib.auth import user_logged_out
 from django.contrib.auth import login as signIn
 from django.contrib.auth import logout as signOut
+from django.contrib.auth import user_logged_out
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.models import User
@@ -31,6 +31,7 @@ from dashboard.models import UserSession
 from onetutor.operations import emailOperations
 from onetutor.operations import generalOperations
 from tutoring.models import Availability
+from tutoring.models import Component
 
 
 #TODO: Use Availability from the model rather than from TutorProfile
@@ -222,7 +223,7 @@ def userSettings(request):
 
 	# TODO: Find a good code design for the below try/catch.
 	try:
-		profile = TutorProfile.objects.select_related('user').get(user=request.user)
+		profile = TutorProfile.objects.select_related('user', 'user__availability').prefetch_related('teachingLevels').get(user=request.user)
 	except TutorProfile.DoesNotExist:
 		profile = None
 
@@ -239,11 +240,15 @@ def userSettings(request):
 		# functions specific to tutors.
 		templateName = "accounts/tutorSettings.html"
 
+		educationLevelComponents = Component.objects.filter(componentGroup__code="EDUCATION_LEVEL")
+		educationLevelComponent = [ i for i in educationLevelComponents if i not in profile.teachingLevels.all() ]
+
 		if request.method == "POST" and "updateTutorProfile" in request.POST:
 			summary = request.POST["summary"]
 			about = request.POST["about"]
 			subjects = ', '.join([i.capitalize() for i in request.POST.getlist('subjects')])
 			availabilityChoices = request.POST.getlist('availabilityChoices')
+			teachingLevels = request.POST.getlist('teachingLevels')
 
 			request.user.availability.delete()
 			availability = Availability.objects.create(user=request.user)
@@ -260,10 +265,14 @@ def userSettings(request):
 				request,
 				'Your biography and other details has been updated successfully.'
 			)
+			profile.teachingLevels.clear()
+			profile.teachingLevels.add(*[i for i in educationLevelComponents if i.internalKey in teachingLevels])
 
 	else:
 		# functions specific to students .
 		templateName = "accounts/studentSettings.html"
+
+		educationLevelComponent = []
 
 		if request.method == "POST" and "updateStudentProfile" in request.POST:
 			about = request.POST["about"]
@@ -390,7 +399,8 @@ def userSettings(request):
 		)
 
 	context = {
-		"profile": profile
+		"profile": profile,
+		"educationLevelComponent": educationLevelComponent
 	}
 	return render(request, templateName, context)
 

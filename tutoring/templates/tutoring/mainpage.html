@@ -289,7 +289,7 @@
 
 		var featureBadges = "";
 
-		{% for feature in tutor.components.all %}
+		{% for feature in tutor.features.all %}
 		 featureBadges += '<span class="badge badge-primary" style="background-color: {{feature.colour}};">{{feature.internalKey|upper}}</span>&nbsp;&nbsp;'
 		{% endfor %}
 

@@ -65,10 +65,10 @@ def getKeyOrForeignObjectId(key):
 
 def getValueOrForeignObjectId(key, value):
     """
-        if a foreign object is being looked up such as componentGroup__internalKey
-        then return the id of the object being looked up
-        the modelInstance stores the id of the foreign object and not the actual object itself
-        """
+    if a foreign object is being looked up such as componentGroup__internalKey
+    then return the id of the object being looked up
+    the modelInstance stores the id of the foreign object and not the actual object itself
+    """
     if "__" not in key:
         return value
 
