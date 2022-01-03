@@ -18,14 +18,53 @@ def installSeedData():
             appName = getAppLabelForModel(tableName)
 
             modelType = apps.get_model(appName, tableName)
+
+            newKeys = {}
+            oldKeys = []
+
+            # change "." -> "__" to search for foreign key objects.
+            for key, value in element.attrib.items():
+                if "." in key:
+                    newKey = key.replace(".", "__")
+                    newKeys[newKey] = value
+                    oldKeys.append(key)
+
+            # delete keys which have "." in them
+            for key in oldKeys:
+                del element.attrib[key]
+
+            # add new keys which replaced "." with "__"
+            element.attrib = element.attrib | newKeys
+
             if modelType.objects.filter(**element.attrib):
                 continue
 
             modelInstance = modelType()
             for key, value in element.attrib.items():
-                setattr(modelInstance, key, value)
+                setattr(modelInstance, getKeyOrForeignObjectId(key), getValueOrForeignObjectId(key, value))
             modelInstance.save()
     return
+
+
+def getKeyOrForeignObjectId(key):
+    if "__" not in key:
+        return key
+
+    keySplit = key.split("__")
+    keySplit[-1] = "id"
+
+    return "_".join(keySplit)
+
+
+def getValueOrForeignObjectId(key, value):
+    if "__" not in key:
+        return value
+
+    tableName = key.split("__")[0]
+    appName = getAppLabelForModel(tableName)
+
+    modelType = apps.get_model(appName, tableName)
+    return modelType.objects.get(**{key.split("__")[1]: value}).id
 
 
 def getAppLabelForModel(modalName):

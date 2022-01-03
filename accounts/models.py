@@ -24,8 +24,8 @@ class TutorProfile(models.Model):
     subjects = models.CharField(max_length=8192, blank=True, null=True)
     profilePicture = models.ImageField(upload_to='profile-picture', blank=True, null=True, default=getRandomImageForAvatar)
     chargeRate = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
-    features = models.ManyToManyField(Component, related_name='featuresComponents', blank=True, limit_choices_to={'componentGroup__code': 'TUTOR_FEATURE'})
-    teachingLevels = models.ManyToManyField(Component, related_name='teachingComponent', blank=True, limit_choices_to={'componentGroup__code': 'EDUCATION_LEVEL'}) # store which education level(s) this tutor teaches.
+    features = models.ManyToManyField(Component, related_name='featuresComponents', null=True, blank=True, limit_choices_to={'componentGroup__code': 'TUTOR_FEATURE'})
+    teachingLevels = models.ManyToManyField(Component, related_name='teachingComponent', null=True, blank=True, limit_choices_to={'componentGroup__code': 'EDUCATION_LEVEL'}) # store which education level(s) this tutor teaches.
 
     class Meta:
         verbose_name_plural = "TutorProfiles"

@@ -1,0 +1,16 @@
+<SeedData>
+    <ComponentGroup internalKey="Tutor Feature" code="TUTOR_FEATURE"/>
+    <ComponentGroup internalKey="Payment Method" code="PAYMENT_METHOD"/>
+
+    <Component componentGroup.internalKey="Tutor Feature" internalKey="In Person Lessons" code="inPersonLessons" colour="#009C2F" orderNo="1"/>
+    <Component componentGroup.internalKey="Tutor Feature" internalKey="Online lessons" code="onlineLessons" colour="#6C5CE7" orderNo="2"/>
+    <Component componentGroup.internalKey="Tutor Feature" internalKey="Pro" code="pro" colour="#4291DF" orderNo="3"/>
+    <Component componentGroup.internalKey="Tutor Feature" internalKey="DBS" code="dbs" colour="#2EB994" orderNo="4"/>
+
+    <Component componentGroup.internalKey="Payment Method" internalKey="American Express" code="AMEX" icon="fa fa-cc-amex"/>
+    <Component componentGroup.internalKey="Payment Method" internalKey="JCB" code="JCB" icon="fa fa-cc-jcb"/>
+    <Component componentGroup.internalKey="Payment Method" internalKey="Mastercard" code="MASTERCARD" icon="fa fa-cc-mastercard"/>
+    <Component componentGroup.internalKey="Payment Method" internalKey="PayPal" code="PAYPAL" icon="fa fa-cc-paypal"/>
+    <Component componentGroup.internalKey="Payment Method" internalKey="Stripe" code="STRIPE" icon="fa fa-cc-stripe"/>
+    <Component componentGroup.internalKey="Payment Method" internalKey="Visa" code="VISA" icon="fa fa-cc-visa"/>
+</SeedData>
