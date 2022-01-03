@@ -226,6 +226,9 @@ class ComponentGroup(models.Model):
     orderNo = models.IntegerField(default=1, blank=True, null=True)
     versionNo = models.IntegerField(default=1, blank=True, null=True)
 
+    class Meta:
+        verbose_name_plural = "ComponentGroup"
+
     def __str__(self):
         return self.internalKey
 
@@ -248,11 +251,12 @@ class Component(models.Model):
     orderNo = models.IntegerField(default=1, blank=True, null=True)
     versionNo = models.IntegerField(default=1, blank=True, null=True)
 
-    def __str__(self):
-        return self.internalKey
-
     class Meta:
         ordering = ['componentGroup', 'orderNo']
+        verbose_name_plural = "Component"
+
+    def __str__(self):
+        return self.internalKey
 
 
 class Payment(models.Model):

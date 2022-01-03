@@ -1,0 +1,17 @@
+<SeedData>
+    <Category name="A-level"/>
+    <Category name="AS level"/>
+    <Category name="Advanced Highers"/>
+    <Category name="All levels"/>
+    <Category name="BTEC First"/>
+    <Category name="BTEC National"/>
+    <Category name="GCSE"/>
+    <Category name="Highers"/>
+    <Category name="IB"/>
+    <Category name="IGCSE"/>
+    <Category name="National 5"/>
+    <Category name="Other"/>
+    <Category name="Postgraduate"/>
+    <Category name="Undergraduate"/>
+    <Category name="Year 9"/>
+</SeedData>
