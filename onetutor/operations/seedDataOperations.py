@@ -49,6 +49,11 @@ def installSeedData(xmlFile):
 
 
 def getKeyOrForeignObjectId(key):
+    """
+    if a foreign object is being looked up such as componentGroup__internalKey
+    then change the "internalKey" to "id".
+    the getValueOrForeignObjectId() will return the id for object componentGroup where internalKey="value"
+    """
     if "__" not in key:
         return key
 
@@ -59,6 +64,11 @@ def getKeyOrForeignObjectId(key):
 
 
 def getValueOrForeignObjectId(key, value):
+    """
+        if a foreign object is being looked up such as componentGroup__internalKey
+        then return the id of the object being looked up
+        the modelInstance stores the id of the foreign object and not the actual object itself
+        """
     if "__" not in key:
         return value
 
