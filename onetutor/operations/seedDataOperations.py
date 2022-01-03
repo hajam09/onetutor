@@ -4,46 +4,48 @@ from pathlib import Path
 from django.apps import apps
 
 
-def installSeedData():
-    xmlLocations = getXMLFileLocations()
+def runSeedDataInstaller():
+    xmlFiles = getSeedDataFiles()
 
-    for xmlFiles in xmlLocations:
-        tree = ET.parse(xmlFiles)
+    for xmlFile in xmlFiles:
+        installSeedData(xmlFile)
 
-        if tree.getroot().tag != "SeedData":
+
+def installSeedData(xmlFile):
+    tree = ET.parse(xmlFile)
+
+    if tree.getroot().tag != "SeedData":
+        return
+
+    for element in tree.getroot():
+        tableName = element.tag
+        appName = getAppLabelForModel(tableName)
+        modelType = apps.get_model(appName, tableName)
+
+        newKeys = {}
+        oldKeys = []
+
+        # change "." -> "__" to search for foreign key objects.
+        for key, value in element.attrib.items():
+            if "." in key:
+                newKey = key.replace(".", "__")
+                newKeys[newKey] = value
+                oldKeys.append(key)
+
+        # delete keys which have "." in them
+        for key in oldKeys:
+            del element.attrib[key]
+
+        # add new keys which replaced "." with "__"
+        element.attrib = element.attrib | newKeys
+
+        if modelType.objects.filter(**element.attrib):
             continue
 
-        for element in tree.getroot():
-            tableName = element.tag
-            appName = getAppLabelForModel(tableName)
-
-            modelType = apps.get_model(appName, tableName)
-
-            newKeys = {}
-            oldKeys = []
-
-            # change "." -> "__" to search for foreign key objects.
-            for key, value in element.attrib.items():
-                if "." in key:
-                    newKey = key.replace(".", "__")
-                    newKeys[newKey] = value
-                    oldKeys.append(key)
-
-            # delete keys which have "." in them
-            for key in oldKeys:
-                del element.attrib[key]
-
-            # add new keys which replaced "." with "__"
-            element.attrib = element.attrib | newKeys
-
-            if modelType.objects.filter(**element.attrib):
-                continue
-
-            modelInstance = modelType()
-            for key, value in element.attrib.items():
-                setattr(modelInstance, getKeyOrForeignObjectId(key), getValueOrForeignObjectId(key, value))
-            modelInstance.save()
-    return
+        modelInstance = modelType()
+        for key, value in element.attrib.items():
+            setattr(modelInstance, getKeyOrForeignObjectId(key), getValueOrForeignObjectId(key, value))
+        modelInstance.save()
 
 
 def getKeyOrForeignObjectId(key):
@@ -86,5 +88,5 @@ def getAppLabelForModel(modalName):
     return list(appLabel)[0]
 
 
-def getXMLFileLocations():
+def getSeedDataFiles():
     return [str(p) for p in Path("seed-data").rglob('*.xml')]
