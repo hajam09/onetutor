@@ -3,6 +3,7 @@
     <ComponentGroup internalKey="Payment Method" code="PAYMENT_METHOD"/>
     <ComponentGroup internalKey="Education Level" code="EDUCATION_LEVEL"/>
     <ComponentGroup internalKey="Qualification" code="QUALIFICATION"/>
+    <ComponentGroup internalKey="Rating Filter" code="RATING_FILTER"/>
 
     <Component componentGroup.internalKey="Tutor Feature" internalKey="In Person Lessons" code="inPersonLessons" colour="#009C2F" orderNo="1"/>
     <Component componentGroup.internalKey="Tutor Feature" internalKey="Online lessons" code="onlineLessons" colour="#6C5CE7" orderNo="2"/>
@@ -28,4 +29,11 @@
     <Component componentGroup.internalKey="Qualification" internalKey="Bachelor Degree" code="bachelorDegree" orderNo="3"/>
     <Component componentGroup.internalKey="Qualification" internalKey="Master Degree" code="masterDegree" orderNo="4"/>
     <Component componentGroup.internalKey="Qualification" internalKey="Doctorate" code="doctorate" orderNo="5"/>
+
+    <Component componentGroup.internalKey="Rating Filter" internalKey="Show All" reference="-1" orderNo="1"/>
+    <Component componentGroup.internalKey="Rating Filter" internalKey="5 &#60;i class='fas fa-star'&#62;&#60;/i&#62; only" reference="5" orderNo="2"/>
+    <Component componentGroup.internalKey="Rating Filter" internalKey="4 &#60;i class='fas fa-star'&#62;&#60;/i&#62; or more" reference="4" orderNo="3"/>
+    <Component componentGroup.internalKey="Rating Filter" internalKey="3 &#60;i class='fas fa-star'&#62;&#60;/i&#62; or more" reference="3" orderNo="4"/>
+    <Component componentGroup.internalKey="Rating Filter" internalKey="2 &#60;i class='fas fa-star'&#62;&#60;/i&#62; or more" reference="2" orderNo="5"/>
+    <Component componentGroup.internalKey="Rating Filter" internalKey="1 &#60;i class='fas fa-star'&#62;&#60;/i&#62; or more" reference="1" orderNo="6"/>
 </SeedData>

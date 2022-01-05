@@ -40,19 +40,11 @@
 						<div class="float-left">
 							<h5 class="text-dark mb-0 pt-2">Showing  Results : 1-6 of {{tutorList|length}}</h5>
 						</div>
-						<div class="sort-button float-right">
+						<div class="sort-button float-right" style="color: black;">
 							<ul class="list-inline mb-0">
-								<li class="list-inline-item mr-3">
-									<select class="nice-select" >
-										<option data-display="Sort By">Nothing</option>
-										<option value="1">Web Developer</option>
-										<option value="2">PHP Developer</option>
-										<option value="3">Web Designer</option>
-									</select>
-								</li>
 								<li class="list-inline-item">
 									<select class="nice-select">
-										<option data-display="Default">Nothing</option>
+										<option data-display="Sort By">Nothing</option>
 										<option value="1">Web Developer</option>
 										<option value="2">PHP Developer</option>
 										<option value="3">Web Designer</option>
@@ -68,10 +60,9 @@
 					<div class="left-sidebar" id="filterOptions">
 						<div class="accordion" id="accordionExample">
 							<div class="card mt-4">
-								<button type="button" class="btn btn-primary btn-block">Update Filter</button>
 								<a data-toggle="collapse" href="#collapseOne" class="job-list" aria-expanded="true" aria-controls="collapseOne">
 									<div class="card-header" id="headingOne">
-										<h6 class="mb-0 text-dark f-18">Features</h6>
+										<h5 class="mb-0 text-dark f-18">Features</h5>
 									</div>
 								</a>
 								<div id="collapseOne" class="collapse show" aria-labelledby="headingOne">
@@ -86,13 +77,30 @@
 								</div>
 							</div>
 							<div class="card mt-4">
-								<a data-toggle="collapse" href="#collapseOne" class="job-list" aria-expanded="true" aria-controls="collapseOne">
+								<a data-toggle="collapse" href="#collapseSix" class="job-list" aria-expanded="true" aria-controls="collapseSix">
 									<div class="card-header" id="headingOne">
-										<h6 class="mb-0 text-dark f-18">Price</h6>
+										<h5 class="mb-0 text-dark f-18">Rating</h5>
+									</div>
+								</a>
+								<div id="collapseSix" class="collapse show" aria-labelledby="headingOne">
+									<div class="card-body p-0" id="listOfTutorRatingFilter">
+										{% for e in ratingFilterComponent.components.all %}
+										<div class="custom-control custom-radio">
+		                                    <input type="radio" id="averageRating-{{e.reference}}" name="tutorAverageRatingRadioBox" class="custom-control-input" value="{{e.reference}}">
+		                                    <label class="custom-control-label ml-1 text-muted f-15" for="averageRating-{{e.reference}}">{{e|safe}}</label>
+		                                </div>
+										{% endfor %}
+									</div>
+								</div>
+							</div>
+							<div class="card mt-4">
+								<a data-toggle="collapse" href="#collapseTwo" class="job-list" aria-expanded="true" aria-controls="collapseTwo">
+									<div class="card-header" id="headingOne">
+										<h5 class="mb-0 text-dark f-18">Price</h5>
 									</div>
 								</a>
 								<br>
-								<div id="collapseOne" class="collapse show" aria-labelledby="headingOne">
+								<div id="collapseTwo" class="collapse show" aria-labelledby="headingOne">
 									<div class="card-body p-0">
 										<div class="container">
 											<input type="text" class="js-range-slider-price" name="my_range" value="" />
@@ -101,13 +109,13 @@
 								</div>
 							</div>
 							<div class="card mt-4">
-								<a data-toggle="collapse" href="#collapseOne" class="job-list" aria-expanded="true" aria-controls="collapseOne">
+								<a data-toggle="collapse" href="#collapseThree" class="job-list" aria-expanded="true" aria-controls="collapseThree">
 									<div class="card-header" id="headingOne">
-										<h6 class="mb-0 text-dark f-18">Tutor Score</h6>
+										<h5 class="mb-0 text-dark f-18">Tutor Score</h5>
 									</div>
 								</a>
 								<br>
-								<div id="collapseOne" class="collapse show" aria-labelledby="headingOne">
+								<div id="collapseThree" class="collapse show" aria-labelledby="headingOne">
 									<div class="card-body p-0">
 										<div class="container">
 											<input type="text" class="js-range-slider-score" name="my_range" value="" />
@@ -116,16 +124,16 @@
 								</div>
 							</div>
 							<div class="card mt-4">
-								<a data-toggle="collapse" href="#collapsetwo" class="job-list" aria-expanded="true" aria-controls="collapsetwo">
+								<a data-toggle="collapse" href="#collapseFour" class="job-list" aria-expanded="true" aria-controls="collapseFour">
 									<div class="card-header" id="headingtwo">
-										<h6 class="mb-0 text-dark f-18">My Education Level</h6>
+										<h5 class="mb-0 text-dark f-18">My Education Level</h5>
 									</div>
 								</a>
-								<div id="collapsetwo" class="collapse show" aria-labelledby="headingtwo">
+								<div id="collapseFour" class="collapse show" aria-labelledby="headingtwo">
 									<div class="card-body p-0" id="listOfEducationLevelFilter">
 										{% for e in educationLevelComponent.components.all %}
 										<div class="custom-control custom-radio">
-		                                    <input type="radio" id="education-{{e.code}}" name="myEducationCheckBox" class="custom-control-input" value="{{e.code}}">
+		                                    <input type="radio" id="education-{{e.code}}" name="myEducationRadioBox" class="custom-control-input" value="{{e.code}}">
 		                                    <label class="custom-control-label ml-1 text-muted f-15" for="education-{{e.code}}">{{e}}</label>
 		                                </div>
 										{% endfor %}
@@ -133,12 +141,12 @@
 								</div>
 							</div>
 							<div class="card mt-4">
-								<a data-toggle="collapse" href="#collapsetwo" class="job-list" aria-expanded="true" aria-controls="collapsetwo">
+								<a data-toggle="collapse" href="#collapseFive" class="job-list" aria-expanded="true" aria-controls="collapseFive">
 									<div class="card-header" id="headingtwo">
-										<h6 class="mb-0 text-dark f-18">Qualification</h6>
+										<h5 class="mb-0 text-dark f-18">Qualification</h5>
 									</div>
 								</a>
-								<div id="collapsetwo" class="collapse show" aria-labelledby="headingtwo">
+								<div id="collapseFive" class="collapse show" aria-labelledby="headingtwo">
 									<div class="card-body p-0" id="listOfQualificationFilter">
 										{% for q in qualificationComponent.components.all %}
 										<div class="custom-control custom-checkbox">
@@ -271,6 +279,7 @@
 		}
 
 		$('#education-{{selectedEducationLevel}}').prop('checked', true);
+		$('#averageRating-{{selectedAverageRating}}').prop('checked', true);
 	}
 
 	function renderTutorProfiles()
@@ -491,8 +500,8 @@
 				searchQuery += TUTOR_SCORE_FROM + "," + TUTOR_SCORE_TO;
 			}
 
-			var myEducationCheckBox = $('input[name="myEducationCheckBox"]:checked').val();
-			if (myEducationCheckBox)
+			var myEducationRadioBox = $('input[name="myEducationRadioBox"]:checked').val();
+			if (myEducationRadioBox)
 			{
 				if(searchQuery)
 				{
@@ -500,8 +509,22 @@
 				}
 				
 				searchQuery += "myEducationLevel:";
-				searchQuery += myEducationCheckBox;
+				searchQuery += myEducationRadioBox;
 			}
+
+			var tutorAverageRatingRadioBox = $('input[name="tutorAverageRatingRadioBox"]:checked').val();
+			if (tutorAverageRatingRadioBox && tutorAverageRatingRadioBox > -1)
+			{
+				if(searchQuery)
+				{
+					searchQuery += "&";
+				}
+				searchQuery += "tutorAverageRating:";
+				searchQuery += tutorAverageRatingRadioBox;
+			}
+
+			// if (!searchQuery)
+			// 	return;
 			
 			var newFilters = "{{ generalQuery }}/" + searchQuery;
 			window.location.href = "{% url 'tutoring:searchBySubjectAndFilter' searchParameters='data' %}".replace("data", newFilters);

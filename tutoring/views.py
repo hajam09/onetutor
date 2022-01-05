@@ -55,6 +55,7 @@ def searchBySubjectAndFilter(request, searchParameters=""):
 	maximumScore = 2000
 	tickedTutorFeature = []
 	selectedEducationLevel = None
+	selectedAverageRating = -1
 
 	if "and" in subject:
 		requiredOperator = operator.and_
@@ -100,6 +101,13 @@ def searchBySubjectAndFilter(request, searchParameters=""):
 					if c.code in selectedEducationLevel
 				])
 
+			if r[0] == "tutorAverageRating":
+				selectedAverageRating = int(f.split(":")[1])
+				tutorList = set([
+					t for t in tutorList
+					if tutorOperations.getTutorsAverageRating(t) >= selectedAverageRating
+				])
+
 	if len(tutorList) == 0:
 		messages.error(
 			request,
@@ -120,7 +128,7 @@ def searchBySubjectAndFilter(request, searchParameters=""):
 	except EmptyPage:
 		tutorList = paginator.page(paginator.num_pages)
 
-	requiredComponentGroup = ComponentGroup.objects.filter(code__in=['TUTOR_FEATURE', 'EDUCATION_LEVEL', 'QUALIFICATION']).prefetch_related("components")
+	requiredComponentGroup = ComponentGroup.objects.filter(code__in=['TUTOR_FEATURE', 'EDUCATION_LEVEL', 'QUALIFICATION', 'RATING_FILTER']).prefetch_related("components")
 
 	context = {
 		"generalQuery": searchParametersSplit[0],
@@ -129,9 +137,11 @@ def searchBySubjectAndFilter(request, searchParameters=""):
 		"defaultScoreValues": {"scoreFrom": minimumScore, "scoreTo": maximumScore},
 		"tickedTutorFeature": tickedTutorFeature,
 		"selectedEducationLevel": selectedEducationLevel,
+		"selectedAverageRating": selectedAverageRating,
 		"tutorFeatureGroupComponent": next(i for i in requiredComponentGroup if i.code=='TUTOR_FEATURE'),
 		"educationLevelComponent": next(i for i in requiredComponentGroup if i.code=='EDUCATION_LEVEL'),
 		"qualificationComponent": next(i for i in requiredComponentGroup if i.code=='QUALIFICATION'),
+		"ratingFilterComponent": next(i for i in requiredComponentGroup if i.code=='RATING_FILTER'),
 		"showResult": True,
 	}
 	return render(request, 'tutoring/mainpage.html', context)

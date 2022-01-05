@@ -12,4 +12,4 @@ def getTutorsAverageRating(tutor: TutorProfile):
     except ZeroDivisionError:
         roundedRating = 0
 
-    return roundedRating
+    return int(roundedRating)

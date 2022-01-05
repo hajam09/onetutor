@@ -29,6 +29,7 @@ class TutorProfile(models.Model):
 
     class Meta:
         verbose_name_plural = "TutorProfiles"
+        ordering = ['-id']
 
     def getSubjectsAsList(self):
         return self.subjects.split(",")
