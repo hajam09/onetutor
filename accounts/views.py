@@ -109,15 +109,17 @@ def logout(request):
 	latestUserLogin.logoutTime = datetime.datetime.now()
 	latestUserLogin.save()
 
+	signOut(request)
+
 	# logout the user without flushing the session
-	user = getattr(request, 'user', None)
-	if not getattr(user, 'is_authenticated', True):
-		user = None
-
-	user_logged_out.send(sender=user.__class__, request=request, user=user)
-
-	if hasattr(request, 'user'):
-		request.user = AnonymousUser()
+	# user = getattr(request, 'user', None)
+	# if not getattr(user, 'is_authenticated', True):
+	# 	user = None
+	#
+	# user_logged_out.send(sender=user.__class__, request=request, user=user)
+	#
+	# if hasattr(request, 'user'):
+	# 	request.user = AnonymousUser()
 
 	previousUrl = request.META.get('HTTP_REFERER')
 	if previousUrl:

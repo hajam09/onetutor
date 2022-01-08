@@ -32,7 +32,7 @@ class TestAccountViewsLogin(TestCase):
 		self.assertEquals(response.status_code, 200)
 		self.assertTemplateUsed(response, 'accounts/login.html')
 
-	def test_login_remember_me(self):
+	def test_login_rememberMe(self):
 		"""
 			Credentials are correct.
 			Check if the session expiry time is 0

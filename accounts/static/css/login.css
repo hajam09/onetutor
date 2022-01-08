@@ -151,11 +151,11 @@
 	margin-left: 16px
 }
 
-#id_remember_me {
+#id_rememberMe {
 	margin-left: -35px;
 }
 
-label[for="id_remember_me"] {
+label[for="id_rememberMe"] {
 	margin-left: -15px;
 }
 

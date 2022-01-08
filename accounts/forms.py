@@ -113,7 +113,7 @@ class LoginForm(forms.ModelForm):
             }
         )
     )
-    remember_me = forms.BooleanField(
+    rememberMe = forms.BooleanField(
         label='Remember Me',
         required=False,
         widget=forms.CheckboxInput()
@@ -131,13 +131,14 @@ class LoginForm(forms.ModelForm):
         email = self.cleaned_data.get('email')
         password = self.cleaned_data.get('password')
 
-        # TODO: Bug - the remember_me is not in the cleaned_data dictionary.
-        if not self.cleaned_data.get('remember_me', None):
-            self.request.session.set_expiry(0)
-
         user = authenticate(username=email, password=password)
         if user:
             login(self.request, user)
+
+            rememberMe = self.cleaned_data.get('rememberMe')
+            if not rememberMe:
+                self.request.session.set_expiry(0)
+
             return
 
         raise forms.ValidationError("Username or Password did not match! ")

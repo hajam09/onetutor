@@ -31,12 +31,12 @@ def mainpage(request):
 
         try:
             banner = request.FILES["banner"]
-        except KeyError as e:
+        except KeyError:
             banner = None
 
         try:
             logo = request.FILES["logo"]
-        except KeyError as e:
+        except KeyError:
             logo = None
 
         Community.objects.create(
