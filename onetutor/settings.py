@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'chat',
+    'channels',
     'crispy_forms',
     'cronjobs',
     'colorfield',
@@ -81,7 +82,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'onetutor.wsgi.application'
+ASGI_APPLICATION = 'onetutor.asgi.application'
 
 
 # Database
@@ -113,6 +114,12 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+CHANNEL_LAYERS= {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer'
+     }
+}
 
 
 # Internationalization

@@ -35,6 +35,7 @@ class RegistrationForm(UserCreationForm):
             }
         )
     )
+    # TODO: use password1 and password2 from super class.
     password1 = forms.CharField(
         label='',
         strip=False,
@@ -94,7 +95,7 @@ class RegistrationForm(UserCreationForm):
         newUser.save()
         return newUser
 
-
+# TODO: extends AuthenticationForm
 class LoginForm(forms.ModelForm):
     email = forms.EmailField(
         label='',
