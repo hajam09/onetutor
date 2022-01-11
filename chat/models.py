@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 
+from accounts.models import StudentProfile, TutorProfile
+
 User = get_user_model()
 
 # Create your models here.
@@ -25,9 +27,60 @@ class Thread(models.Model):
     class Meta:
         unique_together = ['first_person', 'second_person']
 
+    def getFirstPersonProfilePicture(self):
+        try:
+            profile = self.first_person.tutorProfile
+        except TutorProfile.DoesNotExist:
+            profile = None
+
+        if profile is None:
+            try:
+                profile = self.first_person.studentProfile
+            except StudentProfile.DoesNotExist:
+                profile = None
+
+        if profile is None:
+            return "https://bootdey.com/img/Content/avatar/avatar1.png"
+
+        return profile.profilePicture.url
+
+    def getSecondPersonProfilePicture(self):
+        try:
+            profile = self.second_person.tutorProfile
+        except TutorProfile.DoesNotExist:
+            profile = None
+
+        if profile is None:
+            try:
+                profile = self.second_person.studentProfile
+            except StudentProfile.DoesNotExist:
+                profile = None
+
+        if profile is None:
+            return "https://bootdey.com/img/Content/avatar/avatar1.png"
+
+        return profile.profilePicture.url
+
 
 class ChatMessage(models.Model):
     thread = models.ForeignKey(Thread, null=True, blank=True, on_delete=models.CASCADE, related_name='chatmessage_thread')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     message = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
+
+    def getUserProfilePicture(self):
+        try:
+            profile = self.user.tutorProfile
+        except TutorProfile.DoesNotExist:
+            profile = None
+
+        if profile is None:
+            try:
+                profile = self.user.studentProfile
+            except StudentProfile.DoesNotExist:
+                profile = None
+
+        if profile is None:
+            return "https://bootdey.com/img/Content/avatar/avatar1.png"
+
+        return profile.profilePicture.url
