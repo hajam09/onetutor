@@ -1,5 +1,9 @@
 from django.urls import path
-from . import views
+
+from chat import views
+
+app_name = "chat"
+
 urlpatterns = [
-    path('', views.messages_page),
+    path('', views.chatPage),
 ]

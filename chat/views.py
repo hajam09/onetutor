@@ -2,35 +2,13 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
 from chat.models import Thread
-from onetutor.operations import generalOperations
-
-
-def getThreadName(request, thread):
-    if thread.first_person == request.user:
-        return thread.second_person.get_full_name()
-    else:
-        return thread.first_person.get_full_name()
-
-
-def getThreadPicture(request, thread):
-    if thread.first_person == request.user:
-        return thread.getSecondPersonProfilePicture()
-    else:
-        return thread.getFirstPersonProfilePicture()
-
-
-def otherParticipantId(request, thread):
-    if thread.first_person == request.user:
-        return thread.second_person.id
-    else:
-        return thread.first_person.id
 
 
 @login_required
-def messages_page(request):
-    # select_related = 'first_person__tutorProfile', 'first_person__studentProfile', 'second_person__tutorProfile', 'second_person__studentProfile'
+def chatPage(request):
+    # select_related = 'firstParticipant__tutorProfile', 'firstParticipant__studentProfile', 'secondParticipant__tutorProfile', 'secondParticipant__studentProfile'
     # prefetch_related = 'threadMessages__user__tutorProfile', 'threadMessages__user__studentProfile'
-    threads = Thread.objects.by_user(user=request.user).select_related('first_person__tutorProfile','second_person__tutorProfile').prefetch_related('threadMessages__user__tutorProfile').order_by('timestamp')
+    threads = Thread.objects.byUser(user=request.user).select_related('firstParticipant__tutorProfile','secondParticipant__tutorProfile').prefetch_related('threadMessages__user__tutorProfile').order_by('timestamp')
 
     messenger = [
         {
@@ -55,3 +33,21 @@ def messages_page(request):
         'messenger': messenger,
     }
     return render(request, 'messages.html', context)
+
+
+def getThreadName(request, thread):
+    if thread.firstParticipant == request.user:
+        return thread.secondParticipant.get_full_name()
+    return thread.firstParticipant.get_full_name()
+
+
+def getThreadPicture(request, thread):
+    if thread.firstParticipant == request.user:
+        return thread.getSecondPersonProfilePicture()
+    return thread.getFirstPersonProfilePicture()
+
+
+def otherParticipantId(request, thread):
+    if thread.firstParticipant == request.user:
+        return thread.secondParticipant.id
+    return thread.firstParticipant.id

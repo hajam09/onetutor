@@ -1,7 +1,9 @@
 from django.contrib.auth.models import User
 
-from accounts.models import Education, TutorProfile, StudentProfile
+from accounts.models import Education
 from accounts.models import SocialConnection
+from accounts.models import StudentProfile
+from accounts.models import TutorProfile
 
 
 def getTutorProfileForUser(user: User):
