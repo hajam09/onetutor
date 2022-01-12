@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from accounts.models import Education, TutorProfile, StudentProfile
 from accounts.models import SocialConnection
 
+
 def getTutorProfileForUser(user: User):
     try:
         profile = user.tutorProfile
@@ -11,6 +12,7 @@ def getTutorProfileForUser(user: User):
         profile = None
 
     return profile
+
 
 def getStudentProfileForUser(user: User):
     try:
@@ -20,28 +22,21 @@ def getStudentProfileForUser(user: User):
 
     return profile
 
+
 @database_sync_to_async
 def getProfileForUser(user: User):
     tutorProfile = getTutorProfileForUser(user)
     studentProfile = getStudentProfileForUser(user)
+
     return tutorProfile or studentProfile
 
-def userIsTutor(user: User):
-    try:
-        profile = user.tutorProfile
-    except TutorProfile.DoesNotExist:
-        profile = None
 
-    return profile is not None
+def userIsTutor(user: User):
+    return getTutorProfileForUser(user) is not None
 
 
 def userIsStudent(user: User):
-    try:
-        profile = user.studentProfile
-    except StudentProfile.DoesNotExist:
-        profile = None
-
-    return profile is not None
+    return getStudentProfileForUser(user) is not None
 
 
 def isPasswordStrong(password):

@@ -23,31 +23,16 @@
                 </div>
                 <div class="card-body contacts_body">
                     <ui class="contacts">
-                        {% for thread in Threads %}
+                        {% for thread in messenger %}
                         <li class="{% if forloop.first %}active{% endif %} contact-li" chat-id="chat_{{ thread.id }}" style="cursor: pointer;">
                             <div class="d-flex bd-highlight">
-                                {% if thread.first_person == user %}
-
                                 <div class="img_cont">
-                                    <img src="{{thread.getSecondPersonProfilePicture}}" class="rounded-circle user_img">
+                                    <img src="{{thread.picture}}" class="rounded-circle user_img">
                                     <span class="online_icon"></span>
                                 </div>
                                 <div class="user_info">
-                                    <span>{{ thread.second_person.username }}</span>
+                                    <span>{{ thread.name }}</span>
                                 </div>
-
-
-                                {% else %}
-
-                                <div class="img_cont">
-                                    <img src="{{thread.getFirstPersonProfilePicture}}" class="rounded-circle user_img">
-                                    <span class="online_icon"></span>
-                                </div>
-                                <div class="user_info">
-                                    <span>{{ thread.first_person.username }}</span>
-                                </div>
-
-                                {% endif %}
                             </div>
                         </li>
                         {% endfor %}
@@ -58,31 +43,17 @@
         </div>
         <div class="col-md-8 col-xl-6 chat h-100 mt-4">
             <div class="card">
-                {% for thread in Threads %}
-                <div class="messages-wrapper  {% if forloop.first %}hide is_active{% else %}hide{% endif %}" chat-id="chat_{{ thread.id }}" other-user-id="
-                    {% if thread.first_person == user %}
-                    {{ thread.second_person.id }}
-                    {% else %}
-                    {{ thread.first_person.id }}
-                    {% endif %}
-                    ">
+                {% for thread in messenger %}
+                <div class="messages-wrapper  {% if forloop.first %}hide is_active{% else %}hide{% endif %}" chat-id="chat_{{ thread.id }}" other-user-id="{{ thread.participantId }}">
                     <div class="card-header msg_head" style="color:black;">
                         <div class="py-2 px-4 border-bottom d-none d-lg-block">
                             <div class="d-flex align-items-center py-1">
                                 <div class="position-relative">
-                                    {% if thread.first_person == user %}
-                                    <img src="{{thread.getSecondPersonProfilePicture}}" class="rounded-circle mr-1" alt="Sharon Lessman" width="40" height="40">
-                                    {% else %}
-                                    <img src="{{thread.getFirstPersonProfilePicture}}" class="rounded-circle mr-1" alt="Sharon Lessman" width="40" height="40">
-                                    {% endif %}
+                                    <img src="{{thread.picture}}" class="rounded-circle mr-1" alt="Sharon Lessman" width="40" height="40">
 
                                 </div>
                                 <div class="flex-grow-1 pl-3">
-                                    {% if thread.first_person == user %}
-                                    <strong>{{ thread.second_person.username }}</strong>
-                                    {% else %}
-                                    <strong>{{ thread.first_person.username }}</strong>
-                                    {% endif %}
+                                    <strong>{{ thread.name }}</strong>
                                     <!-- <div class="text-muted small"><em>Typing...</em></div> -->
                                 </div>
                                 <div>
@@ -95,21 +66,21 @@
                     </div>
                     <div class="card-body msg_card_body">
                         <!------- messages ------->
-                        {% for chat in thread.chatmessage_thread.all %}
-                        {% if chat.user == user %}
+                        {% for chat in thread.messages %}
+                        {% if chat.isSender %}
                         <div class="d-flex mb-4 replied">
                             <div class="msg_cotainer_send">
                                 {{ chat.message }}
                                 <span class="msg_time_send">{{ chat.timestamp|date:"d D" }}, {{ chat.timestamp|time:"H:i" }}</span>
                             </div>
                             <div class="img_cont_msg">
-                                <img src="{{ chat.getUserProfilePicture }}" class="rounded-circle user_img_msg">
+                                <img src="{{ chat.picture }}" class="rounded-circle user_img_msg">
                             </div>
                         </div>
                         {% else %}
                         <div class="d-flex mb-4 received">
                             <div class="img_cont_msg">
-                                <img src="{{ chat.getUserProfilePicture }}" class="rounded-circle user_img_msg">
+                                <img src="{{ chat.picture }}" class="rounded-circle user_img_msg">
                             </div>
                             <div class="msg_cotainer">
                                 {{ chat.message }}
@@ -204,7 +175,6 @@ function newMessage(message, sent_by_id, thread_id, profilePicture) {
     if ($.trim(message) === '') {
         return false;
     }
-    console.log(profilePicture)
     let message_element;
     let chat_id = 'chat_' + thread_id
     if(sent_by_id == USER_ID){
@@ -222,7 +192,6 @@ function newMessage(message, sent_by_id, thread_id, profilePicture) {
         `
     }
     else{
-        console.log(profilePicture)
         message_element = `
            <div class="d-flex mb-4 received">
               <div class="img_cont_msg">
