@@ -1,4 +1,3 @@
-from channels.db import database_sync_to_async
 from django.contrib.auth.models import User
 
 from accounts.models import Education, TutorProfile, StudentProfile
@@ -23,7 +22,6 @@ def getStudentProfileForUser(user: User):
     return profile
 
 
-@database_sync_to_async
 def getProfileForUser(user: User):
     tutorProfile = getTutorProfileForUser(user)
     studentProfile = getStudentProfileForUser(user)

@@ -41,6 +41,7 @@ def messages_page(request):
             'messages': [
                 {
                     'isSender': j.user == request.user,
+                    'userId': j.user.pk,
                     'picture': j.getUserProfilePicture(),
                     'message': j.message,
                 }

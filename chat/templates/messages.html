@@ -117,6 +117,13 @@
 
 <script type="text/javascript">
 
+    let userProfilePicture = {};
+    {% for thread in messenger %}
+    {% for chat in thread.messages %}
+    userProfilePicture["{{chat.userId}}"] = "{{chat.picture}}";
+    {% endfor %}
+    {% endfor %}
+
 let input_message = $('#input-message')
 let message_body = $('.msg_card_body')
 let send_message_form = $('#send-message-form')
@@ -158,8 +165,7 @@ socket.onmessage = async function(e){
     let message = data['message']
     let sent_by_id = data['sent_by']
     let thread_id = data['thread_id']
-    let profilePicture = data['profilePicture']
-    newMessage(message, sent_by_id, thread_id, profilePicture)
+    newMessage(message, sent_by_id, thread_id)
 }
 
 socket.onerror = async function(e){
@@ -171,14 +177,24 @@ socket.onclose = async function(e){
 }
 
 
-function newMessage(message, sent_by_id, thread_id, profilePicture) {
+function newMessage(message, sent_by_id, thread_id) {
     if ($.trim(message) === '') {
         return false;
     }
     let message_element;
-    let chat_id = 'chat_' + thread_id
+    let chat_id = 'chat_' + thread_id;
+
+    var profilePicture = null;
+
+    for (var key in userProfilePicture)
+    {
+        if (key == sent_by_id)
+        {
+            profilePicture = userProfilePicture[key];
+            break;
+        }
+    }
     if(sent_by_id == USER_ID){
-        console.log("{{ profile.profilePicture.url }}");
         message_element = `
             <div class="d-flex mb-4 replied">
                 <div class="msg_cotainer_send">

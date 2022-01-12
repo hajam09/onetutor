@@ -4,7 +4,6 @@ from channels.db import database_sync_to_async
 from django.contrib.auth import get_user_model
 
 from chat.models import Thread, ChatMessage
-from onetutor.operations import generalOperations
 
 User = get_user_model()
 
@@ -47,15 +46,12 @@ class ChatConsumer(AsyncConsumer):
 
         await self.create_chat_message(thread_obj, sent_by_user, msg)
 
-        profile = await generalOperations.getProfileForUser(sent_by_user)
-
         other_user_chat_room = f'user_chatroom_{send_to_id}'
         self_user = self.scope['user']
         response = {
             'message': msg,
             'sent_by': self_user.id,
-            'thread_id': thread_id,
-            'profilePicture': profile.profilePicture.url
+            'thread_id': thread_id
         }
 
         await self.channel_layer.group_send(
