@@ -7,13 +7,18 @@ from django.db import models
 from django.urls import reverse
 
 
-# class BaseComment(models.Model):
-# 	creator = models.ForeignKey(User, on_delete=models.CASCADE)
-# 	comment = models.TextField()
-# 	likes = models.ManyToManyField(User, related_name='likes')
-# 	dislikes = models.ManyToManyField(User, related_name='dislikes')
-# 	date = models.DateTimeField(default=datetime.now)
-# 	edited = models.BooleanField(default=False)
+class BaseComment(models.Model):
+    creator = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment = models.TextField()
+    createdDttm = models.DateTimeField(auto_now_add=True)
+    editedDttm = models.DateTimeField(auto_now=True)
+    editedFl = models.BooleanField(default=False)
+    deleteFl = models.BooleanField(default=False)
+    likes = models.ManyToManyField(User)
+    dislikes = models.ManyToManyField(User)
+
+    class Meta:
+        abstract = True
 
 
 class Availability(models.Model):
