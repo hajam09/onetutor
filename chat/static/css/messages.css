@@ -54,7 +54,6 @@ html {
 
 .type_msg {
   border: 0 !important;
-  color: white !important;
   height: 60px !important;
   overflow-y: auto;
 }

@@ -265,3 +265,11 @@ class Payment(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name="paymentLesson")
     paymentComponent = models.ForeignKey(Component, on_delete=models.SET_NULL, null=True, related_name="paymentComponent", limit_choices_to={'componentGroup__code': 'PAYMENT_METHOD'})
     dateTime = models.DateTimeField(auto_now_add=True)
+
+# class FeatureFlag(models.Model):
+#     name = models.CharField(max_length=2048, blank=True, null=True)
+#     enabledFl = models.BooleanField(default=False)
+#     reference = models.CharField(max_length=2048, blank=True, null=True)
+#     deleteFl = models.BooleanField(default=False)
+#     versionNo = models.IntegerField(default=1, blank=True, null=True)
+#     orderNo = models.IntegerField(default=1, blank=True, null=True)

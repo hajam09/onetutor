@@ -25,6 +25,7 @@ def chatPage(request):
                             'userId': m.user.pk,
                             'picture': m.getUserProfilePicture(),
                             'message': m.message,
+                            'time': m.timestamp.strftime("%I:%M %p")
                         }
                         for m in getMessagesForDate(i.threadMessages.all(), uniqueDate)
                     ]
