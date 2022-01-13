@@ -24,7 +24,7 @@ class ThreadForm(forms.ModelForm):
 
         thread = Thread.objects.filter(lookup)
         if thread.exists():
-            # unique_together in Meta class should already alter the user. Additional validation.
+            # unique_together in Meta class should already alert the user. Additional validation.
             raise ValidationError(f'Thread between {firstParticipant} and {secondParticipant} already exists.')
 
         return self.cleaned_data

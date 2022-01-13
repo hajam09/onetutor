@@ -8,7 +8,7 @@ from chat.models import Thread
 def chatPage(request):
     # select_related = 'firstParticipant__tutorProfile', 'firstParticipant__studentProfile', 'secondParticipant__tutorProfile', 'secondParticipant__studentProfile'
     # prefetch_related = 'threadMessages__user__tutorProfile', 'threadMessages__user__studentProfile'
-    threads = Thread.objects.byUser(user=request.user).select_related('firstParticipant__tutorProfile','secondParticipant__tutorProfile').prefetch_related('threadMessages__user__tutorProfile').order_by('timestamp')
+    threads = Thread.objects.byUser(user=request.user).select_related('firstParticipant__tutorProfile', 'secondParticipant__tutorProfile').prefetch_related('threadMessages__user__tutorProfile').order_by('timestamp')
 
     messenger = [
         {
@@ -16,14 +16,20 @@ def chatPage(request):
             'name': getThreadName(request, i),
             'picture': getThreadPicture(request, i),
             'participantId': otherParticipantId(request, i),
-            'messages': [
+            'chat': [
                 {
-                    'isSender': j.user == request.user,
-                    'userId': j.user.pk,
-                    'picture': j.getUserProfilePicture(),
-                    'message': j.message,
+                    'date': uniqueDate,
+                    'messages': [
+                        {
+                            'isSender': m.user == request.user,
+                            'userId': m.user.pk,
+                            'picture': m.getUserProfilePicture(),
+                            'message': m.message,
+                        }
+                        for m in getMessagesForDate(i.threadMessages.all(), uniqueDate)
+                    ]
                 }
-                for j in i.threadMessages.all()
+                for uniqueDate in i.threadMessages.all().values_list('timestamp__date', flat=True).distinct()
             ]
         }
         for i in threads
@@ -33,6 +39,10 @@ def chatPage(request):
         'messenger': messenger,
     }
     return render(request, 'messages.html', context)
+
+
+def getMessagesForDate(messages, date):
+    return [m for m in messages if m.timestamp.date() == date]
 
 
 def getThreadName(request, thread):
