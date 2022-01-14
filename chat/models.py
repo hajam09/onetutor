@@ -24,6 +24,7 @@ class Thread(models.Model):
     objects = ThreadManager()
 
     class Meta:
+        verbose_name_plural = "Thread"
         unique_together = ['firstParticipant', 'secondParticipant']
 
     def getFirstPersonProfilePicture(self):
@@ -48,6 +49,9 @@ class ChatMessage(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     message = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = "ChatMessage"
 
     def getUserProfilePicture(self):
         profile = generalOperations.getProfileForUser(self.user)

@@ -28,7 +28,7 @@ class TutorProfile(models.Model):
     teachingLevels = models.ManyToManyField(Component, related_name='teachingComponent', null=True, blank=True, limit_choices_to={'componentGroup__code': 'EDUCATION_LEVEL'}) # store which education level(s) this tutor teaches.
 
     class Meta:
-        verbose_name_plural = "TutorProfiles"
+        verbose_name_plural = "TutorProfile"
         ordering = ['-id']
 
     def getSubjectsAsList(self):
@@ -73,7 +73,7 @@ class StudentProfile(models.Model):
     profilePicture = models.ImageField(upload_to='profile-picture', blank=True, null=True, default=getRandomImageForAvatar)
 
     class Meta:
-        verbose_name_plural = "StudentProfiles"
+        verbose_name_plural = "StudentProfile"
 
     def getSubjectsAsList(self):
         return self.subjects.split(",")
@@ -83,7 +83,7 @@ class Subject(models.Model):
     name = models.CharField(max_length=64)
 
     class Meta:
-        verbose_name_plural = "Subjects"
+        verbose_name_plural = "Subject"
         ordering = ('name',)
 
     def __str__(self):

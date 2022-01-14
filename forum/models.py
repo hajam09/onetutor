@@ -8,7 +8,7 @@ class Category(models.Model):
     name = models.CharField(max_length=512)
 
     class Meta:
-        verbose_name_plural = "Categories"
+        verbose_name_plural = "Category"
         ordering = ('name',)
 
     def __str__(self):
@@ -29,7 +29,7 @@ class Community(models.Model):
     members = models.ManyToManyField(User, related_name='communityMembers', blank=True)
 
     class Meta:
-        verbose_name_plural = "Communities"
+        verbose_name_plural = "Community"
 
 
 class Forum(models.Model):
@@ -64,7 +64,7 @@ class Forum(models.Model):
             self.likes.remove(request.user)
 
     class Meta:
-        verbose_name_plural = "Forums"
+        verbose_name_plural = "Forum"
 
 
 class ForumComment(models.Model):

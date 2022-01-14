@@ -1273,15 +1273,15 @@
 	function StartMessage() {
 		$.ajax({
 			data: {
-				'functionality': 'start_message',
-				'participant_id': '{{ tutorProfile.user.id }}',
+				'functionality': 'createThread',
+				'participantId': '{{ tutorProfile.user.id }}',
 			},
-			url: '{% url "chat:startmessage" %}',
+			url: '{% url "chat:chatPage" %}',
 			dataType: 'json',
 			success: function (response) {
 				if (response.statusCode == 200) {
 
-					document.location.href = '{% url "chat:chatpage" %}';
+					document.location.href = '{% url "chat:chatPage" %}';
 
 				} else if (response.statusCode == 401) {
 					Swal.fire({

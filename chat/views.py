@@ -1,7 +1,13 @@
+from datetime import datetime
+from http import HTTPStatus
+
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.http import JsonResponse
 from django.shortcuts import render
 
 from chat.models import Thread
+from dashboard.models import UserLogin
 
 
 @login_required
@@ -9,6 +15,26 @@ def chatPage(request):
     # select_related = 'firstParticipant__tutorProfile', 'firstParticipant__studentProfile', 'secondParticipant__tutorProfile', 'secondParticipant__studentProfile'
     # prefetch_related = 'threadMessages__user__tutorProfile', 'threadMessages__user__studentProfile'
     threads = Thread.objects.byUser(user=request.user).select_related('firstParticipant__tutorProfile', 'secondParticipant__tutorProfile').prefetch_related('threadMessages__user__tutorProfile').order_by('timestamp')
+    onlineUsers = UserLogin.objects.filter(logoutTime__date=datetime.max.date()).select_related('user')
+
+    if request.is_ajax():
+        functionality = request.GET.get('functionality', None)
+
+        if functionality == 'createThread':
+            participantId = request.GET.get('participantId', None)
+            secondParticipant = User.objects.get(id=participantId)
+
+            # check if a thread already exists between this user and the second participant.
+            if len([t for t in threads if t.firstParticipant == secondParticipant or t.secondParticipant == secondParticipant]) == 0:
+                Thread.objects.create(
+                    firstParticipant=request.user,
+                    secondParticipant=secondParticipant
+                )
+
+        response = {
+            "statusCode": HTTPStatus.OK
+        }
+        return JsonResponse(response)
 
     messenger = [
         {
@@ -16,6 +42,7 @@ def chatPage(request):
             'name': getThreadName(request, i),
             'picture': getThreadPicture(request, i),
             'participantId': otherParticipantId(request, i),
+            'isOnline': isUserOnline(onlineUsers, otherParticipantId(request, i)),
             'chat': [
                 {
                     'date': uniqueDate,
@@ -40,6 +67,10 @@ def chatPage(request):
         'messenger': messenger,
     }
     return render(request, 'messages.html', context)
+
+
+def isUserOnline(onlineUsers, participantId):
+    return len([u for u in onlineUsers if u.user.id == int(participantId)]) != 0
 
 
 def getMessagesForDate(messages, date):

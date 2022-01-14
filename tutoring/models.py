@@ -100,6 +100,9 @@ class Availability(models.Model):
 
         return schedule
 
+    class Meta:
+        verbose_name_plural = "Availability"
+
     def __str__(self):
         return self.user.email
 
@@ -167,7 +170,7 @@ class QuestionAnswerComment(models.Model):
             self.likes.remove(request.user)
 
     class Meta:
-        verbose_name_plural = "QuestionAnswerComments"
+        verbose_name_plural = "QuestionAnswerComment"
 
 
 class TutorReview(models.Model):
@@ -210,11 +213,17 @@ class Lesson(models.Model):
     points = models.PositiveSmallIntegerField(validators=[MaxValueValidator(10)])
     amount = models.DecimalField(max_digits=5, decimal_places=2)  # amount = hoursTaught * tutor.chargeRate
 
+    class Meta:
+        verbose_name_plural = "Lesson"
+
 
 class Feature(models.Model):
     name = models.CharField(max_length=1024)
     code = models.CharField(max_length=1024)
     colour = ColorField(default='#FF0000')
+
+    class Meta:
+        verbose_name_plural = "Feature"
 
     def __str__(self):
         return self.name
@@ -270,6 +279,9 @@ class Payment(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name="paymentLesson")
     paymentComponent = models.ForeignKey(Component, on_delete=models.SET_NULL, null=True, related_name="paymentComponent", limit_choices_to={'componentGroup__code': 'PAYMENT_METHOD'})
     dateTime = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = "Payment"
 
 # class FeatureFlag(models.Model):
 #     name = models.CharField(max_length=2048, blank=True, null=True)

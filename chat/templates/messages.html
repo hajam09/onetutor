@@ -28,7 +28,9 @@
                             <div class="d-flex bd-highlight">
                                 <div class="img_cont">
                                     <img src="{{thread.picture}}" class="rounded-circle user_img">
+                                    {% if thread.isOnline %}
                                     <span class="online_icon"></span>
+                                    {% endif %}
                                 </div>
                                 <div class="user_info">
                                     <span>{{ thread.name }}</span>
@@ -54,7 +56,11 @@
                                 </div>
                                 <div class="flex-grow-1 pl-3">
                                     <strong>{{ thread.name }}</strong>
-                                    <!-- <div class="text-muted small"><em>Typing...</em></div> -->
+                                    {% if thread.isOnline %}
+                                    <div class="text-muted small"><em>Online</em></div>
+                                    {% else %}
+                                    <div class="text-muted small"><em>Offline</em></div>
+                                    {% endif %}
                                 </div>
                                 <div>
                                     <button class="btn btn-primary btn-lg mr-1 px-3"><i class="fas fa-phone"></i></button>
