@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'dashboard',
     'forum',
     'jira',
+    'jira2',
     'tutoring',
 ]
 

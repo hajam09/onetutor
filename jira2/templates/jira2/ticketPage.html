@@ -1,0 +1,381 @@
+{% extends "accounts/account_base.html" %}
+{% load static %}
+{% block content %}
+<style type="text/css">
+.card-header .title {
+	font-size: 17px;
+}
+
+.card-header .accicon {
+	float: right;
+	font-size: 20px;
+	wiph: 1.2em;
+}
+
+.card-header {
+	cursor: pointer;
+	border-bottom: none;
+}
+
+.card-header:not(.collapsed) .rotate-icon { transform: rotate(180deg);}
+
+</style>
+<div class="container-fluid" style="margin: auto;overflow-x: hipen; max-wiph: 1500px;">
+    <br>
+    <div class="row gutters-sm">
+        <div class="col-8">
+            <div class="card">
+                <div class="card-body tab-content" style="color: black;">
+                    <div class="tab-pane active" id="tutor_profile">
+                        <div>
+                            <h3>About</h3>
+                            <p>{{ tutorProfile.about|linebreaksbr }}</p>
+                        </div>
+                        <hr>
+                        <br>
+                        <div>
+                            <h3>Education</h3>
+                            <div>
+                                {% for e in tutorProfile.user.education.all %}
+                                <div style="display: flex; flex-direction: row; align-items: flex-start; justify-content: flex-start; margin-bottom: 15px;">
+                                    <img src='{% static "img/university.png" %}'
+                                        style="wiph: 50px; height: 50px; margin-right: 13px; -o-object-fit: contain; object-fit: contain; border-radius: 4px;">
+                                    <div style="flex: 1 1; flex-direction: column;">
+                                        <b style="margin-bottom: 5px;">{{e.schoolName}}</b>
+                                        <p style="margin-bottom: 0;">{{e.qualification}} ({{e.startDate}} - {{e.enpate}})</p>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <hr>
+                        <br>
+                        <div>
+                            <div class="row">
+                                <div class="col-6">
+                                    <h3 for="availability">Availability</h3>
+                                    <table class="table" id="availabilitySchedule" style="wiph: auto;">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col"></th>
+                                                <th scope="col">Morning</th>
+                                                <th scope="col">Afternoon</th>
+                                                <th scope="col">Evening</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for key, value in tutorProfile.user.availability.getAvailability.items %}
+                                            <tr>
+                                                <th style="vertical-align: miple;" scope="row">{{key|title}}</th>
+                                                <td style="text-align: center">
+                                                    <div class="btn-group" data-toggle="buttons">
+                                                        {% if value.morning %}
+                                                        <label class="btn btn-success" disabled><i class="fas fa-check"></i></label>
+                                                        {% else %}
+                                                        <label class="btn btn-danger" disabled><i class="fas fa-times"></i></label>
+                                                        {% endif %}
+                                                    </div>
+                                                </td>
+                                                <td style="text-align: center">
+                                                    <div class="btn-group" data-toggle="buttons">
+                                                        {% if value.afternoon %}
+                                                        <label class="btn btn-success" disabled> <i class="fas fa-check"></i></label>
+                                                        {% else %}
+                                                        <label class="btn btn-danger" disabled> <i class="fas fa-times"></i></label>
+                                                        {% endif %}
+                                                    </div>
+                                                </td>
+                                                <td style="text-align: center">
+                                                    <div class="btn-group" data-toggle="buttons">
+                                                        {% if value.evening %}
+                                                        <label class="btn btn-success" disabled><i class="fas fa-check"></i></label>
+                                                        {% else %}
+                                                        <label class="btn btn-danger" disabled><i class="fas fa-times"></i></label>
+                                                        {% endif %}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-6">
+                                    <h3>Subjects</h3>
+                                    <div style="display: flex; flex-flow: row wrap;" id="list_of_subjects">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="q_and_a">
+                        <div class="modal fade" id="answerModal" tabindex="-1" role="dialog" aria-labelledby="answerModalLabel" aria-hipen="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content" style="color: black;">
+                                    <div class="modal-header">
+                                        <h3 class="modal-title" id="exampleModalLabel" style="display: inline-block;">Answer the Question below.</h3>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="display: inline-block;">
+                                        <span aria-hipen="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="form-group">
+                                            <label for="question_text" class="col-form-label pull-left">Question</label>
+                                            <textarea class="form-control" id="question_text" name="question_text" rows="5" readonly></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="answer_text" class="col-form-label pull-left">Answer</label>
+                                            <textarea class="form-control" id="answer_text" name="answer_text" rows="5" required></textarea>
+                                        </div>
+                                        <input type="text" name="question_id" id="question_id" hipen/>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-success" onclick="answerQuestionAnswer();">Post my Answer</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- TOEDIT -->
+                        <div class="modal fade" id="editQuestionModal" tabindex="-1" role="dialog" aria-labelledby="editQuestionModalLabel" aria-hipen="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content" style="color: black;">
+                                    <div class="modal-header">
+                                        <h3 class="modal-title" id="exampleModalLabel" style="display: inline-block;">Edit your question below.</h3>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="display: inline-block;">
+                                        <span aria-hipen="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="form-group">
+                                            <label for="subject-related" class="col-form-label pull-left"><b>Select a subject</b></label>
+                                            <select class="form-control" id="editQuestionSubject" name="subject">
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="question" class="col-form-label pull-left"><b>Question:</b></label>
+                                            <textarea class="form-control" id="new_question" name="new_question" rows="5" required></textarea>
+                                        </div>
+                                        <input type="text" name="question_id_to_update" id="question_id_to_update" hipen/>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-primary" onclick="updateQuestion();">Update my Question</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="overflow-y: scroll; overflow-x: hipen; height:866px;" id="div-id-tutor-QuestionAnswer">
+                            {% if questionAndAnswers %} {% for qa in questionAndAnswers %}
+                            <div class="container question_answer_container_{{qa.id}}" style="wiph: auto;">
+                                <div id="question_answer_id_{{qa.id}}">
+                                    <a href="/result/{{qa.subject}}" class="mtgtlDwEfX" style="display:inline-block;" id="qa_subject_{{qa.id}}">{{ qa.subject }}</a>
+                                    {{ qa.questioner.first_name }} {{ qa.questioner.last_name }} asked a question at
+                                    <p style="display:inline-block;" id="tool_tip_date_{{qa.id}}" data-toggle="tooltip" data-placement="top">{{ qa.date }}</p>
+                                    <div class="dropdown pull-right" style="display:inline-block;">
+                                        <!--Trigger-->
+                                        <a class="btn-floating btn-lg black dropdown-toggle"type="button" id="dropdownMenu3" data-toggle="dropdown"
+                                            aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
+                                        <br>
+                                        <!--Menu-->
+                                        <div class="dropdown-menu dropdown-primary">
+                                            {% if qa.questioner.pk == user.pk %}
+                                            <span class="dropdown-item" style="cursor: pointer;" onclick="deleteQuestionAnswer('{{qa.id}}');"><i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete question</span>
+                                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#editQuestionModal" onclick="updateEditQuestionModal('{{ qa.id }}');"><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit question</a>
+                                            {% endif %}
+                                            <a class="dropdown-item" href="{{ qa.questionAnswerThreadUrl }}" target="_blank"><i class="fab fa-discourse"></i>&nbsp;&nbsp;View thread</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div><strong id="qa_question_{{qa.id}}">{{ qa.question|linebreaksbr }}</strong></div>
+                                <br>
+                                <div style="wiph: 970px;" id="qa_answer_{{qa.id}}">{{ qa.answer|linebreaksbr }}</div>
+                                <br>
+                                <button id="comment_like_id_{{qa.id}}" type="button" class="btn btn-default btn-sm" onclick="likeQuestionAnswer('{{qa.id}}')">
+                                <i class='far fa-thumbs-up' style='font-size:15px'></i> ({{qa.likes.count}})
+                                </button>
+                                <button id="comment_dislike_id_{{qa.id}}" type="button" class="btn btn-default btn-sm" onclick="dislikeQuestionAnswer('{{qa.id}}')">
+                                <i class='far fa-thumbs-down' style='font-size:15px'></i> ({{qa.dislikes.count}})
+                                </button><br><br>
+                                {% if request.user == tutorProfile.user %}
+                                <span class="badge badge-info" data-toggle="modal" data-target="#answerModal" style="cursor: pointer;" onclick="updateAnswerModal('{{ qa.id }}');">Answer this question</span>
+                                {% endif %}
+                                <hr>
+                            </div>
+                            {% endfor %} {% else %} 
+                            <div class="alert alert-info" role="alert" style="text-align: center;"> No questions has been asked to this tutor yet. </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="tutor_reviews">
+                        <div class="bg-white rounded shadow-sm p-4 mb-4 clearfix graph-star-rating">
+                            <h5 class="mb-0 mb-4">Ratings and Reviews</h5>
+                            <div class="graph-star-rating-header">
+                                <div class="star-rating">
+                                    <a href="#"><i class="icofont-ui-rating active"></i></a>
+                                    <a href="#"><i class="icofont-ui-rating active"></i></a>
+                                    <a href="#"><i class="icofont-ui-rating active"></i></a>
+                                    <a href="#"><i class="icofont-ui-rating active"></i></a>
+                                    <a href="#"><i class="icofont-ui-rating"></i></a> <b class="text-black ml-2" id="b-id-tutor-reviews-count">{{ tutorReviews.count }} total reviews</b>
+                                </div>
+                                <p class="text-black mb-4 mt-2">Rated 0 out of 5</p>
+                            </div>
+                            <div class="graph-star-rating-body">
+                                <div class="rating-list">
+                                    <div class="rating-list-left text-black">
+                                        5 Star
+                                    </div>
+                                    <div class="rating-list-center">
+                                        <div class="progress">
+                                            <div id="star-5-bar" style="wiph: 0%" aria-valuemax="5" aria-valuemin="0" aria-valuenow="5" role="progressbar" class="progress-bar bg-primary">
+                                                <span class="sr-only">80% Complete (danger)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="star-5-value" class="rating-list-right text-black">0%</div>
+                                </div>
+                                <div class="rating-list">
+                                    <div class="rating-list-left text-black">
+                                        4 Star
+                                    </div>
+                                    <div class="rating-list-center">
+                                        <div class="progress">
+                                            <div id="star-4-bar" style="wiph: 0%" aria-valuemax="5" aria-valuemin="0" aria-valuenow="5" role="progressbar" class="progress-bar bg-primary">
+                                                <span class="sr-only">80% Complete (danger)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="star-4-value" class="rating-list-right text-black">0%</div>
+                                </div>
+                                <div class="rating-list">
+                                    <div class="rating-list-left text-black">
+                                        3 Star
+                                    </div>
+                                    <div class="rating-list-center">
+                                        <div class="progress">
+                                            <div id="star-3-bar" style="wiph: 0%" aria-valuemax="5" aria-valuemin="0" aria-valuenow="5" role="progressbar" class="progress-bar bg-primary">
+                                                <span class="sr-only">80% Complete (danger)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="star-3-value" class="rating-list-right text-black">0%</div>
+                                </div>
+                                <div class="rating-list">
+                                    <div class="rating-list-left text-black">
+                                        2 Star
+                                    </div>
+                                    <div class="rating-list-center">
+                                        <div class="progress">
+                                            <div id="star-2-bar" style="wiph: 0%" aria-valuemax="5" aria-valuemin="0" aria-valuenow="5" role="progressbar" class="progress-bar bg-primary">
+                                                <span class="sr-only">80% Complete (danger)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="star-2-value" class="rating-list-right text-black">0%</div>
+                                </div>
+                                <div class="rating-list">
+                                    <div class="rating-list-left text-black">
+                                        1 Star
+                                    </div>
+                                    <div class="rating-list-center">
+                                        <div class="progress">
+                                            <div id="star-1-bar" style="wiph: 0%" aria-valuemax="5" aria-valuemin="0" aria-valuenow="5" role="progressbar" class="progress-bar bg-primary">
+                                                <span class="sr-only">80% Complete (danger)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="star-1-value" class="rating-list-right text-black">0%</div>
+                                </div>
+                                <div class="rating-list">
+                                    <div class="rating-list-left text-black">
+                                        0 Star
+                                    </div>
+                                    <div class="rating-list-center">
+                                        <div class="progress">
+                                            <div id="star-0-bar" style="wiph: 0%" aria-valuemax="5" aria-valuemin="0" aria-valuenow="5" role="progressbar" class="progress-bar bg-primary">
+                                                <span class="sr-only">80% Complete (danger)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="star-0-value" class="rating-list-right text-black">0%</div>
+                                </div>
+                            </div>
+                            <div class="graph-star-rating-footer text-center mt-3 mb-3">
+                                <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#tutorReview">Rate and Review</button>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded shadow-sm p-4 mb-4 restaurant-detailed-ratings-and-reviews">
+                            <select class="form-control pull-right" id="filterOption" name="filterOption" style="wiph:15%;" onchange="UpdateRatingOrder();">
+                                <option value="Recent Date">Recent Date</option>
+                                <option value="Likes">Likes</option>
+                                <option value="Dislikes">Dislikes</option>
+                                <option value="Rating">Rating</option>
+                            </select>
+                            <h5 class="mb-1">All Ratings and Reviews</h5>
+                            <div id="div-id-tutor-reviews-container">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div id="ticketDetails">
+                <div class="card" style="color: black;">
+                    <div class="card-header" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true">     
+                        <span class="title">Details </span>
+                        <span class="accicon"><i class="fas fa-angle-down rotate-icon"></i></span>
+                    </div>
+                    <div id="collapseOne" class="collapse show" data-parent="#ticketDetails">
+                        <div class="card-body">
+                        	<dl class="row">
+							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Assignee</small></p>
+							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
+
+							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Reporter</small></p>
+							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
+
+							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Components</small></p>
+							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
+
+							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Fix Versions</small></p>
+							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
+
+							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Labels</small></p>
+							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
+
+							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Story Points</small></p>
+							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
+
+							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Man days</small></p>
+							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
+
+							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Sprint</small></p>
+							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
+
+							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Project Requirement</small></p>
+							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
+
+							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Scrum Team</small></p>
+							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
+
+							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Automated Testing</small></p>
+							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
+
+							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Priority</small></p>
+							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
+
+							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Epic Name</small></p>
+							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
+
+							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Epic Status</small></p>
+							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
+							</dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br>
+        </div>
+    </div>
+</div>
+{% endblock %}

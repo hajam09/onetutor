@@ -1,0 +1,275 @@
+{% extends "accounts/account_base.html" %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" href="/static/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+<link rel="stylesheet" href="/static/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="/static/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+
+<div class="modal fade" id="newProjectModal" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true" style="color: black;">
+    <div class="modal-dialog col-12 col-md-8 col-lg-6" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #007bff;">
+                <h5 class="modal-title" id="exampleModalLabel">New Project</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <ul class="nav nav-tabs nav-fill" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="project-add-details-tab" data-toggle="tab" href="#project-add-details" role="tab" aria-controls="project-add-details" aria-selected="true">Details</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="project-add-members-tab" data-toggle="tab" href="#project-add-members" role="tab" aria-controls="project-add-members" aria-selected="false" onclick="triggerDataTable();">Members</a>
+                </li>
+            </ul>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="project-add-details" role="tabpanel">
+                            <h6>General Details</h6>
+                            <dl class="row">
+
+                                <dd class="col-sm-3">
+                                    <label style="font-size: 85%; color: #6c757d;">Name</label>
+                                </dd>
+                                <dd class="col-sm-9">
+                                    <input class="form-control col" type="text" placeholder="Project name" name="project-name" required>
+                                </dd>
+
+                                <dd class="col-sm-3">
+                                    <label style="font-size: 85%; color: #6c757d;">Code</label>
+                                </dd>
+                                <dd class="col-sm-9">
+                                    <input class="form-control col" type="text" placeholder="Project code" name="project-code" required>
+                                </dd>
+
+                                <dd class="col-sm-3">
+                                    <label style="font-size: 85%; color: #6c757d;">Description</label>
+                                </dd>
+                                <dd class="col-sm-9">
+                                    <textarea class="form-control col" rows="3" placeholder="Project description" name="project-description" required></textarea>
+                                </dd>
+
+                            </dl>
+
+                            <hr>
+
+                            <h6>Timeline</h6>
+
+                            <dl class="row">
+
+                                <dd class="col-sm-3">
+                                    <label style="font-size: 85%; color: #6c757d;">Start Date</label>
+                                </dd>
+                                <dd class="col-sm-9">
+                                    <input class="form-control col flatpickr-input" type="hidden" name="project-start" placeholder="Select a date" data-flatpickr="" data-alt-input="true">
+                                </dd>
+
+                                <dd class="col-sm-3">
+                                    <label style="font-size: 85%; color: #6c757d;">Due Date</label>
+                                </dd>
+                                <dd class="col-sm-9">
+                                    <input class="form-control col flatpickr-input" type="hidden" name="project-due" placeholder="Select a date" data-flatpickr="" data-alt-input="true">
+                                </dd>
+
+                            </dl>
+
+                            <div class="alert alert-warning text-small" role="alert">
+                                <span>You can change due dates at any time.</span>
+                            </div>
+
+                            <hr>
+                            <h6>Visibility</h6>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="custom-control custom-radio">
+                                        <input type="radio" id="visibility-everyone" name="project-visibility" value="visibility-everyone" class="custom-control-input" checked="">
+                                        <label class="custom-control-label" for="visibility-everyone">Everyone</label>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="custom-control custom-radio">
+                                        <input type="radio" id="visibility-members" name="project-visibility" value="visibility-members" class="custom-control-input">
+                                        <label class="custom-control-label" for="visibility-members">Members</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr>
+                            <h6>Logo</h6>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="media-body ml-4">
+                                        <label class="btn btn-danger" for="project-icon">
+                                            <i class="fa fa-paperclip" aria-hidden="true"></i>&nbsp;&nbsp;
+                                            <input id="project-icon" name="project-icon" type="file" style="display:none" onchange="$('#upload-file-info').html(this.files[0].name)" required>
+                                            Choose a File
+                                        </label> &nbsp;
+                                        <div class="small mt-1">Allowed JPG, GIF or PNG. Max size of 800K</div>
+                                        <div class="small mt-1" id="upload-file-info"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="project-add-members" role="tabpanel">
+                            <div class="users-manage" data-filter-list="form-group-users">
+                                <input style="border-radius: 25px;" id="member-search" type="search" class="form-control" placeholder="Filter members">
+                                <br>
+                                <div class="form-group-users filter-list-1644074794132" style="height: 600px; overflow: auto; overflow-x: hidden;">
+                                    <table id="availableMembers">
+                                        <thead>
+                                            <tr>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for m in members  %}
+                                            <tr>
+                                                <td>
+                                                    <div class="row">
+                                                        <div class="col">
+                                                            <span class="d-flex align-items-center">
+                                                                <img alt="Claire Connors" src='{% static "img/default-user-icon.jpg" %}' width="10%" height="10%" class="rounded-circle">
+                                                                &nbsp;&nbsp;
+                                                                <p class="h6" data-filter-by="text" style="padding-top: 9px;">{{m.get_full_name}}</p>
+                                                            </span>
+                                                        </div>
+                                                        <div class="col">
+                                                            <div class="icheck-primary d-inline pull-right" style="margin-right: 25px;">
+                                                                <input type="checkbox" id="project-user-{{m.id}}" name='project-users' value='{{m.id}}'>
+                                                                <label for="project-user-{{m.id}}">
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        <span style="height:48px;"></span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input class="btn btn-primary" type="submit" value="Create Project">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid" style="margin: auto;overflow-x: hipen; color: black; max-width: 1800px;">
+    <br>
+    <div class="row">
+        <div class="col-12">
+            <div class="row">
+                <div class="col">
+                    <h3>Projects</h3>
+                </div>
+                <div class="col">
+                    <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#newProjectModal">New Project</button>
+                </div>
+            </div>
+            <br>
+            {% if projects.all %}
+                <table id="projectTable" class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Key</th>
+                            <th>Lead</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in projects  %}
+                        <tr>
+                            <td>
+                                {% if p.icon %}
+                                    <img src="{{ p.icon.url }}" width="30px" class="rounded-0">
+                                {% else %}
+                                    <img src='{% static "img/default-user-icon.jpg" %}' width="30px" class="rounded-0">
+                                {% endif %}
+                                &nbsp;&nbsp;
+                                <a href="{{ p.getProjectUrl }}">{{p.name}}</a>
+                            </td>
+                            <td>{{p.code}}</td>
+                            <td>{{p.lead.get_full_name}}</td>
+                            <td><span class="{{p.status.icon}}">{{p.status.internalKey}}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="alert alert-primary text-center" role="alert">
+                    Looks like there's no project to see. Create one.
+                </div>
+            {% endif %}
+        </div>        
+    </div>
+</div>
+
+<script src="/static/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="/static/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="/static/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+
+<script type="text/javascript">
+
+    var AVAILABLE_MEMBERS_TABLE_TRIGGERED = false;
+    var MEMBERS_TABLE = null;
+
+    flatpickr('.flatpickr-input', {
+        "minDate": "today",
+        "altFormat": "d-m-Y",
+    });
+
+    $('#member-search').on( 'keyup click', function ()
+        {
+            if (MEMBERS_TABLE != null)
+                MEMBERS_TABLE.search($('#member-search').val()).draw();
+        }
+    );
+
+    function triggerDataTable()
+    {
+        if (!AVAILABLE_MEMBERS_TABLE_TRIGGERED)
+        {
+            MEMBERS_TABLE = $("#availableMembers").DataTable(
+                {
+                    "paging": false,
+                    "autoWidth": false,
+                    "responsive": true,
+                    "info": false,
+                    "ordering": false,
+                    "dom": '<"top"i>rt<"bottom"><"clear">',
+                }
+            );
+        }
+
+        AVAILABLE_MEMBERS_TABLE_TRIGGERED = true;
+    }
+
+    $( function ()
+        {
+            $("#projectTable").DataTable(
+                {
+                    "responsive": true,
+                    "autoWidth": false,
+                    "paging": true,
+                    "searching": true,
+                    "ordering": true,
+                    "info": true,
+                    "autoWidth": false,
+                    "responsive": true,
+                }
+            );
+        }
+    );
+</script>
+{% endblock %}

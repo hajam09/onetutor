@@ -34,6 +34,9 @@ import psutil
 CPU_USAGE = [0,0,0,0,0,0,0,0,0,0]
 RAM_USAGE = [0,0,0,0,0,0,0,0,0,0]
 
+def mainPage(request):
+	return redirect('dashboard:template', template='index')
+
 @login_required
 def index(request, template="index"):
 	print(getAccountDomains())

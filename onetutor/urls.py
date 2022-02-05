@@ -25,6 +25,7 @@ urlpatterns = [
     path('cronjobs/', include('cronjobs.urls')),
     path('dashboard/', include('dashboard.urls')),
     path('jira/', include('jira.urls')),
+    path('jira2/', include('jira2.urls')),
     path('forum/', include('forum.urls')),
     path('', include('tutoring.urls')),
 ]

@@ -1,0 +1,147 @@
+{% extends "accounts/account_base.html" %}
+{% load static %}
+{% block content %}
+<script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+<br>
+
+<div class="container-fluid" id="div-id-sprint-board-instance-container" style="color: black;">
+</div>
+
+<script type="text/babel">
+
+class TicketComponent extends React.Component
+{
+	constructor(props)
+	{
+		super(props);
+		console.log(this.props.ticket);
+	}
+
+	render()
+	{
+		const cardStyle = {
+			width: "100%",
+			paddingLeft: "10px",
+		}
+		const liStyle = {
+		}
+
+		return(
+			<li style={liStyle}>
+				<div className="card">
+					<div className="card-body">
+						<div className="row">{this.props.ticket.internalKey}</div>
+						<div className="row">{this.props.ticket.summary}</div>
+						<div className="row"></div>
+						<div className="row">
+							<div>
+								<img src='/static/img/bug.jpg' width="20" height="20" data-toggle="tooltip" data-placement="top" title="buggg"></img>
+							</div>
+							<div>
+								<span className={this.props.ticket.priority.icon}>{this.props.ticket.priority.internalKey}</span>
+							</div>
+							<div>
+								<span className="badge badge-pill badge-secondary">{this.props.ticket.points}</span>
+							</div>
+							<div>col-sm</div>
+						</div>
+					</div>
+				</div>
+			</li>
+		);
+	}
+}
+
+
+class SprintBoardColumnComponent extends React.Component
+{
+	constructor(props)
+	{
+		super(props);
+		this.state = {
+			name: this.props.name,
+			tickets: this.props.tickets,
+		}
+	}
+
+	render()
+	{
+		const cardStyle = {
+			maxWidth: "22rem",
+		}
+		return(
+			<div className="col-md">
+				<div className="card bg-light mb-3" style={cardStyle}>
+					<div className="card-header">{this.state.name} (X)</div>
+					<div className="card-body">
+						<ul className="connectedSortable">
+							{this.state.tickets.map((t) => <TicketComponent key={t.id} ticket={t}/>)}
+						</ul>
+					</div>
+				</div>
+			</div>
+		);
+	}
+}
+
+class SprintBoardComponent extends React.Component
+{
+	constructor(props)
+	{
+		super(props);
+
+		this.state = {
+			isSprintActive: '{{isSprintActive}}' == 'True',
+			board: {{board|safe}},
+		}
+
+		console.log(this.state.board);
+	}
+
+	render()
+	{
+		const wrapperStyle = {
+			margin: "auto",
+			overflow: "hidden",
+		}
+
+		const style1 = {
+			color: 'black',
+		}
+
+		if (this.state.isSprintActive)
+		{
+			return(
+				<div className="wrapper" style={wrapperStyle}>
+					<br></br>
+					<div className="row gutters-sm">
+						<div className="col-lg-12">
+							<div className="card-body tab-content" style={style1}>
+								<h3>{this.state.board.boardName}</h3>
+								<hr></hr>
+							</div>
+							<div className="row">
+								{this.state.board.columns.map((c) => <SprintBoardColumnComponent key={c.id} name={c.name} tickets={c.tickets}/>)}
+							</div>
+						</div>
+					</div>
+				</div>
+			);
+		}
+		else
+		{
+			return(
+				<div>bb</div>
+			);
+		}
+	}
+}
+
+
+
+ReactDOM.render( <SprintBoardComponent/>, document.getElementById('div-id-sprint-board-instance-container') );
+
+</script>
+{% endblock %}
