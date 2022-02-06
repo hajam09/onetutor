@@ -1,0 +1,129 @@
+{% extends "accounts/account_base.html" %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" href="/static/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+<link rel="stylesheet" href="/static/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="/static/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+
+<div class="container-fluid" style="margin: auto;overflow-x: hipen; color: black; max-width: 1800px;">
+	<br>
+	<div class="col-6">
+        <div>
+        	<h4><bold>General Details</bold></h4>
+            <dl class="row">
+
+                <dd class="col-sm-3">
+                    <label style="color: #6c757d;">Board Name</label>
+                </dd>
+                <dd class="col-sm-9">
+                    <input class="form-control col" type="text" placeholder="Board name" id="board-name" name="board-name" value="{{board.name}}" placeholder="Board name" readonly>
+                </dd>
+
+                <dd class="col-sm-3">
+                    <label style="color: #6c757d;">Projects in Board</label>
+                </dd>
+                <dd class="col-sm-9">
+                    <div class="form-group">
+                        <select class="form-control select2bs4" multiple="multiple" name="board-projects" id="board-projects" data-placeholder="Select project(s) this board will be used for." required>
+	                        {% for project in projects.all %}
+	                    		<option value="{{project.id}}">{{project.name}}</option>
+	                    	{% endfor %}
+                        </select>
+                      </div>
+                </dd>
+
+                <dd class="col-sm-3">
+                    <label style="color: #6c757d;">Project admins</label>
+                </dd>
+                <dd class="col-sm-9">
+                    <textarea class="form-control col" rows="3" placeholder="Project description" name="project-description" required></textarea>
+                </dd>
+
+                <dd class="col-sm-3">
+                    <label style="color: #6c757d;">Project members</label>
+                </dd>
+                <dd class="col-sm-9">
+                    <textarea class="form-control col" rows="3" placeholder="Project description" name="project-description" required></textarea>
+                </dd>
+
+            </dl>
+
+            <hr>
+        </div>
+    </div>
+</div>
+
+<script src="/static/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="/static/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="/static/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="/static/plugins/select2/js/select2.full.min.js"></script>
+
+
+<script type="text/javascript">
+
+	$('.select2bs4').select2({
+		theme: 'bootstrap4',
+	});
+
+	var BOARD_PROJECTS_ID = [];
+
+	{% for project in board.projects.all %}
+		BOARD_PROJECTS_ID.push({{project.id}});
+	{% endfor %}
+
+	$('#board-projects').select2().val(BOARD_PROJECTS_ID).trigger("change")
+
+
+	$( "#board-name" ).focusin(function() {
+		$(this).removeAttr("readonly");
+	});
+
+	$( "#board-name" ).focusout(function() {
+		$(this).attr('readonly','');
+
+		var boardName = $(this).val();
+
+		if (boardName && !boardName.trim() || boardName.length==0)
+			return;
+
+		$.ajax(
+			{
+				data:
+				{
+					'board-name': boardName,
+				},
+				dataType: 'json',
+			}
+		);
+	});
+
+
+	$('#board-projects').on('select2:select', function (e) {
+		$.ajax(
+			{
+				data:
+				{
+					'add-project': e.params.data.id,
+				},
+				dataType: 'json',
+			}
+		);
+	});
+
+	$('#board-projects').on('select2:unselect', function (e) {
+		$.ajax(
+			{
+				data:
+				{
+					'remove-project': e.params.data.id,
+				},
+				dataType: 'json',
+			}
+		);
+	});
+
+</script>
+
+{% endblock %}

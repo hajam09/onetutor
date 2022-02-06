@@ -13,4 +13,5 @@ urlpatterns = [
     path('project/<slug:url>/', views.project, name='project-page'),
     path('boards/', views.boards, name='boards-page'),
     path('board/<slug:url>/', views.board, name='board-page'),
+    path('board/<slug:url>/settings/', views.boardSettings, name='board-settings'),
 ]

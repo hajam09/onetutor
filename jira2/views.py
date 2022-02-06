@@ -1,3 +1,4 @@
+from django.http import Http404
 from django.shortcuts import render
 
 from jira2.models import *
@@ -85,8 +86,8 @@ def dashboard(request):
     return render(request, "jira2/dashboard.html")
 
 
-def backlog(request):
-    return render(request, "jira2/backLog.html")
+def backlog(request, internalKey):
+    return render(request, 'jira2/backLog.html')
 
 
 def projects(request):
@@ -164,6 +165,43 @@ def board(request, url):
     return render(request, "jira2/board.html")
 
 
+def boardSettings(request, url):
+
+    try:
+        thisBoard = Board.objects.get(url=url)
+    except Board.DoesNotExist:
+        raise Http404
+
+    if request.is_ajax():
+        boardName = request.GET.get('board-name', None)
+        addProject = request.GET.get('add-project', None)
+        removeProject = request.GET.get('remove-project', None)
+
+        if boardName is not None:
+            thisBoard.name = boardName
+
+        if addProject is not None:
+            _project = Project.objects.get(id=addProject)
+            thisBoard.projects.add(_project)
+
+        if removeProject is not None:
+            for _project in thisBoard.projects.all():
+                if str(_project.id) == removeProject:
+                    thisBoard.projects.remove(_project)
+                    break
+
+        thisBoard.save()
+
+    allProjects = (Project.objects.filter(isPrivate=True, members__in=[request.user]) | Project.objects.filter(isPrivate=False)).distinct()
+
+    context = {
+        'board': thisBoard,
+        'projects': allProjects
+    }
+
+    return render(request, 'jira2/boardSettings.html', context)
+
+
 def yourWork(request):
     return render(request, "jira2/yourWork.html")
 
@@ -185,26 +223,7 @@ def profile(request):
 
 
 def ticketPage(request, internalKey):
-    context = {
-        'project': {
-            'id': 1,
-            'name': 'Thor'
-        },
-        'ticket': {
-            'id': 1,
-            'key': internalKey,
-            'issueType': 'Epic',
-            'issueIcon': '',
-            'summary': 'Contract Entity',
-            'description': 'This new feature will add the ability for commercial pricing...',
-            'userImpact': '',
-            'technicalImpact': '',
-            'releaseImpact': '',
-            'automatedTestingReason': '',
-        }
-    }
-
-    return render(request, "jira2/ticketPage.html", context)
+    return render(request, 'jira2/ticketPage.html')
 
 
 def kanbanBoard(request, internalKey):
