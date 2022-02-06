@@ -8,24 +8,26 @@
 
 <style type="text/css">
 .avatars {
-    display: inline-flex;
-    flex-direction: row-reverse;
+    padding-left: 0;
+    list-style: none;
+    margin: 0;
+}
+
+.avatars>li {
+    display: inline-block;
+}
+
+.avatars>li+li {
+    margin-left: -0.75rem;
 }
 
 .avatar {
-    position: relative;
-    border: 4px solid #fff;
+    width: 2.25rem;
+    height: 2.25rem;
     border-radius: 50%;
-    overflow: hidden;
-}
-
-.avatar:not(:last-child) {
-    margin-left: -60px;
-}
-
-.avatar img {
-    width: 100%;
-    display: block;
+    border: 2px solid #f8f9fa;
+    background: #f8f9fa;
+    color: #fff;
 }
 </style>
 
@@ -43,7 +45,6 @@
                 <div class="modal-body">
                     <div class="tab-content">
                         <dl class="row">
-
                             <dd class="col-sm-3">
                                 <label style="font-size: 85%; color: #6c757d;">Name</label>
                             </dd>
@@ -153,9 +154,9 @@
                                     <span class="row">
                                         <span class="col">
                                             <span class="d-flex align-items-center">
-                                                <img alt="Claire Connors" src='{% static "img/default-user-icon.jpg" %}' class="rounded-circle" style="width: 30px;">
+                                                <img alt="{{admin.get_full_name}}" class="avatar filter-by-alt" src="https://cdn3.iconfinder.com/data/icons/avatars-round-flat/33/man5-512.png" data-filter-by="alt">
                                                 &nbsp;&nbsp;
-                                                <p class="h6" data-filter-by="text" style="padding-top: 9px;">{{admin.get_full_name}}</p>
+                                                <a href="#">{{admin.get_full_name}}</a>
                                             </span>
                                         </span>
                                     </span>
@@ -164,24 +165,26 @@
                             </td>
                             {% else %}
                             <td>
-                                <div class="avatars" style="margin-left: 32px;">
+                                <ul class="avatars">
                                     {% for admin in b.admins.all %}
-                                    <span class="avatar">
-                                        <img alt="#" src='{% static "img/default-user-icon.jpg" %}' style="width: 30px;">
-                                    </span>
+                                    <li>
+                                        <a href="#" data-toggle="tooltip" data-original-title="{{admin.get_full_name}}" title="{{admin.get_full_name}}">
+                                            <img alt="{{admin.get_full_name}}" class="avatar filter-by-alt" src="https://cdn3.iconfinder.com/data/icons/avatars-round-flat/33/man5-512.png" data-filter-by="alt">
+                                        </a>
+                                    </li>
                                     {% endfor %}
-                                </div>
+                                </ul>
                             </td>
                             {% endif %}
 
-                            {% if b.admins.count == 1 %}
+                            {% if b.projects.count == 1 %}
                             <td>
                                 {% for project in b.projects.all %}
                                 <span>
                                     <span class="row">
                                         <span class="col">
                                             <span class="d-flex align-items-center">
-                                                <img alt="Claire Connors" src='{% static "img/default-user-icon.jpg" %}' class="rounded-circle" style="width: 30px;">
+                                                <img alt="{{project.name}}" class="avatar filter-by-alt" src="https://cdn3.iconfinder.com/data/icons/avatars-round-flat/33/man5-512.png" data-filter-by="alt">
                                                 &nbsp;&nbsp;
                                                 <a href="{{ project.getProjectUrl }}">{{project.name}}</a>
                                             </span>
@@ -192,15 +195,19 @@
                             </td>
                             {% else %}
                             <td>
-                                <div class="avatars" style="margin-left: 32px;">
+                                <ul class="avatars">
                                     {% for project in b.projects.all %}
-                                    <span class="avatar">
-                                        <img alt="#" src='{% static "img/default-user-icon.jpg" %}' style="width: 30px;">
-                                    </span>
+                                    <li>
+                                        <a href="#" data-toggle="tooltip" data-original-title="{{project.name}}" title="{{project.name}}">
+                                            <img alt="{{project.name}}" class="avatar filter-by-alt" src="https://cdn3.iconfinder.com/data/icons/avatars-round-flat/33/man5-512.png" data-filter-by="alt">
+                                        </a>
+                                    </li>
                                     {% endfor %}
-                                </div>
+                                </ul>
                             </td>
                             {% endif %}
+
+                            
                         </tr>
                         {% endfor %}
                     </tbody>

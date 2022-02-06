@@ -130,13 +130,12 @@ def boards(request):
     """
     TODO: Allow user to copy board on template and make changes before creating new board.
     TODO: On Admin column, display dev profile icons.
-    TODO: Project column, display project icon.
-    TODO: Add isPrivate column to Board model and save on creation.
+    TODO: On Project column, display project icon.
     """
 
-    allBoards = Board.objects.all()
+    allBoards = (Board.objects.filter(isPrivate=True, admins__in=[request.user]) | Board.objects.filter(isPrivate=True, members__in=[request.user]) | Board.objects.filter(isPrivate=False)).distinct()
     users = User.objects.all()
-    allProjects = Project.objects.all()
+    allProjects = (Project.objects.filter(isPrivate=True, members__in=[request.user]) | Project.objects.filter(isPrivate=False)).distinct()
 
     if request.method == "POST":
 
