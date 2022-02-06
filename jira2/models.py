@@ -51,13 +51,14 @@ class Project(models.Model):
 
 
 class Board(models.Model):
-    name = models.CharField(max_length=2048, blank=True, null=True)
+    name = models.CharField(max_length=2048)
     internalKey = models.CharField(max_length=2048, blank=True, null=True)
-    url = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    sprint = models.ForeignKey(Sprint, null=True, on_delete=models.SET_NULL)
-    project = models.ManyToManyField(Project, blank=True, related_name='_boardProjects')
+    url = models.UUIDField(default=uuid.uuid4, editable=True, unique=True)
+    sprint = models.ForeignKey(Sprint, null=True, blank=True, on_delete=models.SET_NULL)
+    projects = models.ManyToManyField(Project, blank=True, related_name='_boardProjects')
     members = models.ManyToManyField(User, blank=True, related_name='_boardMembers')
     admins = models.ManyToManyField(User, blank=True, related_name='_boardAdmins')
+    isPrivate = models.BooleanField(default=False)
     createdDttm = models.DateTimeField(auto_now_add=True)
     reference = models.CharField(max_length=2048, blank=True, null=True)
     deleteFl = models.BooleanField(default=False)
@@ -67,6 +68,9 @@ class Board(models.Model):
 
     class Meta:
         verbose_name_plural = "Board"
+
+    def getBoardUrl(self):
+        return reverse('jira2:board-page', kwargs={'url': self.url})
 
 
 class Column(models.Model):

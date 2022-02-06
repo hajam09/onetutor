@@ -90,8 +90,12 @@ def backlog(request):
 
 
 def projects(request):
+    """
+    TODO: Add the dev profile icon to the table "Lead" column.
+    TODO: Filter dropdown to filter projects by name, name contains, lead, status (show ongoing and terminated)...
+    """
     allProjects = (Project.objects.filter(isPrivate=True, members__in=[request.user]) | Project.objects.filter(isPrivate=False)).distinct()
-    members = User.objects.all()[:30]
+    members = User.objects.all()
 
 
     if request.method == "POST":
@@ -107,8 +111,9 @@ def projects(request):
             icon=request.FILES.get('project-icon', None),
         )
 
-        newMembers = User.objects.filter(id__in=request.POST.getlist('project-users'))
+        newMembers = [i for i in members if str(i.pk) in request.POST.getlist('project-project')]
         newProject.members.add(*newMembers)
+        newProject.members.add(request.user)
 
     context = {
         'projects': allProjects,
@@ -122,7 +127,38 @@ def project(request, url):
 
 
 def boards(request):
-    return render(request, "jira2/boards.html")
+    """
+    TODO: Allow user to copy board on template and make changes before creating new board.
+    TODO: On Admin column, display dev profile icons.
+    TODO: Project column, display project icon.
+    TODO: Add isPrivate column to Board model and save on creation.
+    """
+
+    allBoards = Board.objects.all()
+    users = User.objects.all()
+    allProjects = Project.objects.all()
+
+    if request.method == "POST":
+
+        boardAdmins = [ i for i in users if str(i.pk) in request.POST.getlist('board-admins') ]
+        boardMembers = [ i for i in users if str(i.pk) in request.POST.getlist('board-members') ]
+        boardProjects = [ i for i in allProjects if str(i.pk) in request.POST.getlist('board-projects') ]
+
+        newBoard = Board.objects.create(
+            name=request.POST['board-name'],
+            isPrivate=request.POST['board-visibility'] == 'visibility-members'
+        )
+
+        newBoard.projects.add(*boardProjects)
+        newBoard.members.add(*boardMembers)
+        newBoard.admins.add(*boardAdmins)
+
+    context = {
+        'projects': allProjects,
+        'boards': allBoards,
+        'users': users
+    }
+    return render(request, 'jira2/boards.html', context)
 
 
 def board(request, url):
