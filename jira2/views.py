@@ -92,11 +92,10 @@ def backlog(request, internalKey):
 
 def projects(request):
     """
-    TODO: Add the dev profile icon to the table "Lead" column.
     TODO: Filter dropdown to filter projects by name, name contains, lead, status (show ongoing and terminated)...
     """
     allProjects = (Project.objects.filter(isPrivate=True, members__in=[request.user]) | Project.objects.filter(isPrivate=False)).distinct()
-    members = User.objects.all()
+    developerProfiles = DeveloperProfile.objects.all()
 
 
     if request.method == "POST":
@@ -112,13 +111,13 @@ def projects(request):
             icon=request.FILES.get('project-icon', None),
         )
 
-        newMembers = [i for i in members if str(i.pk) in request.POST.getlist('project-project')]
+        newMembers = [i for i in developerProfiles if str(i.user.pk) in request.POST.getlist('project-project')]
         newProject.members.add(*newMembers)
         newProject.members.add(request.user)
 
     context = {
         'projects': allProjects,
-        'members': members
+        'developerProfiles': developerProfiles
     }
     return render(request, 'jira2/projects.html', context)
 
@@ -135,13 +134,13 @@ def boards(request):
     """
 
     allBoards = (Board.objects.filter(isPrivate=True, admins__in=[request.user]) | Board.objects.filter(isPrivate=True, members__in=[request.user]) | Board.objects.filter(isPrivate=False)).distinct()
-    users = User.objects.all()
+    developerProfiles = DeveloperProfile.objects.all()
     allProjects = (Project.objects.filter(isPrivate=True, members__in=[request.user]) | Project.objects.filter(isPrivate=False)).distinct()
 
     if request.method == "POST":
 
-        boardAdmins = [ i for i in users if str(i.pk) in request.POST.getlist('board-admins') ]
-        boardMembers = [ i for i in users if str(i.pk) in request.POST.getlist('board-members') ]
+        boardAdmins = [ i.user for i in developerProfiles if str(i.user.pk) in request.POST.getlist('board-admins') ]
+        boardMembers = [ i.user for i in developerProfiles if str(i.user.pk) in request.POST.getlist('board-members') ]
         boardProjects = [ i for i in allProjects if str(i.pk) in request.POST.getlist('board-projects') ]
 
         newBoard = Board.objects.create(
@@ -156,7 +155,7 @@ def boards(request):
     context = {
         'projects': allProjects,
         'boards': allBoards,
-        'users': users
+        'developerProfiles': developerProfiles
     }
     return render(request, 'jira2/boards.html', context)
 
@@ -172,17 +171,28 @@ def boardSettings(request, url):
     except Board.DoesNotExist:
         raise Http404
 
+    allProjects = (Project.objects.filter(isPrivate=True, members__in=[request.user]) | Project.objects.filter(isPrivate=False)).distinct()
+    developerProfiles = DeveloperProfile.objects.all()
+
     if request.is_ajax():
         boardName = request.GET.get('board-name', None)
+
         addProject = request.GET.get('add-project', None)
         removeProject = request.GET.get('remove-project', None)
+
+        addAdmin = request.GET.get('add-admin', None)
+        removeAdmin = request.GET.get('remove-admin', None)
+
+        addMember = request.GET.get('add-member', None)
+        removeMember = request.GET.get('remove-member', None)
 
         if boardName is not None:
             thisBoard.name = boardName
 
         if addProject is not None:
-            _project = Project.objects.get(id=addProject)
-            thisBoard.projects.add(_project)
+            for _project in allProjects:
+                if str(_project.id) == addProject:
+                    thisBoard.projects.add(_project)
 
         if removeProject is not None:
             for _project in thisBoard.projects.all():
@@ -190,13 +200,37 @@ def boardSettings(request, url):
                     thisBoard.projects.remove(_project)
                     break
 
+        if addAdmin is not None:
+            for _admin in developerProfiles:
+                if str(_admin.user.id) == addAdmin:
+                    thisBoard.admins.add(_admin.user)
+                    break
+
+        if removeAdmin is not None:
+            for _admin in thisBoard.admins.all():
+                if str(_admin.id) == removeAdmin:
+                    thisBoard.admins.remove(_admin)
+                    break
+
+        if addMember is not None:
+            for _member in developerProfiles:
+                if str(_member.user.id) == addMember:
+                    thisBoard.members.add(_member.user)
+                    break
+
+        if removeMember is not None:
+            for _member in thisBoard.members.all():
+                if str(_member.id) == removeMember:
+                    thisBoard.members.remove(_member)
+                    break
+
         thisBoard.save()
 
-    allProjects = (Project.objects.filter(isPrivate=True, members__in=[request.user]) | Project.objects.filter(isPrivate=False)).distinct()
 
     context = {
         'board': thisBoard,
-        'projects': allProjects
+        'projects': allProjects,
+        'developerProfiles': developerProfiles
     }
 
     return render(request, 'jira2/boardSettings.html', context)

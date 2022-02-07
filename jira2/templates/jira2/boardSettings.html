@@ -30,24 +30,47 @@
 	                    		<option value="{{project.id}}">{{project.name}}</option>
 	                    	{% endfor %}
                         </select>
-                      </div>
+                    </div>
                 </dd>
 
                 <dd class="col-sm-3">
                     <label style="color: #6c757d;">Project admins</label>
                 </dd>
                 <dd class="col-sm-9">
-                    <textarea class="form-control col" rows="3" placeholder="Project description" name="project-description" required></textarea>
+                    <div class="form-group">
+                        <select class="form-control select2bs4" multiple="multiple" name="board-admins" id="board-admins" required>
+	                        {% for m in developerProfiles %}
+	                    		<option value="{{m.user.id}}">{{m.user.get_full_name}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </dd>
 
                 <dd class="col-sm-3">
                     <label style="color: #6c757d;">Project members</label>
                 </dd>
                 <dd class="col-sm-9">
-                    <textarea class="form-control col" rows="3" placeholder="Project description" name="project-description" required></textarea>
+                    <div class="form-group">
+                        <select class="form-control select2bs4" multiple="multiple" name="board-members" id="board-members" required>
+	                        {% for m in developerProfiles %}
+	                    		<option value="{{m.user.id}}">{{m.user.get_full_name}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </dd>
 
             </dl>
+
+            <hr>
+        </div>
+    </div>
+    <div class="col-6">
+        <div>
+        	<div class="row">
+        		<div class="col">
+        			<h4><bold>Board Columns</bold></h4>
+        		</div>
+        	</div>
 
             <hr>
         </div>
@@ -60,7 +83,6 @@
 <script src="/static/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
 <script src="/static/plugins/select2/js/select2.full.min.js"></script>
 
-
 <script type="text/javascript">
 
 	$('.select2bs4').select2({
@@ -68,12 +90,24 @@
 	});
 
 	var BOARD_PROJECTS_ID = [];
+	var BOARD_ADMINS_ID = [];
+	var BOARD_MEMBERS_ID = [];
 
 	{% for project in board.projects.all %}
 		BOARD_PROJECTS_ID.push({{project.id}});
 	{% endfor %}
 
+	{% for admin in board.admins.all %}
+		BOARD_ADMINS_ID.push({{admin.id}});
+	{% endfor %}
+
+	{% for member in board.members.all %}
+		BOARD_MEMBERS_ID.push({{member.id}});
+	{% endfor %}
+
 	$('#board-projects').select2().val(BOARD_PROJECTS_ID).trigger("change")
+	$('#board-admins').select2().val(BOARD_ADMINS_ID).trigger("change")
+	$('#board-members').select2().val(BOARD_MEMBERS_ID).trigger("change")
 
 
 	$( "#board-name" ).focusin(function() {
@@ -124,6 +158,70 @@
 		);
 	});
 
+	$('#board-admins').on('select2:select', function (e) {
+		$.ajax(
+			{
+				data:
+				{
+					'add-admin': e.params.data.id,
+				},
+				dataType: 'json',
+			}
+		);
+	});
+
+	$('#board-admins').on('select2:unselect', function (e) {
+		$.ajax(
+			{
+				data:
+				{
+					'remove-admin': e.params.data.id,
+				},
+				dataType: 'json',
+			}
+		);
+	});
+
+	$('#board-members').on('select2:select', function (e) {
+		$.ajax(
+			{
+				data:
+				{
+					'add-member': e.params.data.id,
+				},
+				dataType: 'json',
+			}
+		);
+	});
+
+	$('#board-members').on('select2:unselect', function (e) {
+		$.ajax(
+			{
+				data:
+				{
+					'remove-member': e.params.data.id,
+				},
+				dataType: 'json',
+			}
+		);
+	});
+
+	function createColumn()
+	{
+		alert(2);
+	}
+
+	$( function() {
+    $( "#sortable" ).sortable({
+    	revert: true
+    });
+  } );
+
+
 </script>
+
+<!-- This jquery version crashes the select2. -->
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 {% endblock %}

@@ -57,9 +57,9 @@
                             </dd>
                             <dd class="col-sm-9">
                                 <select class="form-control select2bs4" multiple="multiple" name="board-admins" data-placeholder="Select board admins" required>
-                                    {% for m in users  %}
-                                    <option value="{{m.id}}">{{m.get_full_name}}</option>
-                                    {% endfor  %}
+                                    {% for m in developerProfiles %}
+                                    <option value="{{m.user.id}}">{{m.user.get_full_name}}</option>
+                                    {% endfor %}
                                 </select>
                             </dd>
 
@@ -68,8 +68,8 @@
                             </dd>
                             <dd class="col-sm-9">
                                 <select class="form-control select2bs4" multiple="multiple" name="board-members" data-placeholder="Select board members" required>
-                                    {% for m in users  %}
-                                    <option value="{{m.id}}">{{m.get_full_name}}</option>
+                                    {% for m in developerProfiles  %}
+                                    <option value="{{m.user.id}}">{{m.user.get_full_name}}</option>
                                     {% endfor  %}
                                 </select>
                             </dd>
@@ -154,7 +154,11 @@
                                     <span class="row">
                                         <span class="col">
                                             <span class="d-flex align-items-center">
+                                                {% if admin.developerProfile.profilePicture %}
+                                                <img alt="{{admin.get_full_name}}" class="avatar filter-by-alt" src="{{admin.developerProfile.profilePicture.url }}" data-filter-by="alt">
+                                                {% else %}
                                                 <img alt="{{admin.get_full_name}}" class="avatar filter-by-alt" src="https://cdn3.iconfinder.com/data/icons/avatars-round-flat/33/man5-512.png" data-filter-by="alt">
+                                                {% endif %}
                                                 &nbsp;&nbsp;
                                                 <a href="#">{{admin.get_full_name}}</a>
                                             </span>
@@ -169,7 +173,11 @@
                                     {% for admin in b.admins.all %}
                                     <li>
                                         <a href="#" data-toggle="tooltip" data-original-title="{{admin.get_full_name}}" title="{{admin.get_full_name}}">
+                                            {% if admin.developerProfile.profilePicture %}
+                                            <img alt="{{admin.get_full_name}}" class="avatar filter-by-alt" src="{{admin.developerProfile.profilePicture.url }}" data-filter-by="alt">
+                                            {% else %}
                                             <img alt="{{admin.get_full_name}}" class="avatar filter-by-alt" src="https://cdn3.iconfinder.com/data/icons/avatars-round-flat/33/man5-512.png" data-filter-by="alt">
+                                            {% endif %}
                                         </a>
                                     </li>
                                     {% endfor %}
@@ -184,7 +192,11 @@
                                     <span class="row">
                                         <span class="col">
                                             <span class="d-flex align-items-center">
+                                                {% if project.icon %}
+                                                <img alt="{{project.name}}" class="avatar filter-by-alt" src="{{project.icon.url }}" data-filter-by="alt">
+                                                {% else %}
                                                 <img alt="{{project.name}}" class="avatar filter-by-alt" src="https://cdn3.iconfinder.com/data/icons/avatars-round-flat/33/man5-512.png" data-filter-by="alt">
+                                                {% endif %}
                                                 &nbsp;&nbsp;
                                                 <a href="{{ project.getProjectUrl }}">{{project.name}}</a>
                                             </span>
@@ -199,7 +211,11 @@
                                     {% for project in b.projects.all %}
                                     <li>
                                         <a href="#" data-toggle="tooltip" data-original-title="{{project.name}}" title="{{project.name}}">
+                                            {% if project.icon %}
+                                            <img alt="{{project.name}}" class="avatar filter-by-alt" src="{{project.icon.url }}" data-filter-by="alt">
+                                            {% else %}
                                             <img alt="{{project.name}}" class="avatar filter-by-alt" src="https://cdn3.iconfinder.com/data/icons/avatars-round-flat/33/man5-512.png" data-filter-by="alt">
+                                            {% endif %}
                                         </a>
                                     </li>
                                     {% endfor %}

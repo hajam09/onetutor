@@ -1,4 +1,6 @@
 import datetime
+import os
+import random
 import uuid
 
 from colorfield.fields import ColorField
@@ -6,15 +8,19 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
 
+from onetutor import settings
 from tutoring.models import Component
 
 
 def sprintEndDate(today):
     return today() + datetime.timedelta(days=14)
 
+def getRandomImageForAvatar():
+    return "avatars/" + random.choice(os.listdir(os.path.join(settings.MEDIA_ROOT, "avatars/")))
+
 
 class Sprint(models.Model):
-    internalKey = models.CharField(max_length=2048, blank=True, null=True)
+    internalKey = models.CharField(max_length=2048, blank=True, null=True, unique=True)
     startDate = models.DateField(default=datetime.date.today)
     endDate = models.DateField(default=sprintEndDate(datetime.date.today))
     reference = models.CharField(max_length=2048, blank=True, null=True)
@@ -29,7 +35,7 @@ class Sprint(models.Model):
 class Project(models.Model):
     name = models.CharField(max_length=2048)
     code = models.CharField(max_length=2048, unique=True)
-    internalKey = models.CharField(max_length=2048, blank=True, null=True)
+    internalKey = models.CharField(max_length=2048, blank=True, null=True, unique=True)
     url = models.UUIDField(default=uuid.uuid4, editable=True, unique=True)
     lead = models.ForeignKey(User, on_delete=models.CASCADE)
     status = models.ForeignKey(Component, null=True, on_delete=models.SET_NULL, limit_choices_to={'componentGroup__code': 'PROJECT_STATUS'})
@@ -52,7 +58,7 @@ class Project(models.Model):
 
 class Board(models.Model):
     name = models.CharField(max_length=2048)
-    internalKey = models.CharField(max_length=2048, blank=True, null=True)
+    internalKey = models.CharField(max_length=2048, blank=True, null=True, unique=True)
     url = models.UUIDField(default=uuid.uuid4, editable=True, unique=True)
     sprint = models.ForeignKey(Sprint, null=True, blank=True, on_delete=models.SET_NULL)
     projects = models.ManyToManyField(Project, blank=True, related_name='_boardProjects')
@@ -68,6 +74,10 @@ class Board(models.Model):
 
     class Meta:
         verbose_name_plural = "Board"
+        ordering = ['orderNo']
+
+    def __str__(self):
+        return self.name
 
     def getBoardUrl(self):
         return reverse('jira2:board-page', kwargs={'url': self.url})
@@ -76,7 +86,7 @@ class Board(models.Model):
 class Column(models.Model):
     board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name='_boardColumns')
     name = models.CharField(max_length=2048, blank=True, null=True)
-    internalKey = models.CharField(max_length=2048, blank=True, null=True)
+    internalKey = models.CharField(max_length=2048, blank=True, null=True, unique=True)
     colour = ColorField(default='#FF0000')
     reference = models.CharField(max_length=2048, blank=True, null=True)
     deleteFl = models.BooleanField(default=False)
@@ -93,7 +103,7 @@ class Column(models.Model):
 class Label(models.Model):
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
     name = models.CharField(max_length=2048, blank=True, null=True)
-    internalKey = models.CharField(max_length=2048, blank=True, null=True)
+    internalKey = models.CharField(max_length=2048, blank=True, null=True, unique=True)
     colour = ColorField(default='#FF0000')
     reference = models.CharField(max_length=2048, blank=True, null=True)
     deleteFl = models.BooleanField(default=False)
@@ -105,7 +115,7 @@ class Label(models.Model):
 
 
 class Ticket(models.Model):
-    internalKey = models.CharField(max_length=2048, blank=True, null=True)  # PROJECT_CODE + PK
+    internalKey = models.CharField(max_length=2048, blank=True, null=True, unique=True)  # PROJECT_CODE + PK
     summary = models.CharField(max_length=2048)
     fixVersion = models.CharField(max_length=2048)
     component = models.CharField(max_length=2048)
@@ -163,9 +173,17 @@ class TicketAttachment(models.Model):
     versionNo = models.IntegerField(default=1, blank=True, null=True)
 
 
+class DeveloperProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='developerProfile')
+    url = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    jobTitle = models.CharField(max_length=2048, blank=True, null=True)
+    department = models.CharField(max_length=2048, blank=True, null=True)
+    profilePicture = models.ImageField(upload_to='profile-picture', blank=True, null=True, default=getRandomImageForAvatar)
+
+
 class Team(models.Model):
     name = models.CharField(max_length=2048, blank=True, null=True)
-    internalKey = models.CharField(max_length=2048, blank=True, null=True)
+    internalKey = models.CharField(max_length=2048, blank=True, null=True, unique=True)
     url = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     members = models.ManyToManyField(User, related_name='_teamMembers')
     description = models.TextField()

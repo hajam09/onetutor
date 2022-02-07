@@ -125,21 +125,25 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {% for m in members  %}
+                                            {% for m in developerProfiles  %}
                                             <tr>
                                                 <td>
                                                     <div class="row">
                                                         <div class="col">
                                                             <span class="d-flex align-items-center">
-                                                                <img alt="Claire Connors" src='{% static "img/default-user-icon.jpg" %}' width="10%" height="10%" class="rounded-circle">
+                                                                {% if m.profilePicture %}
+                                                                    <img src="{{m.profilePicture.url }}" width="10%" height="10%" class="rounded-circle">
+                                                                {% else %}
+                                                                    <img src='{% static "img/default-user-icon.jpg" %}' width="10%" height="10%" class="rounded-circle">
+                                                                {% endif %}
                                                                 &nbsp;&nbsp;
-                                                                <p class="h6" data-filter-by="text" style="padding-top: 9px;">{{m.get_full_name}}</p>
+                                                                <p class="h6" data-filter-by="text" style="padding-top: 9px;">{{m.user.get_full_name}}</p>
                                                             </span>
                                                         </div>
                                                         <div class="col">
                                                             <div class="icheck-primary d-inline pull-right" style="margin-right: 25px;">
-                                                                <input type="checkbox" id="project-user-{{m.id}}" name='project-users' value='{{m.id}}'>
-                                                                <label for="project-user-{{m.id}}">
+                                                                <input type="checkbox" id="project-user-{{m.user.id}}" name='project-users' value='{{m.user.id}}'>
+                                                                <label for="project-user-{{m.user.id}}">
                                                                 </label>
                                                             </div>
                                                         </div>
@@ -199,7 +203,15 @@
                                 <a href="{{ p.getProjectUrl }}">{{p.name}}</a>
                             </td>
                             <td>{{p.code}}</td>
-                            <td>{{p.lead.get_full_name}}</td>
+                            <td>
+                                {% if p.lead.developerProfile.profilePicture %}
+                                    <img src="{{p.lead.developerProfile.profilePicture.url }}" width="30px" class="rounded-0">
+                                {% else %}
+                                    <img src='{% static "img/default-user-icon.jpg" %}' width="30px" class="rounded-0">
+                                {% endif %}
+                                &nbsp;&nbsp;
+                                <a href="#">{{p.lead.get_full_name}}</a>
+                            </td>
                             <td><span class="{{p.status.icon}}">{{p.status.internalKey}}</span></td>
                         </tr>
                         {% endfor %}
