@@ -1,4 +1,6 @@
-from django.http import Http404
+from http import HTTPStatus
+
+from django.http import Http404, JsonResponse
 from django.shortcuts import render
 
 from jira2.models import *
@@ -176,6 +178,8 @@ def boardSettings(request, url):
 
     if request.is_ajax():
         boardName = request.GET.get('board-name', None)
+        newColumnName = request.GET.get('new-column-name', None)
+        removeColumn = request.GET.get('remove-column', None)
 
         addProject = request.GET.get('add-project', None)
         removeProject = request.GET.get('remove-project', None)
@@ -185,6 +189,39 @@ def boardSettings(request, url):
 
         addMember = request.GET.get('add-member', None)
         removeMember = request.GET.get('remove-member', None)
+
+        newColumnOrder = request.GET.getlist('new-column-order[]', None)
+
+        if newColumnOrder is not None:
+            newColumnOrder = [int(i.split('-')[2]) for i in newColumnOrder]
+            for i in thisBoard.boardColumns.all():
+                i.orderNo = newColumnOrder.index(i.pk)
+                i.save(update_fields=['orderNo'])
+
+        if removeColumn is not None:
+            Column.objects.filter(id=removeColumn).delete()
+
+        if newColumnName is not None:
+            existingColumn = [i for i in thisBoard.boardColumns.all() if i.name.lower() == newColumnName.lower()]
+            if len(existingColumn) == 0:
+                newColumn = Column.objects.create(
+                    board=thisBoard,
+                    name=newColumnName,
+                    orderNo=thisBoard.boardColumns.count() + 1
+                )
+                response = {
+                    'statusCode': HTTPStatus.OK,
+                    'id': newColumn.id,
+                    'name': newColumn.name,
+                    'orderNo': newColumn.orderNo
+                }
+                return JsonResponse(response)
+
+            else:
+                response = {
+                    'statusCode': HTTPStatus.ACCEPTED,
+                }
+                return JsonResponse(response)
 
         if boardName is not None:
             thisBoard.name = boardName

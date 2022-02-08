@@ -68,11 +68,38 @@
         <div>
         	<div class="row">
         		<div class="col">
-        			<h4><bold>Board Columns</bold></h4>
+        			<div class="row">
+        				<div class="col-7">
+        					<h4><bold>Board Columns</bold></h4>
+        				</div>
+        				<div class="col">
+        					<input type="text" id="board-column-name" class="form-control form-control-sm" placeholder="Column name">
+        				</div>
+        				<div class="col">
+        					<button type="button" onclick="createBoardColumn();" class="btn btn-primary btn-sm">Add Column</button>
+        				</div>
+        			</div>
         		</div>
         	</div>
-
             <hr>
+            <div class="row">
+        		<div class="col" id="board-columns-container">
+        			{% for column in board.boardColumns.all %}
+        			<div class="card" id="column-container-{{column.id}}">
+        				<div class="card-body" style="height: 10px;">
+		        			<div class="row">
+		        				<div class="col">
+		        					<input type="text" id="board-column-name-{{column.id}}" class="form-control form-control-sm" value="{{column.name}}" placeholder="Column name" style="margin-top: -15px;">
+		        				</div>
+		        				<div class="col-auto">
+		        					<button type="button" class="btn btn-danger btn-sm" onclick="deleteColumn('{{column.id}}');" style="margin-top: -24px;">Delete Column</button>
+		        				</div>
+		        			</div>
+        				</div>
+        			</div>
+        			{% endfor %}
+        		</div>
+        	</div>
         </div>
     </div>
 </div>
@@ -206,17 +233,75 @@
 		);
 	});
 
-	function createColumn()
+	function createBoardColumn()
 	{
-		alert(2);
+		var columnName = $('#board-column-name').val();
+		$('#board-column-name').val('');
+		$.ajax(
+			{
+				data:
+				{
+					'new-column-name': columnName,
+				},
+				dataType: 'json',
+				success: function(response)
+				{
+					console.log(response);
+					if (response.statusCode == 200)
+					{
+						$('#board-columns-container').append(`
+							<div class="card" id="column-container-${response.id}">
+		        				<div class="card-body" style="height: 10px;">
+				        			<div class="row">
+				        				<div class="col">
+				        					<input type="text" id="board-column-name-${response.id}" class="form-control form-control-sm" value="${response.name}" placeholder="Column name" style="margin-top: -15px;">
+				        				</div>
+				        				<div class="col-auto">
+				        					<button type="button" class="btn btn-danger btn-sm" onclick="deleteColumn('${response.id}');" style="margin-top: -24px;">Delete Column</button>
+				        				</div>
+				        			</div>
+		        				</div>
+		        			</div>`
+		        		);
+					}
+				}
+			}
+		);
 	}
 
 	$( function() {
-    $( "#sortable" ).sortable({
-    	revert: true
-    });
-  } );
+		$('#board-columns-container').sortable(
+			{
+				stop: function(e, ui)
+				{
+					const newOrder = $.map($('#board-columns-container > div'), div => div.id);
+					$.ajax(
+						{
+							data:
+							{
+								'new-column-order': newOrder,
+							},
+							dataType: 'json',
+						}
+					);
+				}
+			}
+		);
+	} );
 
+	function deleteColumn(columnId)
+	{
+		$('#column-container-'+columnId).remove();
+		$.ajax(
+			{
+				data:
+				{
+					'remove-column': columnId,
+				},
+				dataType: 'json',
+			}
+		);
+	}
 
 </script>
 

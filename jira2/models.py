@@ -84,7 +84,7 @@ class Board(models.Model):
 
 
 class Column(models.Model):
-    board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name='_boardColumns')
+    board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name='boardColumns')
     name = models.CharField(max_length=2048, blank=True, null=True)
     internalKey = models.CharField(max_length=2048, blank=True, null=True, unique=True)
     colour = ColorField(default='#FF0000')
@@ -95,9 +95,10 @@ class Column(models.Model):
 
     class Meta:
         verbose_name_plural = "Column"
+        ordering = ['orderNo']
 
     def __str__(self):
-        return self.internalKey
+        return self.name
 
 
 class Label(models.Model):
