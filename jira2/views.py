@@ -169,17 +169,22 @@ def board(request, url):
 def boardSettings(request, url):
 
     try:
-        thisBoard = Board.objects.get(url=url)
+        thisBoard = Board.objects.prefetch_related('boardColumns').get(url=url)
     except Board.DoesNotExist:
         raise Http404
 
     allProjects = (Project.objects.filter(isPrivate=True, members__in=[request.user]) | Project.objects.filter(isPrivate=False)).distinct()
-    developerProfiles = DeveloperProfile.objects.all()
+    developerProfiles = DeveloperProfile.objects.all().select_related('user')
+
+    boardColumns = thisBoard.boardColumns.all()
 
     if request.is_ajax():
         boardName = request.GET.get('board-name', None)
         newColumnName = request.GET.get('new-column-name', None)
         removeColumn = request.GET.get('remove-column', None)
+
+        updateColumnName = request.GET.get('update-column-name', None)
+        columnId = request.GET.get('column-id', None)
 
         addProject = request.GET.get('add-project', None)
         removeProject = request.GET.get('remove-project', None)
@@ -192,17 +197,25 @@ def boardSettings(request, url):
 
         newColumnOrder = request.GET.getlist('new-column-order[]', None)
 
-        if newColumnOrder is not None:
+        if updateColumnName is not None and columnId is not None:
+            for i in boardColumns:
+                if i.id == int(columnId):
+                    i.name = updateColumnName
+                    i.save(update_fields=['name'])
+                    break
+
+        if len(newColumnOrder) > 0:
             newColumnOrder = [int(i.split('-')[2]) for i in newColumnOrder]
-            for i in thisBoard.boardColumns.all():
+            for i in boardColumns:
                 i.orderNo = newColumnOrder.index(i.pk)
                 i.save(update_fields=['orderNo'])
 
         if removeColumn is not None:
+            # TODO: Before removing columns check if there are any ticket present in this column.
             Column.objects.filter(id=removeColumn).delete()
 
         if newColumnName is not None:
-            existingColumn = [i for i in thisBoard.boardColumns.all() if i.name.lower() == newColumnName.lower()]
+            existingColumn = [i for i in boardColumns if i.name.lower() == newColumnName.lower()]
             if len(existingColumn) == 0:
                 newColumn = Column.objects.create(
                     board=thisBoard,

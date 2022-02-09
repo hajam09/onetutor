@@ -89,7 +89,7 @@
         				<div class="card-body" style="height: 10px;">
 		        			<div class="row">
 		        				<div class="col">
-		        					<input type="text" id="board-column-name-{{column.id}}" class="form-control form-control-sm" value="{{column.name}}" placeholder="Column name" style="margin-top: -15px;">
+		        					<input type="text" id="board-column-name-{{column.id}}" class="form-control form-control-sm" value="{{column.name}}" placeholder="Column name" style="margin-top: -15px;" readonly>
 		        				</div>
 		        				<div class="col-auto">
 		        					<button type="button" class="btn btn-danger btn-sm" onclick="deleteColumn('{{column.id}}');" style="margin-top: -24px;">Delete Column</button>
@@ -135,6 +135,32 @@
 	$('#board-projects').select2().val(BOARD_PROJECTS_ID).trigger("change")
 	$('#board-admins').select2().val(BOARD_ADMINS_ID).trigger("change")
 	$('#board-members').select2().val(BOARD_MEMBERS_ID).trigger("change")
+
+	{% for column in board.boardColumns.all %}
+		$( "#board-column-name-{{column.id}}" ).focusin(function() {
+			$(this).removeAttr("readonly");
+		});
+
+		$( "#board-column-name-{{column.id}}" ).focusout(function() {
+			$(this).attr('readonly','');
+
+			var columnName = $(this).val();
+
+			if (columnName && !columnName.trim() || columnName.length==0)
+				return;
+
+			$.ajax(
+				{
+					data:
+					{
+						'update-column-name': columnName,
+						'column-id': '{{column.id}}',
+					},
+					dataType: 'json',
+				}
+			);
+		});
+	{% endfor %}
 
 
 	$( "#board-name" ).focusin(function() {
@@ -246,7 +272,6 @@
 				dataType: 'json',
 				success: function(response)
 				{
-					console.log(response);
 					if (response.statusCode == 200)
 					{
 						$('#board-columns-container').append(`
@@ -254,7 +279,7 @@
 		        				<div class="card-body" style="height: 10px;">
 				        			<div class="row">
 				        				<div class="col">
-				        					<input type="text" id="board-column-name-${response.id}" class="form-control form-control-sm" value="${response.name}" placeholder="Column name" style="margin-top: -15px;">
+				        					<input type="text" id="board-column-name-${response.id}" class="form-control form-control-sm" value="${response.name}" placeholder="Column name" style="margin-top: -15px;" readonly>
 				        				</div>
 				        				<div class="col-auto">
 				        					<button type="button" class="btn btn-danger btn-sm" onclick="deleteColumn('${response.id}');" style="margin-top: -24px;">Delete Column</button>
@@ -263,6 +288,30 @@
 		        				</div>
 		        			</div>`
 		        		);
+
+		        		$( "#board-column-name-" + response.id ).focusin(function() {
+							$(this).removeAttr("readonly");
+						});
+
+						$( "#board-column-name-" + response.id ).focusout(function() {
+							$(this).attr('readonly','');
+
+							var columnName = $(this).val();
+
+							if (columnName && !columnName.trim() || columnName.length==0)
+								return;
+
+							$.ajax(
+								{
+									data:
+									{
+										'update-column-name': columnName,
+										'column-id': response.id,
+									},
+									dataType: 'json',
+								}
+							);
+						});
 					}
 				}
 			}
