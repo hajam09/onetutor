@@ -102,7 +102,7 @@ class Column(models.Model):
 
 
 class Label(models.Model):
-    board = models.ForeignKey(Board, on_delete=models.CASCADE)
+    board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name='boardLabels')
     name = models.CharField(max_length=2048, blank=True, null=True)
     internalKey = models.CharField(max_length=2048, blank=True, null=True, unique=True)
     colour = ColorField(default='#FF0000')

@@ -169,7 +169,7 @@ def board(request, url):
 def boardSettings(request, url):
 
     try:
-        thisBoard = Board.objects.prefetch_related('boardColumns').get(url=url)
+        thisBoard = Board.objects.prefetch_related('boardColumns', 'boardLabels').get(url=url)
     except Board.DoesNotExist:
         raise Http404
 
@@ -177,14 +177,22 @@ def boardSettings(request, url):
     developerProfiles = DeveloperProfile.objects.all().select_related('user')
 
     boardColumns = thisBoard.boardColumns.all()
+    boardLabels = thisBoard.boardLabels.all()
 
     if request.is_ajax():
         boardName = request.GET.get('board-name', None)
         newColumnName = request.GET.get('new-column-name', None)
         removeColumn = request.GET.get('remove-column', None)
 
+        newLabelName = request.GET.get('new-label-name', None)
+        removeLabel = request.GET.get('remove-label', None)
+
         updateColumnName = request.GET.get('update-column-name', None)
         columnId = request.GET.get('column-id', None)
+
+        updateLabelName = request.GET.get('update-label-name', None)
+        labelId = request.GET.get('label-id', None)
+        updateLabelColour = request.GET.get('update-label-colour', None)
 
         addProject = request.GET.get('add-project', None)
         removeProject = request.GET.get('remove-project', None)
@@ -196,6 +204,20 @@ def boardSettings(request, url):
         removeMember = request.GET.get('remove-member', None)
 
         newColumnOrder = request.GET.getlist('new-column-order[]', None)
+
+        if updateLabelName is not None and labelId is not None:
+            for i in boardLabels:
+                if i.id == int(labelId):
+                    i.name = updateLabelName
+                    i.save(update_fields=['name'])
+                    break
+
+        if updateLabelColour is not None and labelId is not None:
+            for i in boardLabels:
+                if i.id == int(labelId):
+                    i.colour = updateLabelColour
+                    i.save(update_fields=['colour'])
+                    break
 
         if updateColumnName is not None and columnId is not None:
             for i in boardColumns:
@@ -210,9 +232,25 @@ def boardSettings(request, url):
                 i.orderNo = newColumnOrder.index(i.pk)
                 i.save(update_fields=['orderNo'])
 
+        if removeLabel is not None:
+            Label.objects.filter(id=removeLabel).delete()
+
         if removeColumn is not None:
             # TODO: Before removing columns check if there are any ticket present in this column.
             Column.objects.filter(id=removeColumn).delete()
+
+        if newLabelName is not None:
+            newLabel = Label.objects.create(
+                board=thisBoard,
+                name=newLabelName,
+            )
+            response = {
+                'statusCode': HTTPStatus.OK,
+                'id': newLabel.id,
+                'name': newLabel.name,
+                'colour': newLabel.colour
+            }
+            return JsonResponse(response)
 
         if newColumnName is not None:
             existingColumn = [i for i in boardColumns if i.name.lower() == newColumnName.lower()]

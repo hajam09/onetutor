@@ -6,6 +6,22 @@
 <link rel="stylesheet" href="/static/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="/static/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
 
+<style type="text/css">
+.grabbable {
+    cursor: move; /* fallback if grab cursor is unsupported */
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+}
+
+ /* (Optional) Apply a "closed-hand" cursor during drag operation. */
+.grabbable:active {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+}
+</style>
+
 <div class="container-fluid" style="margin: auto;overflow-x: hipen; color: black; max-width: 1800px;">
 	<br>
 	<div class="col-6">
@@ -58,12 +74,10 @@
                         </select>
                     </div>
                 </dd>
-
             </dl>
-
-            <hr>
         </div>
     </div>
+    <hr>
     <div class="col-6">
         <div>
         	<div class="row">
@@ -81,11 +95,11 @@
         			</div>
         		</div>
         	</div>
-            <hr>
+        	<br>
             <div class="row">
         		<div class="col" id="board-columns-container">
         			{% for column in board.boardColumns.all %}
-        			<div class="card" id="column-container-{{column.id}}">
+        			<div class="card grabbable" id="column-container-{{column.id}}">
         				<div class="card-body" style="height: 10px;">
 		        			<div class="row">
 		        				<div class="col">
@@ -93,6 +107,48 @@
 		        				</div>
 		        				<div class="col-auto">
 		        					<button type="button" class="btn btn-danger btn-sm" onclick="deleteColumn('{{column.id}}');" style="margin-top: -24px;">Delete Column</button>
+		        				</div>
+		        			</div>
+        				</div>
+        			</div>
+        			{% endfor %}
+        		</div>
+        	</div>
+        </div>
+    </div>
+    <br><hr>
+    <div class="col-6">
+        <div>
+        	<div class="row">
+        		<div class="col">
+        			<div class="row">
+        				<div class="col-7">
+        					<h4><bold>Board Labels</bold></h4>
+        				</div>
+        				<div class="col">
+        					<input type="text" id="board-label-name" class="form-control form-control-sm" placeholder="Label name">
+        				</div>
+        				<div class="col">
+        					<button type="button" onclick="createBoardLabel();" class="btn btn-primary btn-sm">Add Label</button>
+        				</div>
+        			</div>
+        		</div>
+        	</div>
+        	<br>
+            <div class="row">
+        		<div class="col" id="board-labels-container">
+        			{% for label in board.boardLabels.all %}
+        			<div class="card" id="label-container-{{label.id}}">
+        				<div class="card-body" style="height: 10px;">
+		        			<div class="row">
+		        				<div class="col">
+		        					<input type="text" id="board-label-name-{{label.id}}" class="form-control form-control-sm" value="{{label.name}}" placeholder="Label name" style="margin-top: -15px;" readonly>
+		        				</div>
+		        				<div class="col-auto" style="margin-top: -13px;">
+		        					<input type="color" id="board-label-colour-{{label.id}}" value="{{label.colour}}">
+		        				</div>
+		        				<div class="col-auto">
+		        					<button type="button" class="btn btn-danger btn-sm" onclick="deleteLabel('{{label.id}}');" style="margin-top: -24px;">Delete Label</button>
 		        				</div>
 		        			</div>
         				</div>
@@ -155,6 +211,49 @@
 					{
 						'update-column-name': columnName,
 						'column-id': '{{column.id}}',
+					},
+					dataType: 'json',
+				}
+			);
+		});
+	{% endfor %}
+
+	{% for label in board.boardLabels.all %}
+		$( "#board-label-name-{{label.id}}" ).focusin(function() {
+			$(this).removeAttr("readonly");
+		});
+
+		$( "#board-label-name-{{label.id}}" ).focusout(function() {
+			$(this).attr('readonly','');
+
+			var labelName = $(this).val();
+
+			if (labelName && !labelName.trim() || labelName.length==0)
+				return;
+
+			$.ajax(
+				{
+					data:
+					{
+						'update-label-name': labelName,
+						'label-id': '{{label.id}}',
+					},
+					dataType: 'json',
+				}
+			);
+		});
+
+		$( "#board-label-colour-{{label.id}}" ).focusout(function() {
+			$(this).attr('readonly','');
+
+			var labelColour = $(this).val();
+
+			$.ajax(
+				{
+					data:
+					{
+						'update-label-colour': labelColour,
+						'label-id': '{{label.id}}',
 					},
 					dataType: 'json',
 				}
@@ -259,6 +358,83 @@
 		);
 	});
 
+	function createBoardLabel()
+	{
+		var labelName = $('#board-label-name').val();
+		$('#board-label-name').val('');
+
+		$.ajax(
+			{
+				data:
+				{
+					'new-label-name': labelName,
+				},
+				dataType: 'json',
+				success: function(response)
+				{
+					$('#board-labels-container').append(`
+						<div class="card" id="label-container-${response.id}">
+	        				<div class="card-body" style="height: 10px;">
+			        			<div class="row">
+			        				<div class="col">
+			        					<input type="text" id="board-label-name-${response.id}" class="form-control form-control-sm" value="${response.name}" placeholder="Label name" style="margin-top: -15px;" readonly>
+			        				</div>
+			        				<div class="col-auto" style="margin-top: -13px;">
+			        					<input type="color" id="board-label-colour-${response.id}" value="${response.colour}">
+			        				</div>
+			        				<div class="col-auto">
+			        					<button type="button" class="btn btn-danger btn-sm" onclick="deleteLabel('${response.id}');" style="margin-top: -24px;">Delete Label</button>
+			        				</div>
+			        			</div>
+	        				</div>
+	        			</div>`
+		        	);
+
+		        	$( "#board-label-name-" + response.id  ).focusin(function() {
+						$(this).removeAttr("readonly");
+					});
+
+					$( "#board-label-name-" + response.id  ).focusout(function() {
+						$(this).attr('readonly','');
+
+						var labelName = $(this).val();
+
+						if (labelName && !labelName.trim() || labelName.length==0)
+							return;
+
+						$.ajax(
+							{
+								data:
+								{
+									'update-label-name': labelName,
+									'label-id': response.id,
+								},
+								dataType: 'json',
+							}
+						);
+					});
+
+					$( "#board-label-colour-" + response.id  ).focusout(function() {
+						$(this).attr('readonly','');
+
+						var labelColour = $(this).val();
+
+						$.ajax(
+							{
+								data:
+								{
+									'update-label-colour': labelColour,
+									'label-id': response.id,
+								},
+								dataType: 'json',
+							}
+						);
+					});
+				}
+			}
+		);
+	}
+
 	function createBoardColumn()
 	{
 		var columnName = $('#board-column-name').val();
@@ -346,6 +522,20 @@
 				data:
 				{
 					'remove-column': columnId,
+				},
+				dataType: 'json',
+			}
+		);
+	}
+
+	function deleteLabel(labelId)
+	{
+		$('#label-container-'+labelId).remove();
+		$.ajax(
+			{
+				data:
+				{
+					'remove-label': labelId,
 				},
 				dataType: 'json',
 			}
