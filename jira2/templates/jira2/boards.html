@@ -57,8 +57,8 @@
                             </dd>
                             <dd class="col-sm-9">
                                 <select class="form-control select2bs4" multiple="multiple" name="board-admins" data-placeholder="Select board admins" required>
-                                    {% for m in developerProfiles %}
-                                    <option value="{{m.user.id}}">{{m.user.get_full_name}}</option>
+                                    {% for d in developerProfiles %}
+                                    <option value="{{d.user.id}}">{{d.user.get_full_name}}</option>
                                     {% endfor %}
                                 </select>
                             </dd>
@@ -68,8 +68,8 @@
                             </dd>
                             <dd class="col-sm-9">
                                 <select class="form-control select2bs4" multiple="multiple" name="board-members" data-placeholder="Select board members" required>
-                                    {% for m in developerProfiles  %}
-                                    <option value="{{m.user.id}}">{{m.user.get_full_name}}</option>
+                                    {% for d in developerProfiles  %}
+                                    <option value="{{d.user.id}}">{{d.user.get_full_name}}</option>
                                     {% endfor  %}
                                 </select>
                             </dd>
@@ -80,8 +80,8 @@
                             <dd class="col-sm-9">
                                 <div class="form-group">
                                     <select class="form-control select2bs4" multiple="multiple" name="board-projects" data-placeholder="Select project(s) this board will be used for." required>
-                                      {% for m in projects  %}
-                                    <option value="{{m.id}}">{{m.name}}</option>
+                                      {% for p in projects  %}
+                                    <option value="{{p.id}}">{{p.name}}</option>
                                     {% endfor  %}
                                     </select>
                                   </div>
@@ -132,7 +132,7 @@
                 </div>
             </div>
             <br>
-            {% if boards.all %}
+            {% if boards|length > 0  %}
                 <table id="boardTable" class="table table-bordered table-hover">
                     <thead>
                         <tr>

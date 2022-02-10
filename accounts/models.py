@@ -17,7 +17,7 @@ def getRandomImageForAvatar():
 
 class TutorProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='tutorProfile')
-    secondaryKey = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    url = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     summary = models.CharField(max_length=128, blank=True, null=True)
     about = models.TextField()
     location = jsonfield.JSONField(blank=True, null=True)
@@ -30,12 +30,15 @@ class TutorProfile(models.Model):
     class Meta:
         verbose_name_plural = "TutorProfile"
         ordering = ['-id']
+        indexes = [
+            models.Index(fields=['url',])
+        ]
 
     def getSubjectsAsList(self):
         return self.subjects.split(",")
 
     def getTutoringUrl(self):
-        return reverse('tutoring:view-tutor-profile', kwargs={'tutorProfileKey': self.secondaryKey})
+        return reverse('tutoring:view-tutor-profile', kwargs={'url': self.url})
 
     @property
     def getTutorRatingAsStars(self):
@@ -66,7 +69,7 @@ class TutorProfile(models.Model):
 
 class StudentProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='studentProfile')
-    secondaryKey = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    url = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     about = models.TextField()
     education = jsonfield.JSONField(blank=True, null=True)
     subjects = models.CharField(max_length=8192, blank=True, null=True)
@@ -74,6 +77,9 @@ class StudentProfile(models.Model):
 
     class Meta:
         verbose_name_plural = "StudentProfile"
+        indexes = [
+            models.Index(fields=['url', ])
+        ]
 
     def getSubjectsAsList(self):
         return self.subjects.split(",")
@@ -97,6 +103,9 @@ class Countries(models.Model):
     class Meta:
         verbose_name_plural = "Countries"
         ordering = ('name',)
+        indexes = [
+            models.Index(fields=['name', ])
+        ]
 
     def __str__(self):
         return "{} - {} - {}".format(self.id, self.alpha, self.name)

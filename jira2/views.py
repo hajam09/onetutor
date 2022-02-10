@@ -131,12 +131,14 @@ def project(request, url):
 def boards(request):
     """
     TODO: Allow user to copy board on template and make changes before creating new board.
-    TODO: On Admin column, display dev profile icons.
-    TODO: On Project column, display project icon.
     """
 
-    allBoards = (Board.objects.filter(isPrivate=True, admins__in=[request.user]) | Board.objects.filter(isPrivate=True, members__in=[request.user]) | Board.objects.filter(isPrivate=False)).distinct()
-    developerProfiles = DeveloperProfile.objects.all()
+    privateAdminBoards = Board.objects.filter(isPrivate=True, admins__in=[request.user]).prefetch_related('projects', 'admins__developerProfile')
+    privateMemberBoards = Board.objects.filter(isPrivate=True, members__in=[request.user]).prefetch_related('projects', 'admins__developerProfile')
+    nonPrivateBoards = Board.objects.filter(isPrivate=False).prefetch_related('projects', 'admins__developerProfile')
+
+    allBoards = (privateAdminBoards | privateMemberBoards | nonPrivateBoards).distinct()
+    developerProfiles = DeveloperProfile.objects.all().select_related('user')
     allProjects = (Project.objects.filter(isPrivate=True, members__in=[request.user]) | Project.objects.filter(isPrivate=False)).distinct()
 
     if request.method == "POST":
@@ -180,19 +182,8 @@ def boardSettings(request, url):
     boardLabels = thisBoard.boardLabels.all()
 
     if request.is_ajax():
+        # update board
         boardName = request.GET.get('board-name', None)
-        newColumnName = request.GET.get('new-column-name', None)
-        removeColumn = request.GET.get('remove-column', None)
-
-        newLabelName = request.GET.get('new-label-name', None)
-        removeLabel = request.GET.get('remove-label', None)
-
-        updateColumnName = request.GET.get('update-column-name', None)
-        columnId = request.GET.get('column-id', None)
-
-        updateLabelName = request.GET.get('update-label-name', None)
-        labelId = request.GET.get('label-id', None)
-        updateLabelColour = request.GET.get('update-label-colour', None)
 
         addProject = request.GET.get('add-project', None)
         removeProject = request.GET.get('remove-project', None)
@@ -203,28 +194,50 @@ def boardSettings(request, url):
         addMember = request.GET.get('add-member', None)
         removeMember = request.GET.get('remove-member', None)
 
+
+        # update column
+        newColumnName = request.GET.get('new-column-name', None)
+
+        removeColumn = request.GET.get('remove-column', None)
+
+        updateColumnName = request.GET.get('update-column-name', None)
+        columnId = request.GET.get('column-id', None)
+
         newColumnOrder = request.GET.getlist('new-column-order[]', None)
 
-        if updateLabelName is not None and labelId is not None:
-            for i in boardLabels:
-                if i.id == int(labelId):
-                    i.name = updateLabelName
-                    i.save(update_fields=['name'])
-                    break
+        # update label
+        newLabelName = request.GET.get('new-label-name', None)
 
-        if updateLabelColour is not None and labelId is not None:
-            for i in boardLabels:
-                if i.id == int(labelId):
-                    i.colour = updateLabelColour
-                    i.save(update_fields=['colour'])
-                    break
+        removeLabel = request.GET.get('remove-label', None)
 
-        if updateColumnName is not None and columnId is not None:
-            for i in boardColumns:
-                if i.id == int(columnId):
-                    i.name = updateColumnName
-                    i.save(update_fields=['name'])
-                    break
+        updateLabelName = request.GET.get('update-label-name', None)
+        updateLabelColour = request.GET.get('update-label-colour', None)
+        labelId = request.GET.get('label-id', None)
+
+        if labelId is not None:
+            label = Label.objects.get(id=labelId, board=thisBoard)
+            updateFields = []
+
+            if updateLabelName is not None:
+                label.name = updateLabelName
+                updateFields.append('name')
+
+            if updateLabelColour:
+                label.colour = updateLabelColour
+                updateFields.append('colour')
+
+            label.save(update_fields=updateFields)
+
+
+        if columnId is not None:
+            column = Column.objects.get(id=columnId)
+            updateFields = []
+
+            if updateColumnName is not None:
+                column.name = updateColumnName
+                updateFields.append('name')
+
+            column.save(update_fields=updateFields)
 
         if len(newColumnOrder) > 0:
             newColumnOrder = [int(i.split('-')[2]) for i in newColumnOrder]
@@ -236,7 +249,7 @@ def boardSettings(request, url):
             Label.objects.filter(id=removeLabel).delete()
 
         if removeColumn is not None:
-            # TODO: Before removing columns check if there are any ticket present in this column.
+            # TODO: Before removing columns check if there are any ticket present in this column. see TutorProfileForm
             Column.objects.filter(id=removeColumn).delete()
 
         if newLabelName is not None:
@@ -278,39 +291,28 @@ def boardSettings(request, url):
             thisBoard.name = boardName
 
         if addProject is not None:
-            for _project in allProjects:
-                if str(_project.id) == addProject:
-                    thisBoard.projects.add(_project)
+            _project = Project.objects.get(id=addProject)
+            thisBoard.projects.add(_project)
 
         if removeProject is not None:
-            for _project in thisBoard.projects.all():
-                if str(_project.id) == removeProject:
-                    thisBoard.projects.remove(_project)
-                    break
+            _project = Project.objects.get(id=removeProject)
+            thisBoard.projects.remove(_project)
 
         if addAdmin is not None:
-            for _admin in developerProfiles:
-                if str(_admin.user.id) == addAdmin:
-                    thisBoard.admins.add(_admin.user)
-                    break
+            user = User.objects.get(id=addAdmin)
+            thisBoard.admins.add(user)
 
         if removeAdmin is not None:
-            for _admin in thisBoard.admins.all():
-                if str(_admin.id) == removeAdmin:
-                    thisBoard.admins.remove(_admin)
-                    break
+            user = User.objects.get(id=removeAdmin)
+            thisBoard.admins.remove(user)
 
         if addMember is not None:
-            for _member in developerProfiles:
-                if str(_member.user.id) == addMember:
-                    thisBoard.members.add(_member.user)
-                    break
+            user = User.objects.get(id=addMember)
+            thisBoard.members.add(user)
 
         if removeMember is not None:
-            for _member in thisBoard.members.all():
-                if str(_member.id) == removeMember:
-                    thisBoard.members.remove(_member)
-                    break
+            user = User.objects.get(id=removeMember)
+            thisBoard.members.remove(user)
 
         thisBoard.save()
 

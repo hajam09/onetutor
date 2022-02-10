@@ -1,3 +1,4 @@
+import json
 import operator
 from functools import reduce
 from http import HTTPStatus
@@ -17,6 +18,7 @@ from accounts.models import TutorProfile
 from onetutor.operations import dateOperations
 from onetutor.operations import generalOperations
 from onetutor.operations import tutorOperations
+from onetutor.operations.seedDataOperations import runSeedDataInstaller
 from tutoring.models import ComponentGroup
 from tutoring.models import QuestionAnswer
 from tutoring.models import QuestionAnswerComment
@@ -24,6 +26,7 @@ from tutoring.models import TutorReview
 
 
 def mainpage(request):
+	# runSeedDataInstaller()
 
 	if request.method == "POST" and request.POST["generalQuery"]:
 		return redirect("tutoring:searchBySubjectAndFilter", searchParameters=request.POST["generalQuery"])
@@ -147,10 +150,10 @@ def searchBySubjectAndFilter(request, searchParameters=""):
 	return render(request, 'tutoring/mainpage.html', context)
 
 
-def viewTutorProfile(request, tutorProfileKey):
+def viewTutorProfile(request, url):
 
 	try:
-		tutorProfile = TutorProfile.objects.get(secondaryKey=tutorProfileKey)
+		tutorProfile = TutorProfile.objects.get(url=url)
 	except TutorProfile.DoesNotExist:
 		return redirect("tutoring:mainpage")
 
@@ -573,8 +576,25 @@ def questionAnswerThread(request, questionId):
 	except EmptyPage:
 		questionAnswerComment = paginator.page(paginator.num_pages)
 
+	questionAnswerCommentJson = [
+		{
+			'id': i.pk,
+			'creatorFullName': i.creator.get_full_name(),
+			'comment': i.comment.replace("\n", "<br />"),
+			'date': dateOperations.humanizePythonDate(i.date),
+			'likeCount': i.likes.count(),
+			'dislikeCount': i.dislikes.count(),
+			'canEdit': request.user == i.creator,
+			'edited': i.edited,
+			'show': True
+
+		}
+		for i in allQuestionAnswerComment
+	]
+
 	context = {
 		"questionAnswer": questionAnswer,
-		"questionAnswerComment": questionAnswerComment
+		"questionAnswerComment": questionAnswerComment,
+		"questionAnswerCommentJson": json.dumps(questionAnswerCommentJson)
 	}
 	return render(request, "tutoring/questionAnswerThread.html", context)
