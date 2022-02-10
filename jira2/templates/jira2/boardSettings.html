@@ -74,6 +74,26 @@
                         </select>
                     </div>
                 </dd>
+
+                <dd class="col-sm-3">
+                    <label style="color: #6c757d;">Project visibility</label>
+                </dd>
+                <dd class="col-sm-9">
+                    <div class="row">
+                        <div class="col">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" id="visibility-everyone" name="board-visibility" value="visibility-everyone" class="custom-control-input" {% if not board.isPrivate %} checked {% endif %}>
+                                <label class="custom-control-label" for="visibility-everyone">Everyone</label>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" id="visibility-members" name="board-visibility" value="visibility-members" class="custom-control-input" {% if board.isPrivate %} checked {% endif %}>
+                                <label class="custom-control-label" for="visibility-members">Members</label>
+                            </div>
+                        </div>
+                    </div>
+                </dd>
             </dl>
         </div>
     </div>
@@ -260,6 +280,19 @@
 			);
 		});
 	{% endfor %}
+
+	$('input[type=radio][name=board-visibility]').change(function() {
+
+		$.ajax(
+			{
+				data:
+				{
+					'board-visibility': this.value,
+				},
+				dataType: 'json',
+			}
+		);
+	});
 
 
 	$( "#board-name" ).focusin(function() {

@@ -184,6 +184,7 @@ def boardSettings(request, url):
     if request.is_ajax():
         # update board
         boardName = request.GET.get('board-name', None)
+        boardVisibility = request.GET.get('board-visibility', None)
 
         addProject = request.GET.get('add-project', None)
         removeProject = request.GET.get('remove-project', None)
@@ -289,6 +290,9 @@ def boardSettings(request, url):
 
         if boardName is not None:
             thisBoard.name = boardName
+
+        if boardVisibility is not None:
+            thisBoard.isPrivate = boardVisibility == 'visibility-members'
 
         if addProject is not None:
             _project = Project.objects.get(id=addProject)
