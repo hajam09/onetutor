@@ -61,7 +61,7 @@ class Board(models.Model):
     internalKey = models.CharField(max_length=2048, blank=True, null=True, unique=True)
     url = models.UUIDField(default=uuid.uuid4, editable=True, unique=True)
     sprint = models.ForeignKey(Sprint, null=True, blank=True, on_delete=models.SET_NULL)
-    projects = models.ManyToManyField(Project, blank=True, related_name='_boardProjects')
+    projects = models.ManyToManyField(Project, blank=True, related_name='boardProjects')
     members = models.ManyToManyField(User, blank=True, related_name='_boardMembers')
     admins = models.ManyToManyField(User, blank=True, related_name='_boardAdmins')
     isPrivate = models.BooleanField(default=False)

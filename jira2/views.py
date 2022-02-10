@@ -113,6 +113,7 @@ def projects(request):
             icon=request.FILES.get('project-icon', None),
         )
 
+        # TODO: Bug in the key.
         newMembers = [i for i in developerProfiles if str(i.user.pk) in request.POST.getlist('project-project')]
         newProject.members.add(*newMembers)
         newProject.members.add(request.user)
@@ -126,6 +127,48 @@ def projects(request):
 
 def project(request, url):
     return render(request, "jira2/project.html")
+
+
+def projectSettings(request, url):
+
+    """
+    TODO: The start date and the end date in the template is not showing the correct project dates.
+    """
+
+    try:
+        thisProject = Project.objects.get(url=url)
+    except Project.DoesNotExist:
+        raise Http404
+
+    developerProfiles = DeveloperProfile.objects.select_related('user').all()
+    projectStatusComponent = Component.objects.filter(componentGroup__internalKey='Project Status')
+
+    if request.method == "POST":
+        thisProject.name = request.POST['project-name']
+        thisProject.code = request.POST['project-code']
+        thisProject.description = request.POST['project-description']
+        thisProject.startDate = request.POST['project-start']
+        thisProject.endDate = request.POST['project-end']
+        thisProject.isPrivate = request.POST['project-visibility'] == 'visibility-members'
+
+        updatedIcon = request.FILES.get('project-icon', None)
+
+        if updatedIcon is not None:
+            thisProject.icon = updatedIcon
+
+        # TODO: Consider fetching User objects from db directly if it would reduce computation time.
+        updatedProjectMembers = [i.user for i in developerProfiles if str(i.user.id) in request.POST.getlist('project-members')]
+        thisProject.members.clear()
+        thisProject.members.add(*updatedProjectMembers)
+
+        thisProject.save()
+
+    context = {
+        'project': thisProject,
+        'developerProfiles': developerProfiles,
+        'projectStatusComponent': projectStatusComponent
+    }
+    return render(request, 'jira2/projectSettings.html', context)
 
 
 def boards(request):
@@ -177,9 +220,7 @@ def boardSettings(request, url):
 
     allProjects = (Project.objects.filter(isPrivate=True, members__in=[request.user]) | Project.objects.filter(isPrivate=False)).distinct()
     developerProfiles = DeveloperProfile.objects.all().select_related('user')
-
     boardColumns = thisBoard.boardColumns.all()
-    boardLabels = thisBoard.boardLabels.all()
 
     if request.is_ajax():
         # update board
@@ -326,7 +367,6 @@ def boardSettings(request, url):
         'projects': allProjects,
         'developerProfiles': developerProfiles
     }
-
     return render(request, 'jira2/boardSettings.html', context)
 
 
