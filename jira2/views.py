@@ -2,6 +2,7 @@ from http import HTTPStatus
 
 from django.http import Http404, JsonResponse
 from django.shortcuts import render
+from django.db.models import Q
 
 from jira2.models import *
 
@@ -96,9 +97,14 @@ def projects(request):
     """
     TODO: Filter dropdown to filter projects by name, name contains, lead, status (show ongoing and terminated)...
     """
-    allProjects = (Project.objects.filter(isPrivate=True, members__in=[request.user]) | Project.objects.filter(isPrivate=False)).distinct()
-    developerProfiles = DeveloperProfile.objects.all()
+    """
+    privateAdminProjects = Project.objects.filter(isPrivate=True, members__in=[request.user]).select_related('lead__developerProfile', 'status')
+    nonPrivateProjects = Project.objects.filter(isPrivate=False).select_related('lead__developerProfile', 'status')
+    allProjects = ( privateAdminProjects | nonPrivateProjects ).distinct()
+    """
 
+    allProjects = Project.objects.filter(Q(isPrivate=True, members__in=[request.user]) | Q(isPrivate=False)).select_related('lead__developerProfile', 'status').distinct()
+    developerProfiles = DeveloperProfile.objects.select_related('user').all()
 
     if request.method == "POST":
         newProject = Project.objects.create(
