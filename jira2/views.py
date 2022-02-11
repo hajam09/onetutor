@@ -133,6 +133,8 @@ def projectSettings(request, url):
 
     """
     TODO: The start date and the end date in the template is not showing the correct project dates.
+    TODO: Disable the project description at first and then activate it on click.
+    TODO: Display all the kanban boards that link this project.
     """
 
     try:
@@ -150,9 +152,10 @@ def projectSettings(request, url):
         thisProject.startDate = request.POST['project-start']
         thisProject.endDate = request.POST['project-end']
         thisProject.isPrivate = request.POST['project-visibility'] == 'visibility-members'
+        thisProject.lead = next((dp.user for dp in developerProfiles if str(dp.user.id) == request.POST['project-lead']), None) #User.objects.get(id=request.POST['project-lead'])
+        thisProject.status = next((psc for psc in projectStatusComponent if str(psc.id) == request.POST['project-status']), None)
 
         updatedIcon = request.FILES.get('project-icon', None)
-
         if updatedIcon is not None:
             thisProject.icon = updatedIcon
 

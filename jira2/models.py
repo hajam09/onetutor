@@ -52,6 +52,9 @@ class Project(models.Model):
     orderNo = models.IntegerField(default=1, blank=True, null=True)
     versionNo = models.IntegerField(default=1, blank=True, null=True)
 
+    def __str__(self):
+        return self.name
+
     def getProjectUrl(self):
         return reverse('jira2:project-page', kwargs={'url': self.url})
 

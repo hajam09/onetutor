@@ -54,7 +54,7 @@
 	                </dd>
 	                <dd class="col-sm-9">
 	                    <div class="form-group">
-	                    	<select class="form-control select2bs4" style="width: 100%;" disabled>
+	                    	<select class="form-control select2bs4" name="project-lead" style="width: 100%;">
 		                  		{% for dp in developerProfiles %}
 		                  			<option value="{{dp.user.id}}" {% if project.lead == dp.user %} selected {% endif %} >{{dp.user.get_full_name}}</option>
 		                    	{% endfor %}
@@ -69,7 +69,7 @@
 	                </dd>
 	                <dd class="col-sm-9">
 	                    <div class="form-group">
-	                    	<select class="form-control select2bs4" style="width: 100%;" disabled>
+	                    	<select class="form-control select2bs4" name="project-status" style="width: 100%;">
 		                  		{% for status in projectStatusComponent %}
 		                  			<option value="{{status.id}}" {% if project.status == status %} selected {% endif %} >{{status}}</option>
 		                    	{% endfor %}
