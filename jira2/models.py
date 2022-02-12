@@ -74,6 +74,7 @@ class Board(models.Model):
     orderNo = models.IntegerField(default=1, blank=True, null=True)
     versionNo = models.IntegerField(default=1, blank=True, null=True)
     # location
+    # team?
 
     class Meta:
         verbose_name_plural = "Board"

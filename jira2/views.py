@@ -410,7 +410,47 @@ def profile(request):
 
 
 def ticketPage(request, internalKey):
-    return render(request, 'jira2/ticketPage.html')
+    """
+    TODO: change internalKey -> url in the arguments
+    TODO: think about Ticket.column and Ticket.status
+    """
+    try:
+        thisTicket = Ticket.objects.get(internalKey=internalKey)
+    except Ticket.DoesNotExist:
+        raise Http404
+
+    if not internalKey == "{}-{}".format(thisTicket.project.code, thisTicket.project.id):
+        raise Http404
+
+    if request.is_ajax():
+        updateTicketSummary = request.GET.get('update-ticket-summary', None)
+        updateTicketDescription = request.GET.get('update-ticket-description', None)
+        updateTicketUserImpact = request.GET.get('update-ticket-user-impact', None)
+        updateTicketReleaseImpact = request.GET.get('update-ticket-release-impact', None)
+        updateTicketAutomaticTestingReason = request.GET.get('update-ticket-automatic-testing-reason', None)
+
+        if updateTicketSummary is not None:
+            thisTicket.summary = updateTicketSummary
+
+        if updateTicketDescription is not None:
+            thisTicket.description = updateTicketDescription
+
+        if updateTicketUserImpact is not None:
+            thisTicket.userImpact = updateTicketUserImpact
+
+        if updateTicketReleaseImpact is not None:
+            thisTicket.releaseImpact = updateTicketReleaseImpact
+
+        if updateTicketAutomaticTestingReason is not None:
+            thisTicket.automatedTestingReason = updateTicketAutomaticTestingReason
+
+
+        thisTicket.save()
+
+    context = {
+        'ticket': thisTicket
+    }
+    return render(request, 'jira2/ticketPage.html', context)
 
 
 def kanbanBoard(request, internalKey):
