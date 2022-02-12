@@ -1,10 +1,12 @@
 from http import HTTPStatus
 
-from django.http import Http404, JsonResponse
-from django.shortcuts import render
 from django.db.models import Q
+from django.http import Http404
+from django.http import JsonResponse
+from django.shortcuts import render
 
 from jira2.models import *
+from onetutor.operations import databaseOperations
 
 
 # def mainPage(request):
@@ -204,6 +206,13 @@ def boards(request):
             isPrivate=request.POST['board-visibility'] == 'visibility-members'
         )
 
+        # need to create a backlog column when creating a board.
+        Column.objects.create(
+            board=newBoard,
+            name='Backlog',
+            deleteFl=True
+        )
+
         newBoard.projects.add(*boardProjects)
         newBoard.members.add(*boardMembers)
         newBoard.admins.add(*boardAdmins)
@@ -230,6 +239,7 @@ def boardSettings(request, url):
     allProjects = (Project.objects.filter(isPrivate=True, members__in=[request.user]) | Project.objects.filter(isPrivate=False)).distinct()
     developerProfiles = DeveloperProfile.objects.all().select_related('user')
     boardColumns = thisBoard.boardColumns.all()
+    boardLabels = thisBoard.boardLabels.all()
 
     if request.is_ajax():
         # update board
@@ -266,7 +276,7 @@ def boardSettings(request, url):
         labelId = request.GET.get('label-id', None)
 
         if labelId is not None:
-            label = Label.objects.get(id=labelId, board=thisBoard)
+            label = databaseOperations.getObjectById(boardLabels, labelId)
             updateFields = []
 
             if updateLabelName is not None:
@@ -281,7 +291,7 @@ def boardSettings(request, url):
 
 
         if columnId is not None:
-            column = Column.objects.get(id=columnId)
+            column = databaseOperations.getObjectById(boardColumns, columnId)
             updateFields = []
 
             if updateColumnName is not None:
@@ -345,11 +355,11 @@ def boardSettings(request, url):
             thisBoard.isPrivate = boardVisibility == 'visibility-members'
 
         if addProject is not None:
-            _project = Project.objects.get(id=addProject)
+            _project = databaseOperations.getObjectById(allProjects, addProject)
             thisBoard.projects.add(_project)
 
         if removeProject is not None:
-            _project = Project.objects.get(id=removeProject)
+            _project = databaseOperations.getObjectById(allProjects, removeProject)
             thisBoard.projects.remove(_project)
 
         if addAdmin is not None:

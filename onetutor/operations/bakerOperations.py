@@ -16,7 +16,7 @@ BOOLEAN = [True, False]
 JOB_TITLE = ['Software Engineer', 'Project Owner', 'Project Manager', 'UX/UI Designer', 'Solutions Architect']
 
 
-def createDeveloperProfile(limit=0, maxLimit=20):
+def createDeveloperProfile(limit=20, maxLimit=20):
     if limit == 0:
         return
 

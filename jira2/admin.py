@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from jira2.forms import BoardForm
 from jira2.forms import ProjectForm
 from jira2.models import Board
 from jira2.models import Column
@@ -17,7 +18,11 @@ class ProjectAdmin(admin.ModelAdmin):
     form = ProjectForm
 
 
-admin.site.register(Board)
+class BoardAdmin(admin.ModelAdmin):
+    form = BoardForm
+
+
+admin.site.register(Board, BoardAdmin)
 admin.site.register(Column)
 admin.site.register(DeveloperProfile)
 admin.site.register(Label)

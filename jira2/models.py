@@ -119,38 +119,41 @@ class Label(models.Model):
 
 
 class Ticket(models.Model):
-    internalKey = models.CharField(max_length=2048, blank=True, null=True, unique=True)  # PROJECT_CODE + PK
+    internalKey = models.CharField(max_length=2048, unique=True, db_index=True)  # PROJECT_CODE + PK
     summary = models.CharField(max_length=2048)
-    fixVersion = models.CharField(max_length=2048)
-    component = models.CharField(max_length=2048)
+    description = models.TextField(blank=True, null=True)
+    fixVersion = models.CharField(max_length=2048, blank=True, null=True)
+    component = models.CharField(max_length=2048, blank=True, null=True)
     project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True)
-    sprint = models.ForeignKey(Sprint, on_delete=models.SET_NULL, null=True)
-    assignee = models.ForeignKey(User, on_delete=models.CASCADE, related_name="_ticketAssignee")
-    reporter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="_ticketReporter")
+    sprint = models.ForeignKey(Sprint, null=True, blank=True, on_delete=models.SET_NULL, related_name="sprintTickets")
+    assignee = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name="ticketAssignee")
+    reporter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="ticketReporter")
     colour = ColorField(default='#FF0000')  # EPIC colour
-    description = models.TextField()
-    userImpact = models.TextField()
-    technicalImpact = models.TextField()
-    releaseImpact = models.TextField()
-    automatedTestingReason = models.TextField()
-    storyPoints = models.IntegerField()
-    manDays = models.IntegerField()
+    storyPoints = models.IntegerField(blank=True, null=True)
+    manDays = models.IntegerField(blank=True, null=True)
     createdDttm = models.DateTimeField(auto_now_add=True)
     modifiedDttm = models.DateTimeField(auto_now=True)
     issueType = models.ForeignKey(Component, null=True, on_delete=models.SET_NULL, related_name='_ticketIssueType', limit_choices_to={'componentGroup__code': 'TICKET_ISSUE_TYPE'})
     securityLevel = models.ForeignKey(Component, null=True, on_delete=models.SET_NULL, related_name='_ticketSecurity', limit_choices_to={'componentGroup__code': 'TICKET_SECURITY'})
     status = models.ForeignKey(Component, null=True, on_delete=models.SET_NULL, related_name='_ticketStatus', limit_choices_to={'componentGroup__code': 'TICKET_STATUS'})
     priority = models.ForeignKey(Component, null=True, on_delete=models.SET_NULL, related_name='_ticketPriority', limit_choices_to={'componentGroup__code': 'TICKET_PRIORITY'})
+    board = models.ForeignKey(Board, null=True, on_delete=models.SET_NULL)
+    column = models.ForeignKey(Column, null=True, on_delete=models.SET_NULL, related_name='_columnTickets')
+    userImpact = models.TextField(blank=True, null=True)
+    technicalImpact = models.TextField(blank=True, null=True)
+    releaseImpact = models.TextField(blank=True, null=True)
+    automatedTestingReason = models.TextField(blank=True, null=True)
     watchers = models.ManyToManyField(User, blank=True, related_name='_ticketWatchers')
     subTask = models.ManyToManyField('Ticket', blank=True, related_name='_ticketSubTask')
     label = models.ManyToManyField(Label, blank=True, related_name='_ticketLabels')
-    board = models.ForeignKey(Board, null=True, on_delete=models.SET_NULL)
-    column = models.ForeignKey(Column, null=True, on_delete=models.SET_NULL, related_name='_columnTickets')
-    epic = models.ForeignKey('Ticket', null=True, on_delete=models.SET_NULL, related_name='_epicTickets')
+    epic = models.ForeignKey('Ticket', null=True, blank=True, on_delete=models.SET_NULL, related_name='_epicTickets')
     reference = models.CharField(max_length=2048, blank=True, null=True)
     deleteFl = models.BooleanField(default=False)
     orderNo = models.IntegerField(default=1, blank=True, null=True)
     versionNo = models.IntegerField(default=1, blank=True, null=True)
+
+    class Meta:
+        verbose_name_plural = "Ticket"
 
 
 class TicketComment(models.Model):

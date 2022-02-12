@@ -255,7 +255,7 @@ class ComponentGroup(models.Model):
 
 class Component(models.Model):
     componentGroup = models.ForeignKey(ComponentGroup, on_delete=models.CASCADE, related_name="components")
-    internalKey = models.CharField(max_length=2048, blank=True, null=True, unique=True)
+    internalKey = models.CharField(max_length=2048, blank=True, null=True)
     reference = models.CharField(max_length=2048, blank=True, null=True)
     languageKey = models.CharField(max_length=2048, blank=True, null=True)
     code = models.CharField(max_length=2048, blank=True, null=True)
