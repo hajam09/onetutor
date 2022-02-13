@@ -226,6 +226,17 @@ def boards(request):
 
 
 def board(request, url):
+    try:
+        thisBoard = Board.objects.get(url=url)
+    except Board.DoesNotExist:
+        raise Http404
+
+    if thisBoard.isPrivate:
+        if not request.user in thisBoard.members.all() or not request.user in thisBoard.admins.all():
+            # bad request, do not show the board to this user.
+            pass
+
+    boardColumns = thisBoard.boardColumns.all().exclude(name__icontains="Backlog", orderNo=1)
     return render(request, "jira2/board.html")
 
 
@@ -413,14 +424,21 @@ def ticketPage(request, internalKey):
     """
     TODO: change internalKey -> url in the arguments
     TODO: think about Ticket.column and Ticket.status
+    select_related
+    prefetch_related
     """
     try:
-        thisTicket = Ticket.objects.get(internalKey=internalKey)
+        thisTicket = Ticket.objects.select_related('issueType', 'project').prefetch_related('epicTickets__issueType', 'epicTickets__assignee').get(internalKey=internalKey)
     except Ticket.DoesNotExist:
         raise Http404
 
-    if not internalKey == "{}-{}".format(thisTicket.project.code, thisTicket.project.id):
-        raise Http404
+    # if not internalKey == "{}-{}".format(thisTicket.project.code, thisTicket.id):
+    #     raise Http404
+
+    if thisTicket.issueType.code == 'EPIC':
+        pass
+    else:
+        pass
 
     if request.is_ajax():
         updateTicketSummary = request.GET.get('update-ticket-summary', None)
@@ -428,6 +446,8 @@ def ticketPage(request, internalKey):
         updateTicketUserImpact = request.GET.get('update-ticket-user-impact', None)
         updateTicketReleaseImpact = request.GET.get('update-ticket-release-impact', None)
         updateTicketAutomaticTestingReason = request.GET.get('update-ticket-automatic-testing-reason', None)
+        newTicket = request.GET.get('new-ticket', None)
+        newSubTicket = request.GET.get('new-sub-ticket', None)
 
         if updateTicketSummary is not None:
             thisTicket.summary = updateTicketSummary
@@ -444,6 +464,49 @@ def ticketPage(request, internalKey):
         if updateTicketAutomaticTestingReason is not None:
             thisTicket.automatedTestingReason = updateTicketAutomaticTestingReason
 
+        if newTicket is not None:
+            Ticket(
+                internalKey=thisTicket.project.name + "-" + str(thisTicket.project.projectTickets.count() + 1),
+                summary=newTicket,
+                project=thisTicket.project,
+                assignee=request.user,
+                issueType=request.user,
+            )
+
+        ticketProject = thisTicket.project
+
+        if newSubTicket is not None:
+            # this is only created in normal ticket type and not in an epic ticket.
+            newSubTicketObj = Ticket.objects.create(
+                internalKey=ticketProject.name + "-" + str(ticketProject.projectTickets.count() + 1),
+                summary=newSubTicket,
+                project=ticketProject,
+                sprint=thisTicket.sprint,
+                reporter=request.user,
+                issueType=Component.objects.get(componentGroup__code='TICKET_ISSUE_TYPE', code='SUB_TASK'),
+                securityLevel=Component.objects.get(componentGroup__code='TICKET_SECURITY', code='INTERNAL'),
+                status=thisTicket.status,
+                priority=Component.objects.get(componentGroup__code='TICKET_PRIORITY', code='NONE'),
+                board=thisTicket.board,
+                column=thisTicket.column,
+            )
+            thisTicket.subTask.add(newSubTicketObj)
+
+            response = {
+                'statusCode': HTTPStatus.OK,
+                'id': newSubTicketObj.id,
+                'internalKey': newSubTicketObj.internalKey,
+                'summary': newSubTicketObj.summary,
+                'priority': {
+                    'internalKey': newSubTicketObj.priority.internalKey,
+                    'icon': newSubTicketObj.priority.icon,
+                },
+                'issueType': {
+                    'internalKey': newSubTicketObj.issueType.internalKey,
+                    'icon': newSubTicketObj.issueType.icon
+                }
+            }
+            return JsonResponse(response)
 
         thisTicket.save()
 

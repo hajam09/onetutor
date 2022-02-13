@@ -122,10 +122,10 @@ class Label(models.Model):
 class Ticket(models.Model):
     internalKey = models.CharField(max_length=2048, unique=True, db_index=True)  # PROJECT_CODE + PK
     summary = models.CharField(max_length=2048)
-    description = models.TextField(blank=True, null=True)
+    description = models.TextField(default='None', blank=True, null=True)
     fixVersion = models.CharField(max_length=2048, blank=True, null=True)
     component = models.CharField(max_length=2048, blank=True, null=True)
-    project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True)
+    project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True, related_name="projectTickets")
     sprint = models.ForeignKey(Sprint, null=True, blank=True, on_delete=models.SET_NULL, related_name="sprintTickets")
     assignee = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name="ticketAssignee")
     reporter = models.ForeignKey(User, on_delete=models.CASCADE, related_name="ticketReporter")
@@ -140,14 +140,14 @@ class Ticket(models.Model):
     priority = models.ForeignKey(Component, null=True, on_delete=models.SET_NULL, related_name='_ticketPriority', limit_choices_to={'componentGroup__code': 'TICKET_PRIORITY'})
     board = models.ForeignKey(Board, null=True, on_delete=models.SET_NULL)
     column = models.ForeignKey(Column, null=True, on_delete=models.SET_NULL, related_name='_columnTickets')
-    userImpact = models.TextField(blank=True, null=True)
-    technicalImpact = models.TextField(blank=True, null=True)
-    releaseImpact = models.TextField(blank=True, null=True)
-    automatedTestingReason = models.TextField(blank=True, null=True)
+    userImpact = models.TextField(default='None', blank=True, null=True)
+    technicalImpact = models.TextField(default='None', blank=True, null=True)
+    releaseImpact = models.TextField(default='None', blank=True, null=True)
+    automatedTestingReason = models.TextField(default='None', blank=True, null=True)
     watchers = models.ManyToManyField(User, blank=True, related_name='_ticketWatchers')
     subTask = models.ManyToManyField('Ticket', blank=True, related_name='_ticketSubTask')
     label = models.ManyToManyField(Label, blank=True, related_name='_ticketLabels')
-    epic = models.ForeignKey('Ticket', null=True, blank=True, on_delete=models.SET_NULL, related_name='_epicTickets')
+    epic = models.ForeignKey('Ticket', null=True, blank=True, on_delete=models.SET_NULL, related_name='epicTickets')
     reference = models.CharField(max_length=2048, blank=True, null=True)
     deleteFl = models.BooleanField(default=False)
     orderNo = models.IntegerField(default=1, blank=True, null=True)
@@ -155,6 +155,9 @@ class Ticket(models.Model):
 
     class Meta:
         verbose_name_plural = "Ticket"
+
+    def __str__(self):
+        return self.internalKey
 
 
 class TicketComment(models.Model):
