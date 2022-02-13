@@ -49,13 +49,14 @@
     <Component componentGroup.internalKey="Project Status" internalKey="Archived" code="ARCHIVED" colour="#dc3545" icon="badge badge-secondary" orderNo="5"/>
 
     <Component componentGroup.internalKey="Ticket Issue Type" internalKey="Bug" code="BUG" icon="img/bug.jpg" orderNo="1"/>
-    <Component componentGroup.internalKey="Ticket Issue Type" internalKey="Improvement" code="IMPROVEMENT" icon="img/improvement.jpg" orderNo="2"/>
-    <Component componentGroup.internalKey="Ticket Issue Type" internalKey="Story" code="STORY" icon="img/story.jpg" orderNo="3"/>
-    <Component componentGroup.internalKey="Ticket Issue Type" internalKey="Task" code="TASK" icon="img/task.jpg" orderNo="4"/>
-    <Component componentGroup.internalKey="Ticket Issue Type" internalKey="Test" code="TEST" icon="img/test.jpg" orderNo="5"/>
-    <Component componentGroup.internalKey="Ticket Issue Type" internalKey="Epic" code="EPIC" icon="img/epic.jpg" orderNo="6"/>
-    <Component componentGroup.internalKey="Ticket Issue Type" internalKey="Spike" code="SPIKE" icon="img/spike.jpg" orderNo="7"/>
-    <Component componentGroup.internalKey="Ticket Issue Type" internalKey="Sub Task" code="SUB_TASK" icon="img/subtask.jpg" orderNo="7"/>
+    <Component componentGroup.internalKey="Ticket Issue Type" internalKey="Epic" code="EPIC" icon="img/epic.jpg" orderNo="2"/>
+    <Component componentGroup.internalKey="Ticket Issue Type" internalKey="Improvement" code="IMPROVEMENT" icon="img/improvement.jpg" orderNo="3"/>
+    <Component componentGroup.internalKey="Ticket Issue Type" internalKey="New Feature" code="NEW_FEATURE" icon="img/newFeature.jpg" orderNo="4"/>
+    <Component componentGroup.internalKey="Ticket Issue Type" internalKey="Story" code="STORY" icon="img/story.jpg" orderNo="5"/>
+    <Component componentGroup.internalKey="Ticket Issue Type" internalKey="Sub Task" code="SUB_TASK" icon="img/subtask.jpg" orderNo="6"/>
+    <Component componentGroup.internalKey="Ticket Issue Type" internalKey="Task" code="TASK" icon="img/task.jpg" orderNo="7"/>
+    <Component componentGroup.internalKey="Ticket Issue Type" internalKey="Test" code="TEST" icon="img/test.jpg" orderNo="8"/>
+    <Component componentGroup.internalKey="Ticket Issue Type" internalKey="Spike" code="SPIKE" icon="img/spike.jpg" orderNo="9"/>
 
     <Component componentGroup.internalKey="Ticket Status" internalKey="Open" code="OPEN" icon="badge badge-secondary" orderNo="1"/>
     <Component componentGroup.internalKey="Ticket Status" internalKey="Progress" code="PROGRESS" icon="badge badge-primary" orderNo="2"/>
