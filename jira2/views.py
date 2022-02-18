@@ -434,6 +434,7 @@ def ticketPage(request, internalKey):
     #     raise Http404
 
     jiraIssues = Component.objects.filter(componentGroup__internalKey="Ticket Issue Type").exclude(internalKey="Epic")
+    jiraPriorities = Component.objects.filter(componentGroup__internalKey="Ticket Priority")
 
     if thisTicket.issueType.code == 'EPIC':
         TEMPLATE_NAME = 'jira2/epicTicketPage.html'
@@ -450,6 +451,10 @@ def ticketPage(request, internalKey):
         newSubTicket = request.GET.get('new-sub-ticket', None)
         newIssueName = request.GET.get('new-issue-name', None)
         newIssueType = request.GET.get('new-issue-type', None)
+        updateTicketPriority = request.GET.get('update-ticket-priority', None)
+
+        if updateTicketPriority is not None:
+            thisTicket.priority = next(i for i in jiraPriorities if i.code==updateTicketPriority)
 
         if updateTicketSummary is not None:
             thisTicket.summary = updateTicketSummary
@@ -548,6 +553,7 @@ def ticketPage(request, internalKey):
     context = {
         'ticket': thisTicket,
         'jiraIssues': jiraIssues,
+        'jiraPriorities': jiraPriorities,
     }
     return render(request, TEMPLATE_NAME, context)
 
