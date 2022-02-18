@@ -1,0 +1,184 @@
+{% extends "accounts/account_base.html" %}
+{% load static %}
+{% block content %}
+<style type="text/css">
+.card-header .title {
+	font-size: 17px;
+}
+
+.card-header .accicon {
+	float: right;
+	font-size: 20px;
+	wiph: 1.2em;
+}
+
+.card-header {
+	cursor: pointer;
+	border-bottom: none;
+}
+
+.card-header:not(.collapsed) .rotate-icon { transform: rotate(180deg);}
+
+.avatars {
+    padding-left: 0;
+    list-style: none;
+    margin: 0;
+}
+
+.avatars>li {
+    display: inline-block;
+}
+
+.avatars>li+li {
+    margin-left: -0.75rem;
+}
+
+.avatar {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    border: 2px solid #f8f9fa;
+    background: #f8f9fa;
+    color: #fff;
+}
+
+</style>
+<div class="container-fluid" style="margin: auto;overflow-x: hipen; max-width: 1500px;color: black;">
+    <br>
+    <div class="row gutters-sm">
+        <div class="col-12 col-md-12 col-lg-8 col-xl-8">
+            {% block ticketContent %}
+            {% endblock %}
+        </div>
+        <div class="col-12 col-md-12 col-lg-4 col-xl-4 d-none d-lg-block d-xl-none d-none d-xl-block">
+            <div id="ticketDetails">
+                <div class="card" style="color: black;">
+                    <div class="card-header" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true">     
+                        <span class="title">Details </span>
+                        <span class="accicon"><i class="fas fa-angle-down rotate-icon"></i></span>
+                    </div>
+                    <div id="collapseOne" class="collapse show" data-parent="#ticketDetails">
+                        <div class="card-body">
+                        	<dl class="row">
+							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Assignee</small></p>
+							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
+
+							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Reporter</small></p>
+							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
+
+							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Components</small></p>
+							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
+
+							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Fix Versions</small></p>
+							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
+
+							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Labels</small></p>
+							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
+
+							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Story Points</small></p>
+							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
+
+							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Man days</small></p>
+							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
+
+							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Sprint</small></p>
+							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
+
+							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Project Requirement</small></p>
+							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
+
+							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Scrum Team</small></p>
+							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
+
+							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Automated Testing</small></p>
+							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
+
+							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Priority</small></p>
+							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
+
+							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Epic Name</small></p>
+							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
+
+							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Epic Status</small></p>
+							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
+							</dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $( "#ticket-summary" ).focusout(function() {
+        var ticketSummary = $(this).val();
+        $.ajax(
+            {
+                data:
+                {
+                    'update-ticket-summary': ticketSummary,
+                },
+                dataType: 'json',
+            }
+        );
+    });
+
+    function updateTicketDescription()
+    {
+        var ticketDescription = $('[name="ticket-description"]').val();
+        $.ajax(
+            {
+                data:
+                {
+                    'update-ticket-description': ticketDescription,
+                },
+                dataType: 'json',
+            }
+        );
+    }
+
+    function updateUserImpact()
+    {
+        var ticketUserImpact = $('[name="ticket-user-impact"]').val();
+        $.ajax(
+            {
+                data:
+                {
+                    'update-ticket-user-impact': ticketUserImpact,
+                },
+                dataType: 'json',
+            }
+        );
+    }
+
+    function updateReleaseImpact()
+    {
+        var ticketReleaseImpact = $('[name="ticket-release-impact"]').val();
+        $.ajax(
+            {
+                data:
+                {
+                    'update-ticket-release-impact': ticketReleaseImpact,
+                },
+                dataType: 'json',
+            }
+        );
+    }
+
+    function updateAutomaticTestingReason()
+    {
+        var ticketAutomaticTestingReason = $('[name="ticket-automatic-testing-reason"]').val();
+        $.ajax(
+            {
+                data:
+                {
+                    'update-ticket-automatic-testing-reason': ticketAutomaticTestingReason,
+                },
+                dataType: 'json',
+            }
+        );
+    }
+</script>
+{% endblock %}

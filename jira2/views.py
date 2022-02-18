@@ -424,8 +424,6 @@ def ticketPage(request, internalKey):
     """
     TODO: change internalKey -> url in the arguments
     TODO: think about Ticket.column and Ticket.status
-    select_related
-    prefetch_related
     """
     try:
         thisTicket = Ticket.objects.select_related('issueType', 'project').prefetch_related('epicTickets__issueType', 'epicTickets__assignee').get(internalKey=internalKey)
@@ -436,9 +434,9 @@ def ticketPage(request, internalKey):
     #     raise Http404
 
     if thisTicket.issueType.code == 'EPIC':
-        pass
+        TEMPLATE_NAME = 'jira2/epicTicketPage.html'
     else:
-        pass
+        TEMPLATE_NAME = 'jira2/standardTicketPage.html'
 
     if request.is_ajax():
         updateTicketSummary = request.GET.get('update-ticket-summary', None)
@@ -510,10 +508,13 @@ def ticketPage(request, internalKey):
 
         thisTicket.save()
 
+    jiraIssues = Component.objects.filter(componentGroup__internalKey="Ticket Issue Type").exclude(internalKey="Epic")
+
     context = {
-        'ticket': thisTicket
+        'ticket': thisTicket,
+        'jiraIssues': jiraIssues,
     }
-    return render(request, 'jira2/ticketPage.html', context)
+    return render(request, TEMPLATE_NAME, context)
 
 
 def kanbanBoard(request, internalKey):
