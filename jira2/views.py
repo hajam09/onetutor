@@ -433,6 +433,8 @@ def ticketPage(request, internalKey):
     # if not internalKey == "{}-{}".format(thisTicket.project.code, thisTicket.id):
     #     raise Http404
 
+    jiraIssues = Component.objects.filter(componentGroup__internalKey="Ticket Issue Type").exclude(internalKey="Epic")
+
     if thisTicket.issueType.code == 'EPIC':
         TEMPLATE_NAME = 'jira2/epicTicketPage.html'
     else:
@@ -446,6 +448,8 @@ def ticketPage(request, internalKey):
         updateTicketAutomaticTestingReason = request.GET.get('update-ticket-automatic-testing-reason', None)
         newTicket = request.GET.get('new-ticket', None)
         newSubTicket = request.GET.get('new-sub-ticket', None)
+        newIssueName = request.GET.get('new-issue-name', None)
+        newIssueType = request.GET.get('new-issue-type', None)
 
         if updateTicketSummary is not None:
             thisTicket.summary = updateTicketSummary
@@ -484,7 +488,7 @@ def ticketPage(request, internalKey):
                 issueType=Component.objects.get(componentGroup__code='TICKET_ISSUE_TYPE', code='SUB_TASK'),
                 securityLevel=Component.objects.get(componentGroup__code='TICKET_SECURITY', code='INTERNAL'),
                 status=thisTicket.status,
-                priority=Component.objects.get(componentGroup__code='TICKET_PRIORITY', code='NONE'),
+                priority=Component.objects.get(componentGroup__code='TICKET_PRIORITY', code='MEDIUM'),
                 board=thisTicket.board,
                 column=thisTicket.column,
             )
@@ -506,9 +510,40 @@ def ticketPage(request, internalKey):
             }
             return JsonResponse(response)
 
-        thisTicket.save()
+        if newIssueName and newIssueType:
+            ticketProject = thisTicket.project
+            newTicket = Ticket.objects.create(
+                internalKey=ticketProject.name + "-" + str(ticketProject.projectTickets.count() + 1),
+                summary=newIssueName,
+                project=ticketProject,
+                reporter=request.user,
+                issueType=next((i for i in jiraIssues if i.code==newIssueType), None),
+                securityLevel=Component.objects.get(componentGroup__internalKey="Ticket Security", internalKey="External"),
+                status=Component.objects.get(componentGroup__internalKey="Ticket Status", internalKey="Backlog"),
+                priority=Component.objects.get(componentGroup__code='TICKET_PRIORITY', code='MEDIUM'),
+                board=thisTicket.board,
+                column=thisTicket.column,
+                epic=thisTicket
+            )
 
-    jiraIssues = Component.objects.filter(componentGroup__internalKey="Ticket Issue Type").exclude(internalKey="Epic")
+            response = {
+                'statusCode': HTTPStatus.OK,
+                'id': newTicket.id,
+                'internalKey': newTicket.internalKey,
+                'summary': newTicket.summary,
+                'issueType': {
+                    'internalKey': newTicket.issueType.internalKey,
+                    'icon': newTicket.issueType.icon
+                },
+                'priority': {
+                    'internalKey': newTicket.priority.internalKey,
+                    'icon': newTicket
+                        .priority.icon,
+                },
+            }
+            return JsonResponse(response)
+
+        thisTicket.save()
 
     context = {
         'ticket': thisTicket,

@@ -70,8 +70,8 @@
                                     <div class="col" style="margin-top: -12px; margin-left: -15px;">
                                         <span>{{st.summary}}</span>
                                     </div>
-                                    <div class="col-auto" style="margin-top: -12px; margin-left: -15px;">
-                                        <span class="{{st.priority.icon}}">{{st.priority}}</span>
+                                    <div class="col-auto" style="margin-top: -18px; margin-left: -15px;">
+                                        <img class="avatar filter-by-alt" src="{% static st.priority.icon %}" data-filter-by="alt" data-toggle="tooltip" data-placement="top" title="{{st.priority.internalKey}}">
                                     </div>
                                     <div class="col-auto" style="margin-top: -18px; margin-left: -15px;">
                                         {% if st.assignee %}
@@ -80,7 +80,6 @@
                                         <img class="avatar filter-by-alt" src="https://cdn3.iconfinder.com/data/icons/avatars-round-flat/33/man5-512.png" data-filter-by="alt">
                                         {% endif %}
                                     </div>
-                                    
                                 </div>
                             </div>
                         </div>
@@ -154,7 +153,7 @@
                                 <div class="card-body" style="height: 10px;">
                                     <div class="row">
                                         <div class="col-auto" style="margin-top: -13px; margin-left: -10px;">
-                                            <img src='{% static "img/subtask.jpg" %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="${response.issueType.internalKey}">
+                                            <img src='/static/${response.issueType.icon}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="${response.issueType.internalKey}">
                                         </div>
                                         <div class="col-auto" style="margin-top: -12px; margin-left: -15px;">
                                             <a href="#">${response.internalKey}</a>
@@ -162,8 +161,8 @@
                                         <div class="col" style="margin-top: -12px; margin-left: -15px;">
                                             <span>${response.summary}</span>
                                         </div>
-                                        <div class="col-auto" style="margin-top: -12px; margin-left: -15px;">
-                                            <span class="${response.priority.icon}">${response.priority.internalKey}</span>
+                                        <div class="col-auto" style="margin-top: -18px; margin-left: -15px;">
+                                            <img class="avatar filter-by-alt" src="/static/${response.priority.icon}" data-filter-by="alt" data-filter-by="alt" data-toggle="tooltip" data-placement="top" title="${response.priority.internalKey}">
                                         </div>
                                         <div class="col-auto" style="margin-top: -18px; margin-left: -15px;">
                                             <img class="avatar filter-by-alt" src="https://cdn3.iconfinder.com/data/icons/avatars-round-flat/33/man5-512.png" data-filter-by="alt">
