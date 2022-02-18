@@ -8,12 +8,12 @@
             <li class="breadcrumb-item"><a href="#">{{ticket.project}}</a></li>
 
             {% if ticket.epic %}
-            <li class="breadcrumb-item"><a href="#">{{ticket.epic.internalKey}}</a></li>
+            <li class="breadcrumb-item"><a href="{{ ticket.getEpicUrl }}">{{ticket.epic.internalKey}}</a></li>
             {% endif %}
            	<li class="breadcrumb-item active" aria-current="page">
                 <img src='{% static ticket.issueType.icon %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="{{ticket.issueType.code}}">
                 &nbsp;
-                <a href="#">{{ticket.internalKey}}</a>
+                <a href="{{ ticket.getTicketUrl }}">{{ticket.internalKey}}</a>
             </li>
         </ol>
     </nav>
@@ -65,7 +65,7 @@
                                         <img src='{% static st.issueType.icon %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="{{st.issueType.internalKey}}">
                                     </div>
                                     <div class="col-auto" style="margin-top: -12px; margin-left: -15px;">
-                                        <a href="#">{{st.internalKey}}</a>
+                                        <a href="{{ st.getTicketUrl }}">{{st.internalKey}}</a>
                                     </div>
                                     <div class="col" style="margin-top: -12px; margin-left: -15px;">
                                         <span>{{st.summary}}</span>
@@ -156,7 +156,7 @@
                                             <img src='/static/${response.issueType.icon}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="${response.issueType.internalKey}">
                                         </div>
                                         <div class="col-auto" style="margin-top: -12px; margin-left: -15px;">
-                                            <a href="#">${response.internalKey}</a>
+                                            <a href="/jira2/ticket/${response.internalKey}">${response.internalKey}</a>
                                         </div>
                                         <div class="col" style="margin-top: -12px; margin-left: -15px;">
                                             <span>${response.summary}</span>

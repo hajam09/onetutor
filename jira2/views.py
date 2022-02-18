@@ -426,7 +426,7 @@ def ticketPage(request, internalKey):
     TODO: think about Ticket.column and Ticket.status
     """
     try:
-        thisTicket = Ticket.objects.select_related('issueType', 'project').prefetch_related('epicTickets__issueType', 'epicTickets__assignee').get(internalKey=internalKey)
+        thisTicket = Ticket.objects.select_related('issueType', 'project').prefetch_related('epicTickets__issueType', 'epicTickets__assignee').get(internalKey__iexact=internalKey)
     except Ticket.DoesNotExist:
         raise Http404
 
@@ -480,7 +480,7 @@ def ticketPage(request, internalKey):
         if newSubTicket is not None:
             # this is only created in normal ticket type and not in an epic ticket.
             newSubTicketObj = Ticket.objects.create(
-                internalKey=ticketProject.name + "-" + str(ticketProject.projectTickets.count() + 1),
+                internalKey=ticketProject.code + "-" + str(ticketProject.projectTickets.count() + 1),
                 summary=newSubTicket,
                 project=ticketProject,
                 sprint=thisTicket.sprint,
@@ -513,7 +513,7 @@ def ticketPage(request, internalKey):
         if newIssueName and newIssueType:
             ticketProject = thisTicket.project
             newTicket = Ticket.objects.create(
-                internalKey=ticketProject.name + "-" + str(ticketProject.projectTickets.count() + 1),
+                internalKey=ticketProject.code + "-" + str(ticketProject.projectTickets.count() + 1),
                 summary=newIssueName,
                 project=ticketProject,
                 reporter=request.user,

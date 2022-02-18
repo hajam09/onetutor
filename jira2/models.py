@@ -159,6 +159,12 @@ class Ticket(models.Model):
     def __str__(self):
         return self.internalKey
 
+    def getTicketUrl(self):
+        return reverse('jira2:ticket-page', kwargs={'internalKey': self.internalKey})
+
+    def getEpicUrl(self):
+        return reverse('jira2:ticket-page', kwargs={'internalKey': self.epic.internalKey})
+
 
 class TicketComment(models.Model):
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)

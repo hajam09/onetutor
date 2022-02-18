@@ -10,7 +10,7 @@
            	<li class="breadcrumb-item">
                 <img src='{% static ticket.issueType.icon %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="{{ticket.issueType.code}}">
                 &nbsp;
-                <a href="#">{{ticket.internalKey}}</a>
+                <a href="{{ ticket.getTicketUrl }}">{{ticket.internalKey}}</a>
             </li>
         </ol>
     </nav>
@@ -62,7 +62,7 @@
                                     <img src='{% static et.issueType.icon %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="{{et.issueType.internalKey}}">
                                 </div>
                                 <div class="col-auto" style="margin-top: -12px; margin-left: -15px;">
-                                    <a href="#">{{et.internalKey}}</a>
+                                    <a href="{{ et.getTicketUrl }}">{{et.internalKey}}</a>
                                 </div>
                                 <div class="col" style="margin-top: -12px; margin-left: -15px;">
                                     <span>{{et.summary}}</span>
@@ -161,7 +161,7 @@
                                             <img src='/static/${response.issueType.icon}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="${response.issueType.internalKey}">
                                         </div>
                                         <div class="col-auto" style="margin-top: -12px; margin-left: -15px;">
-                                            <a href="#">${response.internalKey}</a>
+                                            <a href="/jira2/ticket/${response.internalKey}">${response.internalKey}</a>
                                         </div>
                                         <div class="col" style="margin-top: -12px; margin-left: -15px;">
                                             <span>${response.summary}</span>
