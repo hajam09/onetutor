@@ -426,7 +426,7 @@ def ticketPage(request, internalKey):
     TODO: think about Ticket.column and Ticket.status
     """
     try:
-        thisTicket = Ticket.objects.select_related('issueType', 'project').prefetch_related('epicTickets__issueType', 'epicTickets__assignee').get(internalKey__iexact=internalKey)
+        thisTicket = Ticket.objects.select_related('issueType', 'project', 'priority').prefetch_related('epicTickets__issueType', 'epicTickets__assignee', 'epicTickets__priority').get(internalKey__iexact=internalKey)
     except Ticket.DoesNotExist:
         raise Http404
 

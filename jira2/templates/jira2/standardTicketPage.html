@@ -46,6 +46,41 @@
 
         <!--  -->
 
+        <div id="related-tickets-container">
+            {% if ticket.ticketSubTask.count > 0 %}
+                <p class="font-weight-bold">Related to</p>
+            {% endif %}
+            <div id="related-subtask-container">
+                {% for st in ticket.ticketSubTask.all %}
+                    <div class="card" id="subtask-ticket-container-{{st.id}}">
+                        <div class="card-body" style="height: 10px;">
+                            <div class="row">
+                                <div class="col-auto" style="margin-top: -13px; margin-left: -10px;">
+                                    <img src='{% static st.issueType.icon %}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="{{st.issueType.internalKey}}">
+                                </div>
+                                <div class="col-auto" style="margin-top: -12px; margin-left: -15px;">
+                                    <a href="{{ st.getTicketUrl }}">{{st.internalKey}}</a>
+                                </div>
+                                <div class="col" style="margin-top: -12px; margin-left: -15px;">
+                                    <span>{{st.summary}}</span>
+                                </div>
+                                <div class="col-auto" style="margin-top: -18px; margin-left: -15px;">
+                                    <img class="avatar filter-by-alt" src="{% static st.priority.icon %}" data-filter-by="alt" data-toggle="tooltip" data-placement="top" title="{{st.priority.internalKey}}">
+                                </div>
+                                <div class="col-auto" style="margin-top: -18px; margin-left: -15px;">
+                                    {% if st.assignee %}
+                                    <img class="avatar filter-by-alt" src="{{ st.assignee.developerProfile.profilePicture.url }}" data-filter-by="alt" data-toggle="tooltip" data-placement="top" title="{{st.assignee.get_full_name}}">
+                                    {% else %}
+                                    <img class="avatar filter-by-alt" src="https://cdn3.iconfinder.com/data/icons/avatars-round-flat/33/man5-512.png" data-filter-by="alt">
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
         <div id="tickets-container">
             {% if ticket.subTask.count > 0 %}
                 <div class="row">

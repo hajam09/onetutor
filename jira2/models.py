@@ -145,7 +145,7 @@ class Ticket(models.Model):
     releaseImpact = models.TextField(default='None', blank=True, null=True)
     automatedTestingReason = models.TextField(default='None', blank=True, null=True)
     watchers = models.ManyToManyField(User, blank=True, related_name='_ticketWatchers')
-    subTask = models.ManyToManyField('Ticket', blank=True, related_name='_ticketSubTask')
+    subTask = models.ManyToManyField('Ticket', blank=True, related_name='ticketSubTask')
     label = models.ManyToManyField(Label, blank=True, related_name='_ticketLabels')
     epic = models.ForeignKey('Ticket', null=True, blank=True, on_delete=models.SET_NULL, related_name='epicTickets')
     reference = models.CharField(max_length=2048, blank=True, null=True)
