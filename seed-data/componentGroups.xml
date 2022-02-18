@@ -9,6 +9,7 @@
     <ComponentGroup internalKey="Ticket Status" code="TICKET_STATUS"/>
     <ComponentGroup internalKey="Ticket Priority" code="TICKET_PRIORITY"/>
     <ComponentGroup internalKey="Ticket Security" code="TICKET_SECURITY"/>
+    <ComponentGroup internalKey="Task Frequency" code="TASK_FREQUENCY"/>
 
     <Component componentGroup.internalKey="Tutor Feature" internalKey="In Person Lessons" code="inPersonLessons" colour="#009C2F" orderNo="1"/>
     <Component componentGroup.internalKey="Tutor Feature" internalKey="Online lessons" code="onlineLessons" colour="#6C5CE7" orderNo="2"/>
@@ -78,4 +79,17 @@
 
     <Component componentGroup.internalKey="Ticket Security" internalKey="Internal" code="INTERNAL" icon="badge badge-danger" orderNo="1"/>
     <Component componentGroup.internalKey="Ticket Security" internalKey="External" code="EXTERNAL" icon="badge badge-primary" orderNo="2"/>
+
+    <Component componentGroup.internalKey="Task Frequency" internalKey="Every Second" code="EVERY_SECOND"/>
+    <Component componentGroup.internalKey="Task Frequency" internalKey="Every Minute" code="EVERY_MINUTE"/>
+    <Component componentGroup.internalKey="Task Frequency" internalKey="Every Hour" code="EVERY_HOUR"/>
+    <Component componentGroup.internalKey="Task Frequency" internalKey="Every Day" code="EVERY_DAY"/>
+    <Component componentGroup.internalKey="Task Frequency" internalKey="Every Five Days" code="EVERY_FIVE_DAYS"/>
+    <Component componentGroup.internalKey="Task Frequency" internalKey="Every Ten Days" code="EVERY_TEN_DAYS"/>
+    <Component componentGroup.internalKey="Task Frequency" internalKey="Every Fifteen Days" code="EVERY_FIFTEEN_DAYS"/>
+    <Component componentGroup.internalKey="Task Frequency" internalKey="Every Twenty Days" code="EVERY_TWENTY_DAYS"/>
+    <Component componentGroup.internalKey="Task Frequency" internalKey="Every Twenty Five Days" code="EVERY_TWENTY_FIVE_DAYS"/>
+    <Component componentGroup.internalKey="Task Frequency" internalKey="Every Month" code="EVERY_MONTH"/>
+    <Component componentGroup.internalKey="Task Frequency" internalKey="Every Six Months" code="EVERY_SIX_MONTHS"/>
+    <Component componentGroup.internalKey="Task Frequency" internalKey="Every Year" code="EVERY_YEAR"/>
 </SeedData>
