@@ -1,5 +1,5 @@
 from django.contrib import admin
 
-from cronjobs.models import TaskDefinition
+from recurringTask.models import TaskDefinition
 
 admin.site.register(TaskDefinition)

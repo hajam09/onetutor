@@ -1,5 +1,5 @@
-from cronjobs.processing.TaskFactory import TaskFactory
-from cronjobs.processing.TaskExecutionContext import TaskExecutionContext
+from recurringTask.processing.TaskFactory import TaskFactory
+from recurringTask.processing.TaskExecutionContext import TaskExecutionContext
 from django.contrib.sessions.models import Session
 
 

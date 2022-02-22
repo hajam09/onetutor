@@ -3,7 +3,7 @@ from abc import (
     abstractmethod
 )
 
-from cronjobs.processing.TaskExecutionContext import TaskExecutionContext
+from recurringTask.processing.TaskExecutionContext import TaskExecutionContext
 
 
 class TaskComponent(ABC):

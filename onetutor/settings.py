@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'chat',
     'channels',
     'crispy_forms',
-    'cronjobs',
+    'recurringTask',
     'colorfield',
     'coverage',
     'debug_toolbar',

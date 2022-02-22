@@ -1,5 +1,5 @@
-from cronjobs.processing.TaskComponent import TaskComponent
-from cronjobs.processing.TaskExecutionContext import TaskExecutionContext
+from recurringTask.processing.TaskComponent import TaskComponent
+from recurringTask.processing.TaskExecutionContext import TaskExecutionContext
 
 
 class TaskFactory(TaskComponent):

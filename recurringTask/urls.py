@@ -2,9 +2,9 @@ from pydoc import locate
 
 from background_task import background
 
-from cronjobs.models import TaskDefinition
+from recurringTask.models import TaskDefinition
 
-app_name = "cronjobs"
+app_name = "recurringTask"
 
 urlpatterns = [
 ]

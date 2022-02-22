@@ -22,7 +22,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
     path('chat/', include('chat.urls')),
-    path('cronjobs/', include('cronjobs.urls')),
+    path('recurringTask/', include('recurringTask.urls')),
     path('dashboard/', include('dashboard.urls')),
     path('jira/', include('jira.urls')),
     path('jira2/', include('jira2.urls')),

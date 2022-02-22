@@ -1,4 +1,4 @@
-from cronjobs.processing.BaseTaskProgress import BaseTaskProgress
+from recurringTask.processing.BaseTaskProgress import BaseTaskProgress
 
 
 class TaskExecutionContext:
@@ -9,6 +9,7 @@ class TaskExecutionContext:
 
     def createTaskProgress(self, total):
         self.progress = BaseTaskProgress(total)
+        return self.progress
 
     def addTaskArgument(self, key, value):
         self.taskArguments[key] = value
