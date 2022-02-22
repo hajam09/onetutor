@@ -155,6 +155,7 @@ class Ticket(models.Model):
 
     class Meta:
         verbose_name_plural = "Ticket"
+        ordering = ['-orderNo']
 
     def __str__(self):
         return self.internalKey

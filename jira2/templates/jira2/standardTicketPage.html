@@ -17,13 +17,13 @@
             </li>
         </ol>
     </nav>
+
     <input class="form-control" type="text" id="ticket-summary" value="{{ticket.summary}}" style="border: 0; font-size:22px;"/>
 
-    <div class="card-body tab-content">
-    	<button type="button" class="btn btn-light" onclick="initaliseTicket();">Create subtask</button>
-    </div>
 
     <div class="card-body tab-content">
+        <button type="button" class="btn btn-light" onclick="initaliseTicket();">Create subtask</button>
+        <br><br>
         <p class="font-weight-bold">Description</p>
         <div class="form-group">
             <textarea class="form-control" name="ticket-description" rows="1" style="border: 0;" onfocusout="updateTicketDescription();">{{ticket.description}}</textarea>
@@ -211,8 +211,26 @@
                 }
             }
         );
-
-        
     }
+
+    $( function() {
+        $('#subtask-tickets-container').sortable(
+            {
+                stop: function(e, ui)
+                {
+                    // const newOrder = $.map($('#subtask-tickets-container > div'), div => div.id);
+                    // $.ajax(
+                    //     {
+                    //         data:
+                    //         {
+                    //             'new-column-order': newOrder,
+                    //         },
+                    //         dataType: 'json',
+                    //     }
+                    // );
+                }
+            }
+        );
+    } );
 </script>
 {% endblock %}

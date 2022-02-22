@@ -65,7 +65,10 @@
 							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
 
 							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Reporter</small></p>
-							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
+							    <p class="col-lg-8 col-md-6 col-sm-6">
+                                    <img src="{{ ticket.reporter.developerProfile.profilePicture.url }}" width="30px" class="rounded-0">&nbsp;
+                                    <a href="{{ p.getProjectUrl }}">{{ ticket.reporter.get_full_name }}</a>                     
+                                </p>
 
 							    <p class="col-lg-4 col-md-6 col-sm-6"><small>Components</small></p>
 							    <p class="col-lg-8 col-md-6 col-sm-6">#</p>
@@ -206,4 +209,6 @@
 
     $('#priority').selectpicker();
 </script>
+<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
 {% endblock %}

@@ -452,6 +452,7 @@ def ticketPage(request, internalKey):
         newIssueName = request.GET.get('new-issue-name', None)
         newIssueType = request.GET.get('new-issue-type', None)
         updateTicketPriority = request.GET.get('update-ticket-priority', None)
+        functionality = request.GET.get('functionality', None)
 
         if updateTicketPriority is not None:
             thisTicket.priority = next(i for i in jiraPriorities if i.code==updateTicketPriority)
@@ -471,21 +472,22 @@ def ticketPage(request, internalKey):
         if updateTicketAutomaticTestingReason is not None:
             thisTicket.automatedTestingReason = updateTicketAutomaticTestingReason
 
+        ticketProject = thisTicket.project
+        newTicketNumber = ticketProject.projectTickets.count() + 1
+
         if newTicket is not None:
             Ticket(
-                internalKey=thisTicket.project.name + "-" + str(thisTicket.project.projectTickets.count() + 1),
+                internalKey=ticketProject.name + "-" + str(newTicketNumber),
                 summary=newTicket,
-                project=thisTicket.project,
+                project=ticketProject,
                 assignee=request.user,
                 issueType=request.user,
             )
 
-        ticketProject = thisTicket.project
-
         if newSubTicket is not None:
             # this is only created in normal ticket type and not in an epic ticket.
             newSubTicketObj = Ticket.objects.create(
-                internalKey=ticketProject.code + "-" + str(ticketProject.projectTickets.count() + 1),
+                internalKey=ticketProject.code + "-" + str(newTicketNumber),
                 summary=newSubTicket,
                 project=ticketProject,
                 sprint=thisTicket.sprint,
@@ -518,7 +520,7 @@ def ticketPage(request, internalKey):
         if newIssueName and newIssueType:
             ticketProject = thisTicket.project
             newTicket = Ticket.objects.create(
-                internalKey=ticketProject.code + "-" + str(ticketProject.projectTickets.count() + 1),
+                internalKey=ticketProject.code + "-" + str(newTicketNumber),
                 summary=newIssueName,
                 project=ticketProject,
                 reporter=request.user,
@@ -528,7 +530,7 @@ def ticketPage(request, internalKey):
                 priority=Component.objects.get(componentGroup__code='TICKET_PRIORITY', code='MEDIUM'),
                 board=thisTicket.board,
                 column=thisTicket.column,
-                epic=thisTicket
+                epic=thisTicket,
             )
 
             response = {
@@ -547,6 +549,24 @@ def ticketPage(request, internalKey):
                 },
             }
             return JsonResponse(response)
+
+        # if functionality == 'updateEpicTicketsOrder':
+        #     newColumnOrder = request.GET.getlist('new-column-order[]', None)
+        #     newColumnOrder = [int(i.split('-')[-1]) for i in newColumnOrder]
+        #     oldOrderNo = [i.orderNo for i in thisTicket.epicTickets.all()]
+        #     updatedObjects = []
+        #
+        #     counter = -1
+        #     for et in thisTicket.epicTickets.all():
+        #         counter += 1
+        #         if et.id == newColumnOrder[counter]:
+        #             continue
+        #
+        #         indexOf = newColumnOrder.index(et.id)
+        #         et.orderNo = oldOrderNo[indexOf]
+        #         updatedObjects.append(et)
+        #
+        #     Ticket.objects.bulk_update(updatedObjects, ['orderNo'])
 
         thisTicket.save()
 
