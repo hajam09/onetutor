@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import os
 from http import HTTPStatus
 
@@ -22,12 +22,12 @@ from django.utils.http import urlsafe_base64_decode
 from accounts.forms import GetInTouchForm
 from accounts.forms import LoginForm
 from accounts.forms import RegistrationForm
-from accounts.models import Education
 from accounts.models import StudentProfile
 from accounts.models import TutorProfile
 from accounts.utils import generate_token
 from dashboard.models import UserLogin
 from dashboard.models import UserSession
+from onetutor.operations import databaseOperations
 from onetutor.operations import emailOperations
 from onetutor.operations import generalOperations
 from tutoring.models import Availability
@@ -106,7 +106,7 @@ def register(request):
 
 def logout(request):
 	latestUserLogin = UserLogin.objects.filter(user=request.user).latest('id')
-	latestUserLogin.logoutTime = datetime.datetime.now()
+	latestUserLogin.logoutTime = datetime.now()
 	latestUserLogin.save()
 
 	signOut(request)
@@ -130,11 +130,10 @@ def logout(request):
 
 @login_required
 def selectProfile(request):
-	if TutorProfile.objects.filter(user=request.user.id).exists():
-		return redirect("accounts:tutorprofile")
+	profile = generalOperations.getProfileForUser(request.user)
 
-	if StudentProfile.objects.filter(user=request.user.id).exists():
-		return render("accounts:studentprofile")
+	if profile is not None:
+		return redirect("accounts:user-settings")
 
 	return render(request, 'accounts/select_profile.html')
 
@@ -151,21 +150,7 @@ def createStudentProfile(request):
 		startDates = request.POST.getlist('startDate')
 		endDates = request.POST.getlist('endDate')
 
-		if len(schoolNames) == len(qualifications) == len(startDates) == len(endDates):
-			# Delete all previous education for this user and create new object(s).
-			request.user.education.all().delete()
-			Education.objects.bulk_create(
-				[
-					Education(
-						user=request.user,
-						schoolName=schoolName,
-						qualification=qualification,
-						startDate=startDate,
-						endDate=endDate
-					)
-					for schoolName, qualification, startDate, endDate in zip(schoolNames, qualifications, startDates, endDates)
-				]
-			)
+		databaseOperations.createEducationInBulk(request, schoolNames, qualifications, startDates, endDates)
 
 		StudentProfile.objects.create(
 			user=request.user,
@@ -190,20 +175,7 @@ def createTutorProfile(request):
 		startDates = request.POST.getlist('startDate')
 		endDates = request.POST.getlist('endDate')
 
-		if len(schoolNames) == len(qualifications) == len(startDates) == len(endDates):
-			request.user.education.all().delete()
-			Education.objects.bulk_create(
-				[
-					Education(
-						user=request.user,
-						schoolName=schoolName,
-						qualification=qualification,
-						startDate=startDate,
-						endDate=endDate
-					)
-					for schoolName, qualification, startDate, endDate in zip(schoolNames, qualifications, startDates, endDates)
-				]
-			)
+		databaseOperations.createEducationInBulk(request, schoolNames, qualifications, startDates, endDates)
 
 		TutorProfile.objects.create(
 			user=request.user,
@@ -290,27 +262,12 @@ def userSettings(request):
 			)
 
 	if request.method == "POST" and "updateEducation" in request.POST:
-
-		# Delete all previous education for this user and create new object(s).
 		schoolNames = request.POST.getlist('schoolName')
 		qualifications = request.POST.getlist('qualification')
 		startDates = request.POST.getlist('startDate')
 		endDates = request.POST.getlist('endDate')
 
-		if len(schoolNames) == len(qualifications) == len(startDates) == len(endDates):
-			request.user.education.all().delete()
-			Education.objects.bulk_create(
-				[
-					Education(
-						user=request.user,
-						schoolName=schoolName,
-						qualification=qualification,
-						startDate=startDate,
-						endDate=endDate
-					)
-					for schoolName, qualification, startDate, endDate in zip(schoolNames, qualifications, startDates, endDates)
-				]
-			)
+		databaseOperations.createEducationInBulk(request, schoolNames, qualifications, startDates, endDates)
 
 	if request.method == "POST" and "updateGeneralInformation" in request.POST:
 		firstname = request.POST["firstName"].strip()
@@ -322,8 +279,7 @@ def userSettings(request):
 				if os.path.exists(previousProfileImage):
 					os.remove(previousProfileImage)
 
-			profilePicture = request.FILES["profilePicture"]
-			profile.profilePicture = profilePicture
+			profile.profilePicture = request.FILES["profilePicture"]
 			profile.save(update_fields=['profilePicture'])
 
 		user = request.user
@@ -430,6 +386,7 @@ def activateAccount(request, uidb64, token):
 	if user is not None and generate_token.check_token(user, token):
 		user.is_active = True
 		user.save()
+
 		messages.success(
 			request,
 			'Account activated successfully'
@@ -534,10 +491,7 @@ def requestCopyOfData(request):
 		}
 		return JsonResponse(response)
 
-	try:
-		profile = request.user.tutorProfile
-	except TutorProfile.DoesNotExist:
-		profile = request.user.studentProfile
+	profile = generalOperations.getProfileForUser(request.user)
 
 	if isinstance(profile, TutorProfile):
 		requestedData = generalOperations.getTutorRequestedStoredData(request, request.user)
@@ -552,7 +506,6 @@ def requestCopyOfData(request):
 
 def cookieConsent(request):
 
-	global askConsent
 	if not request.is_ajax():
 		response = {
 			"statusCode": HTTPStatus.FORBIDDEN,
