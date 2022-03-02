@@ -146,7 +146,7 @@
 
 	function renderCommunityInformation()
 	{
-		var count = parseInt('{{community.members.all|length}}');
+		var count = parseInt('{{community.members.all.count}}');
 		$('#communityMembers').prepend(intCompromise(count));
 	}
 

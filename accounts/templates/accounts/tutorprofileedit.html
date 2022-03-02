@@ -176,7 +176,7 @@
       }
    );
 
-	var numberOfEducation = {{ tutorProfile.education|length }};
+	var numberOfEducation = {{ tutorProfile.education.count }};
 	$('input[name=numberOfEducation]').val(numberOfEducation);
 
 	addRemoveEducationBtn();

@@ -6,6 +6,18 @@ from accounts.models import StudentProfile
 from accounts.models import TutorProfile
 
 
+def tutorProfileExists(user: User):
+    return TutorProfile.objects.filter(user=user).exists()
+
+
+def studentProfileExists(user: User):
+    return StudentProfile.objects.filter(user=user).exists()
+
+
+def userHasProfile(user: User):
+    return tutorProfileExists(user) or studentProfileExists(user)
+
+
 def getTutorProfileForUser(user: User):
     try:
         profile = user.tutorProfile
@@ -29,14 +41,6 @@ def getProfileForUser(user: User):
     studentProfile = getStudentProfileForUser(user)
 
     return tutorProfile or studentProfile
-
-
-def userIsTutor(user: User):
-    return getTutorProfileForUser(user) is not None
-
-
-def userIsStudent(user: User):
-    return getStudentProfileForUser(user) is not None
 
 
 def isPasswordStrong(password):

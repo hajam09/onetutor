@@ -133,10 +133,8 @@ def logout(request):
 
 @login_required
 def selectProfile(request):
-	# TODO: Create a new method which checks if profile exists rather than fetching it in the first place.
-	profile = generalOperations.getProfileForUser(request.user)
 
-	if profile is not None:
+	if generalOperations.userHasProfile(request.user):
 		return redirect("accounts:user-settings")
 
 	return render(request, 'accounts/select_profile.html')
@@ -514,10 +512,7 @@ def cookieConsent(request):
 	consentStage = request.GET.get('consentStage')
 
 	if consentStage == "ASKED":
-		if UserSession.objects.filter(sessionKey=request.session.session_key).exists() or request.user.is_authenticated:
-			askConsent = False
-		else:
-			askConsent = True
+		askConsent = not (UserSession.objects.filter(sessionKey=request.session.session_key).exists() or request.user.is_authenticated)
 
 	elif consentStage == "CONFIRMED":
 		user = None if isinstance(request.user, AnonymousUser) else request.user

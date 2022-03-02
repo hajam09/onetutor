@@ -21,6 +21,24 @@ urlpatterns = [
     path('user-settings/', views.userSettings, name='user-settings'),
 ]
 
+# tutor settings link
+# urlpatterns += [
+#     path('user-settings/tutor/general', views.tutorGeneralSettings, name='tutor-general-settings'),
+#     path('user-settings/tutor/biography', views.tutorBiographySettings, name='tutor-biography-settings'),
+#     path('user-settings/tutor/security', views.tutorSecuritySettings, name='tutor-security-settings'),
+#     path('user-settings/tutor/notification', views.tutorNotificationSettings, name='tutor-notification-settings'),
+#     path('user-settings/tutor/account', views.tutorAccountSettings, name='tutor-account-settings'),
+# ]
+
+# student settings link
+# urlpatterns += [
+#     path('user-settings/student/general', views.studentGeneralSettings, name='student-general-settings'),
+#     path('user-settings/tutor/biography', views.studentBiographySettings, name='student-biography-settings'),
+#     path('user-settings/student/security', views.studentSecuritySettings, name='student-security-settings'),
+#     path('user-settings/student/notification', views.studentNotificationSettings, name='student-notification-settings'),
+#     path('user-settings/student/account', views.studentAccountSettings, name='student-account-settings'),
+# ]
+
 # footer links
 urlpatterns += [
     path('getInTouch/', views.getInTouch, name='getInTouch'),
