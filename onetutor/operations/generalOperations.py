@@ -46,10 +46,10 @@ def isPasswordStrong(password):
     if not any(letter.isalpha() for letter in password):
         return False
 
-    if any(capital.isupper() for capital in password):
+    if not any(capital.isupper() for capital in password):
         return False
 
-    if any(number.isdigit() for number in password):
+    if not any(number.isdigit() for number in password):
         return False
 
     return True

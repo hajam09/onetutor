@@ -5,9 +5,11 @@ from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.contrib import messages
 
 from accounts.models import GetInTouch
 from accounts.models import TutorProfile
+from onetutor.operations import generalOperations
 
 
 class RegistrationForm(UserCreationForm):
@@ -199,6 +201,58 @@ class GetInTouchForm(forms.ModelForm):
             subject=self.cleaned_data.get("subject"),
             message=self.cleaned_data.get("message")
         )
+
+
+class PasswordChangeForm(forms.Form):
+    password = forms.CharField(
+        label='',
+        strip=False,
+        widget=forms.PasswordInput(
+            attrs={
+                'placeholder': 'Password'
+            }
+        )
+    )
+
+    repeatPassword = forms.CharField(
+        label='',
+        strip=False,
+        widget=forms.PasswordInput(
+            attrs={
+                'placeholder': 'Repeat Password'
+            }
+        )
+    )
+
+    def __init__(self, request=None, user=None, *args, **kwargs):
+        self.request = request
+        self.user = user
+        super(PasswordChangeForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        newPassword = self.cleaned_data.get('password')
+        confirmPassword = self.cleaned_data.get('repeatPassword')
+
+        if newPassword != confirmPassword:
+            messages.error(
+                self.request,
+                'Your new password and confirm password does not match.'
+            )
+            raise ValidationError(None)
+
+        if not generalOperations.isPasswordStrong(newPassword):
+            messages.warning(
+                self.request,
+                'Your new password is not strong enough.'
+            )
+            raise ValidationError(None)
+
+        return self.cleaned_data
+
+    def updatePassword(self):
+        newPassword = self.cleaned_data.get('password')
+        self.user.set_password(newPassword)
+        self.user.save()
 
 
 class TutorProfileForm(forms.ModelForm):

@@ -20,6 +20,7 @@ from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_decode
 
 from accounts.forms import GetInTouchForm
+from accounts.forms import PasswordChangeForm
 from accounts.forms import LoginForm
 from accounts.forms import RegistrationForm
 from accounts.models import StudentProfile
@@ -56,6 +57,8 @@ def login(request):
 
 		if form.is_valid():
 			cache.delete(uniqueVisitorId)
+
+			# TODO: Remove the need to collect the IP Address and the methods.
 
 			UserSession.objects.create(
 				user=request.user,
@@ -130,6 +133,7 @@ def logout(request):
 
 @login_required
 def selectProfile(request):
+	# TODO: Create a new method which checks if profile exists rather than fetching it in the first place.
 	profile = generalOperations.getProfileForUser(request.user)
 
 	if profile is not None:
@@ -140,6 +144,7 @@ def selectProfile(request):
 
 @login_required
 def createStudentProfile(request):
+	# TODO: Create a form and use formset to create multiple educations.
 
 	if request.method == "POST" and "createStudentProfile" in request.POST:
 		about = request.POST["about"]
@@ -163,6 +168,7 @@ def createStudentProfile(request):
 
 @login_required
 def createTutorProfile(request):
+	# TODO: Create a form and user formset to create multiple educations.
 
 	if request.method == "POST" and "createTutorProfile" in request.POST:
 		summary = request.POST["summary"]
@@ -196,6 +202,7 @@ def createTutorProfile(request):
 def userSettings(request):
 
 	# TODO: Find a good code design for the below try/catch.
+	# TODO: Split page and view with student/tutor and each tabs within each profile for reusability.
 	try:
 		profile = TutorProfile.objects.select_related('user', 'user__availability').prefetch_related('teachingLevels').get(user=request.user)
 	except TutorProfile.DoesNotExist:
@@ -423,30 +430,18 @@ def passwordChange(request, uidb64, token):
 		user = None
 
 	if request.method == "POST" and user is not None and generate_token.check_token(user, token):
-		newPassword = request.POST["newPassword"]
-		confirmPassword = request.POST["confirmPassword"]
+		form = PasswordChangeForm(request, user, request.POST)
 
-		if newPassword and confirmPassword:
-			if newPassword != confirmPassword:
-				messages.error(
-					request,
-					'Your new password and confirm password does not match.'
-				)
-				return redirect("accounts:password-change", uidb64=uidb64, token=token)
-
-			if not generalOperations.isPasswordStrong(newPassword):
-				messages.warning(
-					request,
-					'Your new password is not strong enough.'
-				)
-				return redirect("accounts:password-change", uidb64=uidb64, token=token)
-
-			user.set_password(newPassword)
-			user.save()
+		if form.is_valid():
+			form.updatePassword()
 			return redirect("accounts:login")
 
+	context = {
+		'form': PasswordChangeForm(),
+	}
+
 	TEMPLATE = 'passwordResetForm' if user is not None and generate_token.check_token(user, token) else 'activateFailed'
-	return render(request, 'accounts/{}.html'.format(TEMPLATE))
+	return render(request, 'accounts/{}.html'.format(TEMPLATE), context)
 
 def requestDeleteCode(request):
 
