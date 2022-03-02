@@ -462,9 +462,9 @@ def tutorsQuestions(request):
 	}
 	return render(request, "tutoring/tutorsQuestions.html", context)
 
-def viewstudentprofile(request, studentId):
+def viewStudentProfile(request, url):
 	print("bb")
-	return render(request, "tutoring/studentprofile.html", {})
+	return render(request, "tutoring/studentProfile.html")
 
 
 def questionAnswerThread(request, questionId):

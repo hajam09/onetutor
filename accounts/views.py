@@ -160,7 +160,7 @@ def createStudentProfile(request):
 			about=about,
 			subjects=subjects
 		)
-		return redirect('accounts:studentprofile')
+		return redirect('accounts:student-profile')
 
 	return render(request, "accounts/createStudentProfile.html")
 
