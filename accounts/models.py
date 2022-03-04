@@ -1,18 +1,40 @@
 import os
 import random
+import string
 import uuid
+from datetime import date
 
 import jsonfield
 from django.contrib.auth.models import User
+from django.core.validators import BaseValidator
 from django.db import models
 from django.urls import reverse
+from django.utils.deconstruct import deconstructible
+from django.utils.translation import ugettext_lazy as _
 
 from onetutor import settings
 from tutoring.models import Component
 
 
+@deconstructible
+class MinAgeValidator(BaseValidator):
+    message = _("Age must be at least %(limit_value)d.")
+    code = 'min_age'
+
+    def calculateAge(self, born):
+        today = date.today()
+        return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
+
+    def compare(self, a, b):
+        return self.calculateAge(a) < b
+
+
 def getRandomImageForAvatar():
     return "avatars/" + random.choice(os.listdir(os.path.join(settings.MEDIA_ROOT, "avatars/")))
+
+
+def getParentCode():
+    return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
 
 
 class TutorProfile(models.Model):
@@ -25,13 +47,13 @@ class TutorProfile(models.Model):
     profilePicture = models.ImageField(upload_to='profile-picture', blank=True, null=True, default=getRandomImageForAvatar)
     chargeRate = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
     features = models.ManyToManyField(Component, related_name='featuresComponents', blank=True, limit_choices_to={'componentGroup__code': 'TUTOR_FEATURE'})
-    teachingLevels = models.ManyToManyField(Component, related_name='teachingComponent', blank=True, limit_choices_to={'componentGroup__code': 'EDUCATION_LEVEL'}) # store which education level(s) this tutor teaches.
+    teachingLevels = models.ManyToManyField(Component, related_name='teachingComponent', blank=True, limit_choices_to={'componentGroup__code': 'EDUCATION_LEVEL'})  # store which education level(s) this tutor teaches.
 
     class Meta:
         verbose_name_plural = "TutorProfile"
         ordering = ['-id']
         indexes = [
-            models.Index(fields=['url',])
+            models.Index(fields=['url', ])
         ]
 
     def getSubjectsAsList(self):
@@ -73,7 +95,9 @@ class StudentProfile(models.Model):
     about = models.TextField()
     education = jsonfield.JSONField(blank=True, null=True)
     subjects = models.CharField(max_length=8192, blank=True, null=True)
+    dateOfBirth = models.DateField(blank=True, null=True)
     profilePicture = models.ImageField(upload_to='profile-picture', blank=True, null=True, default=getRandomImageForAvatar)
+    parent = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='studentsParent')
 
     class Meta:
         verbose_name_plural = "StudentProfile"
@@ -83,6 +107,20 @@ class StudentProfile(models.Model):
 
     def getSubjectsAsList(self):
         return self.subjects.split(",")
+
+
+class ParentProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='parentProfile')
+    url = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    code = models.CharField(max_length=8, default=getParentCode, editable=False, unique=True)
+    dateOfBirth = models.DateField(validators=[MinAgeValidator(18)], blank=True, null=True)
+    profilePicture = models.ImageField(upload_to='profile-picture', blank=True, null=True, default=getRandomImageForAvatar)
+
+    class Meta:
+        verbose_name_plural = "ParentProfile"
+        indexes = [
+            models.Index(fields=['url', ])
+        ]
 
 
 class Subject(models.Model):

@@ -83,6 +83,8 @@ class RegistrationForm(UserCreationForm):
                 number.isdigit() for number in password1) == False:
             raise forms.ValidationError("Your password is not strong enough.")
 
+        # TODO: use validate_password for better security.
+
         return password1
 
     def save(self):
@@ -143,6 +145,8 @@ class LoginForm(forms.ModelForm):
                 self.request.session.set_expiry(0)
 
             return
+
+        # TODO: use validate_password for better security.
 
         raise forms.ValidationError("Username or Password did not match! ")
 
@@ -246,6 +250,8 @@ class PasswordChangeForm(forms.Form):
                 'Your new password is not strong enough.'
             )
             raise ValidationError(None)
+
+        # TODO: use validate_password for better security.
 
         return self.cleaned_data
 
