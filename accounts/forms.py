@@ -1,11 +1,11 @@
 from django import forms
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import authenticate
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.contrib import messages
 
 from accounts.models import GetInTouch
 from accounts.models import TutorProfile
@@ -67,7 +67,7 @@ class RegistrationForm(UserCreationForm):
         email = self.cleaned_data.get('email')
 
         if User.objects.filter(email=email).exists():
-            raise forms.ValidationError("An account already exists for this email address!")
+            raise ValidationError("An account already exists for this email address!")
 
         return email
 
@@ -76,12 +76,10 @@ class RegistrationForm(UserCreationForm):
         password2 = self.cleaned_data.get("password2")
 
         if password1 and password2 and password1 != password2:
-            raise forms.ValidationError("Your passwords do not match!")
+            raise ValidationError("Your passwords do not match!")
 
-        if len(password1) < 8 or any(letter.isalpha() for letter in password1) == False or any(
-                capital.isupper() for capital in password1) == False or any(
-                number.isdigit() for number in password1) == False:
-            raise forms.ValidationError("Your password is not strong enough.")
+        if not generalOperations.isPasswordStrong(password1):
+            raise ValidationError("Your password is not strong enough.")
 
         # TODO: use validate_password for better security.
 
@@ -98,6 +96,7 @@ class RegistrationForm(UserCreationForm):
         newUser.is_active = settings.DEBUG
         newUser.save()
         return newUser
+
 
 # TODO: extends AuthenticationForm
 class LoginForm(forms.ModelForm):
@@ -148,7 +147,7 @@ class LoginForm(forms.ModelForm):
 
         # TODO: use validate_password for better security.
 
-        raise forms.ValidationError("Username or Password did not match! ")
+        raise ValidationError("Username or Password did not match! ")
 
 
 class GetInTouchForm(forms.ModelForm):
@@ -278,3 +277,130 @@ class TutorProfileForm(forms.ModelForm):
                     raise ValidationError("Only add component(s) which belong to the 'Tutor Feature' component group.")
 
         return self.cleaned_data
+
+
+class UserSettingsPasswordUpdateForm(forms.Form):
+    currentPassword = forms.CharField(
+        label='',
+        strip=False,
+        widget=forms.PasswordInput(
+            attrs={
+                'placeholder': 'Current password'
+            }
+        )
+    )
+    newPassword = forms.CharField(
+        label='',
+        strip=False,
+        widget=forms.PasswordInput(
+            attrs={
+                'placeholder': 'New password'
+            }
+        )
+    )
+    repeatNewPassword = forms.CharField(
+        label='',
+        strip=False,
+        widget=forms.PasswordInput(
+            attrs={
+                'placeholder': 'Repeat new password'
+            }
+        )
+    )
+
+    def __init__(self, request, *args, **kwargs):
+        self.request = request
+        self.user = request.user
+        super(UserSettingsPasswordUpdateForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        currentPassword = self.cleaned_data.get('currentPassword')
+        newPassword = self.cleaned_data.get('newPassword')
+        repeatNewPassword = self.cleaned_data.get('repeatNewPassword')
+
+        # TODO: use validate_password for better security.
+
+        if currentPassword and not self.user.check_password(currentPassword):
+            raise ValidationError('Your current password does not match with the account\'s existing password.')
+
+        if newPassword and repeatNewPassword:
+            if newPassword != repeatNewPassword:
+                raise ValidationError('Your new password and confirm password does not match.')
+
+            if not generalOperations.isPasswordStrong(newPassword):
+                raise ValidationError('Your new password is not strong enough.')
+
+        return self.cleaned_data
+
+    def updatePassword(self):
+        newPassword = self.cleaned_data.get('newPassword')
+        self.user.set_password(newPassword)
+        self.user.save()
+
+    def reAuthenticate(self, signIn):
+        newPassword = self.cleaned_data.get('newPassword')
+        user = authenticate(username=self.user.username, password=newPassword)
+        if user:
+            messages.success(
+                self.request,
+                'Your password has been updated.'
+            )
+            signIn(self.request, user)
+            return True
+        else:
+            messages.warning(
+                self.request,
+                'Something happened. Try to login to the system again.'
+            )
+            return False
+
+
+class EducationForm(forms.Form):
+    schoolName = forms.CharField(
+        label='',
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'placeholder': 'School Name',
+                'data - toggle': 'tooltip',
+                'data - placement': 'top',
+                'title': 'School Name',
+            }
+        )
+    )
+    qualifications = forms.CharField(
+        label='',
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'placeholder': 'Qualification & Grade(s)s',
+                'data - toggle': 'tooltip',
+                'data - placement': 'top',
+                'title': 'Qualification & Grade(s)',
+            }
+        )
+    )
+    startDate = forms.DateField(
+        label='',
+        widget=forms.DateInput(
+            attrs={
+                'class': 'form-control',
+                'type': 'month',
+                'data - toggle': 'tooltip',
+                'data - placement': 'top',
+                'title': 'Attended from',
+            }
+        )
+    )
+    endDate = forms.DateField(
+        label='',
+        widget=forms.DateInput(
+            attrs={
+                'class': 'form-control',
+                'type': 'month',
+                'data - toggle': 'tooltip',
+                'data - placement': 'top',
+                'title': 'Attended to',
+            }
+        )
+    )

@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 
 from accounts.models import Education
+from accounts.models import ParentProfile
 from accounts.models import SocialConnection
 from accounts.models import StudentProfile
 from accounts.models import TutorProfile
@@ -12,6 +13,10 @@ def tutorProfileExists(user: User):
 
 def studentProfileExists(user: User):
     return StudentProfile.objects.filter(user=user).exists()
+
+
+def parentProfileExists(user: User):
+    return ParentProfile.objects.filter(user=user).exists()
 
 
 def userHasProfile(user: User):

@@ -19,12 +19,12 @@
          <form method="post">
             {% csrf_token %}
             <div class="form-group">
-               <h2 for="summary">Summary</h2>
+               <h4 for="summary">Summary</h2>
                <input type="text" class="form-control" id="summary" name="summary" required>
             </div>
             <hr>
             <div class="form-group">
-               <h2 for="about">About</h2>
+               <h4 for="about">About</h2>
                <textarea class="form-control" id="about" name="about" rows="5" required></textarea>
             </div>
             <hr>
@@ -64,8 +64,31 @@
             </div>
             <hr>
             <div class="form-group">
-               <h2 for="subjects">Subjects</h2>
+               <h4 for="subjects">Subjects</h2>
                <select class="multiple-subjects form-control" name="subjects" multiple="multiple" required>
+               </select>
+            </div>
+            <hr>
+            <div class="form-group">
+               <h4 for="chargeRate">Charge Rate (£)</h2>
+               <input class="form-control" type="number" required name="chargeRate" min="0" value="0" step=".01">
+            </div>
+            <hr>
+            <div class="form-group">
+               <h4 for="subjects">Features</h2>
+               <select class="multiple-subjects form-control" name="features[]" multiple="multiple">
+                  {% for f in tutorFeatures %} 
+                  <option value="{{f.code}}">{{f}}</option>
+                  {% endfor %} 
+               </select>
+            </div>
+            <hr>
+            <div class="form-group">
+               <h4 for="teachingLevels">Teaching levels</h2>
+               <select class="multiple-subjects form-control" name="teachingLevels[]" multiple="multiple">
+                  {% for f in highestEducations %} 
+                  <option value="{{f.code}}">{{f}}</option>
+                  {% endfor %} 
                </select>
             </div>
             <hr>
@@ -86,7 +109,7 @@
 				{
 					tags: true,
 				}
-			);
+			)
 		}
 	);
 

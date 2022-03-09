@@ -1,0 +1,59 @@
+{% extends "accounts/tutor/baseTutorSettings.html" %}
+{% load static %}
+{% block settingsContent %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/tutorSettingsPage.css' %}"/>
+<div class="card">
+    <div class="card-body tab-content" id="general">
+        <div>
+            <h6>YOUR GENERAL INFORMATION</h6>
+            <hr>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="card-body media align-items-center">
+                    {% if profile.profilePicture %}
+                    <img src="{{ profile.profilePicture.url }}" alt="" class="d-block ui-w-80 rounded-circle">
+                    {% else %}
+                    <img src="https://icon-library.com/images/default-user-icon/default-user-icon-13.jpg" alt="" class="d-block ui-w-80 rounded-circle">
+                    {% endif %}
+                    <div class="media-body ml-4">
+                        <label class="btn btn-danger" for="profilePicture">
+                        <i class="fa fa-paperclip" aria-hidden="true"></i>&nbsp;&nbsp;
+                        <input id="profilePicture" name="profilePicture" type="file" style="display:none" onchange="$('#upload-file-info').html(this.files[0].name)"> Choose a File
+                        </label> &nbsp; <button type="reset" class="btn btn-info md-btn-flat">Reset</button> 
+                        <div class="text-light small mt-1">Allowed JPG, GIF or PNG. Max size of 800K</div>
+                        <div class="text-light small mt-1" id="upload-file-info"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col">
+                            <label for="fullName">First Name</label>
+                            <input type="text" class="form-control" id="firstName" name="firstName" placeholder="First Name" value="{{ profile.user.first_name }}" required>
+                        </div>
+                        <div class="col">
+                            <label for="fullName">Last Name</label>
+                            <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Last Name" value="{{ profile.user.last_name }}" required>
+                        </div>
+                    </div>
+                    <small id="fullNameHelp" class="form-text text-muted">Your name may appear around here where you are mentioned.</small>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email address</label>
+                    <input type="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Email" value="{{ request.user.email }}" disabled>
+                    <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+                </div>
+                <div class="form-group">
+                    <label for="url">Profile page</label>
+                    <br>
+                    <a href="{{ profile.getTutoringUrl }}">http:/{{ request.META.HTTP_HOST }}{{ profile.getTutoringUrl }}</a>
+                </div>
+                <div class="form-group small text-muted">
+                    Some of the fields on this page are mandatory and by filling them out, you're giving us consent to share this data wherever your user profile appears.
+                </div>
+                <button type="submit" class="btn btn-primary">Update Profile</button>
+                <button type="reset" class="btn btn-light">Reset Changes</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

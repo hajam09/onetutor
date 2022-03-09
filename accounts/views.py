@@ -6,24 +6,26 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as signIn
+from django import forms
 from django.contrib.auth import logout as signOut
 from django.contrib.auth import user_logged_out
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.http import JsonResponse
+from django.forms import formset_factory, modelformset_factory, inlineformset_factory
+from django.http import JsonResponse, Http404
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.utils.encoding import DjangoUnicodeDecodeError
 from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_decode
 
-from accounts.forms import GetInTouchForm
+from accounts.forms import GetInTouchForm, UserSettingsPasswordUpdateForm, EducationForm
 from accounts.forms import PasswordChangeForm
 from accounts.forms import LoginForm
 from accounts.forms import RegistrationForm
-from accounts.models import StudentProfile
+from accounts.models import StudentProfile, Education
 from accounts.models import TutorProfile
 from accounts.utils import generate_token
 from dashboard.models import UserLogin
@@ -124,8 +126,12 @@ def logout(request):
 @login_required
 def selectProfile(request):
 
-	if generalOperations.userHasProfile(request.user):
-		return redirect("accounts:user-settings")
+	if generalOperations.tutorProfileExists(request.user):
+		return redirect('accounts:user-settings')
+	elif generalOperations.studentProfileExists(request.user):
+		pass
+	elif generalOperations.parentProfileExists(request.user):
+		pass
 
 	return render(request, 'accounts/select_profile.html')
 
@@ -156,6 +162,53 @@ def createStudentProfile(request):
 
 @login_required
 def createTutorProfile(request):
+	# TODO: Create a form and user formset to create multiple educations.
+	tutorFeatures = Component.objects.filter(componentGroup__code="TUTOR_FEATURE").exclude(internalKey__in=['Pro', 'DBS'])
+	highestEducations = Component.objects.filter(componentGroup__code="EDUCATION_LEVEL")
+
+	if request.method == "POST" and "createTutorProfile" in request.POST:
+		summary = request.POST["summary"]
+		about = request.POST["about"]
+		subjects = ', '.join([i.capitalize() for i in request.POST.getlist('subjects')])
+		chargeRate = round(float(request.POST['chargeRate']), 2)
+
+		# Delete all previous education for this user and create new object(s).request.POST.getlist('features[]')
+		schoolNames = request.POST.getlist('schoolName')
+		qualifications = request.POST.getlist('qualification')
+		startDates = request.POST.getlist('startDate')
+		endDates = request.POST.getlist('endDate')
+
+		databaseOperations.createEducationInBulk(request, schoolNames, qualifications, startDates, endDates)
+
+		profile, created = TutorProfile.objects.update_or_create(
+			user=request.user,
+			defaults={
+				'summary': summary,
+				'about': about,
+				'subjects': subjects,
+				'chargeRate': chargeRate,
+			}
+		)
+
+		profile.features.clear()
+		profile.teachingLevels.clear()
+
+		profile.features.add(*[ i for i in tutorFeatures for j in request.POST.getlist('features[]') if i.code==j ])
+		profile.teachingLevels.add(*[ i for i in highestEducations for j in request.POST.getlist('teachingLevels[]') if i.code==j ])
+
+		Availability.objects.get_or_create(
+			user=request.user
+		)
+		return redirect('tutoring:mainpage')
+
+	context = {
+		'tutorFeatures': tutorFeatures,
+		'highestEducations': highestEducations,
+	}
+	return render(request, "accounts/createTutorProfile.html", context)
+
+@login_required
+def createParentProfile(request):
 	# TODO: Create a form and user formset to create multiple educations.
 
 	if request.method == "POST" and "createTutorProfile" in request.POST:
@@ -356,6 +409,136 @@ def userSettings(request):
 		"educationLevelComponent": educationLevelComponent
 	}
 	return render(request, templateName, context)
+
+
+@login_required
+def tutorGeneralSettings(request):
+	try:
+		profile = TutorProfile.objects.select_related('user').get(user=request.user)
+	except TutorProfile.DoesNotExist:
+		return redirect('accounts:select-profile')
+
+	if request.method == "POST":
+		firstname = request.POST["firstName"].strip()
+		lastname = request.POST["lastName"].strip()
+
+		if "profilePicture" in request.FILES:
+			if profile.profilePicture and 'profile-picture/default-img/' not in profile.profilePicture.url:
+				previousProfileImage = os.path.join(settings.MEDIA_ROOT, profile.profilePicture.name)
+				if os.path.exists(previousProfileImage):
+					os.remove(previousProfileImage)
+
+			profile.profilePicture = request.FILES["profilePicture"]
+			profile.save(update_fields=['profilePicture'])
+
+		user = request.user
+		user.first_name = firstname
+		user.last_name = lastname
+		user.save(update_fields=['first_name', 'last_name'])
+
+		messages.success(
+			request,
+			'Your personal details has been updated successfully.'
+		)
+
+	context = {
+		"profile": profile,
+	}
+	return render(request, 'accounts/tutor/tutorGeneralSettings.html', context)
+
+@login_required
+def tutorBiographySettings(request):
+
+	try:
+		profile = TutorProfile.objects.select_related('user__availability').prefetch_related('features', 'teachingLevels').get(user=request.user)
+	except TutorProfile.DoesNotExist:
+		return redirect('accounts:select-profile')
+
+	educationLevelComponent = Component.objects.filter(componentGroup__code="EDUCATION_LEVEL")
+	tutorFeatureComponent = Component.objects.filter(componentGroup__code="TUTOR_FEATURE").exclude(internalKey__in=['Pro', 'DBS'])
+
+	if request.method == 'POST':
+		profile.summary = request.POST["summary"]
+		profile.about = request.POST["about"]
+		profile.subjects = ', '.join([i.capitalize() for i in request.POST.getlist('subjects')])
+		profile.chargeRate = round(float(request.POST['chargeRate']), 2)
+
+		schoolNames = request.POST.getlist('schoolName')
+		qualifications = request.POST.getlist('qualification')
+		startDates = request.POST.getlist('startDate')
+		endDates = request.POST.getlist('endDate')
+		databaseOperations.createEducationInBulk(request, schoolNames, qualifications, startDates, endDates)
+
+		availabilityChoices = request.POST.getlist('availabilityChoices')
+		request.user.availability.delete()
+		availability = Availability.objects.create(user=request.user)
+		for i in availabilityChoices:
+			setattr(availability, i, True)
+		availability.save()
+
+		profile.features.clear()
+		profile.teachingLevels.clear()
+
+		profile.features.add(*[i for i in tutorFeatureComponent for j in request.POST.getlist('features') if i.code == j])
+		profile.teachingLevels.add( *[i for i in educationLevelComponent for j in request.POST.getlist('teachingLevels') if i.code == j])
+
+		profile.save()
+		messages.success(
+			request,
+			'Your biography and other details has been updated successfully.'
+		)
+		return redirect('accounts:tutor-biography-settings')
+
+	context = {
+		'profile': profile,
+		'educationLevelComponent': educationLevelComponent,
+		'tutorFeatureComponent': tutorFeatureComponent,
+	}
+	return render(request, 'accounts/tutor/tutorBiographySettings.html', context)
+
+
+@login_required
+def tutorSecuritySettings(request):
+	if not generalOperations.tutorProfileExists(request.user):
+		return redirect('accounts:select-profile')
+
+	if request.method == "POST":
+		form = UserSettingsPasswordUpdateForm(request, request.POST)
+
+		if form.is_valid():
+			form.updatePassword()
+			isSuccess = form.reAuthenticate(signIn)
+
+			if not isSuccess:
+				return redirect("accounts:login")
+	else:
+		form = UserSettingsPasswordUpdateForm(request)
+
+	context = {
+		'form': form,
+	}
+	return render(request, 'accounts/tutor/tutorSecuritySettings.html', context)
+
+@login_required
+def tutorNotificationSettings(request):
+	return render(request, 'accounts/tutor/tutorNotificationSettings.html')
+
+
+@login_required
+def tutorAccountSettings(request):
+	if request.method == "POST" and "deleteAccount" in request.POST:
+		if request.POST["delete-code"] == request.session.session_key:
+			request.user.delete()
+			messages.success(
+				request,
+				'Account deleted successfully'
+			)
+			return redirect('tutoring:mainpage')
+		messages.error(
+			request,
+			'Account delete code is incorrect, please try again later.'
+		)
+	return render(request, 'accounts/tutor/tutorAccountSettings.html')
 
 def rules(request, ruleType):
 
