@@ -13,19 +13,20 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.forms import formset_factory, modelformset_factory, inlineformset_factory
-from django.http import JsonResponse, Http404
+from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.utils.encoding import DjangoUnicodeDecodeError
 from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_decode
 
-from accounts.forms import GetInTouchForm, UserSettingsPasswordUpdateForm, EducationForm
+from accounts.forms import GetInTouchForm
+from accounts.forms import UserSettingsPasswordUpdateForm
 from accounts.forms import PasswordChangeForm
 from accounts.forms import LoginForm
 from accounts.forms import RegistrationForm
-from accounts.models import StudentProfile, Education
+from accounts.models import ParentProfile
+from accounts.models import StudentProfile
 from accounts.models import TutorProfile
 from accounts.utils import generate_token
 from dashboard.models import UserLogin
@@ -127,9 +128,9 @@ def logout(request):
 def selectProfile(request):
 
 	if generalOperations.tutorProfileExists(request.user):
-		return redirect('accounts:user-settings')
+		return redirect('accounts:tutor-general-settings')
 	elif generalOperations.studentProfileExists(request.user):
-		pass
+		return redirect('accounts:student-general-settings')
 	elif generalOperations.parentProfileExists(request.user):
 		pass
 
@@ -140,9 +141,30 @@ def selectProfile(request):
 def createStudentProfile(request):
 	# TODO: Create a form and use formset to create multiple educations.
 
-	if request.method == "POST" and "createStudentProfile" in request.POST:
+	if request.method == "POST":
 		about = request.POST["about"]
 		subjects = ', '.join([i.capitalize() for i in request.POST.getlist('subjects')])
+
+		today = datetime.today().date()
+		birthDate = datetime.strptime(request.POST['dateOfBirth'], '%Y-%m-%d').date()
+		age = today.year - birthDate.year - ((today.month, today.day) < (birthDate.month, birthDate.day))
+
+		if age < 18:
+			parentCode = request.POST["parentIdentifier"] or None
+			# TODO: optimize this section later on.
+			# parentProfile = next((c for c in ParentProfile.objects.filter(code=parentCode)), None)
+			try:
+				parentProfile = ParentProfile.objects.get(code=parentCode)
+			except ParentProfile.DoesNotExist:
+				messages.error(
+					request,
+					'Invalid parent code. We did not find your parent, please check the code again.'
+				)
+				return redirect('accounts:create-student-profile')
+			parent = parentProfile.user
+
+		else:
+			parent = None
 
 		schoolNames = request.POST.getlist('schoolName')
 		qualifications = request.POST.getlist('qualification')
@@ -154,9 +176,11 @@ def createStudentProfile(request):
 		StudentProfile.objects.create(
 			user=request.user,
 			about=about,
-			subjects=subjects
+			subjects=subjects,
+			dateOfBirth=birthDate,
+			parent=parent,
 		)
-		return redirect('accounts:student-profile')
+		return redirect('tutoring:mainpage')
 
 	return render(request, "accounts/createStudentProfile.html")
 
@@ -446,9 +470,9 @@ def tutorGeneralSettings(request):
 	}
 	return render(request, 'accounts/tutor/tutorGeneralSettings.html', context)
 
+
 @login_required
 def tutorBiographySettings(request):
-
 	try:
 		profile = TutorProfile.objects.select_related('user__availability').prefetch_related('features', 'teachingLevels').get(user=request.user)
 	except TutorProfile.DoesNotExist:
@@ -480,7 +504,7 @@ def tutorBiographySettings(request):
 		profile.teachingLevels.clear()
 
 		profile.features.add(*[i for i in tutorFeatureComponent for j in request.POST.getlist('features') if i.code == j])
-		profile.teachingLevels.add( *[i for i in educationLevelComponent for j in request.POST.getlist('teachingLevels') if i.code == j])
+		profile.teachingLevels.add(*[i for i in educationLevelComponent for j in request.POST.getlist('teachingLevels') if i.code == j])
 
 		profile.save()
 		messages.success(
@@ -518,6 +542,7 @@ def tutorSecuritySettings(request):
 		'form': form,
 	}
 	return render(request, 'accounts/tutor/tutorSecuritySettings.html', context)
+
 
 @login_required
 def tutorNotificationSettings(request):

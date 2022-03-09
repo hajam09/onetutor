@@ -18,11 +18,11 @@ urlpatterns = [
     path('requestDeleteCode/', views.requestDeleteCode, name='requestDeleteCode'),
     path('requestCopyOfData/', views.requestCopyOfData, name='requestCopyOfData'),
     path('cookieConsent/', views.cookieConsent, name='cookieConsent'),
-    path('user-settings/', views.userSettings, name='user-settings'),
 ]
 
 # tutor settings link
 urlpatterns += [
+    # path('user-settings/', views.userSettings, name='user-settings'),
     path('user-settings/tutor/general', views.tutorGeneralSettings, name='tutor-general-settings'),
     path('user-settings/tutor/biography', views.tutorBiographySettings, name='tutor-biography-settings'),
     path('user-settings/tutor/security', views.tutorSecuritySettings, name='tutor-security-settings'),

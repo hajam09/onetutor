@@ -18,7 +18,7 @@
          <form method="post">
             {% csrf_token %}
             <div class="form-group">
-               <h2 for="about">About</h2>
+               <h4 for="about">About</h4>
                <textarea class="form-control" id="about" name="about" rows="5" required></textarea>
             </div>
             <hr>
@@ -58,20 +58,30 @@
             </div>
             <hr>
             <div class="form-group">
-               <h2 for="subjects">Subjects</h2>
+               <h4 for="subjects">Subjects</h4>
                <select class="multiple-subjects form-control" name="subjects" multiple="multiple" required>
                </select>
             </div>
             <hr>
             <div class="form-group">
+               <h4 for="subjects">Date-of-birth</h4>
+               <input type="date" class="form-control" id="dateOfBirth" name="dateOfBirth" required>
+               <div id="parentIdentifierInput" hidden>
+                  <br>
+                  <h4 for="subjects">Parent code</h4>
+                  <input type="text" class="form-control" id="parentIdentifier" name="parentIdentifier">
+               </div>
+                  
+            </div>
+            <hr>
+            <div class="form-group">
                <button type="submit" class="btn btn-success btn-lg btn-block">Create Profile</button>
             </div>
-            <input type="hidden" name="numberOfEducation" value="0">
-            <input type="hidden" name="createStudentProfile">
          </form>
       </div>
    </div>
 </div>
+<script src="/static/plugins/select2/js/select2.full.min.js"></script>
 <script type="text/javascript">
 
 	$(document).ready(function()
@@ -84,11 +94,37 @@
 		}
 	);
 
+   $('#dateOfBirth').on('input', function()
+      {
+         var today = new Date();
+         var birthDate = new Date($(this).val());
+         var age = today.getFullYear() - birthDate.getFullYear();
+         var m = today.getMonth() - birthDate.getMonth();
+
+         if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate()))
+            age--;
+
+         if (age > 100)
+            return;
+
+         if (age < 18)
+         {
+            $('#parentIdentifierInput').removeAttr('hidden');
+            $('#parentIdentifier').removeAttr('hidden');
+            $('#parentIdentifier').attr('required', '');         }
+         else
+         {
+            $('#parentIdentifierInput').attr('hidden', '');
+            $('#parentIdentifier').attr('hidden', '');
+            $('#parentIdentifier').removeAttr('required');
+         }
+      }
+   );
+
 	addRemoveEducationBtn();
 	
 	function addEducationRow()
 	{
-
 		var newRow = `
          <div class="row">
             <div class="col-md-3 panel-pad-10">
