@@ -38,7 +38,6 @@ from tutoring.models import Availability
 from tutoring.models import Component
 
 
-#TODO: Use Availability from the model rather than from TutorProfile
 
 def login(request):
 
@@ -60,8 +59,6 @@ def login(request):
 
 		if form.is_valid():
 			cache.delete(uniqueVisitorId)
-
-			# TODO: Remove the need to collect the IP Address and the methods.
 
 			UserSession.objects.create(
 				user=request.user,
@@ -132,7 +129,7 @@ def selectProfile(request):
 	elif generalOperations.studentProfileExists(request.user):
 		return redirect('accounts:student-general-settings')
 	elif generalOperations.parentProfileExists(request.user):
-		pass
+		return redirect('accounts:parent-general-settings')
 
 	return render(request, 'accounts/select_profile.html')
 
@@ -231,36 +228,29 @@ def createTutorProfile(request):
 	}
 	return render(request, "accounts/createTutorProfile.html", context)
 
+
 @login_required
 def createParentProfile(request):
-	# TODO: Create a form and user formset to create multiple educations.
+	
+	if request.method == "POST":
+		today = datetime.today().date()
+		birthDate = datetime.strptime(request.POST['dateOfBirth'], '%Y-%m-%d').date()
+		age = today.year - birthDate.year - ((today.month, today.day) < (birthDate.month, birthDate.day))
 
-	if request.method == "POST" and "createTutorProfile" in request.POST:
-		summary = request.POST["summary"]
-		about = request.POST["about"]
-		subjects = ', '.join([i.capitalize() for i in request.POST.getlist('subjects')])
-
-		# Delete all previous education for this user and create new object(s).
-		schoolNames = request.POST.getlist('schoolName')
-		qualifications = request.POST.getlist('qualification')
-		startDates = request.POST.getlist('startDate')
-		endDates = request.POST.getlist('endDate')
-
-		databaseOperations.createEducationInBulk(request, schoolNames, qualifications, startDates, endDates)
-
-		TutorProfile.objects.create(
-			user=request.user,
-			summary=summary,
-			about=about,
-			subjects=subjects,
+		if age < 18:
+			messages.warning(
+				request,
+				'You need to be at least 18 years to create an account.'
 			)
+			return redirect('accounts:create-parent-profile')
 
-		Availability.objects.create(
-			user=request.user
+		ParentProfile.objects.create(
+			user=request.user,
+			dateOfBirth=birthDate,
 		)
-		return redirect('tutoring:mainpage')
+		return redirect('accounts:parent-general-settings')
 
-	return render(request, "accounts/createTutorProfile.html")
+	return render(request, "accounts/createParentProfile.html")
 
 
 @login_required
