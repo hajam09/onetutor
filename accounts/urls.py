@@ -21,33 +21,30 @@ urlpatterns = [
     path('cookieConsent/', views.cookieConsent, name='cookieConsent'),
 ]
 
+# general profile link
+urlpatterns += [
+    path('user-settings/<slug:profile>/general', views.profileGeneralSettings, name='profile-general-settings'),
+    path('user-settings/<slug:profile>/security', views.profileSecuritySettings, name='profile-security-settings'),
+    path('user-settings/<slug:profile>/account', views.profileAccountSettings, name='profile-account-settings'),
+]
+
 # tutor settings link
 urlpatterns += [
     # path('user-settings/', views.userSettings, name='user-settings'),
-    path('user-settings/tutor/general', views.tutorGeneralSettings, name='tutor-general-settings'),
     path('user-settings/tutor/biography', views.tutorBiographySettings, name='tutor-biography-settings'),
-    path('user-settings/tutor/security', views.tutorSecuritySettings, name='tutor-security-settings'),
     path('user-settings/tutor/notification', views.tutorNotificationSettings, name='tutor-notification-settings'),
-    path('user-settings/tutor/account', views.tutorAccountSettings, name='tutor-account-settings'),
 ]
 
 # student settings link
-# urlpatterns += [
-#     path('user-settings/student/general', views.studentGeneralSettings, name='student-general-settings'),
-#     path('user-settings/tutor/biography', views.studentBiographySettings, name='student-biography-settings'),
-#     path('user-settings/student/security', views.studentSecuritySettings, name='student-security-settings'),
-#     path('user-settings/student/notification', views.studentNotificationSettings, name='student-notification-settings'),
-#     path('user-settings/student/account', views.studentAccountSettings, name='student-account-settings'),
-# ]
+urlpatterns += [
+    path('user-settings/tutor/biography', views.studentBiographySettings, name='student-biography-settings'),
+    path('user-settings/student/notification', views.studentNotificationSettings, name='student-notification-settings'),
+]
 
 # parent settings link
-# urlpatterns += [
-    # path('user-settings/parent/general', views.tutorGeneralSettings, name='parent-general-settings'),
-    # path('user-settings/parent/biography', views.tutorBiographySettings, name='parent-biography-settings'),
-    # path('user-settings/parent/security', views.tutorSecuritySettings, name='parent-security-settings'),
+urlpatterns += [
     # path('user-settings/parent/notification', views.tutorNotificationSettings, name='parent-notification-settings'),
-    # path('user-settings/parent/account', views.tutorAccountSettings, name='parent-account-settings'),
-# ]
+]
 
 # footer links
 urlpatterns += [

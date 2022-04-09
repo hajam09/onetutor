@@ -1,53 +1,15 @@
 {% extends "accounts/account_base.html" %}
 {% load static %}
 {% block content %}
-<style type="text/css">
-	.mtgtlDwEfX{
-		font-size:12px;
-		padding:3px 8px;
-		border-radius:4px;
-		text-align:center;
-		color:#fff;
-		background-color:#000;
-		opacity:.64
-	}
-</style>
+<script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 <link rel="stylesheet" type="text/css" href="{% static 'css/tutoringTutorProfile.css' %}"/>
 <br>
 <div class="container-fluid" style="margin: auto;overflow-x: hidden; max-width: 1500px; color: black;">
 	<br>
-	<span id="span-id-questionAnswer-instance-container-{{questionAnswer.id}}">
-		<div class="card">
-			<div class="container" style="margin-top:30px;margin-bottom: 30px;">
-				<a href="#" class="mtgtlDwEfX" style="display:inline-block;">{{ questionAnswer.subject }}</a>
-				{{ questionAnswer.questioner.get_full_name }} asked a question at
-				<p style="display:inline-block;" data-toggle="tooltip" data-placement="top">{{ questionAnswer.date }}</p>
-				<div>
-					<strong id="questionAnswer-question-{{questionAnswer.id}}">{{ questionAnswer.question|linebreaksbr }}</strong>
-				</div>
-				<br>
-				<div style="width: 970px;" id="questionAnswer-answer-{{questionAnswer.id}}">{{ questionAnswer.answer|linebreaksbr }}</div>
-				<br>
-				<i class='far fa-thumbs-up' style='font-size:15px'></i> ({{questionAnswer.likes.count}}) &nbsp;&nbsp;
-				<i class='far fa-thumbs-down' style='font-size:15px'></i> ({{questionAnswer.dislikes.count}})<br><br>
-
-				<hr>
-
-				<div class="container">
-					<textarea class="form-control border p-4" id="comment-box" placeholder="write a comment..." rows="3"></textarea>
-					<br>
-					<div class="pull-right">
-						<button type="button" class="btn btn-outline-primary btn-sm" onclick="createQuestionAnswerComment();">Post Comment</button>
-					</div>
-				</div>
-				<br>
-				<br>
-			</div>
-		</div>
-		<br>
-	</span>
+	<div id="span-id-questionAnswer-instance-container"></div>
 	<br>
-
 	<div id="div-id-questionAnswerComment-container">
 	</div>
 	
@@ -98,106 +60,24 @@
 	{% endif %}
 </div>
 
-<script type="text/javascript">
+<script type="text/babel">
 
-	window.onload = function()
+function verifyLogin()
+{
+	{% if not user.is_authenticated %}
+		window.location.href = "{% url 'accounts:login' %}";
+	{% endif %}
+}
+
+
+class DropDownComponent extends React.Component
+{
+	constructor(props)
 	{
-		collectQuestionAnswerComment();
+		super(props);
 	}
 
-	var listOfReviews = [];
-
-	function collectQuestionAnswerComment()
-	{
-
-		{% for r in questionAnswerComment %}
-
-			listOfReviews.push(
-			{
-				'id': '{{r.id}}',
-				'creatorFullName': '{{r.creator.get_full_name}}',
-				'comment': '{{r.comment|linebreaksbr}}',
-				'date': '{{r.date}}',
-				'likeCount': eval('{{r.likes.count}}'),
-				'dislikeCount': eval('{{r.dislikes.count}}'),
-				'edited': '{{r.edited}}' == "True" ? true : false,
-				'canEdit': '{{ user }}' == '{{ r.creator }}' ? true : false,
-			});
-
-
-		{% endfor %}
-
-		renderQuestionAnswerCommentComponents(listOfReviews);
-	}
-
-	function renderQuestionAnswerCommentComponents(list)
-	{
-		$('#div-id-questionAnswerComment-container').empty();
-
-		if (list.length == 0)
-			return;
-
-		for (var i = 0; i < list.length; i++)
-		{
-			var editedText = list[i].edited == true ? '(edited)' : '';
-			var userEditDropdown = editDeleteDropdownComponent(list[i].canEdit, list[i].id);
-			
-			var newCommentObject = `
-			<div class="reviews-members pt-4 pb-4" id="question-answer-component-`+list[i].id+`">
-				<div class="media">
-					<a href="#"><img alt="Generic placeholder image" src="http://bootdey.com/img/Content/avatar/avatar1.png" class="mr-3 rounded-pill"></a>
-					<div class="media-body">
-						<div class="reviews-members-header">
-							`+userEditDropdown+`
-							<h6 class="mb-1"><b>`+list[i].creatorFullName+`</b></h6>
-							<p class="text-gray">`+list[i].date+` <span class="text-secondary" >`+editedText+`</span></p>
-						</div>
-						<div class="reviews-members-body">
-							<p id="p-id-questionAnswerComment-comment-container-`+list[i].id+`">`+list[i].comment+`</p>
-						</div>
-						<div class="reviews-members-footer">
-							<button type="button" class="btn btn-outline-primary" style="border-radius: 35px;" onclick="likeOrDislikeQuestionAnswerComment(`+list[i].id+`,`+true+`)">
-								<i class="fa fa-thumbs-o-up"></i> `+list[i].likeCount+`
-							</button>
-							<button type="button" class="btn btn-outline-primary" style="border-radius: 35px;" onclick="likeOrDislikeQuestionAnswerComment(`+list[i].id+`,`+false+`)">
-								<i class="fa fa-thumbs-o-down"></i> `+list[i].dislikeCount+`
-							</button>
-							&nbsp;&nbsp;
-						</div>
-					</div>
-				</div>
-			</div>
-			<hr>`;
-
-			$('#div-id-questionAnswerComment-container').append( newCommentObject );
-		}
-	}
-
-	function editDeleteDropdownComponent(canEdit, componentId)
-	{
-		var response = `<div class="dropdown pull-right" style="display:inline-block;">
-							<button type="button" class="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
-								<div class="dropdown-menu dropdown-primary">`;
-
-		if (canEdit)
-		{
-			response += `<span class="dropdown-item" style="cursor: pointer;" onclick="deleteQuestionAnswerCommentComponent(`+componentId+`);">
-							<i class="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete
-						</span>
-						<span class="dropdown-item" style="cursor: pointer;" onclick="convertTextToEditArea(`+componentId+`)">
-							<i class="fa fa-edit"></i>&nbsp;&nbsp;Edit
-						</span>`;
-		}
-		else
-		{
-			response += '<span class="dropdown-item"><i class="fa fa-warning"></i>&nbsp;&nbsp;Report</span>';
-		}
-
-		response+= `</div></div>`;
-		return response;
-	}
-
-	function deleteQuestionAnswerCommentComponent(componentId)
+	deleteQuestionAnswerCommentComponent = (event) =>
 	{
 		verifyLogin();
 
@@ -206,132 +86,255 @@
 			data:
 			{
 				'functionality': 'deleteQuestionAnswerComment',
-				'id': componentId,
+				'id': this.props.questionAnswerCommentId,
 			},
 			dataType: 'json',
 			success: function (response)
 			{
 				if (response.statusCode == 200)
 				{
-					removeQuestionAnswerCommentFromGlobalReviewList(componentId);
+					// removeQuestionAnswerCommentFromGlobalReviewList(componentId);
 				}
 			}
 		});
+		this.props.hideQuestionAnswerCommentComponent();
 	}
 
-	function removeQuestionAnswerCommentFromGlobalReviewList(componentId)
+	convertTextToEditArea = (event) =>
 	{
-		var newList = [];
-		for (var i = 0; i < listOfReviews.length; i++)
-		{
-			if (listOfReviews[i].id != componentId)
-			{
-				newList.push(listOfReviews[i]);
-			}
-		}
-		listOfReviews = newList;    
-		renderQuestionAnswerCommentComponents(listOfReviews);
+		console.log("a");
 	}
 
-
-	function convertTextToEditArea(componentId)
+	render()
 	{
-		var regex = /<br\s*[\/]?>/gi;
 
-		for (var i = 0; i < listOfReviews.length; i++)
-		{
-			if (listOfReviews[i].id == componentId)
-			{
-				$('#p-id-questionAnswerComment-comment-container-'+componentId).empty();
-				$('#p-id-questionAnswerComment-comment-container-'+componentId).replaceWith(
-					`<textarea id="update-comment-container-`+componentId+`" class="form-control border p-4" rows="3">` + listOfReviews[i].comment.replace(regex, "\n") + `</textarea>
-						<div class="pull-right">
-							<br>
-							<button type="button" class="btn btn-outline-danger" onclick="cancelCommentUpdate();">Cancel</button>
-							&nbsp;&nbsp;
-							<button type="button" class="btn btn-outline-info" onclick="completeCommentUpdate(`+componentId+`);">Update Comment</button>
-							<br><br>
-						</div>
-						<br>`
-					);
-				break;
-			}
-		}
-	}
-
-	function cancelCommentUpdate()
-	{
-		// Simple trick is to re-render all the components from the list rather than reverting that single component to its original HTML <p> element.
-		renderQuestionAnswerCommentComponents(listOfReviews);
-	}
-
-	function completeCommentUpdate(componentId)
-	{
-		var comment = $("#update-comment-container-"+componentId).val();
-		comment = comment.trim();
-
-		if (comment && !comment.trim() || comment.length==0)
-		{
-			alert("Enter a comment!");
-			return;
+		const divDropdownStyle = {
+			display: "inlineBlock"
 		}
 
-		$.ajax(
+		const cursorPointer = {
+			cursor: "pointer"
+		}
+
+		if (this.props.canEdit)
 		{
-			data:
-			{
-				'functionality': 'updateQuestionAnswerComment',
-				'id': componentId,
-				'comment': comment
-			},
-			dataType: 'json',
-			success: function (response)
-			{
-				if(response.statusCode == 200)
-				{
-					for (var i = 0; i < listOfReviews.length; i++)
-					{
-						if (listOfReviews[i].id == componentId)
-						{
-							listOfReviews[i].comment = response.updatedComment.comment;
-							listOfReviews[i].edited = response.updatedComment.edited;
-							break;
-						}
-					}
-					renderQuestionAnswerCommentComponents(listOfReviews);
-				}
-				else
-				{
-					Swal.fire({
-						icon: 'warning',
-						title: "Can't do that!",
-						text: response.message
-					});
-				}
-			}
-		});
+			return(
+				<div className="dropdown pull-right" style={divDropdownStyle}>
+					<button type="button" className="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+					<div className="dropdown-menu dropdown-primary">
+					<span className="dropdown-item" style={cursorPointer} onClick={(event) => this.deleteQuestionAnswerCommentComponent(event)}>
+						<i className="fas fa-trash-alt"></i>&nbsp;&nbsp;Delete
+					</span>
+					<span className="dropdown-item" style={cursorPointer} onClick={(event) => this.convertTextToEditArea(event)}>
+						<i className="fa fa-edit"></i>&nbsp;&nbsp;Edit
+					</span>
+					</div>
+				</div>
+			)
+		}
+		else
+		{
+			return(
+				<div className="dropdown pull-right" style={divDropdownStyle}>
+				<button type="button" className="btn btn-outline-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+					<div className="dropdown-menu dropdown-primary">
+						<span className="dropdown-item"><i className="fa fa-warning"></i>&nbsp;&nbsp;Report</span>
+					</div>
+				</div>
+			)
+		}		
 	}
+}
 
-	function verifyLogin()
+function likeOrDislikeQuestionAnswerCommentDjango(componentId, isLike)
+{
+	// placing ajax outside the component because the state value is updated before a response is received from the django.
+	$.ajax(
 	{
-		{% if not user.is_authenticated %}
-			window.location.href = "{% url 'accounts:login' %}";
-		{% endif %}
+		data:
+		{
+			'functionality': isLike ? 'likeQuestionAnswerComment' : 'dislikeQuestionAnswerComment',
+			'id': componentId,
+		},
+		dataType: 'json',
+		success: function (response)
+		{
+			if (response.statusCode == 200)
+			{
+				$("#likeCount-"+componentId).text( response.likeCount );
+				$("#dislikeCount-"+componentId).text( response.dislikeCount );
+			}
+		}
+	});
+}
+
+class CommentEditedComponent extends React.Component
+{
+	constructor(props)
+	{
+		super(props);
 	}
 
-	function createQuestionAnswerComment()
+	render()
+	{
+		if(this.props.edited)
+		{
+			return(
+				<span className="text-secondary" > (edited)</span>
+			)
+		}
+		else
+		{
+			return(
+				<span></span>
+			)
+		}
+	}
+}
+
+class QuestionAnswerCommentComponent extends React.Component
+{
+	constructor(props)
+	{
+		super(props);
+
+		this.state = {
+			showComponent: this.props.show,
+			likeCount: this.props.likeCount,
+			dislikeCount: this.props.dislikeCount,
+		}
+
+		this.hideQuestionAnswerCommentComponent = this.hideQuestionAnswerCommentComponent.bind(this);
+	}
+
+	likeOrDislikeQuestionAnswerComment = (event, isLike) =>
 	{
 		verifyLogin();
-		var comment = $("#comment-box").val();
-		comment = comment.trim();
 
+		likeOrDislikeQuestionAnswerCommentDjango(this.props.id, isLike);
+	}
+
+	hideQuestionAnswerCommentComponent()
+	{
+		this.setState({
+			showComponent: !this.state.showComponent
+		});
+	}
+
+	render()
+	{
+		const buttonStyle = {
+			borderRadius: "35px",
+		}
+
+		let likeCountId = "likeCount-" + this.props.id;
+		let dislikeCountId = "dislikeCount-" + this.props.id;
+
+		if(this.state.showComponent)
+		{
+			return(
+				<div className="reviews-members pt-4 pb-4">
+					<div className="media">
+						<a href="#">
+							<img alt="Generic placeholder image" src="http://bootdey.com/img/Content/avatar/avatar1.png" className="mr-3 rounded-pill"></img>
+						</a>
+						<div className="media-body">
+							<div className="reviews-members-header">
+								<DropDownComponent canEdit={this.props.canEdit} questionAnswerCommentId={this.props.id} hideQuestionAnswerCommentComponent={this.hideQuestionAnswerCommentComponent} />
+								<h6 className="mb-1"><b>{this.props.creatorFullName}</b></h6>
+								<p className="text-gray">{this.props.date}<CommentEditedComponent edited={this.props.edited} /></p>
+							</div>
+							<div className="reviews-members-body">
+								<p>{this.props.comment}</p>
+							</div>
+							<div className="reviews-members-footer">
+								<button type="button" className="btn btn-outline-primary" style={buttonStyle} onClick={(event) => this.likeOrDislikeQuestionAnswerComment(event, true)}>
+									<i className="fa fa-thumbs-o-up"></i><span id={likeCountId}>{this.state.likeCount}</span>
+								</button>
+								&nbsp;&nbsp;
+								<button type="button" className="btn btn-outline-primary" style={buttonStyle} onClick={(event) => this.likeOrDislikeQuestionAnswerComment(event, false)}>
+									<i className="fa fa-thumbs-o-down"></i><span id={dislikeCountId}>{this.state.dislikeCount}</span>
+								</button>
+							</div>
+						</div>
+					</div>
+					<hr></hr>
+				</div>
+			);
+		}
+		else
+		{
+			return(
+				<div>
+				</div>
+			);
+		}
+	}
+}
+
+class Comment extends React.Component
+{
+	constructor(props)
+	{
+		super(props);
+	}
+
+	render()
+	{
+		const comments = {{questionAnswerCommentJson|safe}}
+
+		 return (
+		 	<ul>
+		 		{comments.map((c) => <QuestionAnswerCommentComponent key={c.id}
+		 															id={c.id}
+		 															creatorFullName={c.creatorFullName}
+		 															comment={c.comment}
+		 															date={c.date}
+		 															likeCount={c.likeCount}
+		 															dislikeCount={c.dislikeCount}
+		 															canEdit={c.canEdit}
+		 															edited={c.edited}
+		 															show={c.show} />)}
+		 	</ul>
+		 );
+	}
+}
+
+console.log({{questionAnswerCommentJson|safe}});
+
+ReactDOM.render( <Comment/>, document.getElementById('div-id-questionAnswerComment-container') );
+
+class QuestionAnswerComponent extends React.Component
+{
+	constructor(props)
+	{
+		super(props);
+		this.state = {
+			text: '',
+		}		
+	}
+
+	createQuestionAnswerComment = (event) =>
+	{
+		// verifyLogin();
+
+		let comment = this.state.text;
+
+		if(comment == null)
+		{
+			alert("Enter a comment!");
+			return;
+		}
+		
 		if (comment && !comment.trim() || comment.length==0)
 		{
 			alert("Enter a comment!");
 			return;
 		}
 
-		$("#comment-box").val("");
+		this.setState({
+			text: ''
+		});
 
 		$.ajax(
 		{
@@ -345,47 +348,88 @@
 			{
 				if(response.statusCode == 200)
 				{
-					listOfReviews = [response.newComment].concat(listOfReviews);
-					renderQuestionAnswerCommentComponents(listOfReviews);
+					// listOfReviews = [response.newComment].concat(listOfReviews);
+					// renderQuestionAnswerCommentComponents(listOfReviews);
 				}
 			}
 		});
 	}
 
-	function likeOrDislikeQuestionAnswerComment(componentId, isLike)
+	handleChange = (event) =>
 	{
-		verifyLogin();
-		$.ajax(
-		{
-			data:
-			{
-				'functionality': isLike ? 'likeQuestionAnswerComment' : 'dislikeQuestionAnswerComment',
-				'id': componentId,
-			},
-			dataType: 'json',
-			success: function (response)
-			{
-				if (response.statusCode == 200)
-				{
-					updateQuestionAnswerCommentLikesAndDislikesInGlobalReviewList(componentId, response.likeCount, response.dislikeCount);
-					renderQuestionAnswerCommentComponents(listOfReviews);
-				}
-			}
+		this.setState({
+			text: event.target.value,
 		});
 	}
 
-	function updateQuestionAnswerCommentLikesAndDislikesInGlobalReviewList(componentId, likesCount, dislikeCount)
+	render()
 	{
-		for (var i = 0; i < listOfReviews.length; i++)
-		{
-			if (listOfReviews[i].id == componentId)
-			{
-				listOfReviews[i].likeCount = eval(likesCount);
-				listOfReviews[i].dislikeCount = eval(dislikeCount);
-				break;
-			}
+		const containerStyle = {
+			marginTop: "30px",
+			marginBottom: "30px",
 		}
+
+		const anchorStyle = {
+			display: "inlineBlock",
+		}
+
+		const answerStyle = {
+			width: "970px",
+		}
+
+		const thumbsStyle = {
+			fontSize: "15px",
+		}
+
+		const subjectBadgeStyle = {
+			fontSize: "12px",
+			padding: "3px 8px",
+			borderRadius: "4px",
+			textAlign: "center",
+			color: "#fff",
+			backgroundColor: "#000",
+			opacity: ".64"
+		}
+		return(
+			<div className="card">
+				<div className="container" style={containerStyle}>
+					<a href="#" style={anchorStyle, subjectBadgeStyle}>{{ questionAnswer.subject }}</a>&nbsp;
+
+					{{ questionAnswer.questioner.get_full_name }} asked a question at {{ questionAnswer.date }}
+
+					<br></br>
+					<br></br>
+
+					<strong>{{ questionAnswer.question|linebreaksbr }}</strong>
+
+					<br></br>
+					<br></br>
+
+					<div style={answerStyle}>{{ questionAnswer.answer|linebreaksbr }}</div>
+
+					<br></br>
+					<i className='far fa-thumbs-up' style={thumbsStyle}></i> ({{questionAnswer.likes.count}}) &nbsp;&nbsp;
+					<i className='far fa-thumbs-down' style={thumbsStyle}></i> ({{questionAnswer.dislikes.count}})
+
+					<br></br>
+					<br></br>
+					<hr></hr>
+
+					<div className="container">
+						<textarea className="form-control border p-4" onChange={event => this.handleChange(event)} value={this.state.text} placeholder="write a comment..." rows="3" required></textarea>
+						<br></br>
+						<div className="pull-right">
+							<button type="button" className="btn btn-outline-primary btn-sm" onClick={(event) => this.createQuestionAnswerComment(event)}>Post Comment</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		);
 	}
+}
+
+ReactDOM.render( <QuestionAnswerComponent/>, document.getElementById('span-id-questionAnswer-instance-container') );
+
 
 </script>
 {% endblock %}

@@ -1,18 +1,9 @@
-from threading import Thread
-import time
+from background_task import background
+from django.contrib.auth.models import User
 
-def executeDeleteCacheFromLogin(RUN_EVERY):
-	time.sleep(RUN_EVERY)
-	#
-	#
-	executeDeleteCacheFromLogin(RUN_EVERY)
 
-def runTasks(functionName, wait_time):
-	t1 = Thread(target = functionName, args=(wait_time,))
-	t1.daemon = True
-	t1.start()
-
-def startCronJobs():
-	runTasks(executeDeleteCacheFromLogin, 10)
-
-# startCronJobs()
+@background(schedule=60)
+def notify_user(user_id):
+    # lookup user by id and send them a message
+    user = User.objects.get(pk=user_id)
+    user.email_user('Here is a notification', 'You have been notified')

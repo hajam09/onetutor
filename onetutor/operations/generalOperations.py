@@ -20,7 +20,7 @@ def parentProfileExists(user: User):
 
 
 def userHasProfile(user: User):
-    return tutorProfileExists(user) or studentProfileExists(user)
+    return tutorProfileExists(user) or studentProfileExists(user) or parentProfileExists(user)
 
 
 def getTutorProfileForUser(user: User):
@@ -40,12 +40,21 @@ def getStudentProfileForUser(user: User):
 
     return profile
 
+def getParentProfileForUser(user: User):
+    try:
+        profile = user.parentProfile
+    except ParentProfile.DoesNotExist:
+        profile = None
+
+    return profile
+
 
 def getProfileForUser(user: User):
     tutorProfile = getTutorProfileForUser(user)
     studentProfile = getStudentProfileForUser(user)
+    parentProfile = getParentProfileForUser(user)
 
-    return tutorProfile or studentProfile
+    return tutorProfile or studentProfile or parentProfile
 
 
 def isPasswordStrong(password):

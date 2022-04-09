@@ -14,6 +14,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.http import JsonResponse
+from django.http import Http404
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.utils.encoding import DjangoUnicodeDecodeError
@@ -31,6 +32,7 @@ from accounts.models import TutorProfile
 from accounts.utils import generate_token
 from dashboard.models import UserLogin
 from dashboard.models import UserSession
+from onetutor.decorators.deprecated import deprecated
 from onetutor.operations import databaseOperations
 from onetutor.operations import emailOperations
 from onetutor.operations import generalOperations
@@ -125,11 +127,11 @@ def logout(request):
 def selectProfile(request):
 
 	if generalOperations.tutorProfileExists(request.user):
-		return redirect('accounts:tutor-general-settings')
+		return redirect('accounts:profile-general-settings', profile='tutor')
 	elif generalOperations.studentProfileExists(request.user):
-		return redirect('accounts:student-general-settings')
+		return redirect('accounts:profile-general-settings', profile='student')
 	elif generalOperations.parentProfileExists(request.user):
-		return redirect('accounts:parent-general-settings')
+		return redirect('accounts:profile-general-settings', profile='parent')
 
 	return render(request, 'accounts/select_profile.html')
 
@@ -231,7 +233,7 @@ def createTutorProfile(request):
 
 @login_required
 def createParentProfile(request):
-	
+
 	if request.method == "POST":
 		today = datetime.today().date()
 		birthDate = datetime.strptime(request.POST['dateOfBirth'], '%Y-%m-%d').date()
@@ -248,12 +250,13 @@ def createParentProfile(request):
 			user=request.user,
 			dateOfBirth=birthDate,
 		)
-		return redirect('accounts:parent-general-settings')
+		return redirect('accounts:profile-general-settings', profile='parent')
 
 	return render(request, "accounts/createParentProfile.html")
 
 
 @login_required
+@deprecated
 def userSettings(request):
 
 	# TODO: Find a good code design for the below try/catch.
@@ -426,10 +429,15 @@ def userSettings(request):
 
 
 @login_required
-def tutorGeneralSettings(request):
-	try:
-		profile = TutorProfile.objects.select_related('user').get(user=request.user)
-	except TutorProfile.DoesNotExist:
+def profileGeneralSettings(request, profile):
+	profile = profile.lower()
+
+	if profile != 'tutor' and profile != 'student' and profile != 'parent':
+		raise Http404
+
+	profile = generalOperations.getProfileForUser(request.user)
+
+	if profile is None:
 		return redirect('accounts:select-profile')
 
 	if request.method == "POST":
@@ -458,7 +466,8 @@ def tutorGeneralSettings(request):
 	context = {
 		"profile": profile,
 	}
-	return render(request, 'accounts/tutor/tutorGeneralSettings.html', context)
+	# TODO: More the template to more appropriate location
+	return render(request, 'accounts/tutor/profileGeneralSettings.html', context)
 
 
 @login_required
@@ -512,8 +521,13 @@ def tutorBiographySettings(request):
 
 
 @login_required
-def tutorSecuritySettings(request):
-	if not generalOperations.tutorProfileExists(request.user):
+def profileSecuritySettings(request, profile):
+	profile = profile.lower()
+
+	if profile != 'tutor' and profile != 'student' and profile != 'parent':
+		raise Http404
+
+	if not generalOperations.userHasProfile(request.user):
 		return redirect('accounts:select-profile')
 
 	if request.method == "POST":
@@ -531,7 +545,8 @@ def tutorSecuritySettings(request):
 	context = {
 		'form': form,
 	}
-	return render(request, 'accounts/tutor/tutorSecuritySettings.html', context)
+	# TODO: More the template to more appropriate location
+	return render(request, 'accounts/tutor/profileSecuritySettings.html', context)
 
 
 @login_required
@@ -540,7 +555,12 @@ def tutorNotificationSettings(request):
 
 
 @login_required
-def tutorAccountSettings(request):
+def profileAccountSettings(request, profile):
+	profile = profile.lower()
+
+	if profile != 'tutor' and profile != 'student' and profile != 'parent':
+		raise Http404
+
 	if request.method == "POST" and "deleteAccount" in request.POST:
 		if request.POST["delete-code"] == request.session.session_key:
 			request.user.delete()
@@ -549,11 +569,23 @@ def tutorAccountSettings(request):
 				'Account deleted successfully'
 			)
 			return redirect('tutoring:mainpage')
+
 		messages.error(
 			request,
 			'Account delete code is incorrect, please try again later.'
 		)
-	return render(request, 'accounts/tutor/tutorAccountSettings.html')
+	# TODO: More the template to more appropriate location
+	return render(request, 'accounts/tutor/profileAccountSettings.html')
+
+def studentGeneralSettings(request):
+	pass
+
+def studentBiographySettings(request):
+	pass
+
+def studentNotificationSettings(request):
+	pass
+
 
 def rules(request, ruleType):
 

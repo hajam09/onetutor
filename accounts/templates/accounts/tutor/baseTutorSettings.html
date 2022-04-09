@@ -22,7 +22,7 @@
         <div class="col-md-3">
             <!-- Tabs nav -->
             <div class="nav flex-column nav-pills nav-pills-custom" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                <a class="nav-link mb-3 p-3 shadow" id='id-nav-tab-general' href="{% url 'accounts:tutor-general-settings' %}" aria-selected="true">
+                <a class="nav-link mb-3 p-3 shadow" id='id-nav-tab-general' href="{% url 'accounts:profile-general-settings' profile='tutor' %}" aria-selected="true">
                     <i class="fas fa-user mr-2"></i>
                     <span class="font-weight-bold small text-uppercase">General</span>
                 </a>
@@ -30,7 +30,7 @@
                     <i class="fa fa-book mr-2"></i>
                     <span class="font-weight-bold small text-uppercase">Biography</span>
                 </a>
-                <a class="nav-link mb-3 p-3 shadow" id='id-nav-tab-security' href="{% url 'accounts:tutor-security-settings' %}" aria-selected="true">
+                <a class="nav-link mb-3 p-3 shadow" id='id-nav-tab-security' href="{% url 'accounts:profile-security-settings' profile='tutor' %}" aria-selected="true">
                     <i class="fas fa-key mr-2"></i>
                     <span class="font-weight-bold small text-uppercase">Security</span>
                 </a>
@@ -38,7 +38,7 @@
                     <i class="fas fa-bell-slash mr-2"></i>
                     <span class="font-weight-bold small text-uppercase">Notification</span>
                 </a>
-                <a class="nav-link mb-3 p-3 shadow" id='id-nav-tab-account' href="{% url 'accounts:tutor-account-settings' %}" aria-selected="true">
+                <a class="nav-link mb-3 p-3 shadow" id='id-nav-tab-account' href="{% url 'accounts:profile-account-settings' profile='tutor' %}" aria-selected="true">
                     <i class="fas fa-trash-alt mr-2"></i>
                     <span class="font-weight-bold small text-uppercase">Account</span>
                 </a>
