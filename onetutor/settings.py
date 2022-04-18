@@ -172,3 +172,5 @@ else:
 	EMAIL_HOST = 'smtp.gmail.com'
 	EMAIL_HOST_USER = 'qmwebprog2019@gmail.com'
 	EMAIL_PORT = 587
+
+TEST_PASSWORD = 'LlOrp$C8g$i2A!f*ylIROzHb@6j1sq'

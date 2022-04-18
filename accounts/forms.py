@@ -241,14 +241,14 @@ class PasswordChangeForm(forms.Form):
                 self.request,
                 'Your new password and confirm password does not match.'
             )
-            raise ValidationError(None)
+            raise ValidationError('Your new password and confirm password does not match.')
 
         if not generalOperations.isPasswordStrong(newPassword):
             messages.warning(
                 self.request,
                 'Your new password is not strong enough.'
             )
-            raise ValidationError(None)
+            raise ValidationError('Your new password is not strong enough.')
 
         # TODO: use validate_password for better security.
 

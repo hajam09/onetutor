@@ -8,6 +8,7 @@ from essential_generators import DocumentGenerator
 from faker import Faker
 
 from accounts.models import TutorProfile, Education, StudentProfile
+from onetutor.settings import TEST_PASSWORD
 from tutoring.models import Availability, Lesson, Feature
 
 EMAIL_DOMAINS = ["@yahoo", "@gmail", "@outlook", "@hotmail"]
@@ -61,7 +62,7 @@ def createNewUser():
     user = User.objects.create_user(
         username=email,
         email=email,
-        password="RanDomPasWord56",
+        password=TEST_PASSWORD,
         first_name=firstName,
         last_name=lastName
     )
