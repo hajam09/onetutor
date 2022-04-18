@@ -1,0 +1,46 @@
+from django.test import Client
+from django.test import RequestFactory
+from django.test import TestCase
+from django.contrib.messages.storage.fallback import FallbackStorage
+
+from onetutor.tests import userDataHelper
+
+
+class BaseTest(TestCase):
+
+    def setUp(self, url='') -> None:
+        """
+        setUp: Run once for every test method to setup clean data.
+        """
+        self.factory = RequestFactory()
+        self.user = userDataHelper.createNewUser()
+        self.client = Client(
+            HTTP_USER_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36'
+        )
+
+        self.request = self.factory.get(url)
+        self.request.user = self.user
+
+        # To fix the messages during unit testing
+        setattr(self.request, 'session', 'session')
+        messages = FallbackStorage(self.request)
+        setattr(self.request, '_messages', messages)
+
+    @classmethod
+    def setUpClass(cls):
+        super(BaseTest, cls).setUpClass()
+
+    def tearDown(self) -> None:
+        self.user.delete()
+        super(BaseTest, self).tearDown()
+
+    @classmethod
+    def tearDownClass(cls):
+        super(BaseTest, cls).tearDownClass()
+
+    @classmethod
+    def setUpTestData(cls):
+        """
+        setUpTestData: Run once to set up non-modified data for all class methods.
+        """
+        pass
