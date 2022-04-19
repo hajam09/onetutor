@@ -70,7 +70,7 @@ def createNewUser():
     return user
 
 
-def createNewUserAndTutorProfile(user=None):
+def createTutorProfileForUser(user=None):
     if user is None:
         user = createNewUser()
 

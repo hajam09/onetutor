@@ -1,7 +1,6 @@
 import json
 from datetime import datetime
 
-from django.contrib.auth.models import AnonymousUser
 from django.urls import reverse
 
 from dashboard.models import UserSession

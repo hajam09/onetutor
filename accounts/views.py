@@ -403,7 +403,7 @@ def profileAccountSettings(request, profile):
 			request,
 			'Account delete code is incorrect, please try again later.'
 		)
-	# TODO: More the template to more appropriate location
+	# TODO: Move the template to more appropriate location
 	return render(request, 'accounts/tutor/profileAccountSettings.html')
 
 
