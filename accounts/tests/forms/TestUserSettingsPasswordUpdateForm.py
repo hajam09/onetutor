@@ -2,7 +2,7 @@ from accounts.forms import UserSettingsPasswordUpdateForm
 from onetutor.settings import TEST_PASSWORD
 from onetutor.tests.BaseTest import BaseTest
 
-@skip('')
+
 class UserSettingsPasswordUpdateFormTest(BaseTest):
 
     def setUp(self) -> None:

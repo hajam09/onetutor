@@ -1,9 +1,8 @@
 from accounts.forms import PasswordChangeForm
 from onetutor.settings import TEST_PASSWORD
 from onetutor.tests.BaseTest import BaseTest
-from unittest import skip
 
-@skip('')
+
 class PasswordChangeFormTest(BaseTest):
 
     def setUp(self) -> None:

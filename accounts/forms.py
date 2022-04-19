@@ -1,3 +1,5 @@
+import re
+
 from django import forms
 from django.conf import settings
 from django.contrib import messages
@@ -195,7 +197,16 @@ class GetInTouchForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(GetInTouchForm, self).__init__(*args, **kwargs)
+        self.regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
         # TODO: make the fullName and email input side-by-side
+
+    def clean(self):
+        email = self.cleaned_data.get("email")
+
+        if not re.fullmatch(self.regex, email):
+            raise ValidationError('Your email address format is not correct.')
+
+        return self.cleaned_data
 
     def save(self):
         GetInTouch.objects.create(

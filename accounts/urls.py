@@ -48,6 +48,6 @@ urlpatterns += [
 
 # footer links
 urlpatterns += [
-    path('getInTouch/', views.getInTouch, name='getInTouch'),
+    path('get-in-touch/', views.getInTouch, name='get-in-touch'),
     path('ourFeatures/', views.ourFeatures, name='ourFeatures'),
 ]

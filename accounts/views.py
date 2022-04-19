@@ -591,7 +591,7 @@ def getInTouch(request):
 			messages.success(
 				request, 'Your message has been received, We will contact you soon.'
 			)
-			return redirect("accounts:getInTouch")
+			return redirect("accounts:get-in-touch")
 	else:
 		form = GetInTouchForm()
 

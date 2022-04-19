@@ -1,18 +1,18 @@
 from onetutor.tests.BaseTest import BaseTest
 
 
-class BaseTestViews(BaseTest):
+class BaseTestAjax(BaseTest):
 
     def setUp(self, path='') -> None:
-        super(BaseTestViews, self).setUp(path)
+        super(BaseTestAjax, self).setUp(path)
         self.path = path
 
     def get(self, data=None):
         if data is None:
             data = {}
-        return self.client.get(self.path, data)
+        return self.client.get(self.path, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
     def post(self, data=None):
         if data is None:
             data = {}
-        return self.client.post(self.path, data, follow=True)
+        return self.client.post(self.path, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')

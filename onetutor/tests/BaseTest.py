@@ -1,7 +1,8 @@
+from django.contrib.messages import get_messages
+from django.contrib.messages.storage.fallback import FallbackStorage
 from django.test import Client
 from django.test import RequestFactory
 from django.test import TestCase
-from django.contrib.messages.storage.fallback import FallbackStorage
 
 from onetutor.tests import userDataHelper
 
@@ -31,6 +32,7 @@ class BaseTest(TestCase):
         super(BaseTest, cls).setUpClass()
 
     def tearDown(self) -> None:
+        self.client.logout()
         self.user.delete()
         super(BaseTest, self).tearDown()
 
@@ -44,3 +46,9 @@ class BaseTest(TestCase):
         setUpTestData: Run once to set up non-modified data for all class methods.
         """
         pass
+
+    def getSessionKey(self):
+        return self.client.session.session_key
+
+    def getMessages(self, response):
+        return list(get_messages(response.wsgi_request))
