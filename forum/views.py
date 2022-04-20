@@ -2,6 +2,8 @@ import json
 import math
 import random
 import string
+from datetime import datetime
+from datetime import timedelta
 from http import HTTPStatus
 
 import pandas as pd
@@ -21,7 +23,6 @@ from onetutor.operations import dateOperations
 
 
 def mainpage(request):
-
     if request.method == "POST" and "createCommunity" in request.POST:
 
         title = request.POST['title']
@@ -56,10 +57,10 @@ def mainpage(request):
         return redirect('forum:communityPage', communityUrl=url)
 
     # TODO: Retrieve specific fields from the objects rather than all the related objects.
-    forums = Forum.objects.all().select_related('creator', 'community').prefetch_related('likes',
-                                                                                         'dislikes',
-                                                                                         'watchers',
-                                                                                         'forumComments').order_by('-id')
+    forums = Forum.objects.all().order_by('-id').select_related('creator', 'community').prefetch_related('likes',
+                                                                                                         'dislikes',
+                                                                                                         'watchers',
+                                                                                                         'forumComments')
 
     paginator = Paginator(forums, 15)
     pageStartNumber = 1
@@ -101,7 +102,6 @@ def mainpage(request):
 
 
 def communityPage(request, communityUrl):
-
     try:
         community = Community.objects.prefetch_related('members').get(url=communityUrl)
     except Community.DoesNotExist:
@@ -266,7 +266,7 @@ def forumPage(request, communityUrl, forumUrl):
     return render(request, "forum/forumPage.html", context)
 
 
-def GetPopularPosts():
+def GetPopularPosts(idsOnly=True):
     """
         Return the most popular posts created on any community.
         Attributes to determine the popularity:
@@ -275,13 +275,18 @@ def GetPopularPosts():
     if Forum.objects.count() == 0:
         return []
 
-    allForums = Forum.objects.all().prefetch_related('likes', 'dislikes', 'watchers', 'forums').select_related(
-        'creator', 'community')
+    allForums = Forum.objects.filter(createdAt__gte=datetime.now() - timedelta(days=7))
+
+    if allForums.count() == 0:
+        allForums = Forum.objects.all()
+
+    allForums = allForums.prefetch_related('likes', 'dislikes', 'watchers', 'forumComments').select_related('creator',
+                                                                                                            'community')
 
     forumDict = [{
         'id': e.pk,
         'forumVote': e.likes.count() - e.dislikes.count(),
-        'commentCount': e.forums.all().count(),
+        'commentCount': e.forumComments.all().count(),
         'watchCount': e.watchers.all().count()
     } for e in allForums]
 
@@ -299,7 +304,7 @@ def GetPopularPosts():
     forumScoredDataFrame = df.sort_values(['score'], ascending=False)
     forumId = list(forumScoredDataFrame['id'])
     # return [allForums[i-1] for i in forumId] # use when pk is in order.
-    return [j for i in forumId for j in allForums if i == j.pk]
+    return forumId if idsOnly else [j for i in forumId for j in allForums if i == j.pk]
 
 
 def randomString(size=6, chars=string.ascii_uppercase + string.digits):
@@ -335,7 +340,6 @@ def forumComponentJson(request, e):
 
 
 def communityOperationsAPI(request, communityId):
-
     if not request.user.is_authenticated:
         response = {
             "statusCode": HTTPStatus.UNAUTHORIZED,
@@ -375,7 +379,6 @@ def communityOperationsAPI(request, communityId):
 
 
 def forumOperationsAPI(request, forumId):
-
     if not request.user.is_authenticated:
         response = {
             "statusCode": HTTPStatus.UNAUTHORIZED,
@@ -438,7 +441,6 @@ def forumOperationsAPI(request, forumId):
 
 
 def forumCommentOperationsAPI(request, commentId):
-
     if not request.user.is_authenticated:
         response = {
             "statusCode": HTTPStatus.UNAUTHORIZED,
