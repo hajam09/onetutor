@@ -22,7 +22,8 @@ class ForumBuildHelper:
         self.faker = Faker()
 
     def categoryBuilder(self):
-        return Category.objects.create(name="Other")
+        self.category = Category.objects.create(name="Other")
+        return self
 
     def communityBuilder(self, totalValue=10):
         communityList = []
@@ -41,7 +42,9 @@ class ForumBuildHelper:
                     logo=None,
                 )
             )
-        self.community = Community.objects.bulk_create(communityList)
+        Community.objects.bulk_create(communityList)
+        self.community = Community.objects.all().order_by('-id')[:totalValue]
+        return self
 
     def forumBuilder(self, totalValue=50):
         forumList = []
@@ -59,7 +62,9 @@ class ForumBuildHelper:
                     image=None
                 )
             )
-        self.forum = Forum.objects.bulk_create(forumList)
+        Forum.objects.bulk_create(forumList)
+        self.forum = Forum.objects.all().order_by('-id')[:totalValue]
+        return self
 
     def forumCommentBuilder(self, totalValue=150):
         forumCommentList = []
@@ -71,4 +76,6 @@ class ForumBuildHelper:
                     description=self.faker.paragraph(nb_sentences=15),
                 )
             )
-        self.forumComment = ForumComment.objects.bulk_create(forumCommentList)
+        ForumComment.objects.bulk_create(forumCommentList)
+        self.forum = ForumComment.objects.all().order_by('-id')[:totalValue]
+        return self
