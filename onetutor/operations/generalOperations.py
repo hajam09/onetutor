@@ -1,3 +1,6 @@
+import random
+import string
+
 from django.contrib.auth.models import User
 
 from accounts.models import Education
@@ -39,6 +42,7 @@ def getStudentProfileForUser(user: User):
         profile = None
 
     return profile
+
 
 def getParentProfileForUser(user: User):
     try:
@@ -132,6 +136,10 @@ def getClientInternetProtocolAddress(request):
         ip = request.META.get('REMOTE_ADDR')
 
     return ip
+
+
+def generateRandomString(size=6, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
 
 
 def convertRatingToStars(value):
