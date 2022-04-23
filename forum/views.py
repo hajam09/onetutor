@@ -311,9 +311,9 @@ def randomString(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
 
-def intCompromise(interger):
+def intCompromise(integer):
     millNames = ['', ' k', ' m', ' b', ' t']
-    floatNumber = float(interger)
+    floatNumber = float(integer)
     milliDx = max(0,
                   min(len(millNames) - 1, int(math.floor(0 if floatNumber == 0 else math.log10(abs(floatNumber)) / 3))))
     return '{:.0f}{}'.format(floatNumber / 10 ** (3 * milliDx), millNames[milliDx])

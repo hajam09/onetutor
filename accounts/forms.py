@@ -145,7 +145,7 @@ class LoginForm(forms.ModelForm):
             if not rememberMe:
                 self.request.session.set_expiry(0)
 
-            return
+            return self.cleaned_data
 
         # TODO: use validate_password for better security.
 
