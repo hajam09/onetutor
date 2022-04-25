@@ -5,26 +5,24 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/4.9.95/css/materialdesignicons.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/js/jquery.nice-select.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/css/nice-select.min.css"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/js/ion.rangeSlider.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.1/css/ion.rangeSlider.min.css"/>
 
 <div class="container">
+	{% if messages %}
+		{% for message in messages %}
+			{% if message.tags == "error" %}
+				<div style="color: black; text-align: center;" class="alert alert-danger" role="alert">{{message}}</div>
+			{% else %}
+				<div style="color: black; text-align: center;" class="alert alert-{{ message.tags }}" role="alert">{{message}}</div>
+			{% endif %}
+		{% endfor %}
+	{% endif %}
+
 	{% if showResult %}
 		<br><br>
-		{% if messages %}
-			{% for message in messages %}
-				{% if message.tags == "error" %}
-					<div style="color: black; text-align: center;" class="alert alert-danger" role="alert">{{message}}</div>
-				{% else %}
-					<div style="color: black; text-align: center;" class="alert alert-{{ message.tags }}" role="alert">{{message}}</div>
-				{% endif %}
-			{% endfor %}
-		{% endif %}
-		<form method="post">
-			{% csrf_token %}
+		<form>
 			<div class="form-row" style="background: rgba(0, 0, 0, 0.5); padding: 43px 43px; padding-top: 40px;">
 				<div class="col-11">
-					<input style="border-radius: 0.5px;" type="text" class="form-control" name="generalQuery" placeholder="Try 'GCES Maths'" value="{{ generalQuery }}">
+					<input style="border-radius: 0.5px;" type="text" class="form-control" name="subject" placeholder="Try 'GCES Maths'" value="{{ subject }}">
 				</div>
 				<div class="col">
 					<input style="border-radius: 0.5px;" class="btn btn-primary" type="submit" value="Submit" style="background-color: #4272d7;">
@@ -43,11 +41,12 @@
 						<div class="sort-button float-right" style="color: black;">
 							<ul class="list-inline mb-0">
 								<li class="list-inline-item">
-									<select class="nice-select">
-										<option data-display="Sort By">Nothing</option>
-										<option value="1">Web Developer</option>
-										<option value="2">PHP Developer</option>
-										<option value="3">Web Designer</option>
+									<select id="sort-by-dropdown" class="nice-select" onchange="updateSortBy();">
+										<option data-display="Sort By">Featured</option>
+										<option value="sortPriceLH">Price: Low to High</option>
+										<option value="sortPriceHL">Price: High to Low</option>
+										<option value="sortScoreLH">Score: Low to High</option>
+										<option value="SortScoreHL">Score: High to Low</option>
 									</select>
 								</li>
 							</ul>
@@ -67,10 +66,10 @@
 								</a>
 								<div id="collapseOne" class="collapse show" aria-labelledby="headingOne">
 									<div class="card-body p-0" id="listOfTutorFeaturesFilter">
-										{% for f in tutorFeatureGroupComponent.components.all %}
+										{% for f in tutorFeatureComponent %}
 										<div class="custom-control custom-checkbox">
-											<input type="checkbox" class="custom-control-input all-select" id="features-{{f.code}}">
-											<label class="custom-control-label ml-1 text-muted f-15" for="features-{{f.code}}">{{f}}</label>
+											<input type="checkbox" class="custom-control-input all-select" id="features-{{f.code}}" code={{f.code}} {% if f.checked %} checked {% endif %} onchange="updateFeatureFilter(this);">
+											<label class="custom-control-label ml-1 text-muted f-15" for="features-{{f.code}}">{{f.internalKey}}</label>
 										</div>
 										{% endfor %}
 									</div>
@@ -84,10 +83,10 @@
 								</a>
 								<div id="collapseSix" class="collapse show" aria-labelledby="headingOne">
 									<div class="card-body p-0" id="listOfTutorRatingFilter">
-										{% for e in ratingFilterComponent.components.all %}
+										{% for e in ratingFilterComponent %}
 										<div class="custom-control custom-radio">
-		                                    <input type="radio" id="averageRating-{{e.reference}}" name="tutorAverageRatingRadioBox" class="custom-control-input" value="{{e.reference}}">
-		                                    <label class="custom-control-label ml-1 text-muted f-15" for="averageRating-{{e.reference}}">{{e|safe}}</label>
+		                                    <input type="radio" id="averageRating-{{e.code}}" name="tutorAverageRatingRadioBox" class="custom-control-input" value="{{e.code}}" {% if e.checked %} checked {% endif %} onchange="updateRatingLevel(this);">
+		                                    <label class="custom-control-label ml-1 text-muted f-15" for="averageRating-{{e.code}}">{{e.internalKey|safe}}</label>
 		                                </div>
 										{% endfor %}
 									</div>
@@ -130,11 +129,11 @@
 									</div>
 								</a>
 								<div id="collapseFour" class="collapse show" aria-labelledby="headingtwo">
-									<div class="card-body p-0" id="listOfEducationLevelFilter">
-										{% for e in educationLevelComponent.components.all %}
+									<div class="card-body p-0" id="listOfMyEducationLevelFilter">
+										{% for e in myEducationLevelComponent %}
 										<div class="custom-control custom-radio">
-		                                    <input type="radio" id="education-{{e.code}}" name="myEducationRadioBox" class="custom-control-input" value="{{e.code}}">
-		                                    <label class="custom-control-label ml-1 text-muted f-15" for="education-{{e.code}}">{{e}}</label>
+		                                    <input type="radio" id="education-{{e.code}}" name="myEducationRadioBox" class="custom-control-input" value="{{e.code}}" {% if e.checked %} checked {% endif %} onchange="updateEdcationLevel(this);">
+		                                    <label class="custom-control-label ml-1 text-muted f-15" for="education-{{e.code}}">{{e.internalKey}}</label>
 		                                </div>
 										{% endfor %}
 									</div>
@@ -148,10 +147,10 @@
 								</a>
 								<div id="collapseFive" class="collapse show" aria-labelledby="headingtwo">
 									<div class="card-body p-0" id="listOfQualificationFilter">
-										{% for q in qualificationComponent.components.all %}
+										{% for q in qualificationComponent %}
 										<div class="custom-control custom-checkbox">
-											<input type="checkbox" class="custom-control-input all-select" id="qualification-{{q.code}}">
-											<label class="custom-control-label ml-1 text-muted f-15" for="qualification-{{q.code}}">{{q}}</label>
+											<input type="checkbox" class="custom-control-input all-select" id="qualification-{{q.code}}" code={{q.code}} {% if q.checked %} checked {% endif %} onchange="updateQualificationFilter(this);">
+											<label class="custom-control-label ml-1 text-muted f-15" for="qualification-{{q.code}}">{{q.internalKey}}</label>
 										</div>
 										{% endfor %}
 									</div>
@@ -227,14 +226,13 @@
 			{% endfor %}
 		{% endif %}
 		<div class="s01">
-			<form method="post">
-				{% csrf_token %}
+			<form>
 				<fieldset>
 					<legend style="color: black;">Shall we find a tutor for you?</legend>
 				</fieldset>
 				<div class="inner-form">
 					<div class="input-field first-wrap">
-						<input type="text" name="generalQuery" placeholder="Try 'GCES Maths'" />
+						<input type="text" name="subject" placeholder="Try 'GCES Maths'" />
 					</div>
 					<div class="input-field third-wrap">
 						<button class="btn-search" type="submit">Search</button>
@@ -244,14 +242,9 @@
 		</div>
 	{% endif %}
 </div>
+
+
 <script type="text/javascript">
-
-	var PRICE_FROM = {{defaultPriceValues.priceFrom}};
-	var PRICE_TO = {{defaultPriceValues.priceTo}};
-
-	var TUTOR_SCORE_FROM = {{defaultScoreValues.scoreFrom}};
-	var TUTOR_SCORE_TO = {{defaultScoreValues.scoreTo}};
-
 
 	function profilePictureNotFound()
 	{
@@ -266,22 +259,10 @@
 
 	window.onload = function()
 	{
-		updateFilterComponent();
+		// updateSortByComponent();
 		renderTutorProfiles();
 	};
-
-	function updateFilterComponent()
-	{
-		var listOfTickedFeatures = eval("{{tickedTutorFeature|safe}}");
-		for (const feature of listOfTickedFeatures)
-		{
-			$('#features-'+feature).prop('checked', true);
-		}
-
-		$('#education-{{selectedEducationLevel}}').prop('checked', true);
-		$('#averageRating-{{selectedAverageRating}}').prop('checked', true);
-	}
-
+	
 	function renderTutorProfiles()
 	{
 		// background-color: coral;
@@ -358,177 +339,155 @@
 		{% endfor %}
 	}
 
-	$(".js-range-slider-price").ionRangeSlider(
-		{
-			type: "double",
-			min: 0,
-			max: 100,
-			from: {{defaultPriceValues.priceFrom}},
-			to: {{defaultPriceValues.priceTo}},
-			max_postfix: "+",
-			prefix: "£",
-			grid: true,
-
-			onStart: function (data)
-			{
-				// Called right after range slider instance initialised
-		
-				// console.log(data.input);        // jQuery-link to input
-				// console.log(data.slider);       // jQuery-link to range sliders container
-				// console.log(data.min);          // MIN value
-				// console.log(data.max);          // MAX values
-				// console.log(data.from);         // FROM value
-				// console.log(data.from_percent); // FROM value in percent
-				// console.log(data.from_value);   // FROM index in values array (if used)
-				// console.log(data.to);           // TO value
-				// console.log(data.to_percent);   // TO value in percent
-				// console.log(data.to_value);     // TO index in values array (if used)
-				// console.log(data.min_pretty);   // MIN prettified (if used)
-				// console.log(data.max_pretty);   // MAX prettified (if used)
-				// console.log(data.from_pretty);  // FROM prettified (if used)
-				// console.log(data.to_pretty);    // TO prettified (if used)
-			},
-	
-			onChange: function (data)
-			{
-				// Called every time handle position is changed
-				PRICE_FROM = data.from;
-				PRICE_TO = data.to;
-			},
-	
-			onFinish: function (data)
-			{
-				// Called then action is done and mouse is released                
-			},
-	
-			onUpdate: function (data)
-			{
-				// Called then slider is changed using Update public method
-			}
-		}
-	);
-
-	$(".js-range-slider-score").ionRangeSlider(
-		{
-			type: "double",
-			min: 0,
-			max: 2000,
-			from: {{defaultScoreValues.scoreFrom}},
-			to: {{defaultScoreValues.scoreTo}},
-			max_postfix: "+",
-			prefix: "Score: ",
-			grid: true,
-
-			onStart: function (data)
-			{
-				// Called right after range slider instance initialised
-			},
-	
-			onChange: function (data)
-			{
-				// Called every time handle position is changed
-				TUTOR_SCORE_FROM = data.from;
-				TUTOR_SCORE_TO = data.to;
-			},
-	
-			onFinish: function (data)
-			{
-				// Called then action is done and mouse is released                
-			},
-	
-			onUpdate: function (data)
-			{
-				// Called then slider is changed using Update public method
-			}
-		}
-	);
-
-   let featureCheckBoxes = eval("{{tutorFeatureGroupComponent.getRelatedFeatureComponentByOrderNoForId|safe}}");
-
-   $('#filterOptions').change(
+	$('#filterOptions').change(
 		function()
 		{
-			var searchQuery = "";
-
-			var featureStringAdded = false;
-			for (const checks of featureCheckBoxes)
-			{            
-				if($('#' + checks).is(":checked"))
-				{
-					if (!featureStringAdded)
-					{
-						searchQuery += "tutorFeature:"
-						featureStringAdded = true;
-					}
-
-					var featureCode = checks.split("-")[1];
-					searchQuery +=featureCode + ",";
-				}
-			}
-
-			searchQuery = searchQuery.substring(0, searchQuery.length - 1);
-
-			var priceAdded = false;
-			if (PRICE_FROM > 0 || PRICE_TO < 100)
-			{
-				if(!priceAdded)
-				{
-					if (searchQuery.length != 0)
-					{
-						searchQuery += "&";
-					}
-
-					searchQuery += "hourlyPrice:";
-					priceAdded = true;
-				}
-				searchQuery += PRICE_FROM + "," + PRICE_TO;
-			}
-
-			var scoreAdded = false;
-
-			if (TUTOR_SCORE_FROM > 0 || TUTOR_SCORE_TO < 100)
-			{
-				if(!scoreAdded)
-				{
-					if (searchQuery.length != 0)
-					{
-						searchQuery += "&";
-					}
-					searchQuery += "tutorScore:";
-					scoreAdded = true;
-				}
-				searchQuery += TUTOR_SCORE_FROM + "," + TUTOR_SCORE_TO;
-			}
-
-			var myEducationRadioBox = $('input[name="myEducationRadioBox"]:checked').val();
-			if (myEducationRadioBox)
-			{
-				if(searchQuery)
-				{
-					searchQuery += "&";
-				}
-				
-				searchQuery += "myEducationLevel:";
-				searchQuery += myEducationRadioBox;
-			}
-
-			var tutorAverageRatingRadioBox = $('input[name="tutorAverageRatingRadioBox"]:checked').val();
-			if (tutorAverageRatingRadioBox && tutorAverageRatingRadioBox > -1)
-			{
-				if(searchQuery)
-				{
-					searchQuery += "&";
-				}
-				searchQuery += "tutorAverageRating:";
-				searchQuery += tutorAverageRatingRadioBox;
-			}
+			console.log("ss");
 
 			// if (!searchQuery)
 			// 	return;
 			
-			var newFilters = "{{ generalQuery }}/" + searchQuery;
-			window.location.href = "{% url 'tutoring:searchBySubjectAndFilter' searchParameters='data' %}".replace("data", newFilters);
+			// var newFilters = "{{ subject }}/" + searchQuery;
+			// window.location.href = "{% url 'tutoring:searchBySubjectAndFilter' searchParameters='data' %}".replace("data", newFilters);
 		}
 	);
+
+	function updateFeatureFilter(value)
+	{
+		var selectedOption = [];
+		$('#listOfTutorFeaturesFilter input:checked').each(function() {
+		    selectedOption.push($(this).attr('code'));
+		});
+
+		var urlSplit = window.location.href.split('&');
+		var alreadyExists = false;
+
+		for (var i = 0; i < urlSplit.length; i++)
+		{
+			if (urlSplit[i].includes("tutorFeature="))
+			{
+				if (selectedOption.length==0)
+				{
+					urlSplit[i] = '';
+				}
+				else
+				{
+					urlSplit[i] = "tutorFeature="+selectedOption.join(",");
+				}
+				alreadyExists = true;
+				break;
+			}
+		}
+
+		urlSplit = urlSplit.join("&");
+		if (!alreadyExists)
+			urlSplit += "&tutorFeature="+selectedOption;
+
+		window.location.href = urlSplit;
+	}
+
+	function updateQualificationFilter(value)
+	{
+		var selectedOption = [];
+		$('#listOfQualificationFilter input:checked').each(function() {
+		    selectedOption.push($(this).attr('code'));
+		});
+
+		var urlSplit = window.location.href.split('&');
+		var alreadyExists = false;
+
+		for (var i = 0; i < urlSplit.length; i++)
+		{
+			if (urlSplit[i].includes("qualification="))
+			{
+				if (selectedOption.length==0)
+				{
+					urlSplit[i] = '';
+				}
+				else
+				{
+					urlSplit[i] = "qualification="+selectedOption.join(",");
+				}
+				alreadyExists = true;
+				break;
+			}
+		}
+
+		urlSplit = urlSplit.join("&");
+		if (!alreadyExists)
+			urlSplit += "&qualification="+selectedOption;
+
+		window.location.href = urlSplit;
+	}
+
+	function updateSortBy()
+	{
+		var selectedOption = $('#sort-by-dropdown').val();
+		var urlSplit = window.location.href.split('&');
+		var alreadyExists = false;
+
+		for (var i = 0; i < urlSplit.length; i++)
+		{
+			if (urlSplit[i].includes("sortBy="))
+			{
+				urlSplit[i] = "sortBy="+selectedOption;
+				alreadyExists = true;
+			}
+		}
+
+		urlSplit = urlSplit.join("&");
+
+		if (!alreadyExists)
+			urlSplit += "&sortBy="+selectedOption;
+
+		window.location.href = urlSplit
+	}
+
+	function updateEdcationLevel(parameter)
+	{
+		var selectedOption = parameter.value;
+		var urlSplit = window.location.href.split('&');
+		var alreadyExists = false;
+
+		for (var i = 0; i < urlSplit.length; i++)
+		{
+			if (urlSplit[i].includes("myEducationLevel="))
+			{
+				urlSplit[i] = "myEducationLevel="+selectedOption;
+				alreadyExists = true;
+			}
+		}
+
+		urlSplit = urlSplit.join("&");
+
+		if (!alreadyExists)
+			urlSplit += "&myEducationLevel="+selectedOption;
+
+		window.location.href = urlSplit
+	}
+
+	function updateRatingLevel(parameter)
+	{
+		var selectedOption = parameter.value;
+		var urlSplit = window.location.href.split('&');
+		var alreadyExists = false;
+
+		for (var i = 0; i < urlSplit.length; i++)
+		{
+			if (urlSplit[i].includes("rating="))
+			{
+				urlSplit[i] = "rating="+selectedOption;
+				alreadyExists = true;
+			}
+		}
+
+		urlSplit = urlSplit.join("&");
+
+		if (!alreadyExists)
+			urlSplit += "&rating="+selectedOption;
+
+		window.location.href = urlSplit
+	}
+
 </script>
 {% endblock %}

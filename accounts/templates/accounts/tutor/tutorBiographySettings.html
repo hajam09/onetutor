@@ -137,7 +137,7 @@
 				<h2 for="teachingLevel">Teaching Level</h2>
 				<p class="small">Who do you want to mostly teach?</p>
 				<select class="multiple-subjects form-control" name="teachingLevels" multiple="multiple" required>
-					{% for t in educationLevelComponent %}
+					{% for t in myEducationLevelComponent %}
 						{% if t in profile.teachingLevels.all %}
 							<option value="{{t.code}}" selected>{{t}}</option>
 						{% else %}

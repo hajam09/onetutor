@@ -28,14 +28,103 @@ from tutoring.models import TutorReview
 def mainpage(request):
 	# runSeedDataInstaller()
 
-	if request.method == "POST" and request.POST["generalQuery"]:
-		return redirect("tutoring:searchBySubjectAndFilter", searchParameters=request.POST["generalQuery"])
+	subject = request.GET.get('subject')
+	sortBy = request.GET.get('sortBy')
+	tutorFeature = request.GET.get('tutorFeature', [])
+	qualification = request.GET.get('qualification', [])
+	myEducationLevel = request.GET.get('myEducationLevel', [])
+	rating = int(request.GET.get('rating', -1))
+
+	if tutorFeature:
+		tutorFeature = tutorFeature.split(',')
+
+	if qualification:
+		qualification = qualification.split(',')
+
+	if myEducationLevel:
+		myEducationLevel = myEducationLevel.split(',')
 
 	context = {
-		"defaultPriceValues": {"priceFrom": 0, "priceTo": 100},
-		"defaultScoreValues": {"scoreFrom": 0, "scoreTo": 2000},
-		"showResult": False,
+		'subject': subject,
+		'showResult': False,
 	}
+
+	if subject is not None:
+		componentGroupKeys = ['TUTOR_FEATURE', 'EDUCATION_LEVEL', 'QUALIFICATION', 'RATING_FILTER']
+		requiredComponentGroup = ComponentGroup.objects.filter(code__in=componentGroupKeys).prefetch_related("components")
+		tutorFeatureComponent = [
+			{'code': j.code, 'internalKey': j.internalKey, 'checked': j.code in tutorFeature}
+			for j in next(i for i in requiredComponentGroup if i.code == componentGroupKeys[0]).components.all()
+		]
+
+		myEducationLevelComponent = [
+			{'code': j.code, 'internalKey': j.internalKey, 'checked': j.code in myEducationLevel}
+			for j in next(i for i in requiredComponentGroup if i.code == componentGroupKeys[1]).components.all()
+		]
+
+		qualificationComponent = [
+			{'code': j.code, 'internalKey': j.internalKey, 'checked': j.code in qualification}
+			for j in next(i for i in requiredComponentGroup if i.code == componentGroupKeys[2]).components.all()
+		]
+
+		ratingFilterComponent = [
+			{'code': j.reference, 'internalKey': j.internalKey, 'checked': int(j.reference) == rating}
+			for j in next(i for i in requiredComponentGroup if i.code == componentGroupKeys[3]).components.all()
+		]
+		subject = subject.split()
+
+		if "and" in subject:
+			requiredOperator = operator.and_
+			subject = list(filter("and".__ne__, subject))
+		else:
+			requiredOperator = operator.or_
+
+		query = reduce(requiredOperator, (Q(subjects__icontains=s) for s in subject))
+		tutorList = TutorProfile.objects.filter(query).select_related('user').prefetch_related('tutorLessons',
+																							   'user__tutorReviews',
+																							   'features',
+																							   'teachingLevels')
+		if tutorFeature:
+			tutorList = tutorList.filter(features__code__in=tutorFeature)
+		if myEducationLevel:
+			tutorList = tutorList.filter(teachingLevels__code__in=myEducationLevel)
+		if rating > -1 and any(int(i['code']) == rating for i in ratingFilterComponent):
+			tutorListTemp = set([t.id for t in tutorList if tutorOperations.getTutorsAverageRating(t) >= rating])
+			tutorList = tutorList.filter(id__in=tutorListTemp)
+
+		if sortBy == 'sortPriceLH':
+			tutorList = tutorList.order_by('chargeRate')
+		elif sortBy == 'sortPriceHL':
+			tutorList = tutorList.order_by('-chargeRate')
+		# elif sortBy == 'sortScoreLH':
+		# 	tutorList = tutorList.order_by('score')
+		# elif sortBy == 'SortScoreHL':
+		# 	tutorList = tutorList.order_by('-score')
+
+		if not tutorList.exists():
+			messages.error(
+				request,
+				"Sorry, we couldn't find you a tutor for your search. Try entering something broad."
+			)
+
+		tutorList = tutorList.distinct()
+		page = request.GET.get('page', 1)
+		paginator = Paginator(tutorList, 15)
+
+		try:
+			tutorList = paginator.page(page)
+		except PageNotAnInteger:
+			tutorList = paginator.page(1)
+		except EmptyPage:
+			tutorList = paginator.page(paginator.num_pages)
+
+		context['tutorList'] = tutorList
+		context['showResult'] = True
+		context['tutorFeatureComponent'] = tutorFeatureComponent
+		context['myEducationLevelComponent'] = myEducationLevelComponent
+		context['qualificationComponent'] = qualificationComponent
+		context['ratingFilterComponent'] = ratingFilterComponent
+
 	return render(request, 'tutoring/mainpage.html', context)
 
 

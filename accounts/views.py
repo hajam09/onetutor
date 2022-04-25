@@ -306,7 +306,7 @@ def tutorBiographySettings(request):
 	except TutorProfile.DoesNotExist:
 		return redirect('accounts:select-profile')
 
-	educationLevelComponent = Component.objects.filter(componentGroup__code="EDUCATION_LEVEL")
+	myEducationLevelComponent = Component.objects.filter(componentGroup__code="EDUCATION_LEVEL")
 	tutorFeatureComponent = Component.objects.filter(componentGroup__code="TUTOR_FEATURE").exclude(internalKey__in=['Pro', 'DBS'])
 
 	if request.method == 'POST':
@@ -332,7 +332,7 @@ def tutorBiographySettings(request):
 		profile.teachingLevels.clear()
 
 		profile.features.add(*[i for i in tutorFeatureComponent for j in request.POST.getlist('features') if i.code == j])
-		profile.teachingLevels.add(*[i for i in educationLevelComponent for j in request.POST.getlist('teachingLevels') if i.code == j])
+		profile.teachingLevels.add(*[i for i in myEducationLevelComponent for j in request.POST.getlist('teachingLevels') if i.code == j])
 
 		profile.save()
 		messages.success(
@@ -343,7 +343,7 @@ def tutorBiographySettings(request):
 
 	context = {
 		'profile': profile,
-		'educationLevelComponent': educationLevelComponent,
+		'myEducationLevelComponent': myEducationLevelComponent,
 		'tutorFeatureComponent': tutorFeatureComponent,
 	}
 	return render(request, 'accounts/tutor/tutorBiographySettings.html', context)
