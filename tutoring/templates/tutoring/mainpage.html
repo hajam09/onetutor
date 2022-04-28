@@ -361,6 +361,19 @@
 		{% endfor %}
 	}
 
+	function removeItem(array, item)
+	{
+		var i = array.length;
+
+		while (i--)
+		{
+			if (array[i] === item)
+			{
+				array.splice(array.indexOf(item), 1);
+			}
+		}
+	}
+
 	function updateFeatureFilter(value)
 	{
 		var selectedOption = [];
@@ -369,34 +382,21 @@
 		});
 
 		var urlSplit = window.location.href.split('&');
-		var alreadyExists = false;
 
 		for (var i = 0; i < urlSplit.length; i++)
 		{
 			if (urlSplit[i].includes("tutorFeature="))
 			{
-				if (selectedOption.length==0)
-				{
-					urlSplit[i] = '';
-				}
-				else
-				{
-					urlSplit[i] = "tutorFeature="+selectedOption.join(",");
-				}
-				alreadyExists = true;
+				urlSplit[i] = '';
 				break;
 			}
 		}
 
+		if (selectedOption.length > 0)
+			urlSplit[i] = "tutorFeature="+selectedOption.join(",");
+
+		removeItem(urlSplit, '');
 		urlSplit = urlSplit.join("&");
-
-		if (!alreadyExists)
-			urlSplit += "&tutorFeature="+selectedOption;
-		
-
-		if (selectedOption.length == 0)
-			urlSplit = urlSplit.replace("&tutorFeature=",'');
-
 		window.location.href = urlSplit;
 	}
 
@@ -408,32 +408,21 @@
 		});
 
 		var urlSplit = window.location.href.split('&');
-		var alreadyExists = false;
 
 		for (var i = 0; i < urlSplit.length; i++)
 		{
 			if (urlSplit[i].includes("qualification="))
 			{
-				if (selectedOption.length==0)
-				{
-					urlSplit[i] = '';
-				}
-				else
-				{
-					urlSplit[i] = "qualification="+selectedOption.join(",");
-				}
-				alreadyExists = true;
+				urlSplit[i] = '';
 				break;
 			}
 		}
 
+		if (selectedOption.length > 0)
+			urlSplit[i] = "qualification="+selectedOption.join(",");
+
+		removeItem(urlSplit, '');
 		urlSplit = urlSplit.join("&");
-		if (!alreadyExists)
-			urlSplit += "&qualification="+selectedOption;
-
-		if (selectedOption.length == 0)
-			urlSplit = urlSplit.replace("&qualification=",'');
-
 		window.location.href = urlSplit;
 	}
 
