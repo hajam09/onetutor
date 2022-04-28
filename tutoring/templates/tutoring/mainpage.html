@@ -36,13 +36,13 @@
 				<div class="col-lg-12">
 					<div class="show-results mt-5">
 						<div class="float-left">
-							<h5 class="text-dark mb-0 pt-2">Showing  Results : 1-6 of {{tutorList.count}}</h5>
+							<h5 class="text-dark mb-0 pt-2">Showing {{ tutorList.start_index }}-{{ tutorList.end_index }} of {{ tutorList.paginator.count }}</h5>
 						</div>
 						<div class="sort-button float-right" style="color: black;">
 							<ul class="list-inline mb-0">
 								<li class="list-inline-item">
 									<select id="sort-by-dropdown" class="nice-select" onchange="updateSortBy();">
-										<option data-display="Sort By">Featured</option>
+										<option value="featured">Featured</option>
 										<option value="sortPriceLH">Price: Low to High</option>
 										<option value="sortPriceHL">Price: High to Low</option>
 										<option value="sortScoreLH">Score: Low to High</option>
@@ -98,14 +98,24 @@
 										<h5 class="mb-0 text-dark f-18">Price</h5>
 									</div>
 								</a>
-								<br>
+								<div style="height: 10px;"></div>
 								<div id="collapseTwo" class="collapse show" aria-labelledby="headingOne">
 									<div class="card-body p-0">
 										<div class="container">
-											<input type="text" class="js-range-slider-price" name="my_range" value="" />
+											<!-- <input type="text" class="js-range-slider-price" name="my_range" value="" /> -->
+											<div class="row" style="color: black;">
+												<div class="col">
+													<input type="number" step="0.01" class="form-control" name="minimumRate" value="{{rate.minimumRate}}" placeholder="Min">
+												</div>
+												<div style="padding-top: 8px;">to</div>
+												<div class="col">
+													<input type="number" step="0.01" class="form-control" name="maximumRate" value="{{rate.maximumRate}}" placeholder="Max">
+												</div>
+											</div>
 										</div>
 									</div>
 								</div>
+								<div style="height: 10px;"></div>
 							</div>
 							<div class="card mt-4">
 								<a data-toggle="collapse" href="#collapseThree" class="job-list" aria-expanded="true" aria-controls="collapseThree">
@@ -113,14 +123,24 @@
 										<h5 class="mb-0 text-dark f-18">Tutor Score</h5>
 									</div>
 								</a>
-								<br>
+								<div style="height: 10px;"></div>
 								<div id="collapseThree" class="collapse show" aria-labelledby="headingOne">
 									<div class="card-body p-0">
 										<div class="container">
-											<input type="text" class="js-range-slider-score" name="my_range" value="" />
+											<!-- <input type="text" class="js-range-slider-price" name="my_range" value="" /> -->
+											<div class="row" style="color: black;">
+												<div class="col">
+													<input type="number" step="0.01" class="form-control" name="minimumScore" value="{{score.minimumScore}}" placeholder="Min">
+												</div>
+												<div style="padding-top: 8px;">to</div>
+												<div class="col">
+													<input type="number" step="0.01" class="form-control" name="maximumScore" value="{{score.maximumScore}}" placeholder="Max">
+												</div>
+											</div>
 										</div>
 									</div>
 								</div>
+								<div style="height: 10px;"></div>
 							</div>
 							<div class="card mt-4">
 								<a data-toggle="collapse" href="#collapseFour" class="job-list" aria-expanded="true" aria-controls="collapseFour">
@@ -283,12 +303,14 @@
 		 featureBadges += '<span class="badge badge-primary" style="background-color: {{feature.colour}};">{{feature.internalKey|upper}}</span>&nbsp;&nbsp;'
 		{% endfor %}
 
+		var tutorProfilePicture = '{{ debug }}'=='True' ? 'https://cdn3.iconfinder.com/data/icons/avatars-round-flat/33/man5-512.png' : '{{ tutor.profilePicture.url }}';
+
 		var newComponent = `
 		<div class="list-grid-item mt-4 p-2">
 			<div class="row">
 				<div class="col-md-9">
 					<div class="candidates-img float-left mr-4">
-						<img src="{{ tutor.profilePicture.url }}" alt="" class="img-fluid d-block rounded">
+						<img src="`+tutorProfilePicture+`" alt="" class="img-fluid d-block rounded">
 					</div>
 					<div class="candidates-list-desc job-single-meta  pt-2">
 						<span class="mb-2 f-19">
@@ -339,19 +361,6 @@
 		{% endfor %}
 	}
 
-	$('#filterOptions').change(
-		function()
-		{
-			console.log("ss");
-
-			// if (!searchQuery)
-			// 	return;
-			
-			// var newFilters = "{{ subject }}/" + searchQuery;
-			// window.location.href = "{% url 'tutoring:searchBySubjectAndFilter' searchParameters='data' %}".replace("data", newFilters);
-		}
-	);
-
 	function updateFeatureFilter(value)
 	{
 		var selectedOption = [];
@@ -380,8 +389,13 @@
 		}
 
 		urlSplit = urlSplit.join("&");
+
 		if (!alreadyExists)
 			urlSplit += "&tutorFeature="+selectedOption;
+		
+
+		if (selectedOption.length == 0)
+			urlSplit = urlSplit.replace("&tutorFeature=",'');
 
 		window.location.href = urlSplit;
 	}
@@ -417,76 +431,87 @@
 		if (!alreadyExists)
 			urlSplit += "&qualification="+selectedOption;
 
+		if (selectedOption.length == 0)
+			urlSplit = urlSplit.replace("&qualification=",'');
+
 		window.location.href = urlSplit;
 	}
 
 	function updateSortBy()
 	{
-		var selectedOption = $('#sort-by-dropdown').val();
-		var urlSplit = window.location.href.split('&');
-		var alreadyExists = false;
-
-		for (var i = 0; i < urlSplit.length; i++)
-		{
-			if (urlSplit[i].includes("sortBy="))
-			{
-				urlSplit[i] = "sortBy="+selectedOption;
-				alreadyExists = true;
-			}
-		}
-
-		urlSplit = urlSplit.join("&");
-
-		if (!alreadyExists)
-			urlSplit += "&sortBy="+selectedOption;
-
-		window.location.href = urlSplit
+		updateUrlPattern($('#sort-by-dropdown').val(), "sortBy");
 	}
 
 	function updateEdcationLevel(parameter)
 	{
-		var selectedOption = parameter.value;
-		var urlSplit = window.location.href.split('&');
-		var alreadyExists = false;
-
-		for (var i = 0; i < urlSplit.length; i++)
-		{
-			if (urlSplit[i].includes("myEducationLevel="))
-			{
-				urlSplit[i] = "myEducationLevel="+selectedOption;
-				alreadyExists = true;
-			}
-		}
-
-		urlSplit = urlSplit.join("&");
-
-		if (!alreadyExists)
-			urlSplit += "&myEducationLevel="+selectedOption;
-
-		window.location.href = urlSplit
+		updateUrlPattern(parameter.value, "myEducationLevel");
 	}
 
 	function updateRatingLevel(parameter)
 	{
-		var selectedOption = parameter.value;
+		updateUrlPattern(parameter.value, "rating");
+	}
+
+	$("input[name='minimumRate']").on('keyup', function (e)
+		{
+			if (e.key === 'Enter' || e.keyCode === 13)
+			{
+				updateUrlPattern(this.value, "minimumRate");
+			}
+		}
+	);
+
+	$("input[name='maximumRate']").on('keyup', function (e)
+		{
+			if (e.key === 'Enter' || e.keyCode === 13)
+			{
+				updateUrlPattern(this.value, "maximumRate");
+			}
+		}
+	);
+
+	$("input[name='minimumScore']").on('keyup', function (e)
+		{
+			if (e.key === 'Enter' || e.keyCode === 13)
+			{
+				updateUrlPattern(this.value, "minimumScore");
+			}
+		}
+	);
+
+	$("input[name='maximumScore']").on('keyup', function (e)
+		{
+			if (e.key === 'Enter' || e.keyCode === 13)
+			{
+				updateUrlPattern(this.value, "maximumScore");
+			}
+		}
+	);
+
+	function updateUrlPattern(selectedArguments, urlKey)
+	{
+		urlKey += "="
 		var urlSplit = window.location.href.split('&');
 		var alreadyExists = false;
 
 		for (var i = 0; i < urlSplit.length; i++)
 		{
-			if (urlSplit[i].includes("rating="))
+			if (urlSplit[i].includes(urlKey))
 			{
-				urlSplit[i] = "rating="+selectedOption;
+				urlSplit[i] = urlKey+selectedArguments;
 				alreadyExists = true;
 			}
 		}
 
 		urlSplit = urlSplit.join("&");
-
+		
 		if (!alreadyExists)
-			urlSplit += "&rating="+selectedOption;
+			urlSplit += "&"+urlKey+selectedArguments;
 
-		window.location.href = urlSplit
+		if(!selectedArguments)
+			urlSplit = urlSplit.replace("&"+urlKey,'');
+
+		window.location.href = urlSplit;
 	}
 
 </script>

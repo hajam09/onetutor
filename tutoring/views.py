@@ -34,6 +34,10 @@ def mainpage(request):
 	qualification = request.GET.get('qualification', [])
 	myEducationLevel = request.GET.get('myEducationLevel', [])
 	rating = int(request.GET.get('rating', -1))
+	minimumRate = round(float(request.GET.get('minimumRate', 0.0)), 2)
+	maximumRate = round(float(request.GET.get('maximumRate', 9999999999.99)), 2)
+	minimumScore = round(float(request.GET.get('minimumScore', 0.0)), 2)
+	maximumScore = round(float(request.GET.get('maximumScore', 0.0)), 2)
 
 	if tutorFeature:
 		tutorFeature = tutorFeature.split(',')
@@ -80,17 +84,16 @@ def mainpage(request):
 			requiredOperator = operator.or_
 
 		query = reduce(requiredOperator, (Q(subjects__icontains=s) for s in subject))
-		tutorList = TutorProfile.objects.filter(query).select_related('user').prefetch_related('tutorLessons',
-																							   'user__tutorReviews',
-																							   'features',
-																							   'teachingLevels')
+		tutorList = TutorProfile.objects.filter(query, chargeRate__gte=minimumRate, chargeRate__lte=maximumRate)\
+			.select_related('user').prefetch_related('tutorLessons', 'user__tutorReviews', 'features', 'teachingLevels')
+
 		if tutorFeature:
 			tutorList = tutorList.filter(features__code__in=tutorFeature)
-		if myEducationLevel:
-			tutorList = tutorList.filter(teachingLevels__code__in=myEducationLevel)
 		if rating > -1 and any(int(i['code']) == rating for i in ratingFilterComponent):
 			tutorListTemp = set([t.id for t in tutorList if tutorOperations.getTutorsAverageRating(t) >= rating])
 			tutorList = tutorList.filter(id__in=tutorListTemp)
+		if myEducationLevel:
+			tutorList = tutorList.filter(teachingLevels__code__in=myEducationLevel)
 
 		if sortBy == 'sortPriceLH':
 			tutorList = tutorList.order_by('chargeRate')
@@ -124,6 +127,8 @@ def mainpage(request):
 		context['myEducationLevelComponent'] = myEducationLevelComponent
 		context['qualificationComponent'] = qualificationComponent
 		context['ratingFilterComponent'] = ratingFilterComponent
+		context['rate'] = {'minimumRate': minimumRate if minimumRate > 0.0 else None, 'maximumRate': maximumRate if maximumRate < 9999999999.99 else None}
+		context['score'] = {'minimumScore': minimumScore if minimumScore > 0.0 else None, 'maximumScore': maximumScore if maximumScore < 0.0 else None}
 
 	return render(request, 'tutoring/mainpage.html', context)
 
