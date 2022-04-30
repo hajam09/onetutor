@@ -467,7 +467,7 @@ def questionAnswerThread(request, questionId):
 			)
 
 			newComment = {
-				'id': questionAnswerComment.id,
+				'commentId': questionAnswerComment.id,
 				'creatorFullName': questionAnswerComment.creator.get_full_name(),
 				'comment': questionAnswerComment.comment.replace("\n", "<br />"),
 				'date': dateOperations.humanizePythonDate(questionAnswerComment.date),
@@ -484,9 +484,9 @@ def questionAnswerThread(request, questionId):
 			return JsonResponse(response)
 
 		elif functionality == "deleteQuestionAnswerComment":
-			id = request.GET.get('id', None)
+			commentId = request.GET.get('commentId', None)
 
-			QuestionAnswerComment.objects.filter(pk=int(id)).delete()
+			QuestionAnswerComment.objects.filter(pk=int(commentId)).delete()
 
 			response = {
 				"statusCode": HTTPStatus.OK,
@@ -494,11 +494,11 @@ def questionAnswerThread(request, questionId):
 			return JsonResponse(response)
 
 		elif functionality == "updateQuestionAnswerComment":
-			id = request.GET.get('id', None)
+			commentId = request.GET.get('commentId', None)
 			comment = request.GET.get('comment', None)
 
 			try:
-				questionAnswerComment = QuestionAnswerComment.objects.get(id=int(id))
+				questionAnswerComment = QuestionAnswerComment.objects.get(id=int(commentId))
 			except QuestionAnswerComment.DoesNotExist:
 				response = {
 					"statusCode": HTTPStatus.NOT_FOUND,
@@ -511,7 +511,7 @@ def questionAnswerThread(request, questionId):
 			questionAnswerComment.save(update_fields=['comment', 'edited'])
 
 			updatedComment = {
-				'id': questionAnswerComment.id,
+				'commentId': questionAnswerComment.id,
 				'comment': questionAnswerComment.comment.replace("\n", "<br />"),
 				'edited': True,
 			}
@@ -523,10 +523,10 @@ def questionAnswerThread(request, questionId):
 			return JsonResponse(response)
 
 		elif functionality == "likeQuestionAnswerComment" or functionality == "dislikeQuestionAnswerComment":
-			id = request.GET.get('id', None)
+			commentId = request.GET.get('commentId', None)
 
 			try:
-				questionAnswerComment = QuestionAnswerComment.objects.get(id=int(id))
+				questionAnswerComment = QuestionAnswerComment.objects.get(id=int(commentId))
 			except QuestionAnswerComment.DoesNotExist:
 				response = {
 					"statusCode": HTTPStatus.NOT_FOUND,
@@ -561,7 +561,7 @@ def questionAnswerThread(request, questionId):
 
 	questionAnswerCommentJson = [
 		{
-			'id': i.pk,
+			'commentId': i.pk,
 			'creatorFullName': i.creator.get_full_name(),
 			'comment': i.comment.replace("\n", "<br />"),
 			'date': dateOperations.humanizePythonDate(i.date),

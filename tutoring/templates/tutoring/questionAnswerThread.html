@@ -86,7 +86,7 @@ class DropDownComponent extends React.Component
 			data:
 			{
 				'functionality': 'deleteQuestionAnswerComment',
-				'id': this.props.questionAnswerCommentId,
+				'commentId': this.props.questionAnswerCommentId,
 			},
 			dataType: 'json',
 			success: function (response)
@@ -154,7 +154,7 @@ function likeOrDislikeQuestionAnswerCommentDjango(componentId, isLike)
 		data:
 		{
 			'functionality': isLike ? 'likeQuestionAnswerComment' : 'dislikeQuestionAnswerComment',
-			'id': componentId,
+			'commentId': componentId,
 		},
 		dataType: 'json',
 		success: function (response)
@@ -211,7 +211,7 @@ class QuestionAnswerCommentComponent extends React.Component
 	{
 		verifyLogin();
 
-		likeOrDislikeQuestionAnswerCommentDjango(this.props.id, isLike);
+		likeOrDislikeQuestionAnswerCommentDjango(this.props.commentId, isLike);
 	}
 
 	hideQuestionAnswerCommentComponent()
@@ -227,8 +227,8 @@ class QuestionAnswerCommentComponent extends React.Component
 			borderRadius: "35px",
 		}
 
-		let likeCountId = "likeCount-" + this.props.id;
-		let dislikeCountId = "dislikeCount-" + this.props.id;
+		let likeCountId = "likeCount-" + this.props.commentId;
+		let dislikeCountId = "dislikeCount-" + this.props.commentId;
 
 		if(this.state.showComponent)
 		{
@@ -240,7 +240,7 @@ class QuestionAnswerCommentComponent extends React.Component
 						</a>
 						<div className="media-body">
 							<div className="reviews-members-header">
-								<DropDownComponent canEdit={this.props.canEdit} questionAnswerCommentId={this.props.id} hideQuestionAnswerCommentComponent={this.hideQuestionAnswerCommentComponent} />
+								<DropDownComponent canEdit={this.props.canEdit} questionAnswerCommentId={this.props.commentId} hideQuestionAnswerCommentComponent={this.hideQuestionAnswerCommentComponent} />
 								<h6 className="mb-1"><b>{this.props.creatorFullName}</b></h6>
 								<p className="text-gray">{this.props.date}<CommentEditedComponent edited={this.props.edited} /></p>
 							</div>
@@ -285,8 +285,8 @@ class Comment extends React.Component
 
 		 return (
 		 	<ul>
-		 		{comments.map((c) => <QuestionAnswerCommentComponent key={c.id}
-		 															id={c.id}
+		 		{comments.map((c) => <QuestionAnswerCommentComponent key={c.commentId}
+		 															commentId={c.commentId}
 		 															creatorFullName={c.creatorFullName}
 		 															comment={c.comment}
 		 															date={c.date}

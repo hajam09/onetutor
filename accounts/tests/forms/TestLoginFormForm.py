@@ -11,7 +11,7 @@ class LoginFormFormTest(BaseTest):
     def setUp(self) -> None:
         super(LoginFormFormTest, self).setUp('')
 
-    # @skip
+    @skip
     @patch('accounts.forms.login')
     def testFormIsValid(self, mockLogin):
         mockLogin.return_value = True
