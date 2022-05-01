@@ -37,7 +37,10 @@ def installSeedData(xmlFile):
             del element.attrib[key]
 
         # add new keys which replaced "." with "__"
-        element.attrib = element.attrib | newKeys
+        try:
+            element.attrib = element.attrib | newKeys
+        except TypeError:
+            element.attrib = {**element.attrib, **newKeys}
 
         if modelType.objects.filter(**element.attrib):
             continue

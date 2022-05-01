@@ -216,8 +216,8 @@ def createTutorProfile(request):
 		profile.features.clear()
 		profile.teachingLevels.clear()
 
-		profile.features.add(*[ i for i in tutorFeatures for j in request.POST.getlist('features[]') if i.code==j ])
-		profile.teachingLevels.add(*[ i for i in highestEducations for j in request.POST.getlist('teachingLevels[]') if i.code==j ])
+		profile.features.add(*[i for i in tutorFeatures for j in request.POST.getlist('features[]') if i.code == j])
+		profile.teachingLevels.add(*[i for i in highestEducations for j in request.POST.getlist('teachingLevels[]') if i.code == j])
 
 		Availability.objects.get_or_create(
 			user=request.user
