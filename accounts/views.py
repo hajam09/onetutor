@@ -182,6 +182,7 @@ def createStudentProfile(request):
 
 	return render(request, "accounts/createStudentProfile.html")
 
+
 @login_required
 def createTutorProfile(request):
 	# TODO: Create a form and user formset to create multiple educations.
@@ -447,6 +448,7 @@ def activateAccount(request, uidb64, token):
 
 	return render(request, "accounts/activateFailed.html", status=HTTPStatus.UNAUTHORIZED)
 
+
 def passwordRequest(request):
 
 	if request.method == "POST":
@@ -465,6 +467,7 @@ def passwordRequest(request):
 		)
 
 	return render(request, "accounts/passwordRequest.html")
+
 
 def passwordChange(request, uidb64, token):
 
@@ -487,6 +490,7 @@ def passwordChange(request, uidb64, token):
 
 	TEMPLATE = 'passwordResetForm' if user is not None and generate_token.check_token(user, token) else 'activateFailed'
 	return render(request, 'accounts/{}.html'.format(TEMPLATE), context)
+
 
 def requestDeleteCode(request):
 
@@ -515,6 +519,7 @@ def requestDeleteCode(request):
 	}
 	return JsonResponse(response)
 
+
 def requestCopyOfData(request):
 
 	if not request.is_ajax():
@@ -537,12 +542,12 @@ def requestCopyOfData(request):
 		requestedData = generalOperations.getTutorRequestedStoredData(request, request.user)
 		emailOperations.sendTutorRequestedStoredData(request.user, requestedData)
 
-
 	response = {
 		"statusCode": HTTPStatus.OK,
 		"message": "A copy is sent to your email."
 	}
 	return JsonResponse(response)
+
 
 def cookieConsent(request):
 
@@ -599,6 +604,7 @@ def getInTouch(request):
 		"form": form,
 	}
 	return render(request, 'footer/getInTouch.html', context)
+
 
 def ourFeatures(request):
 	return render(request, 'footer/ourFeatures.html')

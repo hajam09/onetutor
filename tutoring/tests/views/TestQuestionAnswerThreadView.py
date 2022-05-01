@@ -21,8 +21,7 @@ class QuestionAnswerThreadViewTest(BaseTestAjax):
             answerer=temporaryUser
         )
 
-        super(QuestionAnswerThreadViewTest, self).setUp(
-            reverse('tutoring:question-answer-thread', kwargs={'questionId': self.questionAnswer.id}))
+        super(QuestionAnswerThreadViewTest, self).setUp(reverse('tutoring:question-answer-thread', kwargs={'questionId': self.questionAnswer.id}))
         self.client.login(username=self.user.username, password=TEST_PASSWORD)
         self.questionAnswer.questioner = self.request.user
 
@@ -65,8 +64,7 @@ class QuestionAnswerThreadViewTest(BaseTestAjax):
         self.assertFalse(QuestionAnswerComment.objects.filter(id=self.questionAnswerComment.id).exists())
 
     def testUpdateQuestionAnswerComment(self):
-        testParams = self.TestParams("updateQuestionAnswerComment", self.questionAnswerComment.id,
-                                     "Updated new comment")
+        testParams = self.TestParams("updateQuestionAnswerComment", self.questionAnswerComment.id, "Updated new comment")
         response = self.get(testParams.getData())
         ajaxResponse = json.loads(response.content)
         updatedComment = ajaxResponse["updatedComment"]
