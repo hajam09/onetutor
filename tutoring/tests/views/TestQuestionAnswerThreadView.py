@@ -105,6 +105,33 @@ class QuestionAnswerThreadViewTest(BaseTestAjax):
         self.assertEquals(self.questionAnswerComment.likes.count(), 0)
         self.assertEquals(self.questionAnswerComment.dislikes.count(), 1)
 
+    def testUpdateQuestionAnswerCommentObjectNotFound(self):
+        testParams = self.TestParams("updateQuestionAnswerComment", 1000, None)
+        response = self.get(testParams.getData())
+        ajaxResponse = json.loads(response.content)
+
+        self.assertEquals(response.status_code, 404)
+        self.assertEquals(ajaxResponse["statusCode"], 404)
+        self.assertEquals(ajaxResponse["message"], "Error updating your comment. Please try again later!")
+
+    def testLikeQuestionAnswerCommentObjectNotFound(self):
+        testParams = self.TestParams("likeQuestionAnswerComment", 1000, None)
+        response = self.get(testParams.getData())
+        ajaxResponse = json.loads(response.content)
+
+        self.assertEquals(response.status_code, 404)
+        self.assertEquals(ajaxResponse["statusCode"], 404)
+        self.assertEquals(ajaxResponse["message"], "Error occurred. Please try again later!")
+
+    def testDislikeQuestionAnswerCommentObjectNotFound(self):
+        testParams = self.TestParams("dislikeQuestionAnswerComment", 1000, None)
+        response = self.get(testParams.getData())
+        ajaxResponse = json.loads(response.content)
+
+        self.assertEquals(response.status_code, 404)
+        self.assertEquals(ajaxResponse["statusCode"], 404)
+        self.assertEquals(ajaxResponse["message"], "Error occurred. Please try again later!")
+
 
     class TestParams:
 

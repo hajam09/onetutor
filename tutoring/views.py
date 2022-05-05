@@ -481,7 +481,7 @@ def questionAnswerThread(request, questionId):
 				"statusCode": HTTPStatus.OK,
 				"newComment": newComment,
 			}
-			return JsonResponse(response)
+			return JsonResponse(response, status=HTTPStatus.OK)
 
 		elif functionality == "deleteQuestionAnswerComment":
 			commentId = request.GET.get('commentId', None)
@@ -491,7 +491,7 @@ def questionAnswerThread(request, questionId):
 			response = {
 				"statusCode": HTTPStatus.OK,
 			}
-			return JsonResponse(response)
+			return JsonResponse(response, status=HTTPStatus.OK)
 
 		elif functionality == "updateQuestionAnswerComment":
 			commentId = request.GET.get('commentId', None)
@@ -504,7 +504,7 @@ def questionAnswerThread(request, questionId):
 					"statusCode": HTTPStatus.NOT_FOUND,
 					"message": 'Error updating your comment. Please try again later!'
 				}
-				return JsonResponse(response)
+				return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
 
 			questionAnswerComment.comment = comment
 			questionAnswerComment.edited = True
@@ -520,7 +520,7 @@ def questionAnswerThread(request, questionId):
 				"statusCode": HTTPStatus.OK,
 				"updatedComment": updatedComment,
 			}
-			return JsonResponse(response)
+			return JsonResponse(response, status=HTTPStatus.OK)
 
 		elif functionality == "likeQuestionAnswerComment" or functionality == "dislikeQuestionAnswerComment":
 			commentId = request.GET.get('commentId', None)
@@ -532,7 +532,7 @@ def questionAnswerThread(request, questionId):
 					"statusCode": HTTPStatus.NOT_FOUND,
 					"message": 'Error occurred. Please try again later!'
 				}
-				return JsonResponse(response)
+				return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
 
 			if functionality == "likeQuestionAnswerComment":
 				questionAnswerComment.like(request)
@@ -544,7 +544,7 @@ def questionAnswerThread(request, questionId):
 				"likeCount": questionAnswerComment.likes.count(),
 				"dislikeCount": questionAnswerComment.dislikes.count(),
 			}
-			return JsonResponse(response)
+			return JsonResponse(response, status=HTTPStatus.OK)
 
 		raise Exception("Unknown functionality questionAnswerThread view")
 
