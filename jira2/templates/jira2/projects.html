@@ -131,10 +131,12 @@
                                                     <div class="row">
                                                         <div class="col">
                                                             <span class="d-flex align-items-center">
-                                                                {% if m.profilePicture %}
+                                                                {% if debug %}
+                                                                    <img src='https://cdn3.iconfinder.com/data/icons/avatars-round-flat/33/man5-512.png' width="10%" height="10%" class="rounded-circle">
+                                                                {% elif m.profilePicture %}
                                                                     <img src="{{m.profilePicture.url }}" width="10%" height="10%" class="rounded-circle">
                                                                 {% else %}
-                                                                    <img src='{% static "img/default-user-icon.jpg" %}' width="10%" height="10%" class="rounded-circle">
+                                                                    <img src='https://cdn3.iconfinder.com/data/icons/avatars-round-flat/33/man5-512.png' width="10%" height="10%" class="rounded-circle">
                                                                 {% endif %}
                                                                 &nbsp;&nbsp;
                                                                 <p class="h6" data-filter-by="text" style="padding-top: 9px;">{{m.user.get_full_name}}</p>
@@ -194,17 +196,21 @@
                         {% for p in projects  %}
                         <tr>
                             <td>
-                                {% if p.icon %}
+                                {% if debug %}
+                                    <img src='https://cdn3.iconfinder.com/data/icons/avatars-round-flat/33/man5-512.png' width="30px" class="rounded-0">
+                                {% elif p.icon %}
                                     <img src="{{ p.icon.url }}" width="30px" class="rounded-0">
                                 {% else %}
-                                    <img src='{% static "img/default-user-icon.jpg" %}' width="30px" class="rounded-0">
+                                    <img src='https://cdn3.iconfinder.com/data/icons/avatars-round-flat/33/man5-512.png' width="30px" class="rounded-0">
                                 {% endif %}
                                 &nbsp;&nbsp;
                                 <a href="{{ p.getProjectUrl }}">{{p.name}}</a>
                             </td>
                             <td>{{p.code}}</td>
                             <td>
-                                {% if p.lead.developerProfile.profilePicture %}
+                                {% if debug %}
+                                    <img src='https://cdn3.iconfinder.com/data/icons/avatars-round-flat/33/man5-512.png' width="30px" class="rounded-0">
+                                {% elif p.lead.developerProfile.profilePicture %}
                                     <img src="{{p.lead.developerProfile.profilePicture.url }}" width="30px" class="rounded-0">
                                 {% else %}
                                     <img src='{% static "img/default-user-icon.jpg" %}' width="30px" class="rounded-0">

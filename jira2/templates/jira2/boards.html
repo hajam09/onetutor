@@ -154,7 +154,9 @@
                                     <span class="row">
                                         <span class="col">
                                             <span class="d-flex align-items-center">
-                                                {% if admin.developerProfile.profilePicture %}
+                                                {% if debug %}
+                                                <img alt="{{admin.get_full_name}}" class="avatar filter-by-alt" src="https://cdn3.iconfinder.com/data/icons/avatars-round-flat/33/man5-512.png" data-filter-by="alt">
+                                                {% elif admin.developerProfile.profilePicture %}
                                                 <img alt="{{admin.get_full_name}}" class="avatar filter-by-alt" src="{{admin.developerProfile.profilePicture.url }}" data-filter-by="alt">
                                                 {% else %}
                                                 <img alt="{{admin.get_full_name}}" class="avatar filter-by-alt" src="https://cdn3.iconfinder.com/data/icons/avatars-round-flat/33/man5-512.png" data-filter-by="alt">
@@ -173,7 +175,9 @@
                                     {% for admin in b.admins.all %}
                                     <li>
                                         <a href="#" data-toggle="tooltip" data-original-title="{{admin.get_full_name}}" title="{{admin.get_full_name}}">
-                                            {% if admin.developerProfile.profilePicture %}
+                                            {% if debug %}
+                                            <img alt="{{admin.get_full_name}}" class="avatar filter-by-alt" src="https://cdn3.iconfinder.com/data/icons/avatars-round-flat/33/man5-512.png" data-filter-by="alt">
+                                            {% elif admin.developerProfile.profilePicture %}
                                             <img alt="{{admin.get_full_name}}" class="avatar filter-by-alt" src="{{admin.developerProfile.profilePicture.url }}" data-filter-by="alt">
                                             {% else %}
                                             <img alt="{{admin.get_full_name}}" class="avatar filter-by-alt" src="https://cdn3.iconfinder.com/data/icons/avatars-round-flat/33/man5-512.png" data-filter-by="alt">
@@ -192,7 +196,9 @@
                                     <span class="row">
                                         <span class="col">
                                             <span class="d-flex align-items-center">
-                                                {% if project.icon %}
+                                                {% if debug %}
+                                                <img alt="{{project.name}}" class="avatar filter-by-alt" src="https://cdn3.iconfinder.com/data/icons/avatars-round-flat/33/man5-512.png" data-filter-by="alt">
+                                                {% elif project.icon %}
                                                 <img alt="{{project.name}}" class="avatar filter-by-alt" src="{{project.icon.url }}" data-filter-by="alt">
                                                 {% else %}
                                                 <img alt="{{project.name}}" class="avatar filter-by-alt" src="https://cdn3.iconfinder.com/data/icons/avatars-round-flat/33/man5-512.png" data-filter-by="alt">
