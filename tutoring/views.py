@@ -172,7 +172,7 @@ def viewTutorProfile(request, url):
 				'dislikeCount': 0,
 				'statusCode': HTTPStatus.OK
 			}
-			return JsonResponse(response)
+			return JsonResponse(response, status=HTTPStatus.OK)
 
 		elif functionality == "answerQuestionAnswer":
 
@@ -186,14 +186,14 @@ def viewTutorProfile(request, url):
 					"statusCode": HTTPStatus.NOT_FOUND,
 					"message": 'We think this question has been deleted!'
 				}
-				return JsonResponse(response)
+				return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
 
 			if questionAnswer.answerer != request.user:
 				response = {
 					"statusCode": HTTPStatus.FORBIDDEN,
 					"message": 'You are not allowed to answer this question. Only the tutor can answer it.'
 				}
-				return JsonResponse(response)
+				return JsonResponse(response, status=HTTPStatus.FORBIDDEN)
 
 			questionAnswer.answer = answer
 			questionAnswer.save(update_fields=['answer'])
@@ -209,7 +209,7 @@ def viewTutorProfile(request, url):
 			response = {
 				"statusCode": HTTPStatus.OK
 			}
-			return JsonResponse(response)
+			return JsonResponse(response, status=HTTPStatus.OK)
 
 		elif functionality == "updateQuestion":
 
@@ -224,7 +224,7 @@ def viewTutorProfile(request, url):
 					"statusCode": HTTPStatus.NOT_FOUND,
 					"message": 'We think this question has been deleted!'
 				}
-				return JsonResponse(response)
+				return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
 
 			questionAnswer.subject = subject
 			questionAnswer.question = question
@@ -233,7 +233,7 @@ def viewTutorProfile(request, url):
 			response = {
 				"statusCode": HTTPStatus.OK
 			}
-			return JsonResponse(response)
+			return JsonResponse(response, status=HTTPStatus.OK)
 
 		elif functionality == "likeQuestionAnswer":
 
@@ -246,7 +246,7 @@ def viewTutorProfile(request, url):
 					"statusCode": HTTPStatus.NOT_FOUND,
 					"message": 'We think this question has been deleted!'
 				}
-				return JsonResponse(response)
+				return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
 
 			thisComment.like(request)
 
@@ -255,7 +255,7 @@ def viewTutorProfile(request, url):
 				"dislikeCount": thisComment.dislikes.count(),
 				"statusCode": HTTPStatus.OK
 			}
-			return JsonResponse(response)
+			return JsonResponse(response, status=HTTPStatus.OK)
 
 		elif functionality == "dislikeQuestionAnswer":
 
@@ -268,7 +268,7 @@ def viewTutorProfile(request, url):
 					"statusCode": HTTPStatus.NOT_FOUND,
 					"message": 'We think this question has been deleted!'
 				}
-				return JsonResponse(response)
+				return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
 
 			thisComment.dislike(request)
 
@@ -277,7 +277,7 @@ def viewTutorProfile(request, url):
 				"dislikeCount": thisComment.dislikes.count(),
 				"statusCode": HTTPStatus.OK
 			}
-			return JsonResponse(response)
+			return JsonResponse(response, status=HTTPStatus.OK)
 
 		elif functionality == "createTutorReview":
 
@@ -296,7 +296,7 @@ def viewTutorProfile(request, url):
 				'createdDate': dateOperations.humanizePythonDate(tutorReview.date),
 				'statusCode': HTTPStatus.OK
 			}
-			return JsonResponse(response)
+			return JsonResponse(response, status=HTTPStatus.OK)
 
 		elif functionality == "updateTutorReview":
 
@@ -310,7 +310,7 @@ def viewTutorProfile(request, url):
 					"statusCode": HTTPStatus.NOT_FOUND,
 					"message": 'We think this review has been deleted!'
 				}
-				return JsonResponse(response)
+				return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
 
 			tutorReview.comment = comment
 			tutorReview.save()
@@ -318,7 +318,7 @@ def viewTutorProfile(request, url):
 			response = {
 				"statusCode": HTTPStatus.OK
 			}
-			return JsonResponse(response)
+			return JsonResponse(response, status=HTTPStatus.OK)
 
 		elif functionality == "deleteTutorReview":
 
@@ -328,7 +328,7 @@ def viewTutorProfile(request, url):
 			response = {
 				"statusCode": HTTPStatus.OK
 			}
-			return JsonResponse(response)
+			return JsonResponse(response, status=HTTPStatus.OK)
 
 		elif functionality == "likeTutorReview":
 
@@ -341,7 +341,7 @@ def viewTutorProfile(request, url):
 					"statusCode": HTTPStatus.NOT_FOUND,
 					"message": 'We think this review has been deleted!'
 				}
-				return JsonResponse(response)
+				return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
 
 			tutorReview.like(request)
 
@@ -350,7 +350,7 @@ def viewTutorProfile(request, url):
 				"dislikeCount": tutorReview.dislikes.count(),
 				"statusCode": HTTPStatus.OK
 			}
-			return JsonResponse(response)
+			return JsonResponse(response, status=HTTPStatus.OK)
 
 		elif functionality == "dislikeTutorReview":
 
@@ -363,7 +363,7 @@ def viewTutorProfile(request, url):
 					"statusCode": HTTPStatus.NOT_FOUND,
 					"message": 'We think this review has been deleted!'
 				}
-				return JsonResponse(response)
+				return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
 
 			tutorReview.dislike(request)
 
@@ -372,7 +372,7 @@ def viewTutorProfile(request, url):
 				"dislikeCount": tutorReview.dislikes.count(),
 				"statusCode": HTTPStatus.OK
 			}
-			return JsonResponse(response)
+			return JsonResponse(response, status=HTTPStatus.OK)
 
 		raise Exception("Unknown functionality in viewTutorProfile")
 

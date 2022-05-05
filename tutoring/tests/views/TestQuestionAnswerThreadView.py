@@ -13,6 +13,7 @@ class QuestionAnswerThreadViewTest(BaseTestAjax):
 
     def setUp(self) -> None:
         # TODO: Try to move this to the classmethod to initialise it one time
+        # TODO: change the questioner and answerer similar to TutoringViewTutorProfileView
         temporaryUser = userDataHelper.createNewUser()
         self.questionAnswer = QuestionAnswer.objects.create(
             subject="subject",
