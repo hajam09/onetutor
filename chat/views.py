@@ -34,7 +34,7 @@ def chatPage(request):
         response = {
             "statusCode": HTTPStatus.OK
         }
-        return JsonResponse(response)
+        return JsonResponse(status=HTTPStatus.OK)
 
     messenger = [
         {

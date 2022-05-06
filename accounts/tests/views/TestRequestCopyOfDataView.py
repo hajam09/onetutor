@@ -20,8 +20,7 @@ class RequestCopyOfDataViewTest(BaseTestAjax):
         response = self.get()
         ajaxResponse = json.loads(response.content)
 
-        self.assertEquals(response.status_code, HTTPStatus.OK)
-        self.assertEquals(ajaxResponse["statusCode"], HTTPStatus.BAD_REQUEST)
+        self.assertEquals(response.status_code, HTTPStatus.UNAUTHORIZED)
         self.assertEquals(ajaxResponse["message"], 'Login to request your data.')
 
     @patch('onetutor.operations.generalOperations.getTutorRequestedStoredData')
@@ -32,7 +31,6 @@ class RequestCopyOfDataViewTest(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, HTTPStatus.OK)
-        self.assertEquals(ajaxResponse["statusCode"], HTTPStatus.OK)
         self.assertEquals(ajaxResponse["message"], 'A copy is sent to your email.')
 
         mockGetTutorRequestedStoredData.assert_called_once()

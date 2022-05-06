@@ -64,7 +64,7 @@ def sprintBoardView(request, sprintUrl):
 		response = {
 			"statusCode": HTTPStatus.OK
 		}
-		return JsonResponse(response)
+		return JsonResponse(status=HTTPStatus.OK)
 
 	context = {
 		"activeSprint": activeSprint,
@@ -128,7 +128,7 @@ def backlogView(request):
 			response = {
 				"statusCode": HTTPStatus.OK
 			}
-			return JsonResponse(response)
+			return JsonResponse(status=HTTPStatus.OK)
 
 		elif functionality == "moveTicketToBacklog":
 			movedTicketUrl = request.GET.get('movedTicketUrl', None)
@@ -141,7 +141,7 @@ def backlogView(request):
 			response = {
 				"statusCode": HTTPStatus.OK
 			}
-			return JsonResponse(response)
+			return JsonResponse(status=HTTPStatus.OK)
 
 	backlogTickets = Ticket.objects.filter(status=Status.NONE)
 
@@ -186,9 +186,9 @@ def ticketPageView(request, ticket_url):
 			response = {
 				"isWatching": isWatching,
 				"newWatchCount": ticket.watchers.count(),
-				"statusCode": HTTPStatus.OK
+				# "statusCode": HTTPStatus.OK
 			}
-			return JsonResponse(response)
+			return JsonResponse(response, status=HTTPStatus.OK)
 
 		elif functionality == "createTicketComment":
 			comment = request.GET.get('comment', None)
@@ -198,13 +198,13 @@ def ticketPageView(request, ticket_url):
 				comment=comment,
 			)
 			response = {
-				"statusCode": HTTPStatus.OK,
+				# "statusCode": HTTPStatus.OK,
 				"pk": ticketComment.pk,
 				"comment": ticketComment.comment,
 				"likes": ticketComment.likes.count(),
 				"dislikes": ticketComment.dislikes.count(),
 			}
-			return JsonResponse(response)
+			return JsonResponse(response, status=HTTPStatus.OK)
 
 		elif functionality == "updateTicketComment":
 			commentId = request.GET.get('commentId', None)
@@ -213,21 +213,21 @@ def ticketPageView(request, ticket_url):
 			thisComment = next((c for c in ticketComments if str(c.id) == commentId), None)
 			if thisComment is None:
 				response = {
-					"statusCode": HTTPStatus.NOT_FOUND,
+					# "statusCode": HTTPStatus.NOT_FOUND,
 					"message": "We think this comment has been deleted!"
 				}
-				return JsonResponse(response)
+				return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
 
 			thisComment.comment = comment
 			thisComment.edited = True
 			thisComment.save(update_fields=['comment', 'edited'])
 
 			response = {
-				"statusCode": HTTPStatus.OK,
+				# "statusCode": HTTPStatus.OK,
 				"id": thisComment.id,
 				"comment": thisComment.comment,
 			}
-			return JsonResponse(response)
+			return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
 
 		elif functionality == "deleteTicketComment":
 			commentId = request.GET.get('commentId', None)
@@ -239,7 +239,7 @@ def ticketPageView(request, ticket_url):
 			response = {
 				"statusCode": HTTPStatus.OK,
 			}
-			return JsonResponse(response)
+			return JsonResponse(status=HTTPStatus.OK)
 
 		elif functionality == "likeTicketComment" or functionality == "dislikeTicketComment":
 			commentId = request.GET.get('commentId', None)
@@ -247,10 +247,10 @@ def ticketPageView(request, ticket_url):
 			thisComment = next((c for c in ticketComments if str(c.id) == commentId), None)
 			if thisComment is None:
 				response = {
-					"statusCode": HTTPStatus.NOT_FOUND,
+					# "statusCode": HTTPStatus.NOT_FOUND,
 					"message": "We think this comment has been deleted!"
 				}
-				return JsonResponse(response)
+				return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
 
 			if functionality == "likeTicketComment":
 				thisComment.like(request)
@@ -258,11 +258,11 @@ def ticketPageView(request, ticket_url):
 				thisComment.dislike(request)
 
 			response = {
-				"statusCode": HTTPStatus.OK,
+				# "statusCode": HTTPStatus.OK,
 				"likes": thisComment.likes.count(),
 				"dislikes": thisComment.dislikes.count(),
 			}
-			return JsonResponse(response)
+			return JsonResponse(response, status=HTTPStatus.OK)
 		raise Exception("Unknown functionality on ticketpage")
 
 	if request.method == "POST" and "createSubTask" in request.POST:
@@ -330,10 +330,10 @@ def editTicketView(request, ticketUrl):
 
 			remainingTicketImages = TicketImage.objects.filter(ticket=ticket)
 			response = {
-				"statusCode": HTTPStatus.OK,
+				# "statusCode": HTTPStatus.OK,
 				"remainingTicketImages": [{"pk": i.pk, "image": "/media/"+str(i.image)} for i in remainingTicketImages],
 			}
-			return JsonResponse(response)
+			return JsonResponse(response, status=HTTPStatus.OK)
 
 	if request.method == "POST" and "updateTicket" in request.POST:
 

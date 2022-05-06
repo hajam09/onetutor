@@ -18,7 +18,6 @@ class AccountCookieConsentViewTest(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, 200)
-        self.assertEquals(ajaxResponse["statusCode"], 200)
         self.assertTrue(ajaxResponse["askConsent"])
 
     def testConsentStageConfirmed(self):
@@ -27,7 +26,6 @@ class AccountCookieConsentViewTest(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, 200)
-        self.assertEquals(ajaxResponse["statusCode"], 200)
         self.assertFalse(ajaxResponse["askConsent"])
 
         userSession = UserSession.objects.filter(sessionKey=self.getSessionKey()).last()
@@ -40,7 +38,6 @@ class AccountCookieConsentViewTest(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, 200)
-        self.assertEquals(ajaxResponse["statusCode"], 200)
         self.assertFalse(ajaxResponse["askConsent"])
 
     class TestParams:

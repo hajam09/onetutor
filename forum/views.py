@@ -77,7 +77,7 @@ def mainpage(request):
                 response = {
                     "statusCode": HTTPStatus.NO_CONTENT
                 }
-                return JsonResponse(response)
+                return JsonResponse(status=HTTPStatus.NO_CONTENT)
 
             forums = [
                 forumComponentJson(request, e)
@@ -85,10 +85,10 @@ def mainpage(request):
             ]
 
             response = {
-                "statusCode": HTTPStatus.OK,
+                # "statusCode": HTTPStatus.OK,
                 "forums": forums
             }
-            return JsonResponse(response)
+            return JsonResponse(response, status=HTTPStatus.OK)
 
     initialForum = [
         forumComponentJson(request, e)
@@ -144,7 +144,7 @@ def communityPage(request, communityUrl):
                 response = {
                     "statusCode": HTTPStatus.NO_CONTENT
                 }
-                return JsonResponse(response)
+                return JsonResponse(status=HTTPStatus.NO_CONTENT)
 
             forums = [
                 forumComponentJson(request, e)
@@ -152,10 +152,10 @@ def communityPage(request, communityUrl):
             ]
 
             response = {
-                "statusCode": HTTPStatus.OK,
+                # "statusCode": HTTPStatus.OK,
                 "forums": forums
             }
-            return JsonResponse(response)
+            return JsonResponse(response, status=HTTPStatus.OK)
 
         raise Exception("Unknown functionality in communityPage")
 
@@ -199,14 +199,14 @@ def forumPage(request, communityUrl, forumUrl):
                 response = {
                     "statusCode": HTTPStatus.NOT_FOUND,
                 }
-                return JsonResponse(response)
+                return JsonResponse(status=HTTPStatus.NOT_FOUND)
 
             comment.delete()
 
             response = {
                 "statusCode": HTTPStatus.OK
             }
-            return JsonResponse(response)
+            return JsonResponse(status=HTTPStatus.OK)
 
         elif functionality == "createForumComment":
             comment = request.GET.get('comment', None)
@@ -234,10 +234,10 @@ def forumPage(request, communityUrl, forumUrl):
                 }
             ]
             response = {
-                "statusCode": HTTPStatus.OK,
+                # "statusCode": HTTPStatus.OK,
                 "forum": forum
             }
-            return JsonResponse(response)
+            return JsonResponse(response, status=HTTPStatus.OK)
 
     forumJson = [
         forumComponentJson(request, forum)
@@ -342,19 +342,19 @@ def forumComponentJson(request, e):
 def communityOperationsAPI(request, communityId):
     if not request.user.is_authenticated:
         response = {
-            "statusCode": HTTPStatus.UNAUTHORIZED,
+            # "statusCode": HTTPStatus.UNAUTHORIZED,
             "message": "Please login to perform this action."
         }
-        return JsonResponse(response)
+        return JsonResponse(response, status=HTTPStatus.UNAUTHORIZED)
 
     try:
         community = Community.objects.get(id=communityId)
     except Community.DoesNotExist:
         response = {
-            'statusCode': HTTPStatus.NOT_FOUND,
+            # 'statusCode': HTTPStatus.NOT_FOUND,
             'message': 'Could not find a community with id {}'.format(communityId)
         }
-        return JsonResponse(response)
+        return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
 
     functionality = request.GET.get('functionality', None)
     if functionality == "joinOrLeaveCommunity":
@@ -368,32 +368,32 @@ def communityOperationsAPI(request, communityId):
 
         response = {
             "inCommunity": inCommunity,
-            "statusCode": HTTPStatus.OK
+            # "statusCode": HTTPStatus.OK
         }
-        return JsonResponse(response)
+        return JsonResponse(response, status=HTTPStatus.OK)
 
     response = {
         'statusCode': HTTPStatus.OK
     }
-    return JsonResponse(response)
+    return JsonResponse(status=HTTPStatus.OK)
 
 
 def forumOperationsAPI(request, forumId):
     if not request.user.is_authenticated:
         response = {
-            "statusCode": HTTPStatus.UNAUTHORIZED,
+            # "statusCode": HTTPStatus.UNAUTHORIZED,
             "message": "Please login to perform this action."
         }
-        return JsonResponse(response)
+        return JsonResponse(response, status=HTTPStatus.UNAUTHORIZED)
 
     try:
         forum = Forum.objects.get(id=forumId)
     except Forum.DoesNotExist:
         response = {
-            'statusCode': HTTPStatus.NOT_FOUND,
+            # 'statusCode': HTTPStatus.NOT_FOUND,
             'message': 'Could not find a forum with id {}'.format(forumId)
         }
-        return JsonResponse(response)
+        return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
 
     functionality = request.GET.get('functionality', None)
     if functionality == "watchUnwatchForum":
@@ -408,54 +408,54 @@ def forumOperationsAPI(request, forumId):
         response = {
             "isWatching": isWatching,
             "newWatchCount": forum.watchers.count(),
-            "statusCode": HTTPStatus.OK
+            # "statusCode": HTTPStatus.OK
         }
-        return JsonResponse(response)
+        return JsonResponse(response, status=HTTPStatus.OK)
 
     elif functionality == "upVoteForum":
 
         forum.like(request)
 
         response = {
-            "statusCode": HTTPStatus.OK,
+            # "statusCode": HTTPStatus.OK,
             "likeCount": forum.likes.count(),
             "dislikeCount": forum.dislikes.count(),
         }
-        return JsonResponse(response)
+        return JsonResponse(response, status=HTTPStatus.OK)
 
     elif functionality == "downVoteForum":
 
         forum.dislike(request)
 
         response = {
-            "statusCode": HTTPStatus.OK,
+            # "statusCode": HTTPStatus.OK,
             "likeCount": forum.likes.count(),
             "dislikeCount": forum.dislikes.count(),
         }
-        return JsonResponse(response)
+        return JsonResponse(response, status=HTTPStatus.OK)
 
     response = {
         'statusCode': HTTPStatus.OK
     }
-    return JsonResponse(response)
+    return JsonResponse(status=HTTPStatus.OK)
 
 
 def forumCommentOperationsAPI(request, commentId):
     if not request.user.is_authenticated:
         response = {
-            "statusCode": HTTPStatus.UNAUTHORIZED,
+            # "statusCode": HTTPStatus.UNAUTHORIZED,
             "message": "Please login to perform this action."
         }
-        return JsonResponse(response)
+        return JsonResponse(response, status=HTTPStatus.UNAUTHORIZED)
 
     try:
         forumComment = ForumComment.objects.get(id=commentId)
     except ForumComment.DoesNotExist:
         response = {
-            'statusCode': HTTPStatus.NOT_FOUND,
+            # 'statusCode': HTTPStatus.NOT_FOUND,
             'message': 'Could not find a forum comment with id {}'.format(commentId)
         }
-        return JsonResponse(response)
+        return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
 
     functionality = request.GET.get('functionality', None)
 
@@ -464,23 +464,23 @@ def forumCommentOperationsAPI(request, commentId):
         forumComment.like(request)
 
         response = {
-            "statusCode": HTTPStatus.OK,
+            # "statusCode": HTTPStatus.OK,
             "likeCount": forumComment.likes.count(),
             "dislikeCount": forumComment.dislikes.count(),
         }
-        return JsonResponse(response)
+        return JsonResponse(response, status=HTTPStatus.OK)
 
     elif functionality == "dislikeForumComment":
         forumComment.dislike(request)
 
         response = {
-            "statusCode": HTTPStatus.OK,
+            # "statusCode": HTTPStatus.OK,
             "likeCount": forumComment.likes.count(),
             "dislikeCount": forumComment.dislikes.count(),
         }
-        return JsonResponse(response)
+        return JsonResponse(response, status=HTTPStatus.OK)
 
     response = {
         'statusCode': HTTPStatus.OK
     }
-    return JsonResponse(response)
+    return JsonResponse(status=HTTPStatus.OK)

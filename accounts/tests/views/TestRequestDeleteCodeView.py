@@ -19,8 +19,7 @@ class RequestDeleteCodeViewTest(BaseTestAjax):
         response = self.get()
         ajaxResponse = json.loads(response.content)
 
-        self.assertEquals(response.status_code, HTTPStatus.OK)
-        self.assertEquals(ajaxResponse["statusCode"], HTTPStatus.BAD_REQUEST)
+        self.assertEquals(response.status_code, HTTPStatus.UNAUTHORIZED)
         self.assertEquals(ajaxResponse["message"], 'Login to request a code.')
 
     @patch('onetutor.operations.emailOperations.sendEmailForAccountDeletionCode')
@@ -29,7 +28,6 @@ class RequestDeleteCodeViewTest(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, HTTPStatus.OK)
-        self.assertEquals(ajaxResponse["statusCode"], HTTPStatus.OK)
         self.assertEquals(ajaxResponse["message"], 'Check your email for the code.')
 
         mockSendEmailForAccountDeletionCode.assert_called_once()
