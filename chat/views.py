@@ -30,10 +30,6 @@ def chatPage(request):
                     firstParticipant=request.user,
                     secondParticipant=secondParticipant
                 )
-
-        response = {
-            "statusCode": HTTPStatus.OK
-        }
         return JsonResponse(status=HTTPStatus.OK)
 
     messenger = [

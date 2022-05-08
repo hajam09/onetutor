@@ -146,9 +146,6 @@ def viewTutorProfile(request, url):
 		functionality = request.GET.get('functionality', None)
 
 		if not request.user.is_authenticated:
-			response = {
-				'statusCode': HTTPStatus.UNAUTHORIZED
-			}
 			return JsonResponse({}, status=HTTPStatus.UNAUTHORIZED)
 
 		if functionality == "postQuestionAnswer":
@@ -170,7 +167,6 @@ def viewTutorProfile(request, url):
 				'createdDate': dateOperations.humanizePythonDate(questionAnswer.date),
 				'likeCount': 0,
 				'dislikeCount': 0,
-				# 'statusCode': HTTPStatus.OK
 			}
 			return JsonResponse(response, status=HTTPStatus.OK)
 
@@ -183,32 +179,24 @@ def viewTutorProfile(request, url):
 				questionAnswer = QuestionAnswer.objects.get(pk=id)
 			except QuestionAnswer.DoesNotExist:
 				response = {
-					# "statusCode": HTTPStatus.NOT_FOUND,
 					"message": 'We think this question has been deleted!'
 				}
 				return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
 
 			if questionAnswer.answerer != request.user:
 				response = {
-					# "statusCode": HTTPStatus.FORBIDDEN,
 					"message": 'You are not allowed to answer this question. Only the tutor can answer it.'
 				}
 				return JsonResponse(response, status=HTTPStatus.FORBIDDEN)
 
 			questionAnswer.answer = answer
 			questionAnswer.save(update_fields=['answer'])
-			response = {
-				"statusCode": HTTPStatus.OK
-			}
 			return JsonResponse({}, status=HTTPStatus.OK)
 
 		elif functionality == "deleteQuestionAnswer":
 
 			id = request.GET.get('id', None)
 			QuestionAnswer.objects.filter(pk=id).delete()
-			response = {
-				"statusCode": HTTPStatus.OK
-			}
 			return JsonResponse({}, status=HTTPStatus.OK)
 
 		elif functionality == "updateQuestion":
@@ -221,7 +209,6 @@ def viewTutorProfile(request, url):
 				questionAnswer = QuestionAnswer.objects.get(pk=id)
 			except QuestionAnswer.DoesNotExist:
 				response = {
-					# "statusCode": HTTPStatus.NOT_FOUND,
 					"message": 'We think this question has been deleted!'
 				}
 				return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
@@ -229,10 +216,6 @@ def viewTutorProfile(request, url):
 			questionAnswer.subject = subject
 			questionAnswer.question = question
 			questionAnswer.save(update_fields=['subject', 'question'])
-
-			response = {
-				"statusCode": HTTPStatus.OK
-			}
 			return JsonResponse({}, status=HTTPStatus.OK)
 
 		elif functionality == "likeQuestionAnswer":
@@ -243,7 +226,6 @@ def viewTutorProfile(request, url):
 				thisComment = QuestionAnswer.objects.get(pk=id)
 			except QuestionAnswer.DoesNotExist:
 				response = {
-					# "statusCode": HTTPStatus.NOT_FOUND,
 					"message": 'We think this question has been deleted!'
 				}
 				return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
@@ -253,7 +235,6 @@ def viewTutorProfile(request, url):
 			response = {
 				"likeCount": thisComment.likes.count(),
 				"dislikeCount": thisComment.dislikes.count(),
-				# "statusCode": HTTPStatus.OK
 			}
 			return JsonResponse(response, status=HTTPStatus.OK)
 
@@ -265,7 +246,6 @@ def viewTutorProfile(request, url):
 				thisComment = QuestionAnswer.objects.get(id=id)
 			except QuestionAnswer.DoesNotExist:
 				response = {
-					# "statusCode": HTTPStatus.NOT_FOUND,
 					"message": 'We think this question has been deleted!'
 				}
 				return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
@@ -275,7 +255,6 @@ def viewTutorProfile(request, url):
 			response = {
 				"likeCount": thisComment.likes.count(),
 				"dislikeCount": thisComment.dislikes.count(),
-				# "statusCode": HTTPStatus.OK
 			}
 			return JsonResponse(response, status=HTTPStatus.OK)
 
@@ -294,7 +273,6 @@ def viewTutorProfile(request, url):
 			response = {
 				'id': tutorReview.id,
 				'createdDate': dateOperations.humanizePythonDate(tutorReview.date),
-				# 'statusCode': HTTPStatus.OK
 			}
 			return JsonResponse(response, status=HTTPStatus.OK)
 
@@ -307,27 +285,18 @@ def viewTutorProfile(request, url):
 				tutorReview = TutorReview.objects.get(id=id)
 			except TutorReview.DoesNotExist:
 				response = {
-					# "statusCode": HTTPStatus.NOT_FOUND,
 					"message": 'We think this review has been deleted!'
 				}
 				return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
 
 			tutorReview.comment = comment
 			tutorReview.save()
-
-			response = {
-				"statusCode": HTTPStatus.OK
-			}
 			return JsonResponse({}, status=HTTPStatus.OK)
 
 		elif functionality == "deleteTutorReview":
 
 			id = request.GET.get('id', None)
 			TutorReview.objects.filter(pk=id).delete()
-
-			response = {
-				"statusCode": HTTPStatus.OK
-			}
 			return JsonResponse({}, status=HTTPStatus.OK)
 
 		elif functionality == "likeTutorReview":
@@ -338,7 +307,6 @@ def viewTutorProfile(request, url):
 				tutorReview = TutorReview.objects.get(id=id)
 			except TutorReview.DoesNotExist:
 				response = {
-					# "statusCode": HTTPStatus.NOT_FOUND,
 					"message": 'We think this review has been deleted!'
 				}
 				return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
@@ -348,7 +316,6 @@ def viewTutorProfile(request, url):
 			response = {
 				"likeCount": tutorReview.likes.count(),
 				"dislikeCount": tutorReview.dislikes.count(),
-				# "statusCode": HTTPStatus.OK
 			}
 			return JsonResponse(response, status=HTTPStatus.OK)
 
@@ -360,7 +327,6 @@ def viewTutorProfile(request, url):
 				tutorReview = TutorReview.objects.get(id=id)
 			except TutorReview.DoesNotExist:
 				response = {
-					# "statusCode": HTTPStatus.NOT_FOUND,
 					"message": 'We think this review has been deleted!'
 				}
 				return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
@@ -370,7 +336,6 @@ def viewTutorProfile(request, url):
 			response = {
 				"likeCount": tutorReview.likes.count(),
 				"dislikeCount": tutorReview.dislikes.count(),
-				# "statusCode": HTTPStatus.OK
 			}
 			return JsonResponse(response, status=HTTPStatus.OK)
 
@@ -400,9 +365,6 @@ def tutorsQuestions(request):
 			id = request.GET.get('id', None)
 
 			QuestionAnswer.objects.filter(pk=int(id)).delete()
-			response = {
-				"statusCode": HTTPStatus.OK
-			}
 			return JsonResponse(status=HTTPStatus.OK)
 
 		elif functionality == "updateQuestionAnswer":
@@ -413,7 +375,6 @@ def tutorsQuestions(request):
 				questionAnswer = QuestionAnswer.objects.get(pk=int(id))
 			except QuestionAnswer.DoesNotExist:
 				response = {
-					# "statusCode": HTTPStatus.NOT_FOUND,
 					"message": 'Error updating the answer. Please try again later!'
 				}
 				return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
@@ -422,7 +383,6 @@ def tutorsQuestions(request):
 			questionAnswer.save(update_fields=['answer'])
 
 			response = {
-				# "statusCode": HTTPStatus.OK,
 				"answer": questionAnswer.answer.replace("\n", "<br />")
 			}
 			return JsonResponse(response, status=HTTPStatus.OK)
@@ -478,7 +438,6 @@ def questionAnswerThread(request, questionId):
 			}
 
 			response = {
-				# "statusCode": HTTPStatus.OK,
 				"newComment": newComment,
 			}
 			return JsonResponse(response, status=HTTPStatus.OK)
@@ -487,10 +446,6 @@ def questionAnswerThread(request, questionId):
 			commentId = request.GET.get('commentId', None)
 
 			QuestionAnswerComment.objects.filter(pk=int(commentId)).delete()
-
-			response = {
-				"statusCode": HTTPStatus.OK,
-			}
 			return JsonResponse({}, status=HTTPStatus.OK)
 
 		elif functionality == "updateQuestionAnswerComment":
@@ -501,7 +456,6 @@ def questionAnswerThread(request, questionId):
 				questionAnswerComment = QuestionAnswerComment.objects.get(id=int(commentId))
 			except QuestionAnswerComment.DoesNotExist:
 				response = {
-					# "statusCode": HTTPStatus.NOT_FOUND,
 					"message": 'Error updating your comment. Please try again later!'
 				}
 				return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
@@ -517,7 +471,6 @@ def questionAnswerThread(request, questionId):
 			}
 
 			response = {
-				# "statusCode": HTTPStatus.OK,
 				"updatedComment": updatedComment,
 			}
 			return JsonResponse(response, status=HTTPStatus.OK)
@@ -529,7 +482,6 @@ def questionAnswerThread(request, questionId):
 				questionAnswerComment = QuestionAnswerComment.objects.get(id=int(commentId))
 			except QuestionAnswerComment.DoesNotExist:
 				response = {
-					# "statusCode": HTTPStatus.NOT_FOUND,
 					"message": 'Error occurred. Please try again later!'
 				}
 				return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
@@ -540,7 +492,6 @@ def questionAnswerThread(request, questionId):
 				questionAnswerComment.dislike(request)
 
 			response = {
-				# "statusCode": HTTPStatus.OK,
 				"likeCount": questionAnswerComment.likes.count(),
 				"dislikeCount": questionAnswerComment.dislikes.count(),
 			}

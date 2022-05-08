@@ -38,7 +38,6 @@ class TutoringViewTutorProfileView(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, HTTPStatus.UNAUTHORIZED)
-        # self.assertEquals(ajaxResponse["statusCode"], HTTPStatus.UNAUTHORIZED)
 
     def testPostQuestionAnswer(self):
         testParams = self.TestParamsQuestionAnswer("postQuestionAnswer")
@@ -47,7 +46,6 @@ class TutoringViewTutorProfileView(BaseTestAjax):
         questionAnswer = QuestionAnswer.objects.last()
 
         self.assertEquals(response.status_code, 200)
-        # self.assertEquals(ajaxResponse["statusCode"], 200)
         self.assertEquals(ajaxResponse["questionerFullName"], self.user.get_full_name())
         # self.assertEquals(ajaxResponse["createdDate"], self.user.get_full_name())
         self.assertEquals(ajaxResponse["likeCount"], 0)
@@ -67,7 +65,6 @@ class TutoringViewTutorProfileView(BaseTestAjax):
 
         self.assertEquals(response.status_code, 200)
         self.assertEquals(self.questionAnswer.answer, testParams.answer)
-        # self.assertEquals(ajaxResponse["statusCode"], 200)
 
     def testAnswerQuestionAnswerObjectNotFound(self):
         testParams = self.TestParamsQuestionAnswer("answerQuestionAnswer", 1000)
@@ -75,7 +72,6 @@ class TutoringViewTutorProfileView(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, 404)
-        # self.assertEquals(ajaxResponse["statusCode"], 404)
         self.assertEquals(ajaxResponse["message"], "We think this question has been deleted!")
 
     def testAnswerQuestionAnswerInvalidAnswerer(self):
@@ -84,7 +80,6 @@ class TutoringViewTutorProfileView(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, 403)
-        # self.assertEquals(ajaxResponse["statusCode"], 403)
         self.assertEquals(ajaxResponse["message"], "You are not allowed to answer this question. Only the tutor can answer it.")
 
     def testDeleteQuestionAnswerSuccess(self):
@@ -93,7 +88,6 @@ class TutoringViewTutorProfileView(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, 200)
-        # self.assertEquals(ajaxResponse["statusCode"], 200)
         self.assertFalse(QuestionAnswer.objects.filter(id=self.questionAnswer.id).exists())
 
     def testUpdateQuestionObjectNotFound(self):
@@ -102,7 +96,6 @@ class TutoringViewTutorProfileView(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, 404)
-        # self.assertEquals(ajaxResponse["statusCode"], 404)
         self.assertEquals(ajaxResponse["message"], "We think this question has been deleted!")
 
     def testUpdateQuestionSuccess(self):
@@ -117,7 +110,6 @@ class TutoringViewTutorProfileView(BaseTestAjax):
         self.assertEquals(response.status_code, 200)
         self.assertEquals(self.questionAnswer.subject, testParams.subject)
         self.assertEquals(self.questionAnswer.question, testParams.question)
-        # self.assertEquals(ajaxResponse["statusCode"], 200)
 
     def testLikeQuestionAnswerObjectNotFound(self):
         testParams = self.TestParamsQuestionAnswer("likeQuestionAnswer", 1000)
@@ -125,7 +117,6 @@ class TutoringViewTutorProfileView(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, 404)
-        # self.assertEquals(ajaxResponse["statusCode"], 404)
         self.assertEquals(ajaxResponse["message"], "We think this question has been deleted!")
 
     def testLikeQuestionAnswerLike(self):
@@ -135,7 +126,6 @@ class TutoringViewTutorProfileView(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, 200)
-        # self.assertEquals(ajaxResponse["statusCode"], 200)
         self.assertEquals(ajaxResponse["likeCount"], 1)
         self.assertEquals(ajaxResponse["dislikeCount"], 0)
         self.assertTrue(self.user in self.questionAnswer.likes.all())
@@ -149,7 +139,6 @@ class TutoringViewTutorProfileView(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, 200)
-        # self.assertEquals(ajaxResponse["statusCode"], 200)
         self.assertEquals(ajaxResponse["likeCount"], 0)
         self.assertEquals(ajaxResponse["dislikeCount"], 0)
         self.assertFalse(self.user in self.questionAnswer.likes.all())
@@ -163,7 +152,6 @@ class TutoringViewTutorProfileView(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, 200)
-        # self.assertEquals(ajaxResponse["statusCode"], 200)
         self.assertEquals(ajaxResponse["likeCount"], 1)
         self.assertEquals(ajaxResponse["dislikeCount"], 0)
         self.assertTrue(self.user in self.questionAnswer.likes.all())
@@ -175,7 +163,6 @@ class TutoringViewTutorProfileView(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, 404)
-        # self.assertEquals(ajaxResponse["statusCode"], 404)
         self.assertEquals(ajaxResponse["message"], "We think this question has been deleted!")
 
     def testDislikeQuestionAnswerDisLike(self):
@@ -185,7 +172,6 @@ class TutoringViewTutorProfileView(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, 200)
-        # self.assertEquals(ajaxResponse["statusCode"], 200)
         self.assertEquals(ajaxResponse["likeCount"], 0)
         self.assertEquals(ajaxResponse["dislikeCount"], 1)
         self.assertFalse(self.user in self.questionAnswer.likes.all())
@@ -199,7 +185,6 @@ class TutoringViewTutorProfileView(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, 200)
-        # self.assertEquals(ajaxResponse["statusCode"], 200)
         self.assertEquals(ajaxResponse["likeCount"], 0)
         self.assertEquals(ajaxResponse["dislikeCount"], 0)
         self.assertFalse(self.user in self.questionAnswer.likes.all())
@@ -213,7 +198,6 @@ class TutoringViewTutorProfileView(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, 200)
-        # self.assertEquals(ajaxResponse["statusCode"], 200)
         self.assertEquals(ajaxResponse["likeCount"], 0)
         self.assertEquals(ajaxResponse["dislikeCount"], 1)
         self.assertFalse(self.user in self.questionAnswer.likes.all())
@@ -226,7 +210,6 @@ class TutoringViewTutorProfileView(BaseTestAjax):
         tutorReview = TutorReview.objects.last()
 
         self.assertEquals(response.status_code, 200)
-        # self.assertEquals(ajaxResponse["statusCode"], 200)
         self.assertEquals(ajaxResponse["id"], tutorReview.id)
         # self.assertEquals(ajaxResponse["createdDate"], self.user.get_full_name())
         self.assertEquals(tutorReview.tutor, self.tutorProfile.user)
@@ -240,7 +223,6 @@ class TutoringViewTutorProfileView(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, 404)
-        # self.assertEquals(ajaxResponse["statusCode"], 404)
         self.assertEquals(ajaxResponse["message"], "We think this review has been deleted!")
 
     def testUpdateTutorReviewSuccess(self):
@@ -251,7 +233,6 @@ class TutoringViewTutorProfileView(BaseTestAjax):
 
         self.assertEquals(response.status_code, 200)
         self.assertEquals(self.tutorReview.comment, testParams.comment)
-        # self.assertEquals(ajaxResponse["statusCode"], 200)
 
     def testDeleteTutorReviewSuccess(self):
         testParams = self.TestParamsTutorReview("deleteTutorReview", self.tutorReview.id)
@@ -259,7 +240,6 @@ class TutoringViewTutorProfileView(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, 200)
-        # self.assertEquals(ajaxResponse["statusCode"], 200)
         self.assertFalse(TutorReview.objects.filter(id=self.tutorReview.id).exists())
 
     def testLikeTutorReviewObjectNotFound(self):
@@ -268,7 +248,6 @@ class TutoringViewTutorProfileView(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, 404)
-        # self.assertEquals(ajaxResponse["statusCode"], 404)
         self.assertEquals(ajaxResponse["message"], "We think this review has been deleted!")
 
     def testLikeTutorReviewLike(self):
@@ -278,7 +257,6 @@ class TutoringViewTutorProfileView(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, 200)
-        # self.assertEquals(ajaxResponse["statusCode"], 200)
         self.assertEquals(ajaxResponse["likeCount"], 1)
         self.assertEquals(ajaxResponse["dislikeCount"], 0)
         self.assertTrue(self.user in self.tutorReview.likes.all())
@@ -292,7 +270,6 @@ class TutoringViewTutorProfileView(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, 200)
-        # self.assertEquals(ajaxResponse["statusCode"], 200)
         self.assertEquals(ajaxResponse["likeCount"], 0)
         self.assertEquals(ajaxResponse["dislikeCount"], 0)
         self.assertFalse(self.user in self.tutorReview.likes.all())
@@ -306,7 +283,6 @@ class TutoringViewTutorProfileView(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, 200)
-        # self.assertEquals(ajaxResponse["statusCode"], 200)
         self.assertEquals(ajaxResponse["likeCount"], 1)
         self.assertEquals(ajaxResponse["dislikeCount"], 0)
         self.assertTrue(self.user in self.tutorReview.likes.all())
@@ -318,7 +294,6 @@ class TutoringViewTutorProfileView(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, 404)
-        # self.assertEquals(ajaxResponse["statusCode"], 404)
         self.assertEquals(ajaxResponse["message"], "We think this review has been deleted!")
 
     def testDislikeTutorReviewDisLike(self):
@@ -328,7 +303,6 @@ class TutoringViewTutorProfileView(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, 200)
-        # self.assertEquals(ajaxResponse["statusCode"], 200)
         self.assertEquals(ajaxResponse["likeCount"], 0)
         self.assertEquals(ajaxResponse["dislikeCount"], 1)
         self.assertFalse(self.user in self.tutorReview.likes.all())
@@ -342,7 +316,6 @@ class TutoringViewTutorProfileView(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, 200)
-        # self.assertEquals(ajaxResponse["statusCode"], 200)
         self.assertEquals(ajaxResponse["likeCount"], 0)
         self.assertEquals(ajaxResponse["dislikeCount"], 0)
         self.assertFalse(self.user in self.tutorReview.likes.all())
@@ -356,7 +329,6 @@ class TutoringViewTutorProfileView(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, 200)
-        # self.assertEquals(ajaxResponse["statusCode"], 200)
         self.assertEquals(ajaxResponse["likeCount"], 0)
         self.assertEquals(ajaxResponse["dislikeCount"], 1)
         self.assertFalse(self.user in self.tutorReview.likes.all())

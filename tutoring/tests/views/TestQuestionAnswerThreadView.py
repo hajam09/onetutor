@@ -45,7 +45,6 @@ class QuestionAnswerThreadViewTest(BaseTestAjax):
         newComment = ajaxResponse['newComment']
 
         self.assertEquals(response.status_code, 200)
-        # self.assertEquals(ajaxResponse["statusCode"], 200)
         self.assertEquals(newComment["commentId"], self.currentQuestionAnswerCommentCount + 1)
         self.assertEquals(newComment["creatorFullName"], self.questionAnswerComment.creator.get_full_name())
         self.assertEquals(newComment["comment"], testParams.comment)
@@ -61,7 +60,6 @@ class QuestionAnswerThreadViewTest(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, 200)
-        # self.assertEquals(ajaxResponse["statusCode"], 200)
         self.assertFalse(QuestionAnswerComment.objects.filter(id=self.questionAnswerComment.id).exists())
 
     def testUpdateQuestionAnswerComment(self):
@@ -72,7 +70,6 @@ class QuestionAnswerThreadViewTest(BaseTestAjax):
         self.questionAnswerComment.refresh_from_db()
 
         self.assertEquals(response.status_code, 200)
-        # self.assertEquals(ajaxResponse["statusCode"], 200)
         self.assertEquals(updatedComment["commentId"], self.questionAnswerComment.id)
         self.assertEquals(updatedComment["comment"], "Updated new comment")
         self.assertTrue(updatedComment["edited"])
@@ -86,7 +83,6 @@ class QuestionAnswerThreadViewTest(BaseTestAjax):
         self.questionAnswerComment.refresh_from_db()
 
         self.assertEquals(response.status_code, 200)
-        # self.assertEquals(ajaxResponse["statusCode"], 200)
         self.assertEquals(ajaxResponse["likeCount"], 1)
         self.assertEquals(ajaxResponse["dislikeCount"], 0)
         self.assertEquals(self.questionAnswerComment.likes.count(), 1)
@@ -99,7 +95,6 @@ class QuestionAnswerThreadViewTest(BaseTestAjax):
         self.questionAnswerComment.refresh_from_db()
 
         self.assertEquals(response.status_code, 200)
-        # self.assertEquals(ajaxResponse["statusCode"], 200)
         self.assertEquals(ajaxResponse["likeCount"], 0)
         self.assertEquals(ajaxResponse["dislikeCount"], 1)
         self.assertEquals(self.questionAnswerComment.likes.count(), 0)
@@ -111,7 +106,6 @@ class QuestionAnswerThreadViewTest(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, 404)
-        # self.assertEquals(ajaxResponse["statusCode"], 404)
         self.assertEquals(ajaxResponse["message"], "Error updating your comment. Please try again later!")
 
     def testLikeQuestionAnswerCommentObjectNotFound(self):
@@ -120,7 +114,6 @@ class QuestionAnswerThreadViewTest(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, 404)
-        # self.assertEquals(ajaxResponse["statusCode"], 404)
         self.assertEquals(ajaxResponse["message"], "Error occurred. Please try again later!")
 
     def testDislikeQuestionAnswerCommentObjectNotFound(self):
@@ -129,7 +122,6 @@ class QuestionAnswerThreadViewTest(BaseTestAjax):
         ajaxResponse = json.loads(response.content)
 
         self.assertEquals(response.status_code, 404)
-        # self.assertEquals(ajaxResponse["statusCode"], 404)
         self.assertEquals(ajaxResponse["message"], "Error occurred. Please try again later!")
 
 

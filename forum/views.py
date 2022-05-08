@@ -74,9 +74,6 @@ def mainpage(request):
             try:
                 nextForums = paginator.page(nextIndex)
             except EmptyPage:
-                response = {
-                    "statusCode": HTTPStatus.NO_CONTENT
-                }
                 return JsonResponse(status=HTTPStatus.NO_CONTENT)
 
             forums = [
@@ -85,7 +82,6 @@ def mainpage(request):
             ]
 
             response = {
-                # "statusCode": HTTPStatus.OK,
                 "forums": forums
             }
             return JsonResponse(response, status=HTTPStatus.OK)
@@ -141,9 +137,6 @@ def communityPage(request, communityUrl):
             try:
                 nextForums = paginator.page(nextIndex)
             except EmptyPage:
-                response = {
-                    "statusCode": HTTPStatus.NO_CONTENT
-                }
                 return JsonResponse(status=HTTPStatus.NO_CONTENT)
 
             forums = [
@@ -152,7 +145,6 @@ def communityPage(request, communityUrl):
             ]
 
             response = {
-                # "statusCode": HTTPStatus.OK,
                 "forums": forums
             }
             return JsonResponse(response, status=HTTPStatus.OK)
@@ -196,16 +188,9 @@ def forumPage(request, communityUrl, forumUrl):
             comment = next((c for c in forum.forumComments.all() if str(c.id) == id), None)
 
             if comment is None:
-                response = {
-                    "statusCode": HTTPStatus.NOT_FOUND,
-                }
                 return JsonResponse(status=HTTPStatus.NOT_FOUND)
 
             comment.delete()
-
-            response = {
-                "statusCode": HTTPStatus.OK
-            }
             return JsonResponse(status=HTTPStatus.OK)
 
         elif functionality == "createForumComment":
@@ -234,7 +219,6 @@ def forumPage(request, communityUrl, forumUrl):
                 }
             ]
             response = {
-                # "statusCode": HTTPStatus.OK,
                 "forum": forum
             }
             return JsonResponse(response, status=HTTPStatus.OK)
@@ -342,7 +326,6 @@ def forumComponentJson(request, e):
 def communityOperationsAPI(request, communityId):
     if not request.user.is_authenticated:
         response = {
-            # "statusCode": HTTPStatus.UNAUTHORIZED,
             "message": "Please login to perform this action."
         }
         return JsonResponse(response, status=HTTPStatus.UNAUTHORIZED)
@@ -351,7 +334,6 @@ def communityOperationsAPI(request, communityId):
         community = Community.objects.get(id=communityId)
     except Community.DoesNotExist:
         response = {
-            # 'statusCode': HTTPStatus.NOT_FOUND,
             'message': 'Could not find a community with id {}'.format(communityId)
         }
         return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
@@ -368,20 +350,15 @@ def communityOperationsAPI(request, communityId):
 
         response = {
             "inCommunity": inCommunity,
-            # "statusCode": HTTPStatus.OK
         }
         return JsonResponse(response, status=HTTPStatus.OK)
 
-    response = {
-        'statusCode': HTTPStatus.OK
-    }
     return JsonResponse(status=HTTPStatus.OK)
 
 
 def forumOperationsAPI(request, forumId):
     if not request.user.is_authenticated:
         response = {
-            # "statusCode": HTTPStatus.UNAUTHORIZED,
             "message": "Please login to perform this action."
         }
         return JsonResponse(response, status=HTTPStatus.UNAUTHORIZED)
@@ -390,7 +367,6 @@ def forumOperationsAPI(request, forumId):
         forum = Forum.objects.get(id=forumId)
     except Forum.DoesNotExist:
         response = {
-            # 'statusCode': HTTPStatus.NOT_FOUND,
             'message': 'Could not find a forum with id {}'.format(forumId)
         }
         return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
@@ -408,7 +384,6 @@ def forumOperationsAPI(request, forumId):
         response = {
             "isWatching": isWatching,
             "newWatchCount": forum.watchers.count(),
-            # "statusCode": HTTPStatus.OK
         }
         return JsonResponse(response, status=HTTPStatus.OK)
 
@@ -417,7 +392,6 @@ def forumOperationsAPI(request, forumId):
         forum.like(request)
 
         response = {
-            # "statusCode": HTTPStatus.OK,
             "likeCount": forum.likes.count(),
             "dislikeCount": forum.dislikes.count(),
         }
@@ -428,22 +402,17 @@ def forumOperationsAPI(request, forumId):
         forum.dislike(request)
 
         response = {
-            # "statusCode": HTTPStatus.OK,
             "likeCount": forum.likes.count(),
             "dislikeCount": forum.dislikes.count(),
         }
         return JsonResponse(response, status=HTTPStatus.OK)
 
-    response = {
-        'statusCode': HTTPStatus.OK
-    }
     return JsonResponse(status=HTTPStatus.OK)
 
 
 def forumCommentOperationsAPI(request, commentId):
     if not request.user.is_authenticated:
         response = {
-            # "statusCode": HTTPStatus.UNAUTHORIZED,
             "message": "Please login to perform this action."
         }
         return JsonResponse(response, status=HTTPStatus.UNAUTHORIZED)
@@ -452,7 +421,6 @@ def forumCommentOperationsAPI(request, commentId):
         forumComment = ForumComment.objects.get(id=commentId)
     except ForumComment.DoesNotExist:
         response = {
-            # 'statusCode': HTTPStatus.NOT_FOUND,
             'message': 'Could not find a forum comment with id {}'.format(commentId)
         }
         return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
@@ -464,7 +432,6 @@ def forumCommentOperationsAPI(request, commentId):
         forumComment.like(request)
 
         response = {
-            # "statusCode": HTTPStatus.OK,
             "likeCount": forumComment.likes.count(),
             "dislikeCount": forumComment.dislikes.count(),
         }
@@ -474,13 +441,9 @@ def forumCommentOperationsAPI(request, commentId):
         forumComment.dislike(request)
 
         response = {
-            # "statusCode": HTTPStatus.OK,
             "likeCount": forumComment.likes.count(),
             "dislikeCount": forumComment.dislikes.count(),
         }
         return JsonResponse(response, status=HTTPStatus.OK)
 
-    response = {
-        'statusCode': HTTPStatus.OK
-    }
     return JsonResponse(status=HTTPStatus.OK)

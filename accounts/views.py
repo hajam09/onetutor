@@ -496,14 +496,12 @@ def requestDeleteCode(request):
 
 	if not request.is_ajax():
 		response = {
-			# "statusCode": HTTPStatus.FORBIDDEN,
 			"message": "Bad Request"
 		}
 		return JsonResponse(response, status=HTTPStatus.FORBIDDEN)
 
 	if not request.user.is_authenticated:
 		response = {
-			# "statusCode": HTTPStatus.UNAUTHORIZED,
 			"message": "Login to request a code."
 		}
 		return JsonResponse(response, status=HTTPStatus.UNAUTHORIZED)
@@ -514,7 +512,6 @@ def requestDeleteCode(request):
 	emailOperations.sendEmailForAccountDeletionCode(request, request.user)
 
 	response = {
-		# "statusCode": HTTPStatus.OK,
 		"message": "Check your email for the code."
 	}
 	return JsonResponse(response, status=HTTPStatus.OK)
@@ -524,14 +521,12 @@ def requestCopyOfData(request):
 
 	if not request.is_ajax():
 		response = {
-			# "statusCode": HTTPStatus.BAD_REQUEST,
 			"message": "Bad Request"
 		}
 		return JsonResponse(response, status=HTTPStatus.BAD_REQUEST)
 
 	if not request.user.is_authenticated:
 		response = {
-			# "statusCode": HTTPStatus.UNAUTHORIZED,
 			"message": "Login to request your data."
 		}
 		return JsonResponse(response, status=HTTPStatus.UNAUTHORIZED)
@@ -543,7 +538,6 @@ def requestCopyOfData(request):
 		emailOperations.sendTutorRequestedStoredData(request.user, requestedData)
 
 	response = {
-		# "statusCode": HTTPStatus.OK,
 		"message": "A copy is sent to your email."
 	}
 	return JsonResponse(response, status=HTTPStatus.OK)
@@ -553,7 +547,6 @@ def cookieConsent(request):
 
 	if not request.is_ajax():
 		response = {
-			# "statusCode": HTTPStatus.BAD_REQUEST,
 			"message": "Bad Request"
 		}
 		return JsonResponse(response, status=HTTPStatus.BAD_REQUEST)
@@ -579,7 +572,6 @@ def cookieConsent(request):
 		askConsent = False
 
 	response = {
-		# "statusCode": HTTPStatus.OK,
 		"askConsent": askConsent
 	}
 	return JsonResponse(response, status=HTTPStatus.OK)

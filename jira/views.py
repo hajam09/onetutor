@@ -60,10 +60,6 @@ def sprintBoardView(request, sprintUrl):
 			# ticket.points = request.GET.get('newPoint', None)
 
 		ticket.save()
-
-		response = {
-			"statusCode": HTTPStatus.OK
-		}
 		return JsonResponse(status=HTTPStatus.OK)
 
 	context = {
@@ -124,10 +120,6 @@ def backlogView(request):
 			ticket.status = "Open"
 			ticket.sprint = activeSprint
 			ticket.save()
-
-			response = {
-				"statusCode": HTTPStatus.OK
-			}
 			return JsonResponse(status=HTTPStatus.OK)
 
 		elif functionality == "moveTicketToBacklog":
@@ -137,10 +129,6 @@ def backlogView(request):
 			ticket.status = "None"
 			ticket.sprint = None
 			ticket.save()
-
-			response = {
-				"statusCode": HTTPStatus.OK
-			}
 			return JsonResponse(status=HTTPStatus.OK)
 
 	backlogTickets = Ticket.objects.filter(status=Status.NONE)
@@ -186,7 +174,6 @@ def ticketPageView(request, ticket_url):
 			response = {
 				"isWatching": isWatching,
 				"newWatchCount": ticket.watchers.count(),
-				# "statusCode": HTTPStatus.OK
 			}
 			return JsonResponse(response, status=HTTPStatus.OK)
 
@@ -198,7 +185,6 @@ def ticketPageView(request, ticket_url):
 				comment=comment,
 			)
 			response = {
-				# "statusCode": HTTPStatus.OK,
 				"pk": ticketComment.pk,
 				"comment": ticketComment.comment,
 				"likes": ticketComment.likes.count(),
@@ -213,7 +199,6 @@ def ticketPageView(request, ticket_url):
 			thisComment = next((c for c in ticketComments if str(c.id) == commentId), None)
 			if thisComment is None:
 				response = {
-					# "statusCode": HTTPStatus.NOT_FOUND,
 					"message": "We think this comment has been deleted!"
 				}
 				return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
@@ -223,7 +208,6 @@ def ticketPageView(request, ticket_url):
 			thisComment.save(update_fields=['comment', 'edited'])
 
 			response = {
-				# "statusCode": HTTPStatus.OK,
 				"id": thisComment.id,
 				"comment": thisComment.comment,
 			}
@@ -236,9 +220,6 @@ def ticketPageView(request, ticket_url):
 			if thisComment is None:
 				thisComment.delete()
 
-			response = {
-				"statusCode": HTTPStatus.OK,
-			}
 			return JsonResponse(status=HTTPStatus.OK)
 
 		elif functionality == "likeTicketComment" or functionality == "dislikeTicketComment":
@@ -247,7 +228,6 @@ def ticketPageView(request, ticket_url):
 			thisComment = next((c for c in ticketComments if str(c.id) == commentId), None)
 			if thisComment is None:
 				response = {
-					# "statusCode": HTTPStatus.NOT_FOUND,
 					"message": "We think this comment has been deleted!"
 				}
 				return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
@@ -258,7 +238,6 @@ def ticketPageView(request, ticket_url):
 				thisComment.dislike(request)
 
 			response = {
-				# "statusCode": HTTPStatus.OK,
 				"likes": thisComment.likes.count(),
 				"dislikes": thisComment.dislikes.count(),
 			}
@@ -330,7 +309,6 @@ def editTicketView(request, ticketUrl):
 
 			remainingTicketImages = TicketImage.objects.filter(ticket=ticket)
 			response = {
-				# "statusCode": HTTPStatus.OK,
 				"remainingTicketImages": [{"pk": i.pk, "image": "/media/"+str(i.image)} for i in remainingTicketImages],
 			}
 			return JsonResponse(response, status=HTTPStatus.OK)

@@ -330,7 +330,6 @@ def boardSettings(request, url):
                 name=newLabelName,
             )
             response = {
-                # 'statusCode': HTTPStatus.OK,
                 'id': newLabel.id,
                 'name': newLabel.name,
                 'colour': newLabel.colour
@@ -346,7 +345,6 @@ def boardSettings(request, url):
                     orderNo=thisBoard.boardColumns.count() + 1
                 )
                 response = {
-                    # 'statusCode': HTTPStatus.OK,
                     'id': newColumn.id,
                     'name': newColumn.name,
                     'orderNo': newColumn.orderNo
@@ -354,9 +352,6 @@ def boardSettings(request, url):
                 return JsonResponse(response, status=HTTPStatus.OK)
 
             else:
-                response = {
-                    'statusCode': HTTPStatus.ACCEPTED,
-                }
                 return JsonResponse(status=HTTPStatus.ACCEPTED)
 
         if boardName is not None:
@@ -502,7 +497,6 @@ def ticketPage(request, internalKey):
             thisTicket.subTask.add(newSubTicketObj)
 
             response = {
-                # 'statusCode': HTTPStatus.OK,
                 'id': newSubTicketObj.id,
                 'internalKey': newSubTicketObj.internalKey,
                 'summary': newSubTicketObj.summary,
@@ -534,7 +528,6 @@ def ticketPage(request, internalKey):
             )
 
             response = {
-                # 'statusCode': HTTPStatus.OK,
                 'id': newTicket.id,
                 'internalKey': newTicket.internalKey,
                 'summary': newTicket.summary,
