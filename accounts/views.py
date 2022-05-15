@@ -476,8 +476,9 @@ def passwordChange(request, uidb64, token):
 		user = None
 
 	passwordResetTokenGenerator = PasswordResetTokenGenerator()
+	verifyToken = passwordResetTokenGenerator.check_token(user, token)
 
-	if request.method == "POST" and user is not None and passwordResetTokenGenerator.check_token(user, token):
+	if request.method == "POST" and user is not None and verifyToken:
 		form = PasswordChangeForm(request, user, request.POST)
 
 		if form.is_valid():
@@ -488,7 +489,7 @@ def passwordChange(request, uidb64, token):
 		'form': PasswordChangeForm(),
 	}
 
-	TEMPLATE = 'passwordResetForm' if user is not None and passwordResetTokenGenerator.check_token(user, token) else 'activateFailed'
+	TEMPLATE = 'passwordResetForm' if user is not None and verifyToken else 'activateFailed'
 	return render(request, 'accounts/{}.html'.format(TEMPLATE), context)
 
 
