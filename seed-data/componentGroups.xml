@@ -36,12 +36,12 @@
     <Component componentGroup.internalKey="Qualification" internalKey="Master Degree" code="masterDegree" orderNo="4"/>
     <Component componentGroup.internalKey="Qualification" internalKey="Doctorate" code="doctorate" orderNo="5"/>
 
-    <Component componentGroup.internalKey="Rating Filter" internalKey="Show All" reference="-1" orderNo="1"/>
-    <Component componentGroup.internalKey="Rating Filter" internalKey="5 &#60;i class='fas fa-star'&#62;&#60;/i&#62; only" reference="5" orderNo="2"/>
-    <Component componentGroup.internalKey="Rating Filter" internalKey="4 &#60;i class='fas fa-star'&#62;&#60;/i&#62; or more" reference="4" orderNo="3"/>
-    <Component componentGroup.internalKey="Rating Filter" internalKey="3 &#60;i class='fas fa-star'&#62;&#60;/i&#62; or more" reference="3" orderNo="4"/>
-    <Component componentGroup.internalKey="Rating Filter" internalKey="2 &#60;i class='fas fa-star'&#62;&#60;/i&#62; or more" reference="2" orderNo="5"/>
-    <Component componentGroup.internalKey="Rating Filter" internalKey="1 &#60;i class='fas fa-star'&#62;&#60;/i&#62; or more" reference="1" orderNo="6"/>
+    <Component componentGroup.internalKey="Rating Filter" internalKey="Show All" reference="-1" code="-1" orderNo="1"/>
+    <Component componentGroup.internalKey="Rating Filter" internalKey="5 &#60;i class='fas fa-star'&#62;&#60;/i&#62; only" reference="5" code="5" orderNo="2"/>
+    <Component componentGroup.internalKey="Rating Filter" internalKey="4 &#60;i class='fas fa-star'&#62;&#60;/i&#62; or more" reference="4" code="4" orderNo="3"/>
+    <Component componentGroup.internalKey="Rating Filter" internalKey="3 &#60;i class='fas fa-star'&#62;&#60;/i&#62; or more" reference="3" code="3" orderNo="4"/>
+    <Component componentGroup.internalKey="Rating Filter" internalKey="2 &#60;i class='fas fa-star'&#62;&#60;/i&#62; or more" reference="2" code="2" orderNo="5"/>
+    <Component componentGroup.internalKey="Rating Filter" internalKey="1 &#60;i class='fas fa-star'&#62;&#60;/i&#62; or more" reference="1" code="1" orderNo="6"/>
 
     <Component componentGroup.internalKey="Project Status" internalKey="Done" code="DONE" colour="#28a745" icon="badge badge-success" orderNo="1"/>
     <Component componentGroup.internalKey="Project Status" internalKey="On hold" code="ON_HOLD" colour="#ffc107" icon="badge badge-warning" orderNo="2"/>

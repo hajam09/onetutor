@@ -382,8 +382,8 @@ def viewTutorProfile(request, url):
 		"questionAndAnswers": QuestionAnswer.objects.filter(answerer=tutorProfile.user).select_related('questioner', 'answerer').prefetch_related('likes', 'dislikes').order_by('-id'),
 		"tutorReviews": TutorReview.objects.filter(tutor=tutorProfile.user).order_by('date').select_related('reviewer').prefetch_related('likes', 'dislikes').order_by('-date'),
 	}
-
 	return render(request, "tutoring/tutorprofile.html", context)
+
 
 @login_required
 def tutorsQuestions(request):
@@ -445,8 +445,15 @@ def tutorsQuestions(request):
 	}
 	return render(request, "tutoring/tutorsQuestions.html", context)
 
+
 def viewStudentProfile(request, url):
-	print("bb")
+	"""
+	Student cannot change their profile picture.
+	Only the current teaching tutor or any tutor who taught within last seven days can view the profile.
+	Student or Parent can make the profile private.
+	Student or Parent can allow specific users to view the profile or prevent them from viewing the profile.
+	Parent can view the chat messages between their child and others.
+	"""
 	return render(request, "tutoring/studentProfile.html")
 
 

@@ -1,19 +1,18 @@
-from datetime import datetime
 import os
+from datetime import datetime
 from http import HTTPStatus
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import authenticate
 from django.contrib.auth import login as signIn
 from django.contrib.auth import logout as signOut
-from django.contrib.auth import user_logged_out
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.models import User
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.cache import cache
-from django.http import JsonResponse
 from django.http import Http404
+from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.utils.encoding import DjangoUnicodeDecodeError
@@ -21,23 +20,20 @@ from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_decode
 
 from accounts.forms import GetInTouchForm
-from accounts.forms import UserSettingsPasswordUpdateForm
-from accounts.forms import PasswordChangeForm
 from accounts.forms import LoginForm
+from accounts.forms import PasswordChangeForm
 from accounts.forms import RegistrationForm
+from accounts.forms import UserSettingsPasswordUpdateForm
 from accounts.models import ParentProfile
 from accounts.models import StudentProfile
 from accounts.models import TutorProfile
-from accounts.utils import generate_token
 from dashboard.models import UserLogin
 from dashboard.models import UserSession
-from onetutor.decorators.deprecated import deprecated
 from onetutor.operations import databaseOperations
 from onetutor.operations import emailOperations
 from onetutor.operations import generalOperations
 from tutoring.models import Availability
 from tutoring.models import Component
-
 
 
 def login(request):
@@ -436,7 +432,9 @@ def activateAccount(request, uidb64, token):
 	except (DjangoUnicodeDecodeError, ValueError, User.DoesNotExist):
 		user = None
 
-	if user is not None and generate_token.check_token(user, token):
+	passwordResetTokenGenerator = PasswordResetTokenGenerator()
+
+	if user is not None and passwordResetTokenGenerator.check_token(user, token):
 		user.is_active = True
 		user.save()
 
@@ -477,7 +475,9 @@ def passwordChange(request, uidb64, token):
 	except (DjangoUnicodeDecodeError, ValueError, User.DoesNotExist):
 		user = None
 
-	if request.method == "POST" and user is not None and generate_token.check_token(user, token):
+	passwordResetTokenGenerator = PasswordResetTokenGenerator()
+
+	if request.method == "POST" and user is not None and passwordResetTokenGenerator.check_token(user, token):
 		form = PasswordChangeForm(request, user, request.POST)
 
 		if form.is_valid():
@@ -488,7 +488,7 @@ def passwordChange(request, uidb64, token):
 		'form': PasswordChangeForm(),
 	}
 
-	TEMPLATE = 'passwordResetForm' if user is not None and generate_token.check_token(user, token) else 'activateFailed'
+	TEMPLATE = 'passwordResetForm' if user is not None and passwordResetTokenGenerator.check_token(user, token) else 'activateFailed'
 	return render(request, 'accounts/{}.html'.format(TEMPLATE), context)
 
 
@@ -521,6 +521,9 @@ def requestDeleteCode(request):
 
 
 def requestCopyOfData(request):
+	# TODO: Create a method to collect student and parent stored data and send it to the requested user.
+	# TODO: Parent can request data for all their children.
+	# TODO: Include all the fields from tutor profile.
 
 	if not request.is_ajax():
 		response = {
@@ -586,7 +589,7 @@ def cookieConsent(request):
 
 
 def getInTouch(request):
-
+	# TODO: Fix the error when the user does not enter the domain ending.
 	if request.method == "POST":
 		form = GetInTouchForm(request.POST)
 
