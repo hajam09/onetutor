@@ -1,6 +1,8 @@
 from django.urls import path
 
 from accounts import views
+from accounts.api import RequestDeleteCodeApiEventVersion1Component
+from accounts.api import CookieConsentApiEventVersion1Component
 
 app_name = "accounts"
 
@@ -50,4 +52,18 @@ urlpatterns += [
 urlpatterns += [
     path('get-in-touch/', views.getInTouch, name='get-in-touch'),
     path('ourFeatures/', views.ourFeatures, name='ourFeatures'),
+]
+
+# api
+urlpatterns += [
+    path(
+        'api/v1/requestDeleteCodeApiEventVersion1Component',
+        RequestDeleteCodeApiEventVersion1Component.as_view(),
+        name='requestDeleteCodeApiEventVersion1Component'
+    ),
+    path(
+        'api/v1/cookieConsentApiEventVersion1Component',
+        CookieConsentApiEventVersion1Component.as_view(),
+        name='cookieConsentApiEventVersion1Component'
+    ),
 ]
