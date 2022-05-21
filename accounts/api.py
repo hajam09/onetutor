@@ -36,7 +36,7 @@ class RequestDeleteCodeApiEventVersion1Component(View):
 @method_decorator(csrf_exempt, name='dispatch')
 class CookieConsentApiEventVersion1Component(View):
 
-    def get(self, request, *args, **kwargs):
+    def get(self, *args, **kwargs):
 
         if not self.request.session.session_key:
             self.request.session.save()
