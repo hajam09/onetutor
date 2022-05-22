@@ -141,7 +141,7 @@
 
         $.ajax(
         	{
-                url: "{% url 'jira2:ticketObjectWithWithEpicTicketApiEventVersion1Component' %}",
+                url: "{% url 'jira2:ticketObjectForIssuesInTheEpicTicketApiEventVersion1Component' %}",
         		data:
                 {
                     "project-id": "{{ticket.project.id}}",

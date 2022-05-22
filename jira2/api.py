@@ -276,7 +276,67 @@ class BoardSettingsViewBoardLabelsApiEventVersion1Component(View):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class TicketObjectWithWithEpicTicketApiEventVersion1Component(View):
+class TicketObjectForSubTasksInStandardTicketApiEventVersion1Component(View):
+
+    def post(self, *args, **kwargs):
+        projectId = self.request.POST.get("project-id", None)
+        ticketSummary = self.request.POST.get("ticket-summary", None)
+        standardTicketId = self.request.POST.get("ticket-id", None)
+
+        ticketIssueTypeComponents = cache.get("ticketIssueTypeComponents")
+        ticketSecurityComponents = cache.get("ticketSecurityComponents")
+        ticketPriorityComponents = cache.get("ticketPriorityComponents")
+
+        project = Project.objects.get(id=projectId)
+        newTicketNumber = project.projectTickets.count() + 1
+
+        ticket = Ticket()
+        ticket.internalKey = project.code + "-" + str(newTicketNumber)
+        ticket.summary = ticketSummary
+        ticket.project = project
+        ticket.reporter = self.request.user
+        ticket.issueType = next((i for i in ticketIssueTypeComponents if i.code == "SUB_TASK"), None)
+        ticket.securityLevel = next((i for i in ticketSecurityComponents if i.code == "INTERNAL"), None)
+        ticket.priority = next((i for i in ticketPriorityComponents if i.code == "MEDIUM"), None)
+
+        if standardTicketId is not None:
+            standardTicket = Ticket.objects.get(id=standardTicketId)
+            ticket.sprint = standardTicket.sprint
+            ticket.status = standardTicket.status
+            ticket.board = standardTicket.board
+            ticket.column = standardTicket.column
+
+            ticket.save()
+            standardTicket.subTask.add(ticket)
+
+            response = {
+                "success": True,
+                "data": {
+                    "id": ticket.id,
+                    "internalKey": ticket.internalKey,
+                    "summary": ticket.summary,
+                    "link": "/jira2/ticket/" + str(ticket.internalKey),
+                    "issueType": {
+                        "internalKey": ticket.issueType.internalKey,
+                        "icon": "/static/" + ticket.issueType.icon,
+                    },
+                    "priority": {
+                        "internalKey": ticket.priority.internalKey,
+                        "icon": "/static/" + ticket.priority.icon
+                    },
+                }
+            }
+            return JsonResponse(response, status=HTTPStatus.OK)
+
+        response = {
+            "success": False,
+            "message": "Unable to create a subtask."
+        }
+        return JsonResponse(response, status=HTTPStatus.BAD_REQUEST)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class TicketObjectForIssuesInTheEpicTicketApiEventVersion1Component(View):
 
     def post(self, *args, **kwargs):
         projectId = self.request.POST.get("project-id", None)
