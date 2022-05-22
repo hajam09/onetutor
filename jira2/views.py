@@ -287,7 +287,7 @@ def boardSettings(request, url):
         labelId = request.GET.get('label-id', None)
 
         if labelId is not None:
-            label = databaseOperations.getObjectById(boardLabels, labelId)
+            label = databaseOperations.getObjectByIdOrNone(boardLabels, labelId)
             updateFields = []
 
             if updateLabelName is not None:
@@ -302,7 +302,7 @@ def boardSettings(request, url):
 
 
         if columnId is not None:
-            column = databaseOperations.getObjectById(boardColumns, columnId)
+            column = databaseOperations.getObjectByIdOrNone(boardColumns, columnId)
             updateFields = []
 
             if updateColumnName is not None:
@@ -366,11 +366,11 @@ def boardSettings(request, url):
             thisBoard.isPrivate = boardVisibility == 'visibility-members'
 
         if addProject is not None:
-            _project = databaseOperations.getObjectById(allProjects, addProject)
+            _project = databaseOperations.getObjectByIdOrNone(allProjects, addProject)
             thisBoard.projects.add(_project)
 
         if removeProject is not None:
-            _project = databaseOperations.getObjectById(allProjects, removeProject)
+            _project = databaseOperations.getObjectByIdOrNone(allProjects, removeProject)
             thisBoard.projects.remove(_project)
 
         if addAdmin is not None:

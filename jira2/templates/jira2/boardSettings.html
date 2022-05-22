@@ -227,11 +227,13 @@
 
 			$.ajax(
 				{
+					url: "{% url 'jira2:boardSettingsViewBoardColumnsApiEventVersion1Component' boardUrl=board.url %}",
 					data:
 					{
-						'update-column-name': columnName,
+						'column-name': columnName,
 						'column-id': '{{column.id}}',
 					},
+					type: 'PUT',
 					dataType: 'json',
 				}
 			);
@@ -253,11 +255,13 @@
 
 			$.ajax(
 				{
+					url: "{% url 'jira2:boardSettingsViewBoardLabelsApiEventVersion1Component' boardUrl=board.url %}",
 					data:
 					{
-						'update-label-name': labelName,
+						'label-name': labelName,
 						'label-id': '{{label.id}}',
 					},
+					type: "PUT",
 					dataType: 'json',
 				}
 			);
@@ -270,11 +274,13 @@
 
 			$.ajax(
 				{
+					url: "{% url 'jira2:boardSettingsViewBoardLabelsApiEventVersion1Component' boardUrl=board.url %}",
 					data:
 					{
-						'update-label-colour': labelColour,
+						'label-colour': labelColour,
 						'label-id': '{{label.id}}',
 					},
+					type: "PUT",
 					dataType: 'json',
 				}
 			);
@@ -288,8 +294,6 @@
 		var boardAdminIds = $('#board-admins').val();
 		var boardMemberIds = $('#board-members').val();
 		var boardVisibility = $('input[name="board-visibility"]:checked').val();
-
-
 
 		if (boardName && !boardName.trim() || boardName.length==0)
 		{
@@ -322,15 +326,14 @@
 				dataType: 'json',
 			}
 		);
-
-
 	}
+
+	// Start of General Settings
 
 	$('input[type=radio][name=board-visibility]').change(function() {
 
 		updateBoardGeneralDetails();
 	});
-
 
 	$( "#board-name" ).focusin(function() {
 		$(this).removeAttr("readonly");
@@ -342,7 +345,6 @@
 
 		updateBoardGeneralDetails();
 	});
-
 
 	$('#board-projects').on('select2:select', function (e) {
 
@@ -374,43 +376,53 @@
 		updateBoardGeneralDetails();
 	});
 
+	// End of General Settings
+
 	function createBoardLabel()
 	{
 		var labelName = $('#board-label-name').val();
 		$('#board-label-name').val('');
 
+		if (labelName && !labelName.trim() || labelName.length==0)
+			return;
+
 		$.ajax(
 			{
+				url: "{% url 'jira2:boardSettingsViewBoardLabelsApiEventVersion1Component' boardUrl=board.url %}",
 				data:
 				{
-					'new-label-name': labelName,
+					'label-name': labelName,
 				},
+				type: 'POST',
 				dataType: 'json',
 				success: function(response)
 				{
+					if (!response.success)
+						return;
+
 					$('#board-labels-container').append(`
-						<div class="card" id="label-container-${response.id}">
+						<div class="card" id="label-container-${response.data.id}">
 	        				<div class="card-body" style="height: 10px;">
 			        			<div class="row">
 			        				<div class="col">
-			        					<input type="text" id="board-label-name-${response.id}" class="form-control form-control-sm" value="${response.name}" placeholder="Label name" style="margin-top: -15px;" readonly>
+			        					<input type="text" id="board-label-name-${response.data.id}" class="form-control form-control-sm" value="${response.data.name}" placeholder="Label name" style="margin-top: -15px;" readonly>
 			        				</div>
 			        				<div class="col-auto" style="margin-top: -13px;">
-			        					<input type="color" id="board-label-colour-${response.id}" value="${response.colour}">
+			        					<input type="color" id="board-label-colour-${response.data.id}" value="${response.data.colour}">
 			        				</div>
 			        				<div class="col-auto">
-			        					<button type="button" class="btn btn-danger btn-sm" onclick="deleteLabel('${response.id}');" style="margin-top: -24px;">Delete Label</button>
+			        					<button type="button" class="btn btn-danger btn-sm" onclick="deleteLabel('${response.data.id}');" style="margin-top: -24px;">Delete Label</button>
 			        				</div>
 			        			</div>
 	        				</div>
 	        			</div>`
 		        	);
 
-		        	$( "#board-label-name-" + response.id  ).focusin(function() {
+		        	$( "#board-label-name-" + response.data.id  ).focusin(function() {
 						$(this).removeAttr("readonly");
 					});
 
-					$( "#board-label-name-" + response.id  ).focusout(function() {
+					$( "#board-label-name-" + response.data.id  ).focusout(function() {
 						$(this).attr('readonly','');
 
 						var labelName = $(this).val();
@@ -420,28 +432,32 @@
 
 						$.ajax(
 							{
+								url: "{% url 'jira2:boardSettingsViewBoardLabelsApiEventVersion1Component' boardUrl=board.url %}",
 								data:
 								{
-									'update-label-name': labelName,
-									'label-id': response.id,
+									'label-name': labelName,
+									'label-id': response.data.id,
 								},
+								type: 'PUT',
 								dataType: 'json',
 							}
 						);
 					});
 
-					$( "#board-label-colour-" + response.id  ).focusout(function() {
+					$( "#board-label-colour-" + response.data.id  ).focusout(function() {
 						$(this).attr('readonly','');
 
 						var labelColour = $(this).val();
 
 						$.ajax(
 							{
+								url: "{% url 'jira2:boardSettingsViewBoardLabelsApiEventVersion1Component' boardUrl=board.url %}",
 								data:
 								{
-									'update-label-colour': labelColour,
-									'label-id': response.id,
+									'label-colour': labelColour,
+									'label-id': response.data.id,
 								},
+								type: 'PUT',
 								dataType: 'json',
 							}
 						);
@@ -455,37 +471,43 @@
 	{
 		var columnName = $('#board-column-name').val();
 		$('#board-column-name').val('');
+
+		if (columnName && !columnName.trim() || columnName.length==0)
+			return;
+
 		$.ajax(
 			{
+				url: "{% url 'jira2:boardSettingsViewBoardColumnsApiEventVersion1Component' boardUrl=board.url %}",
 				data:
 				{
-					'new-column-name': columnName,
+					'column-name': columnName,
 				},
+				type: 'POST',
 				dataType: 'json',
 				success: function(response)
 				{
-					if (response.statusCode == 200)
+					if (response.success)
 					{
 						$('#board-columns-container').append(`
-							<div class="card" id="column-container-${response.id}">
+							<div class="card" id="column-container-${response.data.id}">
 		        				<div class="card-body" style="height: 10px;">
 				        			<div class="row">
 				        				<div class="col">
-				        					<input type="text" id="board-column-name-${response.id}" class="form-control form-control-sm" value="${response.name}" placeholder="Column name" style="margin-top: -15px;" readonly>
+				        					<input type="text" id="board-column-name-${response.data.id}" class="form-control form-control-sm" value="${response.data.name}" placeholder="Column name" style="margin-top: -15px;" readonly>
 				        				</div>
 				        				<div class="col-auto">
-				        					<button type="button" class="btn btn-danger btn-sm" onclick="deleteColumn('${response.id}');" style="margin-top: -24px;">Delete Column</button>
+				        					<button type="button" class="btn btn-danger btn-sm" onclick="deleteColumn('${response.data.id}');" style="margin-top: -24px;">Delete Column</button>
 				        				</div>
 				        			</div>
 		        				</div>
 		        			</div>`
 		        		);
 
-		        		$( "#board-column-name-" + response.id ).focusin(function() {
+		        		$( "#board-column-name-" + response.data.id ).focusin(function() {
 							$(this).removeAttr("readonly");
 						});
 
-						$( "#board-column-name-" + response.id ).focusout(function() {
+						$( "#board-column-name-" + response.data.id ).focusout(function() {
 							$(this).attr('readonly','');
 
 							var columnName = $(this).val();
@@ -495,11 +517,13 @@
 
 							$.ajax(
 								{
+									url: "{% url 'jira2:boardSettingsViewBoardColumnsApiEventVersion1Component' boardUrl=board.url %}",
 									data:
 									{
-										'update-column-name': columnName,
-										'column-id': response.id,
+										'column-name': columnName,
+										'column-id': response.data.id,
 									},
+									type: 'PUT',
 									dataType: 'json',
 								}
 							);
@@ -518,10 +542,12 @@
 					const newOrder = $.map($('#board-columns-container > div'), div => div.id);
 					$.ajax(
 						{
+							url: "{% url 'jira2:boardColumnsBulkOrderChangeApiEventVersion1Component' boardUrl=board.url %}",
 							data:
 							{
 								'new-column-order': newOrder,
 							},
+							type: 'PUT',
 							dataType: 'json',
 						}
 					);
@@ -535,10 +561,12 @@
 		$('#column-container-'+columnId).remove();
 		$.ajax(
 			{
+				url: "{% url 'jira2:boardSettingsViewBoardColumnsApiEventVersion1Component' boardUrl=board.url %}",
 				data:
 				{
-					'remove-column': columnId,
+					'column-id': columnId,
 				},
+				type: 'DELETE',
 				dataType: 'json',
 			}
 		);
@@ -549,10 +577,12 @@
 		$('#label-container-'+labelId).remove();
 		$.ajax(
 			{
+				url: "{% url 'jira2:boardSettingsViewBoardLabelsApiEventVersion1Component' boardUrl=board.url %}",
 				data:
 				{
-					'remove-label': labelId,
+					'label-id': labelId,
 				},
+				type: 'DELETE',
 				dataType: 'json',
 			}
 		);
