@@ -281,97 +281,114 @@
 		});
 	{% endfor %}
 
-	function updateBoardGeneralDetails()
-	{
-		var boardName = $('#board-name').val();
-		var boardProjects = $('#board-projects').val();
-		var boardAdminIds = $('#board-admins').val();
-		var boardMemberIds = $('#board-members').val();
-		var boardVisibility = $('input[name="board-visibility"]:checked').val();
-
-
-
-		if (boardName && !boardName.trim() || boardName.length==0)
-		{
-			var boardName = localStorage.getItem('previousBoardName');
-			$('#board-name').val(boardName);
-		}
-
-		if (boardProjects == null)
-			boardProjects = [];
-
-		if (boardAdminIds == null)
-			boardAdminIds = [];
-
-		if (boardMemberIds == null)
-			boardMemberIds = [];
-
+	$('input[type=radio][name=board-visibility]').change(function() {
 
 		$.ajax(
 			{
-				url: "{% url 'jira2:boardSettingsViewGeneralDetailsApiEventVersion1Component' boardUrl=board.url %}",
-				type: 'PUT',
 				data:
 				{
-					'board-name': boardName,
-					'board-projects': boardProjects,
-					'board-admins': boardAdminIds,
-					'board-members': boardMemberIds,
-					'board-visibility': boardVisibility,
+					'board-visibility': this.value,
 				},
 				dataType: 'json',
 			}
 		);
-
-
-	}
-
-	$('input[type=radio][name=board-visibility]').change(function() {
-
-		updateBoardGeneralDetails();
 	});
 
 
 	$( "#board-name" ).focusin(function() {
 		$(this).removeAttr("readonly");
-		localStorage.setItem('previousBoardName', $(this).val());
 	});
 
 	$( "#board-name" ).focusout(function() {
 		$(this).attr('readonly','');
 
-		updateBoardGeneralDetails();
+		var boardName = $(this).val();
+
+		if (boardName && !boardName.trim() || boardName.length==0)
+			return;
+
+		$.ajax(
+			{
+				data:
+				{
+					'board-name': boardName,
+				},
+				dataType: 'json',
+			}
+		);
 	});
 
 
 	$('#board-projects').on('select2:select', function (e) {
-
-		updateBoardGeneralDetails();
+		$.ajax(
+			{
+				data:
+				{
+					'add-project': e.params.data.id,
+				},
+				dataType: 'json',
+			}
+		);
 	});
 
 	$('#board-projects').on('select2:unselect', function (e) {
-		
-		updateBoardGeneralDetails();
+		$.ajax(
+			{
+				data:
+				{
+					'remove-project': e.params.data.id,
+				},
+				dataType: 'json',
+			}
+		);
 	});
 
 	$('#board-admins').on('select2:select', function (e) {
-		
-		updateBoardGeneralDetails();
+		$.ajax(
+			{
+				data:
+				{
+					'add-admin': e.params.data.id,
+				},
+				dataType: 'json',
+			}
+		);
 	});
 
 	$('#board-admins').on('select2:unselect', function (e) {
-		
-		updateBoardGeneralDetails();
+		$.ajax(
+			{
+				data:
+				{
+					'remove-admin': e.params.data.id,
+				},
+				dataType: 'json',
+			}
+		);
 	});
 
 	$('#board-members').on('select2:select', function (e) {
-		
-		updateBoardGeneralDetails();
+		$.ajax(
+			{
+				data:
+				{
+					'add-member': e.params.data.id,
+				},
+				dataType: 'json',
+			}
+		);
 	});
 
 	$('#board-members').on('select2:unselect', function (e) {
-		
-		updateBoardGeneralDetails();
+		$.ajax(
+			{
+				data:
+				{
+					'remove-member': e.params.data.id,
+				},
+				dataType: 'json',
+			}
+		);
 	});
 
 	function createBoardLabel()

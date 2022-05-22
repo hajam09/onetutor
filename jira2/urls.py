@@ -1,6 +1,7 @@
 from django.urls import path
 
 from jira2 import views
+from jira2.api import BoardSettingsViewGeneralDetailsApiEventVersion1Component
 
 app_name = "jira2"
 
@@ -15,4 +16,13 @@ urlpatterns = [
     path('boards/', views.boards, name='boards-page'),
     path('board/<slug:url>/', views.board, name='board-page'),
     path('board/<slug:url>/settings/', views.boardSettings, name='board-settings'),
+]
+
+# api
+urlpatterns += [
+    path(
+        'tutoring/api/v1/boardSettingsViewGeneralDetailsApiEventVersion1Component/<slug:boardUrl>',
+        BoardSettingsViewGeneralDetailsApiEventVersion1Component.as_view(),
+        name='boardSettingsViewGeneralDetailsApiEventVersion1Component'
+    ),
 ]
