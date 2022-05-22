@@ -141,32 +141,36 @@
 
         $.ajax(
         	{
+                url: "{% url 'jira2:ticketObjectWithWithEpicTicketApiEventVersion1Component' %}",
         		data:
                 {
-                    'new-issue-name': ticketName,
-                    'new-issue-type': issueType,
+                    "project-id": "{{ticket.project.id}}",
+                    'ticket-summary': ticketName,
+                    'issue-type': issueType,
+                    'epic-ticket-id': "{{ticket.id}}",
                 },
+                type: "POST",
                 dataType: 'json',
                 success: function(response)
                 {
-                    if (response.statusCode == 200)
+                    if (response.success)
                     {
                         $('#epic-tickets-list-container').append(
                             `
-                            <div class="card" id="epic-ticket-container-${response.id}">
+                            <div class="card" id="epic-ticket-container-${response.data.id}">
                                 <div class="card-body" style="height: 10px;">
                                     <div class="row">
                                         <div class="col-auto" style="margin-top: -13px; margin-left: -10px;">
-                                            <img src='/static/${response.issueType.icon}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="${response.issueType.internalKey}">
+                                            <img src='${response.data.issueType.icon}' width="20" height="20" data-toggle="tooltip" data-placement="top" title="${response.data.issueType.internalKey}">
                                         </div>
                                         <div class="col-auto" style="margin-top: -12px; margin-left: -15px;">
-                                            <a href="/jira2/ticket/${response.internalKey}">${response.internalKey}</a>
+                                            <a href="${response.data.link}">${response.data.internalKey}</a>
                                         </div>
                                         <div class="col" style="margin-top: -12px; margin-left: -15px;">
-                                            <span>${response.summary}</span>
+                                            <span>${response.data.summary}</span>
                                         </div>
                                         <div class="col-auto" style="margin-top: -18px; margin-left: -15px;">
-                                            <img class="avatar filter-by-alt" src="/static/${response.priority.icon}" data-filter-by="alt" data-filter-by="alt" data-toggle="tooltip" data-placement="top" title="${response.priority.internalKey}">
+                                            <img class="avatar filter-by-alt" src="${response.data.priority.icon}" data-filter-by="alt" data-filter-by="alt" data-toggle="tooltip" data-placement="top" title="${response.data.priority.internalKey}">
                                         </div>
                                         <div class="col-auto" style="margin-top: -18px; margin-left: -15px;">
                                             <img class="avatar filter-by-alt" src="https://cdn3.iconfinder.com/data/icons/avatars-round-flat/33/man5-512.png" data-filter-by="alt">

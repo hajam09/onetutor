@@ -1,11 +1,12 @@
 from http import HTTPStatus
 
+from django.core.cache import cache
 from django.http import QueryDict, JsonResponse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 
-from jira2.models import Board, Column, Label
+from jira2.models import Board, Column, Label, Ticket, Project
 from onetutor.operations import databaseOperations
 
 
@@ -115,7 +116,7 @@ class BoardSettingsViewBoardColumnsApiEventVersion1Component(View):
         columnName = put.get("column-name", column.name)
         column.name = columnName
         column.save(update_fields=["name"])
-        
+
         response = {
             "success": True
         }
@@ -270,5 +271,60 @@ class BoardSettingsViewBoardLabelsApiEventVersion1Component(View):
 
         response = {
             "success": True
+        }
+        return JsonResponse(response, status=HTTPStatus.OK)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class TicketObjectWithWithEpicTicketApiEventVersion1Component(View):
+
+    def post(self, *args, **kwargs):
+        projectId = self.request.POST.get("project-id", None)
+        ticketSummary = self.request.POST.get("ticket-summary", None)
+        issueType = self.request.POST.get("issue-type", None)
+        epicTicketId = self.request.POST.get("epic-ticket-id", None)
+
+        ticketIssueTypeComponents = cache.get("ticketIssueTypeComponents")
+        ticketSecurityComponents = cache.get("ticketSecurityComponents")
+        ticketStatusComponents = cache.get("ticketStatusComponents")
+        ticketPriorityComponents = cache.get("ticketPriorityComponents")
+
+        project = Project.objects.get(id=projectId)
+        newTicketNumber = project.projectTickets.count() + 1
+
+        ticket = Ticket()
+        ticket.internalKey = project.code + "-" + str(newTicketNumber)
+        ticket.summary = ticketSummary
+        ticket.project = project
+        ticket.reporter = self.request.user
+        ticket.issueType = next((i for i in ticketIssueTypeComponents if i.code == issueType), None)
+        ticket.securityLevel = next((i for i in ticketSecurityComponents if i.code == "EXTERNAL"), None)
+        ticket.status = next((i for i in ticketStatusComponents if i.code == "BACKLOG"), None)
+        ticket.priority = next((i for i in ticketPriorityComponents if i.code == "MEDIUM"), None)
+
+        if epicTicketId is not None:
+            epicTicket = Ticket.objects.get(id=epicTicketId, issueType__code="EPIC")
+            ticket.board = epicTicket.board
+            ticket.column = epicTicket.column
+            ticket.epic = epicTicket
+
+        ticket.save()
+
+        response = {
+            "success": True,
+            "data": {
+                "id": ticket.id,
+                "internalKey": ticket.internalKey,
+                "summary": ticket.summary,
+                "link": "/jira2/ticket/" + str(ticket.internalKey),
+                "issueType": {
+                    "internalKey": ticket.issueType.internalKey,
+                    "icon": "/static/" + ticket.issueType.icon,
+                },
+                "priority": {
+                    "internalKey": ticket.priority.internalKey,
+                    "icon": "/static/" + ticket.priority.icon
+                },
+            }
         }
         return JsonResponse(response, status=HTTPStatus.OK)

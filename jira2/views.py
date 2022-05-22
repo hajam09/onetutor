@@ -253,6 +253,7 @@ def boardSettings(request, url):
     boardLabels = thisBoard.boardLabels.all()
 
     if request.is_ajax():
+        # Transformed to API Component
         # update board
         boardName = request.GET.get('board-name', None)
         boardVisibility = request.GET.get('board-visibility', None)

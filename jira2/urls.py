@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from django.urls import path
 
 from jira2 import views
@@ -5,6 +6,8 @@ from jira2.api import BoardColumnsBulkOrderChangeApiEventVersion1Component
 from jira2.api import BoardSettingsViewBoardColumnsApiEventVersion1Component
 from jira2.api import BoardSettingsViewBoardLabelsApiEventVersion1Component
 from jira2.api import BoardSettingsViewGeneralDetailsApiEventVersion1Component
+from jira2.api import TicketObjectWithWithEpicTicketApiEventVersion1Component
+from tutoring.models import Component
 
 app_name = "jira2"
 
@@ -43,4 +46,14 @@ urlpatterns += [
         BoardSettingsViewBoardLabelsApiEventVersion1Component.as_view(),
         name='boardSettingsViewBoardLabelsApiEventVersion1Component'
     ),
+    path(
+        'tutoring/api/v1/ticketObjectWithWithEpicTicketApiEventVersion1Component',
+        TicketObjectWithWithEpicTicketApiEventVersion1Component.as_view(),
+        name='ticketObjectWithWithEpicTicketApiEventVersion1Component'
+    ),
 ]
+
+cache.set('ticketIssueTypeComponents', Component.objects.filter(componentGroup__internalKey="Ticket Issue Type"))
+cache.set('ticketSecurityComponents', Component.objects.filter(componentGroup__internalKey="Ticket Security"))
+cache.set('ticketStatusComponents', Component.objects.filter(componentGroup__internalKey="Ticket Status"))
+cache.set('ticketPriorityComponents', Component.objects.filter(componentGroup__internalKey="Ticket Priority"))
