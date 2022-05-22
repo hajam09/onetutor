@@ -13,10 +13,13 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib import admin
+from django.core.cache import cache
+from django.urls import path, include
+
+from tutoring.models import Component
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -39,3 +42,8 @@ if settings.DEBUG:
     urlpatterns += [
         path('__debug__/', include(debug_toolbar.urls)),
     ]
+
+cache.set('ticketIssueTypeComponents', Component.objects.filter(componentGroup__internalKey="Ticket Issue Type"))
+cache.set('ticketSecurityComponents', Component.objects.filter(componentGroup__internalKey="Ticket Security"))
+cache.set('ticketStatusComponents', Component.objects.filter(componentGroup__internalKey="Ticket Status"))
+cache.set('ticketPriorityComponents', Component.objects.filter(componentGroup__internalKey="Ticket Priority"))

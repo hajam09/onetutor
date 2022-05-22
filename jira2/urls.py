@@ -1,4 +1,3 @@
-from django.core.cache import cache
 from django.urls import path
 
 from jira2 import views
@@ -9,7 +8,6 @@ from jira2.api import BoardSettingsViewGeneralDetailsApiEventVersion1Component
 from jira2.api import TicketObjectBaseDataUpdateApiEventVersion1Component
 from jira2.api import TicketObjectForIssuesInTheEpicTicketApiEventVersion1Component
 from jira2.api import TicketObjectForSubTasksInStandardTicketApiEventVersion1Component
-from tutoring.models import Component
 
 app_name = "jira2"
 
@@ -64,8 +62,3 @@ urlpatterns += [
         name='ticketObjectBaseDataUpdateApiEventVersion1Component'
     ),
 ]
-
-cache.set('ticketIssueTypeComponents', Component.objects.filter(componentGroup__internalKey="Ticket Issue Type"))
-cache.set('ticketSecurityComponents', Component.objects.filter(componentGroup__internalKey="Ticket Security"))
-cache.set('ticketStatusComponents', Component.objects.filter(componentGroup__internalKey="Ticket Status"))
-cache.set('ticketPriorityComponents', Component.objects.filter(componentGroup__internalKey="Ticket Priority"))
