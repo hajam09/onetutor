@@ -5,6 +5,7 @@ from jira2.api import BoardColumnsBulkOrderChangeApiEventVersion1Component
 from jira2.api import BoardSettingsViewBoardColumnsApiEventVersion1Component
 from jira2.api import BoardSettingsViewBoardLabelsApiEventVersion1Component
 from jira2.api import BoardSettingsViewGeneralDetailsApiEventVersion1Component
+from jira2.api import TicketDetailsUpdateApiEventVersion1Component
 from jira2.api import TicketObjectBaseDataUpdateApiEventVersion1Component
 from jira2.api import TicketObjectForIssuesInTheEpicTicketApiEventVersion1Component
 from jira2.api import TicketObjectForSubTasksInStandardTicketApiEventVersion1Component
@@ -27,38 +28,43 @@ urlpatterns = [
 # api
 urlpatterns += [
     path(
-        'tutoring/api/v1/boardSettingsViewGeneralDetailsApiEventVersion1Component/<slug:boardUrl>',
+        'jira2/api/v1/boardSettingsViewGeneralDetailsApiEventVersion1Component/<slug:boardUrl>',
         BoardSettingsViewGeneralDetailsApiEventVersion1Component.as_view(),
         name='boardSettingsViewGeneralDetailsApiEventVersion1Component'
     ),
     path(
-        'tutoring/api/v1/boardSettingsViewBoardColumnsApiEventVersion1Component/<slug:boardUrl>',
+        'jira2/api/v1/boardSettingsViewBoardColumnsApiEventVersion1Component/<slug:boardUrl>',
         BoardSettingsViewBoardColumnsApiEventVersion1Component.as_view(),
         name='boardSettingsViewBoardColumnsApiEventVersion1Component'
     ),
     path(
-        'tutoring/api/v1/boardColumnsBulkOrderChangeApiEventVersion1Component/<slug:boardUrl>',
+        'jira2/api/v1/boardColumnsBulkOrderChangeApiEventVersion1Component/<slug:boardUrl>',
         BoardColumnsBulkOrderChangeApiEventVersion1Component.as_view(),
         name='boardColumnsBulkOrderChangeApiEventVersion1Component'
     ),
     path(
-        'tutoring/api/v1/boardSettingsViewBoardLabelsApiEventVersion1Component/<slug:boardUrl>',
+        'jira2/api/v1/boardSettingsViewBoardLabelsApiEventVersion1Component/<slug:boardUrl>',
         BoardSettingsViewBoardLabelsApiEventVersion1Component.as_view(),
         name='boardSettingsViewBoardLabelsApiEventVersion1Component'
     ),
     path(
-        'tutoring/api/v1/ticketObjectForIssuesInTheEpicTicketApiEventVersion1Component',
+        'jira2/api/v1/ticketObjectForIssuesInTheEpicTicketApiEventVersion1Component',
         TicketObjectForIssuesInTheEpicTicketApiEventVersion1Component.as_view(),
         name='ticketObjectForIssuesInTheEpicTicketApiEventVersion1Component'
     ),
     path(
-        'tutoring/api/v1/ticketObjectForSubTasksInStandardTicketApiEventVersion1Component',
+        'jira2/api/v1/ticketObjectForSubTasksInStandardTicketApiEventVersion1Component',
         TicketObjectForSubTasksInStandardTicketApiEventVersion1Component.as_view(),
         name='ticketObjectForSubTasksInStandardTicketApiEventVersion1Component'
     ),
     path(
-        'tutoring/api/v1/ticketObjectBaseDataUpdateApiEventVersion1Component/<int:ticketId>',
+        'jira2/api/v1/ticketObjectBaseDataUpdateApiEventVersion1Component/<int:ticketId>',
         TicketObjectBaseDataUpdateApiEventVersion1Component.as_view(),
         name='ticketObjectBaseDataUpdateApiEventVersion1Component'
+    ),
+    path(
+        'jira2/api/v1/ticketDetailsUpdateApiEventVersion1Component/<int:ticketId>',
+        TicketDetailsUpdateApiEventVersion1Component.as_view(),
+        name='ticketDetailsUpdateApiEventVersion1Component'
     ),
 ]

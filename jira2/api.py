@@ -424,3 +424,22 @@ class TicketObjectForIssuesInTheEpicTicketApiEventVersion1Component(View):
             }
         }
         return JsonResponse(response, status=HTTPStatus.OK)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class TicketDetailsUpdateApiEventVersion1Component(View):
+
+    def put(self, *args, **kwargs):
+        ticketId = self.kwargs.get("ticketId", None)
+        put = QueryDict(self.request.body)
+
+        try:
+            ticket = Ticket.objects.get(id=ticketId)
+        except Ticket.DoesNotExist:
+            response = {
+                "success": False,
+                "message": "Unable to find the ticket to update"
+            }
+            return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
+
+        return JsonResponse({})
