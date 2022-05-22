@@ -126,74 +126,81 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
 <script type="text/javascript">
-    $( "#ticket-summary" ).focusout(function() {
-        var ticketSummary = $(this).val();
-        $.ajax(
-            {
-                data:
-                {
-                    'update-ticket-summary': ticketSummary,
-                },
-                dataType: 'json',
-            }
-        );
-    });
 
-    function updateTicketDescription()
+    window.onload = function()
     {
+        // ticket baseInformation
+        data = {
+            "ticketSummary": "{{ticket.summary}}",
+            "ticketDescription": "{{ticket.description}}",
+            "ticketUserImpact": "{{ticket.userImpact}}",
+            "ticketReleaseImpact": "{{ticket.releaseImpact}}",
+            "ticketAutomaticTestingReason": "{{ticket.automatedTestingReason}}",
+        }
+        localStorage.setItem('ticketInitialData', JSON.stringify(data));
+    }
+
+    function updateTicketBaseData()
+    {
+        var ticketInitialData = localStorage.getItem('ticketInitialData');
+        var ticketInitialData = JSON.parse(ticketInitialData);
+
+        var ticketSummary = $( "#ticket-summary" ).val();
         var ticketDescription = $('[name="ticket-description"]').val();
-        $.ajax(
-            {
-                data:
-                {
-                    'update-ticket-description': ticketDescription,
-                },
-                dataType: 'json',
-            }
-        );
-    }
-
-    function updateUserImpact()
-    {
         var ticketUserImpact = $('[name="ticket-user-impact"]').val();
-        $.ajax(
-            {
-                data:
-                {
-                    'update-ticket-user-impact': ticketUserImpact,
-                },
-                dataType: 'json',
-            }
-        );
-    }
-
-    function updateReleaseImpact()
-    {
         var ticketReleaseImpact = $('[name="ticket-release-impact"]').val();
+        var ticketAutomaticTestingReason = $('[name="ticket-automatic-testing-reason"]').val();
+
+        var toUpdate = {};
+
+        if (ticketInitialData.ticketSummary != ticketSummary)
+        {
+            toUpdate.ticketSummary = ticketSummary;
+            ticketInitialData.ticketSummary = ticketSummary;
+        }
+
+        if (ticketInitialData.ticketDescription != ticketDescription)
+        {
+            toUpdate.ticketDescription = ticketDescription;
+            ticketInitialData.ticketDescription = ticketDescription;
+        }
+
+        if (ticketInitialData.ticketUserImpact != ticketUserImpact)
+        {
+            toUpdate.ticketUserImpact = ticketUserImpact;
+            ticketInitialData.ticketUserImpact = ticketUserImpact;
+        }
+
+        if (ticketInitialData.ticketReleaseImpact != ticketReleaseImpact)
+        {
+            toUpdate.ticketReleaseImpact = ticketReleaseImpact;
+            ticketInitialData.ticketReleaseImpact = ticketReleaseImpact;
+        }
+
+        if (ticketInitialData.ticketAutomaticTestingReason != ticketAutomaticTestingReason)
+        {
+            toUpdate.ticketAutomaticTestingReason = ticketAutomaticTestingReason;
+            ticketInitialData.ticketAutomaticTestingReason = ticketAutomaticTestingReason;
+        }
+
+        localStorage.setItem('ticketInitialData', JSON.stringify(ticketInitialData));
+
+        if (Object.keys(toUpdate).length == 0)
+            return;
+
         $.ajax(
             {
-                data:
-                {
-                    'update-ticket-release-impact': ticketReleaseImpact,
-                },
+                url: "{% url 'jira2:ticketObjectBaseDataUpdateApiEventVersion1Component' ticketId=ticket.id %}",
+                data: toUpdate,
+                type: "PUT",
                 dataType: 'json',
             }
         );
     }
 
-    function updateAutomaticTestingReason()
-    {
-        var ticketAutomaticTestingReason = $('[name="ticket-automatic-testing-reason"]').val();
-        $.ajax(
-            {
-                data:
-                {
-                    'update-ticket-automatic-testing-reason': ticketAutomaticTestingReason,
-                },
-                dataType: 'json',
-            }
-        );
-    }
+    $( "#ticket-summary" ).focusout(function() {
+        updateTicketBaseData();
+    });
 
     $( "#priority" ).change( function() {
         $.ajax(

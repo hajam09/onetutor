@@ -6,6 +6,7 @@ from jira2.api import BoardColumnsBulkOrderChangeApiEventVersion1Component
 from jira2.api import BoardSettingsViewBoardColumnsApiEventVersion1Component
 from jira2.api import BoardSettingsViewBoardLabelsApiEventVersion1Component
 from jira2.api import BoardSettingsViewGeneralDetailsApiEventVersion1Component
+from jira2.api import TicketObjectBaseDataUpdateApiEventVersion1Component
 from jira2.api import TicketObjectForIssuesInTheEpicTicketApiEventVersion1Component
 from jira2.api import TicketObjectForSubTasksInStandardTicketApiEventVersion1Component
 from tutoring.models import Component
@@ -56,6 +57,11 @@ urlpatterns += [
         'tutoring/api/v1/ticketObjectForSubTasksInStandardTicketApiEventVersion1Component',
         TicketObjectForSubTasksInStandardTicketApiEventVersion1Component.as_view(),
         name='ticketObjectForSubTasksInStandardTicketApiEventVersion1Component'
+    ),
+    path(
+        'tutoring/api/v1/ticketObjectBaseDataUpdateApiEventVersion1Component/<int:ticketId>',
+        TicketObjectBaseDataUpdateApiEventVersion1Component.as_view(),
+        name='ticketObjectBaseDataUpdateApiEventVersion1Component'
     ),
 ]
 

@@ -336,6 +336,42 @@ class TicketObjectForSubTasksInStandardTicketApiEventVersion1Component(View):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
+class TicketObjectBaseDataUpdateApiEventVersion1Component(View):
+
+    def put(self, *args, **kwargs):
+        ticketId = self.kwargs.get("ticketId", None)
+        put = QueryDict(self.request.body)
+
+        try:
+            ticket = Ticket.objects.get(id=ticketId)
+        except Ticket.DoesNotExist:
+            response = {
+                "success": False,
+                "message": "Unable to find the ticket to update"
+            }
+            return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
+
+        summary = put.get("ticketSummary", ticket.summary)
+        description = put.get("ticketDescription", ticket.description)
+        userImpact = put.get("ticketUserImpact", ticket.userImpact)
+        releaseImpact = put.get("ticketReleaseImpact", ticket.releaseImpact)
+        automatedTestingReason = put.get("ticketAutomaticTestingReason", ticket.automatedTestingReason)
+
+        ticket.summary = summary
+        ticket.description = description
+        ticket.userImpact = userImpact
+        ticket.releaseImpact = releaseImpact
+        ticket.automatedTestingReason = automatedTestingReason
+
+        ticket.save(update_fields=['summary', 'description', 'userImpact', 'releaseImpact', 'automatedTestingReason'])
+
+        response = {
+            "success": True,
+        }
+        return JsonResponse(response, status=HTTPStatus.OK)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
 class TicketObjectForIssuesInTheEpicTicketApiEventVersion1Component(View):
 
     def post(self, *args, **kwargs):
