@@ -1,3 +1,4 @@
+from datetime import datetime
 from http import HTTPStatus
 
 from django.core.cache import cache
@@ -427,19 +428,95 @@ class TicketObjectForIssuesInTheEpicTicketApiEventVersion1Component(View):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class TicketDetailsUpdateApiEventVersion1Component(View):
+class KanbanBoardDetailsAndItemsApiEventVersion1Component(View):
 
-    def put(self, *args, **kwargs):
-        ticketId = self.kwargs.get("ticketId", None)
-        put = QueryDict(self.request.body)
+    def get(self, *args, **kwargs):
+        boardId = self.kwargs.get("boardId", None)
 
         try:
-            ticket = Ticket.objects.get(id=ticketId)
-        except Ticket.DoesNotExist:
+            board = Board.objects.prefetch_related('boardColumns', 'boardLabels').get(id=boardId)
+        except Board.DoesNotExist:
             response = {
                 "success": False,
-                "message": "Unable to find the ticket to update"
+                "message": "Could not find a board for id: " + str(boardId)
             }
             return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
 
-        return JsonResponse({})
+        response = {
+            "success": True,
+            "data": {
+                "board": {
+                    "id": board.id,
+                    "name": board.name,
+                },
+                "sprint": {
+                    "id": board.sprint.id,
+                    "internalKey": board.sprint.internalKey,
+                    "remainingDays": (board.sprint.endDate - datetime.today().date()).days
+                },
+                "members": [
+                    {
+                        "id": i.pk,
+                        "firstName": i.first_name,
+                        "lastName": i.last_name,
+                        "icon": i.developerProfile.profilePicture.url
+                    }
+                    for i in board.members.all()
+                ],
+                "columns": [
+                    {
+                        "id": i.id,
+                        "name": i.name,
+                        "tickets": [
+                            {
+                                "id": j.id,
+                                "internalKey": j.internalKey,
+                                "summary": j.summary,
+                                "link": "/jira2/ticket/" + str(j.internalKey),
+                                "storyPoints": j.storyPoints if j.storyPoints is not None else "-",
+                                "issueType": {
+                                    "internalKey": j.issueType.internalKey,
+                                    "icon": "/static/" + j.issueType.icon,
+                                },
+                                "priority": {
+                                    "internalKey": j.priority.internalKey,
+                                    "icon": "/static/" + j.priority.icon
+                                },
+                                "epic": {
+                                    "id": j.epic.id,
+                                    "summary": j.epic.summary,
+                                    "colour": j.epic.colour,
+                                    "link": "/jira2/ticket/" + str(j.epic.internalKey),
+                                } if j.epic is not None else None,
+                                "assignee": {
+                                    "id": j.assignee.pk,
+                                    "firstName": j.assignee.first_name,
+                                    "lastName": j.assignee.last_name,
+                                    "icon": ""  # j.assignee.developerProfile.profilePicture.url
+                                } if j.assignee is not None else None
+                            }
+                            for j in i.columnTickets.all()
+                        ]
+                    }
+                    for i in board.boardColumns.all()
+                ]
+            }
+        }
+        return JsonResponse(response, status=HTTPStatus.OK)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class KanbanBoardTicketColumnUpdateApiEventVersion1Component(View):
+
+    def put(self, *args, **kwargs):
+        put = QueryDict(self.request.body)
+
+        columnId = put.get("column-id")
+        ticketId = put.get("ticket-id")
+
+        Ticket.objects.filter(id=ticketId).update(column_id=columnId)
+
+        response = {
+            "success": True,
+        }
+        return JsonResponse(response, status=HTTPStatus.OK)

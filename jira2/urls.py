@@ -5,7 +5,8 @@ from jira2.api import BoardColumnsBulkOrderChangeApiEventVersion1Component
 from jira2.api import BoardSettingsViewBoardColumnsApiEventVersion1Component
 from jira2.api import BoardSettingsViewBoardLabelsApiEventVersion1Component
 from jira2.api import BoardSettingsViewGeneralDetailsApiEventVersion1Component
-from jira2.api import TicketDetailsUpdateApiEventVersion1Component
+from jira2.api import KanbanBoardDetailsAndItemsApiEventVersion1Component
+from jira2.api import KanbanBoardTicketColumnUpdateApiEventVersion1Component
 from jira2.api import TicketObjectBaseDataUpdateApiEventVersion1Component
 from jira2.api import TicketObjectForIssuesInTheEpicTicketApiEventVersion1Component
 from jira2.api import TicketObjectForSubTasksInStandardTicketApiEventVersion1Component
@@ -23,6 +24,7 @@ urlpatterns = [
     path('boards/', views.boards, name='boards-page'),
     path('board/<slug:url>/', views.board, name='board-page'),
     path('board/<slug:url>/settings/', views.boardSettings, name='board-settings'),
+    path('people/team/<slug:url>/', views.team, name='team-settings'),
 ]
 
 # api
@@ -63,8 +65,13 @@ urlpatterns += [
         name='ticketObjectBaseDataUpdateApiEventVersion1Component'
     ),
     path(
-        'jira2/api/v1/ticketDetailsUpdateApiEventVersion1Component/<int:ticketId>',
-        TicketDetailsUpdateApiEventVersion1Component.as_view(),
-        name='ticketDetailsUpdateApiEventVersion1Component'
+        'jira2/api/v1/kanbanBoardDetailsAndItemsApiEventVersion1Component/<int:boardId>',
+        KanbanBoardDetailsAndItemsApiEventVersion1Component.as_view(),
+        name='kanbanBoardDetailsAndItemsApiEventVersion1Component'
+    ),
+    path(
+        'jira2/api/v1/kanbanBoardTicketColumnUpdateApiEventVersion1Component',
+        KanbanBoardTicketColumnUpdateApiEventVersion1Component.as_view(),
+        name='kanbanBoardTicketColumnUpdateApiEventVersion1Component'
     ),
 ]

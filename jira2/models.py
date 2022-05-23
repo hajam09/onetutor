@@ -20,7 +20,7 @@ def getRandomImageForAvatar():
 
 
 class Sprint(models.Model):
-    internalKey = models.CharField(max_length=2048, blank=True, null=True, unique=True)
+    internalKey = models.CharField(max_length=2048, blank=True, null=True, unique=True) # TEAM_NAME + Sprint + ID
     startDate = models.DateField(default=datetime.date.today)
     endDate = models.DateField(default=sprintEndDate(datetime.date.today))
     reference = models.CharField(max_length=2048, blank=True, null=True)
@@ -139,7 +139,7 @@ class Ticket(models.Model):
     status = models.ForeignKey(Component, null=True, on_delete=models.SET_NULL, related_name='_ticketStatus', limit_choices_to={'componentGroup__code': 'TICKET_STATUS'})
     priority = models.ForeignKey(Component, null=True, on_delete=models.SET_NULL, related_name='_ticketPriority', limit_choices_to={'componentGroup__code': 'TICKET_PRIORITY'})
     board = models.ForeignKey(Board, null=True, on_delete=models.SET_NULL)
-    column = models.ForeignKey(Column, null=True, on_delete=models.SET_NULL, related_name='_columnTickets')
+    column = models.ForeignKey(Column, null=True, on_delete=models.SET_NULL, related_name='columnTickets')
     userImpact = models.TextField(default='None', blank=True, null=True)
     technicalImpact = models.TextField(default='None', blank=True, null=True)
     releaseImpact = models.TextField(default='None', blank=True, null=True)

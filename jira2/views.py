@@ -237,7 +237,10 @@ def board(request, url):
             pass
 
     boardColumns = thisBoard.boardColumns.all().exclude(name__icontains="Backlog", orderNo=1)
-    return render(request, "jira2/board.html")
+    context = {
+        "board": thisBoard
+    }
+    return render(request, "jira2/board.html", context)
 
 
 def boardSettings(request, url):
