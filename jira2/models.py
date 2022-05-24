@@ -11,6 +11,7 @@ from django.urls import reverse
 from onetutor import settings
 from tutoring.models import Component
 
+# KANBAN methodology and not SCRUM
 
 def sprintEndDate(today):
     return today() + datetime.timedelta(days=14)

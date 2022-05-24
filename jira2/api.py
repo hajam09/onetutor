@@ -467,36 +467,7 @@ class KanbanBoardDetailsAndItemsApiEventVersion1Component(View):
                     {
                         "id": i.id,
                         "name": i.name,
-                        "tickets": [
-                            {
-                                "id": j.id,
-                                "internalKey": j.internalKey,
-                                "summary": j.summary,
-                                "link": "/jira2/ticket/" + str(j.internalKey),
-                                "storyPoints": j.storyPoints if j.storyPoints is not None else "-",
-                                "issueType": {
-                                    "internalKey": j.issueType.internalKey,
-                                    "icon": "/static/" + j.issueType.icon,
-                                },
-                                "priority": {
-                                    "internalKey": j.priority.internalKey,
-                                    "icon": "/static/" + j.priority.icon
-                                },
-                                "epic": {
-                                    "id": j.epic.id,
-                                    "summary": j.epic.summary,
-                                    "colour": j.epic.colour,
-                                    "link": "/jira2/ticket/" + str(j.epic.internalKey),
-                                } if j.epic is not None else None,
-                                "assignee": {
-                                    "id": j.assignee.pk,
-                                    "firstName": j.assignee.first_name,
-                                    "lastName": j.assignee.last_name,
-                                    "icon": ""  # j.assignee.developerProfile.profilePicture.url
-                                } if j.assignee is not None else None
-                            }
-                            for j in i.columnTickets.all()
-                        ]
+                        "tickets": serializeTickets(i.columnTickets.all())
                     }
                     for i in board.boardColumns.all()
                 ]
@@ -515,8 +486,129 @@ class KanbanBoardTicketColumnUpdateApiEventVersion1Component(View):
         ticketId = put.get("ticket-id")
 
         Ticket.objects.filter(id=ticketId).update(column_id=columnId)
+        # TODO: Need to update the ticket status.
 
         response = {
             "success": True,
         }
         return JsonResponse(response, status=HTTPStatus.OK)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class KanbanBoardBacklogActiveTicketsApiEventVersion1Component(View):
+
+    def get(self, *args, **kwargs):
+        boardId = self.kwargs.get("boardId", None)
+
+        try:
+            board = Board.objects.get(id=boardId)
+        except Board.DoesNotExist:
+            response = {
+                "success": False,
+                "message": "Could not find a board for id: " + str(boardId)
+            }
+            return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
+
+        backLogColumn = Column.objects.filter(board=board, name__icontains="BACKLOG").first()
+        otherColumns = Column.objects.filter(board=board).exclude(id=backLogColumn.id)
+        otherColumnTickets = Ticket.objects.filter(column__in=otherColumns)
+
+        if not otherColumns.exists():
+            response = {
+                "success": False,
+                "message": "Unable to find active tickets."
+            }
+            return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
+
+        response = {
+            "success": True,
+            "data": {
+                "tickets": serializeTickets(otherColumnTickets),
+                "columns": {
+                    "inActive": {
+                        "id": backLogColumn.id,
+                    },
+                    "active": {
+                        "id": otherColumns.first().id
+                    }
+                }
+            }
+        }
+        return JsonResponse(response, status=HTTPStatus.OK)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class KanbanBoardBacklogInActiveTicketsApiEventVersion1Component(View):
+
+    def get(self, *args, **kwargs):
+        boardId = self.kwargs.get("boardId", None)
+
+        try:
+            board = Board.objects.get(id=boardId)
+        except Board.DoesNotExist:
+            response = {
+                "success": False,
+                "message": "Could not find a board for id: " + str(boardId)
+            }
+            return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
+
+        backLogColumn = Column.objects.filter(board=board, name__icontains="BACKLOG").first()
+        otherColumns = Column.objects.filter(board=board).exclude(id=backLogColumn.id)
+
+        if backLogColumn is None:
+            response = {
+                "success": False,
+                "message": "Could not find a backlog for this board. Check the board settings."
+            }
+            return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
+
+        response = {
+            "success": True,
+            "data": {
+                "tickets": serializeTickets(backLogColumn.columnTickets.all()),
+                "columns": {
+                    "inActive": {
+                        "id": backLogColumn.id,
+                    },
+                    "active": {
+                        "id": otherColumns.first().id
+                    }
+                }
+            }
+        }
+        return JsonResponse(response, status=HTTPStatus.OK)
+
+
+def serializeTickets(tickets):
+    data = [
+        {
+            "id": ticket.id,
+            "summary": ticket.summary,
+            "internalKey": ticket.internalKey,
+            "link": "/jira2/ticket/" + str(ticket.internalKey),
+            "storyPoints": ticket.storyPoints if ticket.storyPoints is not None else "-",
+            "issueType": {
+                "internalKey": ticket.issueType.internalKey,
+                "icon": "/static/" + ticket.issueType.icon,
+            },
+            "priority": {
+                "internalKey": ticket.priority.internalKey,
+                "icon": "/static/" + ticket.priority.icon
+            },
+            "epic": {
+                "id": ticket.epic.id,
+                "summary": ticket.epic.summary,
+                "colour": ticket.epic.colour,
+                "link": "/jira2/ticket/" + str(ticket.epic.internalKey),
+            } if ticket.epic is not None else None,
+            "assignee": {
+                "id": ticket.assignee.pk,
+                "firstName": ticket.assignee.first_name,
+                "lastName": ticket.assignee.last_name,
+                "icon": ""  # ticket.assignee.developerProfile.profilePicture.url
+            } if ticket.assignee is not None else None,
+        }
+        for ticket in tickets
+    ]
+
+    return data

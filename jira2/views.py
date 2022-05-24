@@ -1,98 +1,24 @@
-from http import HTTPStatus
-
 from django.db.models import Q
 from django.http import Http404
-from django.http import JsonResponse
 from django.shortcuts import render
 
 from jira2.models import *
-from onetutor.operations import databaseOperations
-
-
-# def mainPage(request):
-#     """
-#     for the authenticated user get the board,
-#     if board == null then the user is not on the company.
-#     else:
-#         get the sprint for that board.
-#         if the sprint is currently running then return to the sprint board page.
-#         else:
-#         return to the backlog for now.
-#     """
-#
-#     try:
-#         board = BoardA.objects.get(members__in=[request.user])
-#     except ObjectDoesNotExist:
-#         raise RuntimeWarning('this user is not part of any board.')
-#     except MultipleObjectsReturned:
-#         raise RuntimeWarning('this user is part of more than one board. this user should be in one board only.')
-#
-#     sprint = board.sprint
-#
-#     if sprint.startDate <= datetime.date.today() <= sprint.endDate:
-#         return redirect('jira2:sprintBoard')
-#
-#     return redirect('jira:backlog')  # return redirect('jira2:sprintBoard')
-#
-#
-# def sprintBoard(request):
-#     """
-#     for this user, get the board and check if only one board is returned else raise exception.
-#     check if a sprint is active, else place a button to activate the sprint.
-#     when new sprint is activated. get the previous sprint.
-#     get the completed tickets and set it to deleteFl = true.
-#     """
-#     try:
-#         board = BoardA.objects.get(members__in=[request.user])
-#     except ObjectDoesNotExist:
-#         raise RuntimeWarning('this user is not part of any board.')
-#     except MultipleObjectsReturned:
-#         board = BoardA.objects.filter(members__in=[request.user]).first()
-#
-#     sprint = board.sprint
-#
-#     _board = {
-#         'boardName': board.internalKey,
-#         'columns': [
-#             {
-#                 'id': i.pk,
-#                 'name': i.internalKey.upper(),
-#                 'tickets': [
-#                     {
-#                         'id': j.id,
-#                         'internalKey': j.internalKey,
-#                         'summary': j.summary,
-#                         'points': j.points,
-#                         'issueType': {
-#                             'internalKey': j.issueType.internalKey,
-#                             'code': j.issueType.code,
-#                             'icon': j.issueType.icon,
-#                         },
-#                         'priority': {
-#                             'internalKey': j.priority.internalKey,
-#                             'icon': j.priority.icon,
-#                         }
-#                     }
-#                     for j in i.columnTickets.all()
-#                 ],
-#             }
-#             for i in board.boardColumns.all()
-#         ]
-#     }
-#
-#     context = {
-#         'isSprintActive': sprint.startDate <= datetime.date.today() <= sprint.endDate,
-#         'board': _board,
-#     }
-#     return render(request, "jira2/sprintBoard.html", context)
 
 
 def dashboard(request):
     return render(request, "jira2/dashboard.html")
 
 
-def backlog(request, internalKey):
-    return render(request, 'jira2/backLog.html')
+def backlog(request, url):
+    try:
+        board = Board.objects.get(url=url)
+    except Board.DoesNotExist:
+        raise Http404
+
+    context = {
+        "board": board
+    }
+    return render(request, 'jira2/backLog.html', context)
 
 
 def projects(request):
@@ -105,7 +31,9 @@ def projects(request):
     allProjects = ( privateAdminProjects | nonPrivateProjects ).distinct()
     """
 
-    allProjects = Project.objects.filter(Q(isPrivate=True, members__in=[request.user]) | Q(isPrivate=False)).select_related('lead__developerProfile', 'status').distinct()
+    allProjects = Project.objects.filter(
+        Q(isPrivate=True, members__in=[request.user]) | Q(isPrivate=False)).select_related('lead__developerProfile',
+                                                                                           'status').distinct()
     developerProfiles = DeveloperProfile.objects.select_related('user').all()
 
     if request.method == "POST":
@@ -138,7 +66,6 @@ def project(request, url):
 
 
 def projectSettings(request, url):
-
     """
     TODO: The start date and the end date in the template is not showing the correct project dates.
     TODO: Disable the project description at first and then activate it on click.
@@ -160,15 +87,19 @@ def projectSettings(request, url):
         thisProject.startDate = request.POST['project-start']
         thisProject.endDate = request.POST['project-end']
         thisProject.isPrivate = request.POST['project-visibility'] == 'visibility-members'
-        thisProject.lead = next((dp.user for dp in developerProfiles if str(dp.user.id) == request.POST['project-lead']), None) #User.objects.get(id=request.POST['project-lead'])
-        thisProject.status = next((psc for psc in projectStatusComponent if str(psc.id) == request.POST['project-status']), None)
+        thisProject.lead = next(
+            (dp.user for dp in developerProfiles if str(dp.user.id) == request.POST['project-lead']),
+            None)  # User.objects.get(id=request.POST['project-lead'])
+        thisProject.status = next(
+            (psc for psc in projectStatusComponent if str(psc.id) == request.POST['project-status']), None)
 
         updatedIcon = request.FILES.get('project-icon', None)
         if updatedIcon is not None:
             thisProject.icon = updatedIcon
 
         # TODO: Consider fetching User objects from db directly if it would reduce computation time.
-        updatedProjectMembers = [i.user for i in developerProfiles if str(i.user.id) in request.POST.getlist('project-members')]
+        updatedProjectMembers = [i.user for i in developerProfiles if
+                                 str(i.user.id) in request.POST.getlist('project-members')]
         thisProject.members.clear()
         thisProject.members.add(*updatedProjectMembers)
 
@@ -187,19 +118,21 @@ def boards(request):
     TODO: Allow user to copy board on template and make changes before creating new board.
     """
 
-    privateAdminBoards = Board.objects.filter(isPrivate=True, admins__in=[request.user]).prefetch_related('projects', 'admins__developerProfile')
-    privateMemberBoards = Board.objects.filter(isPrivate=True, members__in=[request.user]).prefetch_related('projects', 'admins__developerProfile')
+    privateAdminBoards = Board.objects.filter(isPrivate=True, admins__in=[request.user]).prefetch_related('projects',
+                                                                                                          'admins__developerProfile')
+    privateMemberBoards = Board.objects.filter(isPrivate=True, members__in=[request.user]).prefetch_related('projects',
+                                                                                                            'admins__developerProfile')
     nonPrivateBoards = Board.objects.filter(isPrivate=False).prefetch_related('projects', 'admins__developerProfile')
 
     allBoards = (privateAdminBoards | privateMemberBoards | nonPrivateBoards).distinct()
     developerProfiles = DeveloperProfile.objects.all().select_related('user')
-    allProjects = (Project.objects.filter(isPrivate=True, members__in=[request.user]) | Project.objects.filter(isPrivate=False)).distinct()
+    allProjects = (Project.objects.filter(isPrivate=True, members__in=[request.user]) | Project.objects.filter(
+        isPrivate=False)).distinct()
 
     if request.method == "POST":
-
-        boardAdmins = [ i.user for i in developerProfiles if str(i.user.pk) in request.POST.getlist('board-admins') ]
-        boardMembers = [ i.user for i in developerProfiles if str(i.user.pk) in request.POST.getlist('board-members') ]
-        boardProjects = [ i for i in allProjects if str(i.pk) in request.POST.getlist('board-projects') ]
+        boardAdmins = [i.user for i in developerProfiles if str(i.user.pk) in request.POST.getlist('board-admins')]
+        boardMembers = [i.user for i in developerProfiles if str(i.user.pk) in request.POST.getlist('board-members')]
+        boardProjects = [i for i in allProjects if str(i.pk) in request.POST.getlist('board-projects')]
 
         newBoard = Board.objects.create(
             name=request.POST['board-name'],
@@ -244,13 +177,13 @@ def board(request, url):
 
 
 def boardSettings(request, url):
-
     try:
         thisBoard = Board.objects.prefetch_related('boardColumns', 'boardLabels').get(url=url)
     except Board.DoesNotExist:
         raise Http404
 
-    allProjects = (Project.objects.filter(isPrivate=True, members__in=[request.user]) | Project.objects.filter(isPrivate=False)).distinct()
+    allProjects = (Project.objects.filter(isPrivate=True, members__in=[request.user]) | Project.objects.filter(
+        isPrivate=False)).distinct()
     developerProfiles = DeveloperProfile.objects.all().select_related('user')
 
     context = {
@@ -287,7 +220,9 @@ def ticketPage(request, internalKey):
     TODO: think about Ticket.column and Ticket.status
     """
     try:
-        thisTicket = Ticket.objects.select_related('issueType', 'project', 'priority').prefetch_related('epicTickets__issueType', 'epicTickets__assignee', 'epicTickets__priority').get(internalKey__iexact=internalKey)
+        thisTicket = Ticket.objects.select_related('issueType', 'project', 'priority').prefetch_related(
+            'epicTickets__issueType', 'epicTickets__assignee', 'epicTickets__priority').get(
+            internalKey__iexact=internalKey)
     except Ticket.DoesNotExist:
         raise Http404
 
@@ -306,7 +241,7 @@ def ticketPage(request, internalKey):
         updateTicketPriority = request.GET.get('update-ticket-priority', None)
 
         if updateTicketPriority is not None:
-            thisTicket.priority = next(i for i in jiraPriorities if i.code==updateTicketPriority)
+            thisTicket.priority = next(i for i in jiraPriorities if i.code == updateTicketPriority)
 
         # if functionality == 'updateEpicTicketsOrder':
         #     newColumnOrder = request.GET.getlist('new-column-order[]', None)

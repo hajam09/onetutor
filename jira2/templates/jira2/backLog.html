@@ -1,4 +1,230 @@
 {% extends "accounts/account_base.html" %}
 {% load static %}
 {% block content %}
+<div style="height: 10px;"></div>
+<div class="container" style="max-width: 1500px; color: black;">
+    
+    <div class="row">
+        <div class="row">
+            <div class="col">
+                <h3>{{board.name}} - Backlog</h3>
+            </div>
+        </div>
+    </div>
+    <div class="row"></div>
+    <div class="row">
+    	<div class="col-12" style="width: 100%;">
+            <b>Active board tickets</b>
+            <span class="text-muted" id="numberOfActiveIssues"> 45 issues</span>
+        </div>
+        <div style="height: 35px;"></div>
+        <div class="col-12">
+        	<div class="row">
+        		<div class="col">
+			        <div class="card bg-light">
+			            <ul id="listOfActiveTicketsContainer" class="card-body tickets connectedSortable">
+			            </ul>
+			        </div>
+			    </div>
+        	</div>
+        </div>
+    </div>
+
+    <div style="height: 40px;"></div>
+
+
+    <div class="row">
+        <div class="col-12" style="width: 100%;">
+            <b>Backlog</b>
+            <span class="text-muted" id="numberOfInActiveIssues"> 45 issues</span>
+        </div>
+        <div style="height: 35px;"></div>
+        <div class="col-12">
+        	<div class="row">
+        		<div class="col">
+			        <div class="card bg-light">
+			            <ul id="listOfInActiveTicketsContainer" class="card-body tickets connectedSortable">
+			            </ul>
+			        </div>
+			    </div>
+        	</div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script type="text/javascript">
+
+	function renderTicketIssueAndSummaryComponent(ticket)
+	{
+		return `
+		&nbsp;&nbsp;
+		<img src=${ticket.issueType.icon} width="20" height="20" data-toggle="tooltip" data-placement="top" title="${ticket.issueType.internalKey}">
+		&nbsp;&nbsp;
+		${ticket.summary}
+		`;	
+	}
+
+	function renderTicketEpicComponent(ticket)
+	{
+		if (ticket.epic == null)
+			return "";
+
+		return `
+		<div class="pull-right">
+		   	<span class="badge font-weight-light" style="color: grey; font-size: 15px; background-color: ${ticket.epic.colour}">${ticket.epic.summary}</span>
+		</div>
+		`;
+	}
+
+	function renderAssigneeComponent(ticket)
+	{
+		if (ticket.assignee == null)
+			return "";
+
+		return `
+		<div class="pull-right">&nbsp;&nbsp;
+			<img class="avatar" style="width: 1.5rem; height: 1.5rem;" filter-by-alt" src="https://cdn3.iconfinder.com/data/icons/avatars-round-flat/33/man5-512.png" data-filter-by="alt">
+		</div>`
+	}
+
+	function renderTicketNamePriorityAndPoints(ticket)
+	{
+		return `
+		<div class="pull-right">&nbsp;&nbsp;
+			<a style="color: grey;" href="${ticket.link}">${ticket.internalKey}</a>
+			&nbsp;
+			<img src=${ticket.priority.icon} width="20" height="20" data-toggle="tooltip" data-placement="top" title="${ticket.priority.internalKey}">
+			&nbsp;
+			<span class="badge badge-pill badge-secondary" style="color: black; background-color: #c9c9c9;">${ticket.storyPoints}</span>
+		</div>
+		`;
+	}
+
+	function renderTickets(data)
+	{
+		var result = "";
+
+		for (const ticket of data.tickets)
+		{
+			var ticketIssueAndSummaryComponent = renderTicketIssueAndSummaryComponent(ticket);
+			var ticketEpicComponent = renderTicketEpicComponent(ticket);
+			var ticketAssigneeComponent = renderAssigneeComponent(ticket);
+			var ticketNamePriorityAndPoints = renderTicketNamePriorityAndPoints(ticket);
+			result += `
+				<li style="width: 100%; cursor: move;" draggable="true" id="ticketComponent-${ticket.id}" ticketId="${ticket.id}">
+					<div class="card mb-0" style="margin-right: -15px; margin-left: -15px; margin-top: -15px;">
+					   	<div class="card-body p-2">
+					      	${ticketIssueAndSummaryComponent}
+					      	${ticketNamePriorityAndPoints}
+					      	${ticketAssigneeComponent}
+					      	${ticketEpicComponent}
+					   	</div>
+					</div>
+					<div style="height: 15px;"></div>
+				</li>
+			`;
+		}
+
+		return result;
+	}
+
+	function updateIssueCounter()
+	{
+		var numberOfActiveIssuesCounter = $("#listOfActiveTicketsContainer").children().length;
+		var numberOfInActiveIssuesCounter = $("#listOfInActiveTicketsContainer").children().length;
+	}
+
+	function domNodeInsertionListerner(elemendId)
+	{
+		$(elemendId).on('DOMNodeInserted', function(e)
+		{
+			var anchorElement = e.target;
+
+			if (anchorElement.hasAttribute('ticketId'))
+			{
+				var ticketIdToMove = anchorElement.getAttribute('ticketId');
+				var columnId = $(elemendId).attr("columnId");
+
+				$.ajax(
+					{
+						url: `{% url 'jira2:kanbanBoardTicketColumnUpdateApiEventVersion1Component' %}`,							
+						data:
+						{
+							'column-id': columnId,
+							'ticket-id': ticketIdToMove,
+						},
+						type: 'PUT',
+						dataType: 'json',
+					}
+				);
+			}
+			updateIssueCounter();
+		});
+	}
+
+	function renderBacklogActiveTicketsComponent()
+	{
+		$.ajax(
+			{
+				url: "{% url 'jira2:kanbanBoardBacklogActiveTicketsApiEventVersion1Component' boardId=board.id %}",
+				type: "GET",
+				dataType: 'json',
+				success: function(response)
+				{
+					if (!response.success)
+            			return;
+
+            		$('#listOfActiveTicketsContainer').append(renderTickets(response.data));
+            		$('#listOfActiveTicketsContainer').attr("columnId", response.data.columns.active.id);
+            		domNodeInsertionListerner("#listOfActiveTicketsContainer");
+				}
+			}
+		);
+	}
+
+	function renderBacklogInActiveTicketsComponent()
+	{
+		$.ajax(
+			{
+				url: "{% url 'jira2:kanbanBoardBacklogInActiveTicketsApiEventVersion1Component' boardId=board.id %}",
+				type: "GET",
+				dataType: 'json',
+				success: function(response)
+				{
+					if (!response.success)
+            			return;
+
+            		$('#listOfInActiveTicketsContainer').append(renderTickets(response.data));
+            		$('#listOfInActiveTicketsContainer').attr("columnId", response.data.columns.inActive.id);
+
+            		domNodeInsertionListerner("#listOfInActiveTicketsContainer");
+				}
+			}
+		);
+	}
+
+	window.onload = function(e)
+	{
+		renderBacklogInActiveTicketsComponent();
+		renderBacklogActiveTicketsComponent();
+
+		$( ".connectedSortable" ).sortable(
+			{
+				// revert: true
+				connectWith: ".connectedSortable"
+			}
+		).disableSelection();
+
+		$( "#draggable" ).draggable(
+			{
+				connectToSortable: "#sortable",
+				helper: "clone",
+				revert: "invalid"
+			}
+		);
+
+		// $( "ul, li" ).disableSelection();
+	}
+</script>
 {% endblock %}
