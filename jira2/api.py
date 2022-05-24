@@ -442,6 +442,9 @@ class KanbanBoardDetailsAndItemsApiEventVersion1Component(View):
             }
             return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
 
+        backLogColumn = Column.objects.filter(board=board, name__icontains="BACKLOG").first()
+        otherColumns = Column.objects.filter(board=board).exclude(id=backLogColumn.id)
+
         response = {
             "success": True,
             "data": {
@@ -469,7 +472,7 @@ class KanbanBoardDetailsAndItemsApiEventVersion1Component(View):
                         "name": i.name,
                         "tickets": serializeTickets(i.columnTickets.all())
                     }
-                    for i in board.boardColumns.all()
+                    for i in otherColumns
                 ]
             }
         }
