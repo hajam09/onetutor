@@ -17,6 +17,10 @@
             <b>Active board tickets</b>
             <span class="text-muted" id="numberOfActiveIssues"> 45 issues</span>
         </div>
+        <div class="col-12" id="listOfBoardMembers" style="width: 100%;">
+        </div>
+        <br>
+        <br>
         <div style="height: 35px;"></div>
         <div class="col-12">
         	<div class="row">
@@ -204,8 +208,41 @@
 		);
 	}
 
+	function renderMemberComponent(member)
+	{
+		return `
+		<img class="avatar" style="width: 2rem; height: 2rem;" src="${member.icon}" data-filter-by="alt" data-placement="top" title="${member.firstName} ${member.lastName}">
+		&nbsp;
+		`;
+	}
+
+	function renderBoardMembersComponent()
+	{
+		$.ajax(
+			{
+				url: "{% url 'jira2:boardObjectDetailsApiEventVersion1Component' boardId=board.id %}",
+				type: "GET",
+				dataType: 'json',
+				success: function(response)
+				{
+					if (!response.success)
+            			return;
+
+            		var result = "";
+            		for (const member of response.data.members)
+            		{
+            			result += renderMemberComponent(member);
+            		}
+
+            		$("#listOfBoardMembers").append(result);
+				}
+			}
+		);
+	}
+
 	window.onload = function(e)
 	{
+		renderBoardMembersComponent();
 		renderBacklogInActiveTicketsComponent();
 		renderBacklogActiveTicketsComponent();
 

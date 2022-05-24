@@ -2,6 +2,7 @@ from django.urls import path
 
 from jira2 import views
 from jira2.api import BoardColumnsBulkOrderChangeApiEventVersion1Component
+from jira2.api import BoardObjectDetailsApiEventVersion1Component
 from jira2.api import BoardSettingsViewBoardColumnsApiEventVersion1Component
 from jira2.api import BoardSettingsViewBoardLabelsApiEventVersion1Component
 from jira2.api import BoardSettingsViewGeneralDetailsApiEventVersion1Component
@@ -86,5 +87,10 @@ urlpatterns += [
         'jira2/api/v1/kanbanBoardBacklogActiveTicketsApiEventVersion1Component/<int:boardId>',
         KanbanBoardBacklogActiveTicketsApiEventVersion1Component.as_view(),
         name='kanbanBoardBacklogActiveTicketsApiEventVersion1Component'
+    ),
+    path(
+        'jira2/api/v1/boardObjectDetailsApiEventVersion1Component/<int:boardId>',
+        BoardObjectDetailsApiEventVersion1Component.as_view(),
+        name='boardObjectDetailsApiEventVersion1Component'
     ),
 ]

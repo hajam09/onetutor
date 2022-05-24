@@ -582,6 +582,52 @@ class KanbanBoardBacklogInActiveTicketsApiEventVersion1Component(View):
         return JsonResponse(response, status=HTTPStatus.OK)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
+class BoardObjectDetailsApiEventVersion1Component(View):
+
+    def get(self, *args, **kwargs):
+        boardId = self.kwargs.get("boardId", None)
+
+        try:
+            board = Board.objects.get(id=boardId)
+        except Board.DoesNotExist:
+            response = {
+                "success": False,
+                "message": "Could not find a board for id: " + str(boardId)
+            }
+            return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
+
+        response = {
+            "success": True,
+            "data": {
+                "id": board.id,
+                "internalKey": board.internalKey,
+                "url": board.url,
+                "createdDttm": board.createdDttm,
+                "isPrivate": board.isPrivate,
+                "members": [
+                    {
+                        "id": i.pk,
+                        "firstName": i.first_name,
+                        "lastName": i.last_name,
+                        "icon": i.developerProfile.profilePicture.url
+                    }
+                    for i in board.members.all()
+                ],
+                "admins": [
+                    {
+                        "id": i.pk,
+                        "firstName": i.first_name,
+                        "lastName": i.last_name,
+                        "icon": i.developerProfile.profilePicture.url
+                    }
+                    for i in board.admins.all()
+                ],
+            }
+        }
+        return JsonResponse(response, status=HTTPStatus.OK)
+
+
 def serializeTickets(tickets):
     data = [
         {
