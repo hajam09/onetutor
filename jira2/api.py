@@ -483,11 +483,11 @@ class KanbanBoardDetailsAndItemsApiEventVersion1Component(View):
                     "id": board.id,
                     "name": board.name,
                 },
-                "sprint": {
-                    "id": board.sprint.id,
-                    "internalKey": board.sprint.internalKey,
-                    "remainingDays": (board.sprint.endDate - datetime.today().date()).days
-                },
+                # "sprint": {
+                #     "id": board.sprint.id,
+                #     "internalKey": board.sprint.internalKey,
+                #     "remainingDays": (board.sprint.endDate - datetime.today().date()).days
+                # },
                 "members": [
                     {
                         "id": i.pk,

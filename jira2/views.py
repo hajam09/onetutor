@@ -149,11 +149,12 @@ def boards(request):
             isPrivate=request.POST['board-visibility'] == 'visibility-members'
         )
 
-        # need to create a backlog column when creating a board.
-        Column.objects.create(
-            board=newBoard,
-            name='Backlog',
-            deleteFl=True
+        # mandatory columns for a board
+        Column.objects.bulk_create(
+            [
+                Column(board=newBoard, name='BACKLOG'),
+                Column(board=newBoard, name='TO DO')
+            ]
         )
 
         newBoard.projects.add(*boardProjects)
@@ -278,7 +279,3 @@ def ticketPage(request, internalKey):
         'jiraPriorities': jiraPriorities,
     }
     return render(request, TEMPLATE_NAME, context)
-
-
-def kanbanBoard(request, internalKey):
-    return render(request, "jira2/kanbanBoard.html")

@@ -197,15 +197,15 @@
 	var BOARD_MEMBERS_ID = [];
 
 	{% for project in board.projects.all %}
-		BOARD_PROJECTS_ID.push({{project.id}});
+		BOARD_PROJECTS_ID.push('{{project.id}}');
 	{% endfor %}
 
 	{% for admin in board.admins.all %}
-		BOARD_ADMINS_ID.push({{admin.id}});
+		BOARD_ADMINS_ID.push('{{admin.id}}');
 	{% endfor %}
 
 	{% for member in board.members.all %}
-		BOARD_MEMBERS_ID.push({{member.id}});
+		BOARD_MEMBERS_ID.push('{{member.id}}');
 	{% endfor %}
 
 	$('#board-projects').select2().val(BOARD_PROJECTS_ID).trigger("change")
