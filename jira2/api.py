@@ -1,4 +1,5 @@
 from datetime import datetime
+from datetime import timedelta
 from http import HTTPStatus
 
 from django.core.cache import cache
@@ -56,6 +57,36 @@ class BoardSettingsViewGeneralDetailsApiEventVersion1Component(View):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class BoardSettingsViewBoardColumnsApiEventVersion1Component(View):
+
+    def get(self, *args, **kwargs):
+        # Not used yet.
+        boardUrl = self.kwargs.get("boardUrl", None)
+
+        try:
+            board = Board.objects.get(url=boardUrl)
+        except Board.DoesNotExist:
+            response = {
+                "success": False,
+                "message": "Could not find a board with url/id: ".format(boardUrl)
+            }
+            return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
+
+        response = {
+            "success": True,
+            "data": {
+                "columns": [
+                    {
+                        "id": column.id,
+                        "name": column.name,
+                        "canDelete": False if column.name == "BACKLOG" or column.name == "TO DO" else True,
+                        "canEdit": False if column.name == "BACKLOG" or column.name == "TO DO" else True
+                    }
+                    for column in board.boardColumns.all()
+                ]
+            }
+        }
+        return JsonResponse(response, status=HTTPStatus.OK)
+
 
     def post(self, *args, **kwargs):
         boardUrl = self.kwargs.get("boardUrl", None)
@@ -514,7 +545,7 @@ class KanbanBoardBacklogActiveTicketsApiEventVersion1Component(View):
 
         backLogColumn = Column.objects.filter(board=board, name__icontains="BACKLOG").first()
         otherColumns = Column.objects.filter(board=board).exclude(id=backLogColumn.id)
-        otherColumnTickets = Ticket.objects.filter(column__in=otherColumns)
+        otherColumnTickets = Ticket.objects.filter(column__in=otherColumns, modifiedDttm__gte=datetime.now()-timedelta(days=7))
 
         if not otherColumns.exists():
             response = {
@@ -556,9 +587,9 @@ class KanbanBoardBacklogInActiveTicketsApiEventVersion1Component(View):
             return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
 
         backLogColumn = Column.objects.filter(board=board, name__icontains="BACKLOG").first()
-        otherColumns = Column.objects.filter(board=board).exclude(id=backLogColumn.id)
+        todoColumn = Column.objects.filter(board=board, name__icontains="TO DO").first()
 
-        if backLogColumn is None:
+        if backLogColumn is None or todoColumn is None:
             response = {
                 "success": False,
                 "message": "Could not find a backlog for this board. Check the board settings."
@@ -574,7 +605,7 @@ class KanbanBoardBacklogInActiveTicketsApiEventVersion1Component(View):
                         "id": backLogColumn.id,
                     },
                     "active": {
-                        "id": otherColumns.first().id
+                        "id": todoColumn.id
                     }
                 }
             }

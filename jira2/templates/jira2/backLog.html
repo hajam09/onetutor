@@ -2,7 +2,7 @@
 {% load static %}
 {% block content %}
 <div style="height: 10px;"></div>
-<div class="container" style="max-width: 1500px; color: black;">
+<div class="container" style="max-width: 1200px; color: black;">
     
     <div class="row">
         <div class="row">
@@ -15,7 +15,8 @@
     <div class="row">
     	<div class="col-12" style="width: 100%;">
             <b>Active board tickets</b>
-            <span class="text-muted" id="numberOfActiveIssues"> 45 issues</span>
+            <span class="text-muted" id="numberOfActiveIssues"> 0 issues</span>
+            <div style="height: 10px;"></div>
         </div>
         <div class="col-12" id="listOfBoardMembers" style="width: 100%;">
         </div>
@@ -26,7 +27,7 @@
         	<div class="row">
         		<div class="col">
 			        <div class="card bg-light">
-			            <ul id="listOfActiveTicketsContainer" class="card-body tickets connectedSortable">
+			            <ul id="listOfActiveTicketsContainer" class="card-body tickets connectedSortable" style="margin-bottom: -15px;">
 			            </ul>
 			        </div>
 			    </div>
@@ -40,14 +41,14 @@
     <div class="row">
         <div class="col-12" style="width: 100%;">
             <b>Backlog</b>
-            <span class="text-muted" id="numberOfInActiveIssues"> 45 issues</span>
+            <span class="text-muted" id="numberOfInActiveIssues"> 0 issues</span>
         </div>
         <div style="height: 35px;"></div>
         <div class="col-12">
         	<div class="row">
         		<div class="col">
 			        <div class="card bg-light">
-			            <ul id="listOfInActiveTicketsContainer" class="card-body tickets connectedSortable">
+			            <ul id="listOfInActiveTicketsContainer" class="card-body tickets connectedSortable" style="margin-bottom: -15px;">
 			            </ul>
 			        </div>
 			    </div>
@@ -243,8 +244,8 @@
 	window.onload = function(e)
 	{
 		renderBoardMembersComponent();
-		renderBacklogInActiveTicketsComponent();
 		renderBacklogActiveTicketsComponent();
+		renderBacklogInActiveTicketsComponent();
 
 		$( ".connectedSortable" ).sortable(
 			{

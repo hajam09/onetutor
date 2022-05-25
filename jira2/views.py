@@ -10,6 +10,16 @@ def dashboard(request):
 
 
 def backlog(request, url):
+    """
+    1. Implement ticket order and display by orderNo
+    2. When clicking the ticket, open a ticket details page to edit.
+    3. On each ticket, show the fix version.
+    4. Live ticket count on each container.
+    5. Don't show EPICs on the container, rather create a separate screen on the side.
+    6. Live count on total story points on each container, points completed and points left.
+    7. Fix the breadcrumbs.
+    8. Fix the extra space on the container below the last ticket.
+    """
     try:
         board = Board.objects.get(url=url)
     except Board.DoesNotExist:
@@ -169,7 +179,6 @@ def board(request, url):
             # bad request, do not show the board to this user.
             pass
 
-    boardColumns = thisBoard.boardColumns.all().exclude(name__icontains="Backlog", orderNo=1)
     context = {
         "board": thisBoard
     }
