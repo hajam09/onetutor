@@ -677,6 +677,7 @@ def serializeTickets(tickets):
             },
             "epic": {
                 "id": ticket.epic.id,
+                "internalKey": ticket.epic.internalKey,
                 "summary": ticket.epic.summary,
                 "colour": ticket.epic.colour,
                 "link": "/jira2/ticket/" + str(ticket.epic.internalKey),
