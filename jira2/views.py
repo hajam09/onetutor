@@ -279,3 +279,15 @@ def ticketPage(request, internalKey):
         'jiraPriorities': jiraPriorities,
     }
     return render(request, TEMPLATE_NAME, context)
+
+
+def kanbanBoard(request, url):
+    try:
+        thisBoard = Board.objects.get(url=url)
+    except Board.DoesNotExist:
+        raise Http404
+
+    context = {
+        "board": thisBoard
+    }
+    return render(request, "jira2/kanbanBoard.html", context)
