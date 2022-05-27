@@ -170,9 +170,16 @@ class BoardSettingsViewBoardColumnsApiEventVersion1Component(View):
 
         put = QueryDict(self.request.body)
         columnId = put.get("column-id", None)
+        column = Column.objects.filter(id=columnId).first()
 
-        # TODO: Before removing columns check if there are any ticket present in this column. see TutorProfileForm
-        Column.objects.filter(id=columnId).delete()
+        if column is not None and column.columnTickets.count() > 0:
+            response = {
+                "success": False,
+                "message": "There's still some tickets in this column."
+            }
+            return JsonResponse(response)
+
+        column.delete()
 
         response = {
             "success": True

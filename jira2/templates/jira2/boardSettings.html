@@ -558,7 +558,7 @@
 
 	function deleteColumn(columnId)
 	{
-		$('#column-container-'+columnId).remove();
+		
 		$.ajax(
 			{
 				url: "{% url 'jira2:boardSettingsViewBoardColumnsApiEventVersion1Component' boardUrl=board.url %}",
@@ -568,6 +568,23 @@
 				},
 				type: 'DELETE',
 				dataType: 'json',
+				success: function(response)
+				{
+					if (!response.success)
+					{
+						Swal.fire(
+	                        {
+	                            icon: 'warning',
+	                            title: "Can't do that!",
+	                            text: response.message
+	                        }
+                    	);
+					}
+					else
+					{
+						$('#column-container-'+columnId).remove();
+					}
+				}
 			}
 		);
 	}
