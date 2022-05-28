@@ -1,6 +1,7 @@
 from django.urls import path
 
 from tutoring import views
+from tutoring.api import ComponentObjectsApiEventVersion1Component
 from tutoring.api import QuestionAnswerCommentObjectApiEventVersion1Component
 from tutoring.api import QuestionAnswerCommentObjectLikeOrDislikeApiEventVersion1Component
 from tutoring.api import QuestionAnswerObjectApiEventVersion1Component
@@ -21,48 +22,53 @@ urlpatterns = [
 # api
 urlpatterns += [
     path(
-        'tutoring/api/v1/questionAnswerObjectApiEventVersion1Component/<int:id>',
+        'api/v1/questionAnswerObjectApiEventVersion1Component/<int:id>',
         QuestionAnswerObjectApiEventVersion1Component.as_view(),
         name='questionAnswerObjectApiEventVersion1Component'
     ),
     path(
-        'tutoring/api/v1/questionAnswerObjectApiEventVersion1Component',
+        'api/v1/questionAnswerObjectApiEventVersion1Component',
         QuestionAnswerObjectApiEventVersion1Component.as_view(),
         name='questionAnswerObjectApiEventVersion1Component'
     ),
     path(
-        'tutoring/api/v1/tutorReviewObjectApiEventVersion1Component/<int:id>',
+        'api/v1/tutorReviewObjectApiEventVersion1Component/<int:id>',
         TutorReviewObjectApiEventVersion1Component.as_view(),
         name='tutorReviewObjectApiEventVersion1Component'
     ),
     path(
-        'tutoring/api/v1/tutorReviewObjectApiEventVersion1Component',
+        'api/v1/tutorReviewObjectApiEventVersion1Component',
         TutorReviewObjectApiEventVersion1Component.as_view(),
         name='tutorReviewObjectApiEventVersion1Component'
     ),
     path(
-        'tutoring/api/v1/questionAnswerObjectLikeOrDislikeApiEventVersion1Component/<int:id>/<slug:action>',
+        'api/v1/questionAnswerObjectLikeOrDislikeApiEventVersion1Component/<int:id>/<slug:action>',
         QuestionAnswerObjectLikeOrDislikeApiEventVersion1Component.as_view(),
         name='questionAnswerObjectLikeOrDislikeApiEventVersion1Component'
     ),
     path(
-        'tutoring/api/v1/tutorReviewObjectLikeOrDislikeApiEventVersion1Component/<int:id>/<slug:action>',
+        'api/v1/tutorReviewObjectLikeOrDislikeApiEventVersion1Component/<int:id>/<slug:action>',
         TutorReviewObjectLikeOrDislikeApiEventVersion1Component.as_view(),
         name='TutorReviewObjectLikeOrDislikeApiEventVersion1Component'
     ),
     path(
-        'tutoring/api/v1/questionAnswerCommentObjectApiEventVersion1Component/<int:id>',
+        'api/v1/questionAnswerCommentObjectApiEventVersion1Component/<int:id>',
         QuestionAnswerCommentObjectApiEventVersion1Component.as_view(),
         name='questionAnswerCommentObjectApiEventVersion1Component'
     ),
     path(
-        'tutoring/api/v1/questionAnswerCommentObjectApiEventVersion1Component',
+        'api/v1/questionAnswerCommentObjectApiEventVersion1Component',
         QuestionAnswerCommentObjectApiEventVersion1Component.as_view(),
         name='questionAnswerCommentObjectApiEventVersion1Component'
     ),
     path(
-        'tutoring/api/v1/questionAnswerCommentObjectLikeOrDislikeApiEventVersion1Component/<int:id>/<slug:action>',
+        'api/v1/questionAnswerCommentObjectLikeOrDislikeApiEventVersion1Component/<int:id>/<slug:action>',
         QuestionAnswerCommentObjectLikeOrDislikeApiEventVersion1Component.as_view(),
         name='questionAnswerCommentObjectLikeOrDislikeApiEventVersion1Component'
+    ),
+    path(
+        'api/v1/componentObjectsApiEventVersion1Component',
+        ComponentObjectsApiEventVersion1Component.as_view(),
+        name='componentObjectsApiEventVersion1Component'
     ),
 ]

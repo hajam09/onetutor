@@ -7,7 +7,10 @@ from django.views.decorators.csrf import csrf_exempt
 
 from accounts.models import TutorProfile
 from onetutor.operations import dateOperations
-from tutoring.models import QuestionAnswer, TutorReview, QuestionAnswerComment
+from tutoring.models import Component
+from tutoring.models import QuestionAnswer
+from tutoring.models import QuestionAnswerComment
+from tutoring.models import TutorReview
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -513,5 +516,35 @@ class QuestionAnswerCommentObjectLikeOrDislikeApiEventVersion1Component(View):
             "id": id,
             "likeCount": questionAnswerComment.likes.count(),
             "dislikeCount": questionAnswerComment.dislikes.count(),
+        }
+        return JsonResponse(response, status=HTTPStatus.OK)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ComponentObjectsApiEventVersion1Component(View):
+
+    def get(self, *args, **kwargs):
+        componentGroupCode = self.request.GET.get('componentGroupCode')
+        components = Component.objects.filter(componentGroup__code=componentGroupCode)
+        response = {
+            "success": True,
+            "data": {
+                "components": [
+                    {
+                        "id": component.id,
+                        "internalKey": component.internalKey,
+                        "reference": component.reference,
+                        "languageKey": component.languageKey,
+                        "code": component.code,
+                        "icon": component.icon,
+                        "deleteFl": component.deleteFl,
+                        "colour": component.colour,
+                        "orderNo": component.orderNo,
+                        "versionNo": component.versionNo,
+
+                    }
+                    for component in components
+                ]
+            }
         }
         return JsonResponse(response, status=HTTPStatus.OK)
