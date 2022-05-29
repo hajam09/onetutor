@@ -744,7 +744,7 @@ def serializeTicketsIntoChunks(tickets):
     data = []
     JOBS = []
     MAX_THREADS = 4
-    chunkSize = tickets.count() // MAX_THREADS
+    chunkSize = tickets.count()
 
     if chunkSize == 0:
         serializeTickets(tickets, data)

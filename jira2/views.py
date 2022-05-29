@@ -9,6 +9,17 @@ def dashboard(request):
     return render(request, "jira2/dashboard.html")
 
 
+def kanbanBoardBacklog(request, url):
+    try:
+        board = Board.objects.get(url=url)
+    except Board.DoesNotExist:
+        raise Http404
+
+    context = {
+        "board": board
+    }
+    return render(request, 'jira2/kanbanBoardBacklog.html', context)
+
 def backlog(request, url):
     """
     1. Implement ticket order and display by orderNo

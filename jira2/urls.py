@@ -30,6 +30,7 @@ urlpatterns = [
     path('kanbanBoard/<slug:url>/', views.kanbanBoard, name='kanban-board-page'),
     path('board/<slug:url>/settings/', views.boardSettings, name='board-settings'),
     path('board/<slug:url>/backlog/', views.backlog, name='board-backlog'),
+    path('kanbanBoard/<slug:url>/backlog/', views.kanbanBoardBacklog, name='kanban-board-backlog'),
     path('people/team/<slug:url>/', views.team, name='team-settings'),
 ]
 
