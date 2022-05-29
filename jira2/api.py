@@ -3,6 +3,7 @@ import threading
 from datetime import datetime
 from datetime import timedelta
 from http import HTTPStatus
+from django.db.models import Q
 
 from django.contrib.auth.models import User
 from django.core.cache import cache
@@ -511,7 +512,7 @@ class KanbanBoardDetailsAndItemsApiEventVersion1Component(View):
                     {
                         "id": i.id,
                         "name": i.name,
-                        "tickets": serializeTicketsIntoChunks(i.columnTickets.all())
+                        "tickets": serializeTicketsIntoChunks(i.columnTickets.filter(~Q(issueType__code="EPIC")))
                     }
                     for i in otherColumns
                 ]
