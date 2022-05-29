@@ -583,6 +583,48 @@ class KanbanBoardBacklogActiveTicketsApiEventVersion1Component(View):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
+class KanbanBoardBacklogActiveTicketsApiEventVersion2Component(View):
+
+    def get(self, *args, **kwargs):
+        boardId = self.kwargs.get("boardId", None)
+
+        try:
+            board = Board.objects.get(id=boardId)
+        except Board.DoesNotExist:
+            response = {
+                "success": False,
+                "message": "Could not find a board for id: " + str(boardId)
+            }
+            return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
+
+        backLogColumn = Column.objects.filter(board=board, name__icontains="BACKLOG").first()
+        otherColumns = Column.objects.filter(board=board).exclude(id=backLogColumn.id)
+        otherColumnTickets = Ticket.objects.filter(column__in=otherColumns, modifiedDttm__gte=datetime.now()-timedelta(days=7))
+
+        if not otherColumns.exists():
+            response = {
+                "success": False,
+                "message": "Unable to find active tickets."
+            }
+            return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
+
+        response = {
+            "success": True,
+            "data": {
+                "tickets": serializeTicketsIntoChunks(otherColumnTickets),
+                "columns": {
+                    "inActive": {
+                        "id": backLogColumn.id,
+                    },
+                    "active": {
+                        "id": otherColumns.first().id
+                    }
+                }
+            }
+        }
+        return JsonResponse(response, status=HTTPStatus.OK)
+
+@method_decorator(csrf_exempt, name='dispatch')
 class KanbanBoardBacklogInActiveTicketsApiEventVersion1Component(View):
 
     def get(self, *args, **kwargs):
@@ -623,6 +665,48 @@ class KanbanBoardBacklogInActiveTicketsApiEventVersion1Component(View):
         }
         return JsonResponse(response, status=HTTPStatus.OK)
 
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class KanbanBoardBacklogInActiveTicketsApiEventVersion2Component(View):
+
+    def get(self, *args, **kwargs):
+        boardId = self.kwargs.get("boardId", None)
+
+        try:
+            board = Board.objects.get(id=boardId)
+        except Board.DoesNotExist:
+            response = {
+                "success": False,
+                "message": "Could not find a board for id: " + str(boardId)
+            }
+            return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
+
+        backlogColumn = Column.objects.filter(board=board, name__icontains="BACKLOG").first()
+        todoColumn = Column.objects.filter(board=board, name__icontains="TO DO").first()
+
+        if backlogColumn is None or todoColumn is None:
+            response = {
+                "success": False,
+                "message": "Could not find a backlog for this board. Check the board settings."
+            }
+            return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
+
+        response = {
+            "success": True,
+            "data": {
+                "tickets": serializeTicketsIntoChunks(backlogColumn.columnTickets.all()),
+                "columns": {
+                    "inActive": {
+                        "id": backlogColumn.id,
+                    },
+                    "active": {
+                        "id": todoColumn.id
+                    }
+                }
+            }
+        }
+        return JsonResponse(response, status=HTTPStatus.OK)
 
 @method_decorator(csrf_exempt, name='dispatch')
 class BoardObjectDetailsApiEventVersion1Component(View):
@@ -705,6 +789,7 @@ def serializeTickets(tickets, data):
             "internalKey": ticket.internalKey,
             "link": "/jira2/ticket/" + str(ticket.internalKey),
             "storyPoints": ticket.storyPoints if ticket.storyPoints is not None else "-",
+            "column": ticket.column.name if ticket.column is not None else None,
             "issueType": {
                 "internalKey": ticket.issueType.internalKey,
                 "icon": "/static/" + ticket.issueType.icon,

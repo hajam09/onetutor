@@ -164,7 +164,9 @@ def boards(request):
         Column.objects.bulk_create(
             [
                 Column(board=newBoard, name='BACKLOG'),
-                Column(board=newBoard, name='TO DO')
+                Column(board=newBoard, name='TO DO'),
+                Column(board=newBoard, name='IN PROGRESS'),
+                Column(board=newBoard, name='DONE')
             ]
         )
 

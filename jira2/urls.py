@@ -7,7 +7,9 @@ from jira2.api import BoardSettingsViewBoardColumnsApiEventVersion1Component
 from jira2.api import BoardSettingsViewBoardLabelsApiEventVersion1Component
 from jira2.api import BoardSettingsViewGeneralDetailsApiEventVersion1Component
 from jira2.api import KanbanBoardBacklogActiveTicketsApiEventVersion1Component
+from jira2.api import KanbanBoardBacklogActiveTicketsApiEventVersion2Component
 from jira2.api import KanbanBoardBacklogInActiveTicketsApiEventVersion1Component
+from jira2.api import KanbanBoardBacklogInActiveTicketsApiEventVersion2Component
 from jira2.api import KanbanBoardDetailsAndItemsApiEventVersion1Component
 from jira2.api import KanbanBoardTicketColumnUpdateApiEventVersion1Component
 from jira2.api import TicketObjectBaseDataUpdateApiEventVersion1Component
@@ -100,5 +102,15 @@ urlpatterns += [
         'api/v1/ticketObjectBulkCreateApiEventVersion1Component',
         TicketObjectBulkCreateApiEventVersion1Component.as_view(),
         name='ticketObjectBulkCreateApiEventVersion1Component'
+    ),
+    path(
+        'api/v2/kanbanBoardBacklogActiveTicketsApiEventVersion2Component/<int:boardId>',
+        KanbanBoardBacklogActiveTicketsApiEventVersion2Component.as_view(),
+        name='kanbanBoardBacklogActiveTicketsApiEventVersion2Component'
+    ),
+    path(
+        'api/v2/kanbanBoardBacklogInActiveTicketsApiEventVersion2Component/<int:boardId>',
+        KanbanBoardBacklogInActiveTicketsApiEventVersion2Component.as_view(),
+        name='kanbanBoardBacklogInActiveTicketsApiEventVersion2Component'
     ),
 ]
