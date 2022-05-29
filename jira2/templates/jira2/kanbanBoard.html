@@ -362,6 +362,7 @@
 
     window.onload = function(e)
     {
+        const t0 = performance.now();
         $.ajax(
         {
             url: "{% url 'jira2:kanbanBoardDetailsAndItemsApiEventVersion1Component' boardId=board.id %}",
@@ -369,6 +370,8 @@
             dataType: 'json',
             success: function(response)
             {
+                const t1 = performance.now();
+                console.log(`Received a response from ajax took ${t1 - t0} milliseconds.`);
                 if (!response.success)
                     return;
 
@@ -422,11 +425,14 @@
                             );
                         }
                     });
-
-
                 }
+                const t2 = performance.now();
+                console.log(`Rendering complete took ${t2 - t0} milliseconds.`);
             }
         });
+
+        const t3 = performance.now();
+        console.log(`Function completed in ${t3 - t0} milliseconds.`);
 
 
         // updateTicketModal();

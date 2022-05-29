@@ -1,4 +1,5 @@
 import json
+import threading
 from datetime import datetime
 from datetime import timedelta
 from http import HTTPStatus
@@ -474,7 +475,7 @@ class KanbanBoardDetailsAndItemsApiEventVersion1Component(View):
         boardId = self.kwargs.get("boardId", None)
 
         try:
-            board = Board.objects.prefetch_related('boardColumns', 'boardLabels').get(id=boardId)
+            board = Board.objects.get(id=boardId)
         except Board.DoesNotExist:
             response = {
                 "success": False,
@@ -483,7 +484,7 @@ class KanbanBoardDetailsAndItemsApiEventVersion1Component(View):
             return JsonResponse(response, status=HTTPStatus.NOT_FOUND)
 
         backLogColumn = Column.objects.filter(board=board, name__icontains="BACKLOG").first()
-        otherColumns = Column.objects.filter(board=board).exclude(id=backLogColumn.id)
+        otherColumns = Column.objects.filter(board=board).exclude(id=backLogColumn.id).prefetch_related('columnTickets')
 
         response = {
             "success": True,
@@ -510,7 +511,7 @@ class KanbanBoardDetailsAndItemsApiEventVersion1Component(View):
                     {
                         "id": i.id,
                         "name": i.name,
-                        "tickets": serializeTickets(i.columnTickets.all())
+                        "tickets": serializeTicketsIntoChunks(i.columnTickets.all())
                     }
                     for i in otherColumns
                 ]
@@ -566,7 +567,7 @@ class KanbanBoardBacklogActiveTicketsApiEventVersion1Component(View):
         response = {
             "success": True,
             "data": {
-                "tickets": serializeTickets(otherColumnTickets),
+                "tickets": serializeTicketsIntoChunks(otherColumnTickets),
                 "columns": {
                     "inActive": {
                         "id": backLogColumn.id,
@@ -608,7 +609,7 @@ class KanbanBoardBacklogInActiveTicketsApiEventVersion1Component(View):
         response = {
             "success": True,
             "data": {
-                "tickets": serializeTickets(backLogColumn.columnTickets.all()),
+                "tickets": serializeTicketsIntoChunks(backLogColumn.columnTickets.all()),
                 "columns": {
                     "inActive": {
                         "id": backLogColumn.id,
@@ -695,8 +696,8 @@ class TicketObjectBulkCreateApiEventVersion1Component(View):
         return JsonResponse({}, status=HTTPStatus.OK)
 
 
-def serializeTickets(tickets):
-    data = [
+def serializeTickets(tickets, data):
+    newData = [
         {
             "id": ticket.id,
             "summary": ticket.summary,
@@ -727,5 +728,36 @@ def serializeTickets(tickets):
         }
         for ticket in tickets
     ]
+
+    for i in newData:
+        data.append(i)
+
+    return
+
+
+def serializeTicketsIntoChunks(tickets):
+
+    if tickets.count() == 0:
+        return []
+
+    data = []
+    JOBS = []
+    MAX_THREADS = 4
+    chunkSize = tickets.count() // MAX_THREADS
+
+    if chunkSize == 0:
+        serializeTickets(tickets, data)
+        return data
+
+    ticketsChunks = [tickets[i:i + chunkSize] for i in range(0, len(tickets), chunkSize)]
+
+    for index in ticketsChunks:
+        JOBS.append(threading.Thread(target=serializeTickets, args=(index, data,)))
+
+    for j in JOBS:
+        j.start()
+
+    for j in JOBS:
+        j.join()
 
     return data

@@ -71,7 +71,7 @@ urlpatterns += [
         name='ticketObjectBaseDataUpdateApiEventVersion1Component'
     ),
     path(
-        'jira2/api/v1/kanbanBoardDetailsAndItemsApiEventVersion1Component/<int:boardId>',
+        'api/v1/kanbanBoardDetailsAndItemsApiEventVersion1Component/<int:boardId>',
         KanbanBoardDetailsAndItemsApiEventVersion1Component.as_view(),
         name='kanbanBoardDetailsAndItemsApiEventVersion1Component'
     ),
