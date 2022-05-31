@@ -3,10 +3,10 @@ import threading
 from datetime import datetime
 from datetime import timedelta
 from http import HTTPStatus
-from django.db.models import Q
 
 from django.contrib.auth.models import User
 from django.core.cache import cache
+from django.db.models import Q
 from django.http import QueryDict, JsonResponse
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -611,7 +611,7 @@ class KanbanBoardBacklogActiveTicketsApiEventVersion2Component(View):
         response = {
             "success": True,
             "data": {
-                "tickets": serializeTicketsIntoChunks(otherColumnTickets),
+                "tickets": serializeTicketsIntoChunks(otherColumnTickets.filter(~Q(issueType__code="EPIC"))),
                 "columns": {
                     "inActive": {
                         "id": backLogColumn.id,
@@ -623,6 +623,7 @@ class KanbanBoardBacklogActiveTicketsApiEventVersion2Component(View):
             }
         }
         return JsonResponse(response, status=HTTPStatus.OK)
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class KanbanBoardBacklogInActiveTicketsApiEventVersion1Component(View):
@@ -666,7 +667,6 @@ class KanbanBoardBacklogInActiveTicketsApiEventVersion1Component(View):
         return JsonResponse(response, status=HTTPStatus.OK)
 
 
-
 @method_decorator(csrf_exempt, name='dispatch')
 class KanbanBoardBacklogInActiveTicketsApiEventVersion2Component(View):
 
@@ -695,7 +695,7 @@ class KanbanBoardBacklogInActiveTicketsApiEventVersion2Component(View):
         response = {
             "success": True,
             "data": {
-                "tickets": serializeTicketsIntoChunks(backlogColumn.columnTickets.all()),
+                "tickets": serializeTicketsIntoChunks(backlogColumn.columnTickets.filter(~Q(issueType__code="EPIC"))),
                 "columns": {
                     "inActive": {
                         "id": backlogColumn.id,
@@ -707,6 +707,7 @@ class KanbanBoardBacklogInActiveTicketsApiEventVersion2Component(View):
             }
         }
         return JsonResponse(response, status=HTTPStatus.OK)
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class BoardObjectDetailsApiEventVersion1Component(View):
@@ -822,14 +823,13 @@ def serializeTickets(tickets, data):
 
 
 def serializeTicketsIntoChunks(tickets):
-
     if tickets.count() == 0:
         return []
 
     data = []
     JOBS = []
     MAX_THREADS = 4
-    chunkSize = tickets.count()
+    chunkSize = tickets.count() // MAX_THREADS
 
     if chunkSize == 0:
         serializeTickets(tickets, data)
