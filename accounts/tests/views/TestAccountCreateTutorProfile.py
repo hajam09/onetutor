@@ -3,7 +3,7 @@ import datetime
 from django.urls import reverse
 
 from accounts.models import TutorProfile
-from dashboard.models import UserLogin
+from accounts.models import UserLogin
 from onetutor.settings import TEST_PASSWORD
 from onetutor.tests.BaseTestViews import BaseTestViews
 from tutoring.models import Availability

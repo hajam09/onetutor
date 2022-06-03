@@ -3,7 +3,7 @@ from datetime import datetime
 
 from django.urls import reverse
 
-from dashboard.models import UserSession
+from accounts.models import UserSession
 from onetutor.tests.BaseTestAjax import BaseTestAjax
 
 

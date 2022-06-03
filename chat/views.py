@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 
 from chat.models import Thread
-from dashboard.models import UserLogin
+from accounts.models import UserLogin
 
 
 @login_required

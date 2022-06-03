@@ -26,7 +26,6 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('chat/', include('chat.urls')),
     path('recurringTask/', include('recurringTask.urls')),
-    path('dashboard/', include('dashboard.urls')),
     path('jira/', include('jira.urls')),
     path('jira2/', include('jira2.urls')),
     path('forum/', include('forum.urls')),

@@ -4,7 +4,7 @@ from unittest.mock import patch
 from django.core.cache import cache
 from django.urls import reverse
 
-from dashboard.models import UserSession, UserLogin
+from accounts.models import UserSession, UserLogin
 from onetutor.settings import TEST_PASSWORD
 from onetutor.tests.BaseTestViews import BaseTestViews
 

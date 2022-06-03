@@ -47,7 +47,6 @@ INSTALLED_APPS = [
     'colorfield',
     'coverage',
     'debug_toolbar',
-    'dashboard',
     'forum',
     'jira',
     'jira2',

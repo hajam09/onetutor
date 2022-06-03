@@ -27,8 +27,8 @@ from accounts.forms import UserSettingsPasswordUpdateForm
 from accounts.models import ParentProfile
 from accounts.models import StudentProfile
 from accounts.models import TutorProfile
-from dashboard.models import UserLogin
-from dashboard.models import UserSession
+from accounts.models import UserLogin
+from accounts.models import UserSession
 from onetutor.operations import databaseOperations
 from onetutor.operations import emailOperations
 from onetutor.operations import generalOperations
