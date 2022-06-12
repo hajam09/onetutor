@@ -29,6 +29,7 @@ from accounts.models import StudentProfile
 from accounts.models import TutorProfile
 from accounts.models import UserLogin
 from accounts.models import UserSession
+from onetutor.decorators.deprecated import deprecated
 from onetutor.operations import databaseOperations
 from onetutor.operations import emailOperations
 from onetutor.operations import generalOperations
@@ -145,8 +146,6 @@ def createStudentProfile(request):
 
 		if age < 18:
 			parentCode = request.POST["parentIdentifier"] or None
-			# TODO: optimize this section later on.
-			# parentProfile = next((c for c in ParentProfile.objects.filter(code=parentCode)), None)
 			try:
 				parentProfile = ParentProfile.objects.get(code=parentCode)
 			except ParentProfile.DoesNotExist:
@@ -377,6 +376,8 @@ def profileSecuritySettings(request, profile):
 
 @login_required
 def tutorNotificationSettings(request):
+	# Notify if there is a new message in chat
+	# Notify if there is a new comment on my forum
 	return render(request, 'accounts/tutor/tutorNotificationSettings.html')
 
 
@@ -408,6 +409,8 @@ def studentBiographySettings(request):
 	pass
 
 def studentNotificationSettings(request):
+	# Notify if there is a new message in chat
+	# Notify if there is a new comment on my forum
 	pass
 
 
@@ -418,8 +421,7 @@ def rules(request, ruleType):
 	elif ruleType == "termsAndConditions":
 		TEMPLATE = "accounts/termsAndConditions.html"
 	else:
-		# TODO: create a custom 404 page and redirect it to there.
-		pass
+		raise Http404
 
 	return render(request, TEMPLATE)
 
@@ -493,6 +495,7 @@ def passwordChange(request, uidb64, token):
 	return render(request, 'accounts/{}.html'.format(TEMPLATE), context)
 
 
+@deprecated
 def requestDeleteCode(request):
 
 	if not request.is_ajax():
