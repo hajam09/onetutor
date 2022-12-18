@@ -4,12 +4,11 @@ import random
 import string
 
 from django.contrib.auth.models import User
-from essential_generators import DocumentGenerator
 from faker import Faker
 
 from accounts.models import TutorProfile, Education, StudentProfile
 from onetutor.settings import TEST_PASSWORD
-from tutoring.models import Availability, Lesson, Feature
+from tutoring.models import Availability, Lesson
 
 EMAIL_DOMAINS = ["@yahoo", "@gmail", "@outlook", "@hotmail"]
 DOMAINS = [".co.uk", ".com", ".co.in", ".net", ".us"]
@@ -74,9 +73,8 @@ def createTutorProfileForUser(user=None):
     if user is None:
         user = createNewUser()
 
-    gen = DocumentGenerator()
-    summary = gen.sentence()
-    about = gen.paragraph()
+    summary = "gen.sentence()"
+    about = "gen.paragraph()"
     subjects = ', '.join(random.sample(SUBJECTS, 6))
 
     schoolStartYear = random.randint(1990, 2010)
@@ -154,8 +152,7 @@ def createNewUserAndStudentProfile(user=None):
     if user is None:
         user = createNewUser()
 
-    gen = DocumentGenerator()
-    about = gen.paragraph()
+    about = "gen.paragraph()"
     subjects = ', '.join(random.sample(SUBJECTS, 6))
     alsoSixthForm = random.choice(BOOLEAN)
 

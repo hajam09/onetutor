@@ -1,4 +1,4 @@
-{% extends "accounts/account_base.html" %}
+{% extends "accounts/base.html" %}
 {% load static %}
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/tutoringTutorProfile.css' %}"/>
@@ -74,8 +74,8 @@
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex flex-column align-items-center text-center">
-                        {% if tutorProfile.profilePicture %}
-                        <img src="{{ tutorProfile.profilePicture.url }}" class="rounded-circle" width="150" height="150" alt="Error" />
+                        {% if tutorProfile.picture %}
+                        <img src="{{ tutorProfile.picture.url }}" class="rounded-circle" width="150" height="150" alt="Error" />
                         {% else %}
                         <img src="https://icon-library.com/images/default-user-icon/default-user-icon-13.jpg" class="rounded-circle" width="150" height="150" alt="Error" />
                         {% endif %}
@@ -450,7 +450,7 @@
 			}
 			DisplayReviewStatistics(ratingValuePercentage);
 		}
-		
+
 		ParseTutorReviewToDisplay(listOfReviews);
 	}
 
@@ -561,7 +561,7 @@
 
 			var editedText = list[i].edited == true ? '(edited)' : '';
 			var userEditDropdown = GetTutorReviewDropdownForUser(list[i].canEdit, list[i].pk);
-			
+
 			var newCommentObject = `
 			<div class="reviews-members pt-4 pb-4" id="tutor_review_container_`+list[i].pk+`">
 				<div class="media">
@@ -608,7 +608,7 @@
 			{
 				if (response.statusCode == 401)
 				{
-					window.location.href = "{% url 'accounts:login' %}";
+					window.location.href = "{% url 'accounts:login-view' %}";
 				}
 
 				if (response.statusCode == 404)
@@ -644,7 +644,7 @@
 
 				if (response.statusCode == 401)
 				{
-					window.location.href = "{% url 'accounts:login' %}";
+					window.location.href = "{% url 'accounts:login-view' %}";
 				}
 
 				if (response.statusCode == 404)
@@ -735,7 +735,7 @@
 
                 var editedText = listOfReviews[i].edited == true ? '(edited)' : '';
                 var userEditDropdown = GetTutorReviewDropdownForUser(listOfReviews[i].canEdit, listOfReviews[i].pk);
-                
+
                 var existingReviewObject = `
                 <div class="media">
                     <a href="#"><img alt="Generic placeholder image" src="http://bootdey.com/img/Content/avatar/avatar1.png" class="mr-3 rounded-pill"></a>
@@ -792,7 +792,7 @@
 
                 if (response.statusCode == 401)
                 {
-                    window.location.href = "{% url 'accounts:login' %}";
+                    window.location.href = "{% url 'accounts:login-view' %}";
                 }
 
 
@@ -827,7 +827,7 @@
 
 				if (response.statusCode == 401)
 				{
-					window.location.href = "{% url 'accounts:login' %}";
+					window.location.href = "{% url 'accounts:login-view' %}";
 				}
 
 
@@ -844,7 +844,7 @@
 		var newList = [];
 		var ratingValueMap = [0, 0, 0, 0, 0, 0];
 		var ratingValuePercentage = [];
-		// not the optimal solution for bigger arrays. 
+		// not the optimal solution for bigger arrays.
 
 		for (var i = 0; i < listOfReviews.length; i++)
 		{
@@ -866,7 +866,7 @@
 
 			DisplayReviewStatistics(ratingValuePercentage);
 		}
-		
+
 		ParseTutorReviewToDisplay(listOfReviews);
 	}
 
@@ -963,7 +963,7 @@
 			{
 				if (response.statusCode == 401)
 				{
-					window.location.href = "{% url 'accounts:login' %}";
+					window.location.href = "{% url 'accounts:login-view' %}";
 				}
 
 				if (response.statusCode == 200)
@@ -1006,7 +1006,7 @@
 
 				if (response.statusCode == 401)
 				{
-					window.location.href = "{% url 'accounts:login' %}";
+					window.location.href = "{% url 'accounts:login-view' %}";
 				}
 
 				if (response.statusCode == 404)
@@ -1043,7 +1043,7 @@
 
 				if (response.statusCode == 401)
 				{
-					window.location.href = "{% url 'accounts:login' %}";
+					window.location.href = "{% url 'accounts:login-view' %}";
 				}
 
 				if (response.statusCode == 404)
@@ -1088,7 +1088,7 @@
 			{
 				if (response.statusCode == 401)
 				{
-					window.location.href = "{% url 'accounts:login' %}";
+					window.location.href = "{% url 'accounts:login-view' %}";
 				}
 
 				if (response.statusCode == 200)
@@ -1137,7 +1137,7 @@
 		// closing the modal and clearing the textarea
 		$("#questionModal").modal('hide');
 		$("textarea#question").val("");
-		
+
 		$.ajax(
 		{
 			data:
@@ -1151,7 +1151,7 @@
 			{
 				if (response.statusCode == 401)
 				{
-					window.location.href = "{% url 'accounts:login' %}";
+					window.location.href = "{% url 'accounts:login-view' %}";
 				}
 
 				if (response.statusCode == 200)
@@ -1223,7 +1223,7 @@
 
 				if (response.statusCode == 401)
 				{
-					window.location.href = "{% url 'accounts:login' %}";
+					window.location.href = "{% url 'accounts:login-view' %}";
 				}
 
                 if (response.statusCode == 403)
@@ -1258,7 +1258,7 @@
 
 				if (response.statusCode == 401)
 				{
-					window.location.href = "{% url 'accounts:login' %}";
+					window.location.href = "{% url 'accounts:login-view' %}";
 				}
 
 

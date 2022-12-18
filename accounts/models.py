@@ -2,167 +2,132 @@ import os
 import random
 import string
 import uuid
-from datetime import date
-from datetime import datetime
 
-import jsonfield
+from colorfield.fields import ColorField
 from django.contrib.auth.models import User
-from django.core.validators import BaseValidator
 from django.db import models
-from django.urls import reverse
-from django.utils.deconstruct import deconstructible
-from django.utils.translation import ugettext_lazy as _
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from onetutor import settings
-from tutoring.models import Component
 
 
-@deconstructible
-class MinAgeValidator(BaseValidator):
-    message = _("Age must be at least %(limit_value)d.")
-    code = 'min_age'
-
-    def calculateAge(self, born):
-        today = date.today()
-        return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
-
-    def compare(self, a, b):
-        return self.calculateAge(a) < b
-
-
-def getRandomImageForAvatar():
+def generateAvatar():
     return "avatars/" + random.choice(os.listdir(os.path.join(settings.MEDIA_ROOT, "avatars/")))
 
 
-def getParentCode():
-    return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
+def generateParentCode():
+    return "".join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
 
 
-class TutorProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='tutorProfile')
+class Qualification(models.TextChoices):
+    DOCTORATE = "DOCTORATE", _("Doctorate")
+    MASTER_DEGREE = "MASTER_DEGREE", _("Master Degree")
+    BACHELOR_DEGREE = "BACHELOR_DEGREE", _("Bachelor Degree")
+    FOUNDATION_DEGREE = "FOUNDATION_DEGREE", _("Foundation Degree")
+    DIPLOMA = "DIPLOMA", _("Diploma")
+    IB = "IB", _("International Baccalaureate (IB)")
+    A_LEVEL = "A_LEVEL", _("A-level")
+    GCSE = "GCSE", _("GCSE")
+    KS3 = "KS3", _("KS3")
+    KS2 = "KS2", _("KS2")
+    KS1 = "KS1", _("KS1")
+    MENTORING = "MENTORING", _("Mentoring")
+    OTHER = "OTHER", _("Other")
+
+
+class BaseModel(models.Model):
+    createdDateTime = models.DateTimeField(default=timezone.now)
+    modifiedDateTime = models.DateTimeField(auto_now=True)
+    reference = models.CharField(max_length=2048, blank=True, null=True)
+
+    class Meta:
+        abstract = True
+
+
+class ComponentGroup(BaseModel):
+    internalKey = models.CharField(max_length=2048, blank=True, null=True, unique=True)
+    code = models.CharField(max_length=2048, blank=True, null=True)
+    icon = models.CharField(max_length=2048, blank=True, null=True)
+    colour = ColorField(default="#FF0000")
+    orderNo = models.IntegerField(default=1, blank=True, null=True)
+
+    class Meta:
+        verbose_name_plural = "ComponentGroup"
+
+    def __str__(self):
+        return self.internalKey
+
+
+class Component(BaseModel):
+    componentGroup = models.ForeignKey(ComponentGroup, on_delete=models.CASCADE, related_name="components")
+    internalKey = models.CharField(max_length=2048, blank=True, null=True)
+    code = models.CharField(max_length=2048, blank=True, null=True)
+    icon = models.CharField(max_length=2048, blank=True, null=True)
+    colour = ColorField(default="#FF0000")
+    orderNo = models.IntegerField(default=1, blank=True, null=True)
+
+    class Meta:
+        ordering = ["componentGroup", "orderNo"]
+        verbose_name_plural = "Component"
+
+    def __str__(self):
+        return f"{self.componentGroup.internalKey} - {self.internalKey}"
+
+
+class TutorProfile(BaseModel):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="tutorProfile")
     url = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    summary = models.CharField(max_length=128, blank=True, null=True)
+    summary = models.CharField(max_length=256)
     about = models.TextField()
-    location = jsonfield.JSONField(blank=True, null=True)
-    subjects = models.CharField(max_length=8192, blank=True, null=True)
-    profilePicture = models.ImageField(upload_to='profile-picture', blank=True, null=True, default=getRandomImageForAvatar)
-    chargeRate = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
-    features = models.ManyToManyField(Component, related_name='featuresComponents', blank=True, limit_choices_to={'componentGroup__code': 'TUTOR_FEATURE'})
-    teachingLevels = models.ManyToManyField(Component, related_name='teachingComponent', blank=True, limit_choices_to={'componentGroup__code': 'EDUCATION_LEVEL'})  # store which education level(s) this tutor teaches.
+    picture = models.ImageField(default=generateAvatar, upload_to="profile-picture")
+    price = models.PositiveSmallIntegerField()
+    features = models.ManyToManyField(Component, blank=True, related_name="features")  # TUTOR_FEATURE
+    verified = models.BooleanField(default=False)
+    trustedBySchool = models.BooleanField(default=False)
 
     class Meta:
         verbose_name_plural = "TutorProfile"
-        ordering = ['-id']
-        indexes = [
-            models.Index(fields=['url', ])
-        ]
 
-    def getSubjectsAsList(self):
-        return self.subjects.split(",")
-
-    def getTutoringUrl(self):
-        return reverse('tutoring:view-tutor-profile', kwargs={'url': self.url})
-
-    @property
-    def getTutorRatingAsStars(self):
-        tutorReviewsObjects = self.user.tutorReviews
-        outOfPoints = tutorReviewsObjects.count() * 5
-        sumOfRating = sum([i.rating for i in tutorReviewsObjects.all()])
-
-        try:
-            averageRating = sumOfRating * 5 / outOfPoints
-            roundedRating = round(averageRating * 2) / 2
-        except ZeroDivisionError:
-            roundedRating = 0
-
-        pureRating = int(roundedRating)
-        decimalPart = roundedRating - pureRating
-        finalScore = "+" * pureRating
-
-        if decimalPart >= 0.75:
-            finalScore += "+"
-        elif decimalPart >= 0.25:
-            finalScore += "_"
-        # <i class="far fa-star"></i> for empty star
-        return finalScore.replace('+', '<i class="fas fa-star"></i>').replace('_', '<i class="fas fa-star-half"></i>')
-
-    def __str__(self):
-        return "{} - {}".format(self.user.email, self.user.get_full_name())
+    def getModelName(self):
+        return self.__class__.__name__
 
 
-class StudentProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='studentProfile')
+class StudentProfile(BaseModel):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="studentProfile")
     url = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     about = models.TextField()
-    education = jsonfield.JSONField(blank=True, null=True)
     subjects = models.CharField(max_length=8192, blank=True, null=True)
+    picture = models.ImageField(default=generateAvatar, upload_to="profile-picture")
     dateOfBirth = models.DateField(blank=True, null=True)
-    profilePicture = models.ImageField(upload_to='profile-picture', blank=True, null=True, default=getRandomImageForAvatar)
-    parent = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='studentsParent')
+    parent = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="children")
 
     class Meta:
         verbose_name_plural = "StudentProfile"
-        indexes = [
-            models.Index(fields=['url', ])
-        ]
+
+    def getModelName(self):
+        return self.__class__.__name__
 
     def getSubjectsAsList(self):
-        return self.subjects.split(",")
+        return self.subjects.split("&#44;")
 
 
-class ParentProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='parentProfile')
+class ParentProfile(BaseModel):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="parentProfile")
     url = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    code = models.CharField(max_length=8, default=getParentCode, editable=False, unique=True)
-    dateOfBirth = models.DateField(validators=[MinAgeValidator(18)], blank=True, null=True)
-    profilePicture = models.ImageField(upload_to='profile-picture', blank=True, null=True, default=getRandomImageForAvatar)
+    code = models.CharField(max_length=8, default=generateParentCode, editable=False, unique=True)
+    dateOfBirth = models.DateField(blank=True, null=True)
+    picture = models.ImageField(default=generateAvatar, upload_to="profile-picture")
 
     class Meta:
         verbose_name_plural = "ParentProfile"
-        indexes = [
-            models.Index(fields=['url', ])
-        ]
 
-
-class Subject(models.Model):
-    name = models.CharField(max_length=64)
-
-    class Meta:
-        verbose_name_plural = "Subject"
-        ordering = ('name',)
-
-    def __str__(self):
-        return "{} - {}".format(self.id, self.name)
-
-
-class Countries(models.Model):
-    alpha = models.CharField(max_length=4)
-    name = models.CharField(max_length=64)
-
-    class Meta:
-        verbose_name_plural = "Countries"
-        ordering = ('name',)
-        indexes = [
-            models.Index(fields=['name', ])
-        ]
-
-    def __str__(self):
-        return "{} - {} - {}".format(self.id, self.alpha, self.name)
-
-
-class SocialConnection(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    twitter = models.CharField(max_length=128, blank=True)
-    facebook = models.CharField(max_length=128, blank=True)
-    google = models.CharField(max_length=128, blank=True)
-    linkedin = models.CharField(max_length=128, blank=True)
-
-    class Meta:
-        verbose_name_plural = "SocialConnection"
+    def getModelName(self):
+        return self.__class__.__name__
 
 
 class Education(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='education')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="education")
     schoolName = models.CharField(max_length=256, blank=True, null=True)
     qualification = models.CharField(max_length=256, blank=True, null=True)
     startDate = models.DateField(blank=True, null=True)
@@ -172,32 +137,31 @@ class Education(models.Model):
         verbose_name_plural = "Education"
 
 
-class GetInTouch(models.Model):
+class TutorQualification(BaseModel):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="userQualification")
+    subject = models.CharField(max_length=256)
+    qualification = models.CharField(max_length=64, choices=Qualification.choices, default=Qualification.OTHER)
+    grade = models.CharField(max_length=16)
+
+    class Meta:
+        verbose_name_plural = "TutorQualification"
+
+
+class SubjectOffered(BaseModel):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="userSubjectsOffered")
+    subject = models.CharField(max_length=256)
+    qualification = models.CharField(max_length=64, choices=Qualification.choices, default=Qualification.OTHER)
+    price = models.PositiveSmallIntegerField()
+
+    class Meta:
+        verbose_name_plural = "SubjectOffered"
+
+
+class GetInTouch(BaseModel):
     fullName = models.CharField(max_length=256, blank=True, null=True)
     email = models.EmailField(max_length=256, blank=True, null=True)
     subject = models.CharField(max_length=256, blank=True, null=True)
     message = models.TextField()
-    dateTime = models.DateTimeField(auto_now_add=True, editable=True, blank=True, null=True)
 
     class Meta:
         verbose_name_plural = "GetInTouch"
-
-
-class UserSession(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    ipAddress = models.GenericIPAddressField(null=True, blank=True)
-    userAgent = models.CharField(max_length=1024, null=True, blank=True)
-    sessionKey = models.CharField(max_length=32, null=True, blank=True)
-    dateTime = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name_plural = "UserSession"
-
-
-class UserLogin(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    loginTime = models.DateTimeField(auto_now_add=True)
-    logoutTime = models.DateTimeField(default=datetime.max)
-
-    class Meta:
-        verbose_name_plural = "UserLogin"

@@ -1,4 +1,4 @@
-{% extends "accounts/account_base.html" %}
+{% extends "accounts/base.html" %}
 {% load static %}
 {% block content %}
 <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
@@ -65,7 +65,7 @@
 function verifyLogin()
 {
 	{% if not user.is_authenticated %}
-		window.location.href = "{% url 'accounts:login' %}";
+		window.location.href = "{% url 'accounts:login-view' %}";
 	{% endif %}
 }
 

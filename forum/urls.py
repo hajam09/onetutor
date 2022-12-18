@@ -3,7 +3,7 @@ from forum import views
 app_name = "forum"
 
 urlpatterns = [
-    path('', views.mainpage, name='mainpage'),
+    path('', views.mainpage, name='index-view'),
     path('c/<slug:communityUrl>/', views.communityPage, name='communityPage'),
     path('c/<slug:communityUrl>/f/<slug:forumUrl>', views.forumPage, name='forumPage'),
 

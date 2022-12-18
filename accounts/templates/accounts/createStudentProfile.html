@@ -1,178 +1,93 @@
-{% extends "accounts/account_base.html" %}
+{% extends "accounts/base.html" %}
 {% load static %}
 {% block content %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/tutorProfileEditPage.css' %}"/>
-<div class="container" style="margin: auto;overflow-x: hidden;">
-   <br>
-   {% if messages %}
-	   {% for message in messages %}
-		   {% if message.tags == "error" %}
-		   		<div style="color: black; text-align: center;" class="alert alert-danger" role="alert">{{message}}</div>
-		   {% else %}
-		   		<div style="color: black; text-align: center;" class="alert alert-{{ message.tags }}" role="alert">{{message}}</div>
-		   {% endif %}
-	   {% endfor %}
-   {% endif %}
-   <div class="row gutters-sm">
-      <div class="col-md-12" style="color: black;">
-         <form method="post">
-            {% csrf_token %}
-            <div class="form-group">
-               <h4 for="about">About</h4>
-               <textarea class="form-control" id="about" name="about" rows="5" required></textarea>
-            </div>
-            <hr>
-            <div class="form-group" id="education">
-               <h4 for="education" style="display:inline;">Education</h4>
-               <div id="listOfEducation">
-                  {% for e in request.user.education.all %}
-                  <div class="row">
-                     <div class="col-md-3 panel-pad-10">
-                        <div class="card">
-                           <input type="text" name="schoolName" class="form-control" placeholder="School Name" value="{{e.schoolName}}"
-                              data-toggle="tooltip" data-placement="top" title="School Name" required>
+
+    <br>
+    <div class="container">
+        <div class="row form-control" id="form-container">
+        </div>
+    </div>
+
+    <script type="text/babel">
+        class FormComponent extends React.Component {
+            constructor(props) {
+                super(props);
+                this.state = {
+                    csrf_token: "{{ csrf_token }}",
+                    showParentCodeInput: false,
+                }
+            }
+
+            getAge = (DOB) => {
+                const today = new Date();
+                const birthDate = new Date(DOB);
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const m = today.getMonth() - birthDate.getMonth();
+                if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+                return age;
+            }
+
+            handlerDateOfBirthChange = () => {
+                const birthDate = Date.parse(this.refs.dateOfBirthRef.value);
+                const age = this.getAge(birthDate);
+                this.setState({
+                    showParentCodeInput: (age < 18),
+                })
+            }
+
+            render() {
+                return (
+                    <form method="post">
+                        <input type="hidden" name="csrfmiddlewaretoken" value={this.state.csrf_token}/>
+                        <div className="form-group">
+                            <b>About</b>
+                            <textarea className="form-control" id="about" name="about" rows="5" required></textarea>
                         </div>
-                     </div>
-                     <div class="col-md-3 panel-pad-10">
-                        <div class="card">
-                           <input type="text" name="qualification" class="form-control" placeholder="Qualification &amp; Grade(s)" value="{{e.qualification}}"
-                              data-toggle="tooltip" data-placement="top" title="Qualification &amp; Grade(s)" required>
+                        <div className="form-group">
+                            <b>Subjects</b>
+                            <select className="multiple-subjects form-control" name="subjects" multiple="multiple"
+                                    required></select>
                         </div>
-                     </div>
-                     <div class="col-md-3 panel-pad-10">
-                        <div class="card">
-                           <input type="date" name="startDate" class="form-control" placeholder="Attended From" value="{{e.startDate|date:'Y-m-d'}}"
-                              data-toggle="tooltip" data-placement="top" title="Attenderd from" required>
+                        <div className="form-group">
+                            <b>Date-of-birth</b>
+                            <input type="date" className="form-control" id="dateOfBirth" name="dateOfBirth"
+                                   ref="dateOfBirthRef" onChange={this.handlerDateOfBirthChange}
+                                   required></input>
+                            <br></br>
+                            <div id="parentIdentifierInput" hidden={!this.state.showParentCodeInput}>
+                                <b>Parent code</b>
+                                <input type="text" className="form-control" id="parentIdentifier"
+                                       name="parentIdentifier" required={this.state.showParentCodeInput}/>
+                            </div>
                         </div>
-                     </div>
-                     <div class="col-md-3 panel-pad-10">
-                        <div class="card">
-                           <input type="date" name="endDate" class="form-control" placeholder="Attended To" value="{{e.endDate|date:'Y-m-d'}}"
-                              data-toggle="tooltip" data-placement="top" title="Attenderd To" required>
+                        <div className="form-group">
+                            <button type="submit" className="btn btn-success btn-lg btn-block">Create Profile
+                            </button>
                         </div>
-                     </div>
-                  </div>
-                  {% endfor %}
-               </div>
-               <button type="button" class="btn btn-primary btn-sm" onclick="addEducationRow();">Add another</button>
-            </div>
-            <hr>
-            <div class="form-group">
-               <h4 for="subjects">Subjects</h4>
-               <select class="multiple-subjects form-control" name="subjects" multiple="multiple" required>
-               </select>
-            </div>
-            <hr>
-            <div class="form-group">
-               <h4 for="subjects">Date-of-birth</h4>
-               <input type="date" class="form-control" id="dateOfBirth" name="dateOfBirth" required>
-               <div id="parentIdentifierInput" hidden>
-                  <br>
-                  <h4 for="subjects">Parent code</h4>
-                  <input type="text" class="form-control" id="parentIdentifier" name="parentIdentifier">
-               </div>
-                  
-            </div>
-            <hr>
-            <div class="form-group">
-               <button type="submit" class="btn btn-success btn-lg btn-block">Create Profile</button>
-            </div>
-         </form>
-      </div>
-   </div>
-</div>
-<script src="/static/plugins/select2/js/select2.full.min.js"></script>
-<script type="text/javascript">
+                    </form>
+                )
+            }
+        }
 
-	$(document).ready(function()
-		{
-			$(".multiple-subjects").select2(
-				{
-					tags: true,
-				}
-			);
-		}
-	);
+        ReactDOM.render(<FormComponent/>, document.getElementById('form-container'));
+    </script>
 
-   $('#dateOfBirth').on('input', function()
-      {
-         var today = new Date();
-         var birthDate = new Date($(this).val());
-         var age = today.getFullYear() - birthDate.getFullYear();
-         var m = today.getMonth() - birthDate.getMonth();
+    <script type="text/javascript">
+        $(document).ready(function () {
+                $("select").select2({tags: true,});
+            }
+        );
+    </script>
 
-         if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate()))
-            age--;
-
-         if (age > 100)
-            return;
-
-         if (age < 18)
-         {
-            $('#parentIdentifierInput').removeAttr('hidden');
-            $('#parentIdentifier').removeAttr('hidden');
-            $('#parentIdentifier').attr('required', '');         }
-         else
-         {
-            $('#parentIdentifierInput').attr('hidden', '');
-            $('#parentIdentifier').attr('hidden', '');
-            $('#parentIdentifier').removeAttr('required');
-         }
-      }
-   );
-
-	addRemoveEducationBtn();
-	
-	function addEducationRow()
-	{
-		var newRow = `
-         <div class="row">
-            <div class="col-md-3 panel-pad-10">
-               <div class="card">
-                  <input type="text" name="schoolName" class="form-control" placeholder="School Name"
-                  data-toggle="tooltip" data-placement="top" title="School Name" required>
-               </div>
-            </div>
-            <div class="col-md-3 panel-pad-10">
-               <div class="card">
-                  <input type="text" name="qualification" class="form-control" placeholder="Qualification &amp; Grade(s)"
-                  data-toggle="tooltip" data-placement="top" title="Qualification &amp; Grade(s)" required>
-               </div>
-            </div>
-            <div class="col-md-3 panel-pad-10">
-               <div class="card">
-                  <input type="date" name="startDate" class="form-control" placeholder="Attended From"
-                  data-toggle="tooltip" data-placement="top" title="Attenderd from" required>
-               </div>
-            </div>
-            <div class="col-md-3 panel-pad-10">
-               <div class="card">
-                  <input type="date" name="endDate" class="form-control" placeholder="Attended To"
-                  data-toggle="tooltip" data-placement="top" title="Attenderd To" required>
-               </div>
-            </div>
-         </div>`;
-
-		$('#listOfEducation').append(newRow);
-
-      addRemoveEducationBtn();
-	}
-
-	function removeEducationRow()
-	{
-		$('#listOfEducation').children().last().remove();
-
-      addRemoveEducationBtn();
-	}
-
-	function addRemoveEducationBtn()
-   {
-      if ( $('#listOfEducation').children().length == 0 )
-         $('#removeRow').remove();
-      else
-         if ( $('#removeRow').length == 0 )
-            $('#education').append('<button type="button" id="removeRow" class="btn btn-danger btn-sm" onclick="removeEducationRow();">Remove Row</button>'); 
-   }
-
-</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"
+            integrity="sha512-8Q6Y9XnTbOE+JNvjBQwJ2H8S+UV4uA6hiRykhdtIyDYZ2TprdNmWOUaKdGzOhyr4dCyk287OejbPvwl7lrfqrQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"
+            integrity="sha512-MOCpqoRoisCTwJ8vQQiciZv0qcpROCidek3GTFS6KTk2+y7munJIlKCVkFCYY+p3ErYFXCjmFjnfTTRSC1OHWQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"
+            integrity="sha512-kp7YHLxuJDJcOzStgd6vtpxr4ZU9kjn77e6dBsivSz+pUuAuMlE2UTdKB7jjsWT84qbS8kdCWHPETnP/ctrFsA=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 {% endblock %}

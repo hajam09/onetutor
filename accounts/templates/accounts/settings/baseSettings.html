@@ -1,0 +1,20 @@
+{% extends "accounts/base.html" %}
+{% load settingsTemplateComponents %}
+{% load static %}
+{% block content %}
+    <div style="height:20px;"></div>
+    <div class="container-fluid" style="margin: auto;overflow-x: hidden; max-width: 1500px; color:black;">
+        <br>
+        <div class="row">
+            <div class="col-md-3">
+                {% getTabsForProfile request %}
+            </div>
+            <div class="col-md-9">
+                <div class="tab-content" id="v-pills-tabContent">
+                    {% block settingsContent %}
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

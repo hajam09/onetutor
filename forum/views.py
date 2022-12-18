@@ -6,7 +6,7 @@ from datetime import datetime
 from datetime import timedelta
 from http import HTTPStatus
 
-import pandas as pd
+# import pandas as pd
 from django.contrib import messages
 from django.core.paginator import EmptyPage
 from django.core.paginator import Paginator
@@ -65,7 +65,7 @@ def mainpage(request):
     paginator = Paginator(forums, 15)
     pageStartNumber = 1
 
-    if request.is_ajax():
+    if request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
         functionality = request.GET.get('functionality', None)
 
         if functionality == "fetchForums":
@@ -132,7 +132,7 @@ def communityPage(request, communityUrl):
     paginator = Paginator(forums, 15)
     pageStartNumber = 1
 
-    if request.is_ajax():
+    if request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
         functionality = request.GET.get('functionality', None)
 
         if functionality == "fetchForums":
@@ -188,7 +188,7 @@ def forumPage(request, communityUrl, forumUrl):
         # Forum's community is not the same as the expected community from url.
         return HttpResponse("<h1>Bad Request. Looks like you are messing with the url.</h1>")
 
-    if request.is_ajax():
+    if request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
         functionality = request.GET.get('functionality', None)
 
         if functionality == "deleteForumComment":
@@ -267,44 +267,45 @@ def forumPage(request, communityUrl, forumUrl):
 
 
 def GetPopularPosts(idsOnly=True):
-    """
-        Return the most popular posts created on any community.
-        Attributes to determine the popularity:
-            forum vote, comment count, watch count and creation date is today (future).
-    """
-    if Forum.objects.count() == 0:
-        return []
-
-    allForums = Forum.objects.filter(createdAt__gte=datetime.now() - timedelta(days=7))
-
-    if allForums.count() == 0:
-        allForums = Forum.objects.all()
-
-    allForums = allForums.prefetch_related('likes', 'dislikes', 'watchers', 'forumComments').select_related('creator',
-                                                                                                            'community')
-
-    forumDict = [{
-        'id': e.pk,
-        'forumVote': e.likes.count() - e.dislikes.count(),
-        'commentCount': e.forumComments.all().count(),
-        'watchCount': e.watchers.all().count()
-    } for e in allForums]
-
-    df = pd.DataFrame(forumDict)
-    scaling = MinMaxScaler()
-    divedent = 100 / 3
-
-    forumScaled = scaling.fit_transform(df[['forumVote', 'commentCount', 'watchCount']])
-    forumNormalized = pd.DataFrame(forumScaled, columns=['forumVote', 'commentCount', 'watchCount'])
-
-    df[['normalizedForumVote', 'normalizedCommentCount', 'normalizedWatchCount']] = forumNormalized
-    df['score'] = df['normalizedForumVote'] * divedent + df['normalizedCommentCount'] * divedent + df[
-        'normalizedWatchCount'] * divedent
-
-    forumScoredDataFrame = df.sort_values(['score'], ascending=False)
-    forumId = list(forumScoredDataFrame['id'])
-    # return [allForums[i-1] for i in forumId] # use when pk is in order.
-    return forumId if idsOnly else [j for i in forumId for j in allForums if i == j.pk]
+    # """
+    #     Return the most popular posts created on any community.
+    #     Attributes to determine the popularity:
+    #         forum vote, comment count, watch count and creation date is today (future).
+    # """
+    # if Forum.objects.count() == 0:
+    #     return []
+    #
+    # allForums = Forum.objects.filter(createdAt__gte=datetime.now() - timedelta(days=7))
+    #
+    # if allForums.count() == 0:
+    #     allForums = Forum.objects.all()
+    #
+    # allForums = allForums.prefetch_related('likes', 'dislikes', 'watchers', 'forumComments').select_related('creator',
+    #                                                                                                         'community')
+    #
+    # forumDict = [{
+    #     'id': e.pk,
+    #     'forumVote': e.likes.count() - e.dislikes.count(),
+    #     'commentCount': e.forumComments.all().count(),
+    #     'watchCount': e.watchers.all().count()
+    # } for e in allForums]
+    #
+    # df = pd.DataFrame(forumDict)
+    # scaling = MinMaxScaler()
+    # divedent = 100 / 3
+    #
+    # forumScaled = scaling.fit_transform(df[['forumVote', 'commentCount', 'watchCount']])
+    # forumNormalized = pd.DataFrame(forumScaled, columns=['forumVote', 'commentCount', 'watchCount'])
+    #
+    # df[['normalizedForumVote', 'normalizedCommentCount', 'normalizedWatchCount']] = forumNormalized
+    # df['score'] = df['normalizedForumVote'] * divedent + df['normalizedCommentCount'] * divedent + df[
+    #     'normalizedWatchCount'] * divedent
+    #
+    # forumScoredDataFrame = df.sort_values(['score'], ascending=False)
+    # forumId = list(forumScoredDataFrame['id'])
+    # # return [allForums[i-1] for i in forumId] # use when pk is in order.
+    # return forumId if idsOnly else [j for i in forumId for j in allForums if i == j.pk]
+    return []
 
 
 def randomString(size=6, chars=string.ascii_uppercase + string.digits):

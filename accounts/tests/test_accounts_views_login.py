@@ -19,7 +19,7 @@
 #
 # 	def setUp(self):
 # 		self.client = Client(HTTP_USER_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36')
-# 		self.url = reverse('accounts:login')
+# 		self.url = reverse('accounts:login-view')
 # 		self.user_1 = User.objects.get(email='barry.allen@yahoo.com')
 #
 # 	@classmethod
@@ -30,7 +30,7 @@
 # 	def test_login_GET(self):
 # 		response = self.client.get(self.url)
 # 		self.assertEquals(response.status_code, 200)
-# 		self.assertTemplateUsed(response, 'accounts/login.html')
+# 		self.assertTemplateUsed(response, 'accounts/loginView.html')
 #
 # 	def test_login_rememberMe(self):
 # 		"""
@@ -71,7 +71,7 @@
 # 		self.assertEquals(response.context["message"], "Username or Password did not match!")
 # 		self.assertIn("username", response.context)
 # 		self.assertEquals(response.context["username"], 'nonexistentialuser@gmail.com')
-# 		self.assertTemplateUsed(response, "accounts/login.html")
+# 		self.assertTemplateUsed(response, "accounts/loginView.html")
 #
 # 	# @skip("Don't want to test")
 # 	def test_logout(self):

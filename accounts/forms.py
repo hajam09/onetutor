@@ -11,7 +11,10 @@ from django.core.exceptions import ValidationError
 
 from accounts.models import GetInTouch
 from accounts.models import TutorProfile
-from onetutor.operations import generalOperations
+from onetutor.operations import generalOperations, databaseOperations
+
+# TODO: password_validation.validate_password(password, self.instance) for better security
+from tutoring.models import Component, Availability
 
 
 class RegistrationForm(UserCreationForm):
@@ -39,7 +42,6 @@ class RegistrationForm(UserCreationForm):
             }
         )
     )
-    # TODO: use password1 and password2 from super class.
     password1 = forms.CharField(
         label='',
         strip=False,
@@ -69,7 +71,7 @@ class RegistrationForm(UserCreationForm):
         email = self.cleaned_data.get('email')
 
         if User.objects.filter(email=email).exists():
-            raise ValidationError("An account already exists for this email address!")
+            raise ValidationError('An account already exists for this email address!')
 
         return email
 
@@ -83,21 +85,20 @@ class RegistrationForm(UserCreationForm):
         if not generalOperations.isPasswordStrong(password1):
             raise ValidationError("Your password is not strong enough.")
 
-        # TODO: use validate_password for better security.
-
         return password1
 
-    def save(self):
-        newUser = User.objects.create_user(
-            username=self.cleaned_data.get("email"),
-            email=self.cleaned_data.get("email"),
-            password=self.cleaned_data.get("password1"),
-            first_name=self.cleaned_data.get("first_name"),
-            last_name=self.cleaned_data.get("last_name")
-        )
-        newUser.is_active = settings.DEBUG
-        newUser.save()
-        return newUser
+    def save(self, commit=True):
+        user = User()
+        user.username = self.cleaned_data.get("email")
+        user.email = self.cleaned_data.get("email")
+        user.set_password(self.cleaned_data["password1"])
+        user.first_name = self.cleaned_data.get("first_name")
+        user.last_name = self.cleaned_data.get("last_name")
+        user.is_active = settings.DEBUG
+
+        if commit:
+            user.save()
+        return user
 
 
 # TODO: extends AuthenticationForm
@@ -119,11 +120,6 @@ class LoginForm(forms.ModelForm):
             }
         )
     )
-    rememberMe = forms.BooleanField(
-        label='Remember Me',
-        required=False,
-        widget=forms.CheckboxInput()
-    )
 
     class Meta:
         model = User
@@ -140,14 +136,8 @@ class LoginForm(forms.ModelForm):
         user = authenticate(username=email, password=password)
         if user:
             login(self.request, user)
-
-            rememberMe = self.cleaned_data.get('rememberMe')
-            if not rememberMe:
-                self.request.session.set_expiry(0)
-
+            # if remember me, then self.request.session.set_expiry(0)
             return self.cleaned_data
-
-        # TODO: use validate_password for better security.
 
         raise ValidationError("Username or Password did not match! ")
 
@@ -271,7 +261,153 @@ class PasswordChangeForm(forms.Form):
         self.user.save()
 
 
-class TutorProfileForm(forms.ModelForm):
+class TutorProfileCreateForm(forms.Form):
+    summary = forms.CharField(
+        label='Summary',
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control col',
+                'required': 'required',
+            }
+        ),
+    )
+    about = forms.CharField(
+        label='About',
+        required=False,
+        widget=forms.Textarea(
+            attrs={
+                'class': 'form-control col',
+                'style': 'border-radius: 0',
+                'required': 'required',
+                'rows': 5,
+            }
+        )
+    )
+    chargeRate = forms.DecimalField(
+        label='Charge Rate (£)',
+        widget=forms.NumberInput(
+            attrs={
+                'class': 'form-control',
+                'style': 'width: 100%',
+                'required': 'required',
+                'step': '0.1',
+                'min': '0',
+            }
+        ),
+    )
+    teachingLevels = forms.MultipleChoiceField(
+        label='Teaching levels',
+        widget=forms.Select(
+            attrs={
+                'class': 'form-control select2',
+                'style': 'width: 100%;',
+                'required': 'required',
+                'multiple': 'multiple',
+            }
+        ),
+    )
+    tutorFeatures = forms.MultipleChoiceField(
+        label='Features',
+        widget=forms.Select(
+            attrs={
+                'class': 'form-control select2',
+                'style': 'width: 100%;',
+                'required': 'required',
+                'multiple': 'multiple',
+            }
+        ),
+    )
+    subjects = forms.MultipleChoiceField(
+        label='Subjects',
+        widget=forms.Select(
+            attrs={
+                'class': 'form-control select2',
+                'style': 'width: 100%;',
+                'required': 'required',
+                'multiple': 'multiple',
+            }
+        ),
+    )
+
+    def __init__(self, request, *args, **kwargs):
+        kwargs.setdefault('label_suffix', '')
+        super(TutorProfileCreateForm, self).__init__(*args, **kwargs)
+        self.request = request
+
+        TEACHING_LEVEL_CHOICES = (
+            (c.id, c.internalKey) for c in Component.objects.filter(componentGroup__code="EDUCATION_LEVEL")
+        )
+        FEATURE_CHOICES = (
+            (c.id, c.internalKey) for c in Component.objects.filter(componentGroup__code="TUTOR_FEATURE")
+        )
+
+        self.base_fields['teachingLevels'].choices = TEACHING_LEVEL_CHOICES
+        self.base_fields['tutorFeatures'].choices = FEATURE_CHOICES
+        self.base_fields['subjects'].choices = ((1, "A"), (2, "B"))
+        self.initial['initialEducationList'] = [
+            (1, '', '', '', '')
+        ]
+
+    def clean(self):
+        schoolNames = self.request.POST.getlist('schoolName')
+        qualifications = self.request.POST.getlist('qualification')
+        startDates = self.request.POST.getlist('startDate')
+        endDates = self.request.POST.getlist('endDate')
+
+        del self.errors['teachingLevels']
+        del self.errors['tutorFeatures']
+        del self.errors['subjects']
+
+        isValid = not (schoolNames == [] or qualifications == [] or startDates == [] or endDates == [])
+        enteredEducationList = []
+        counter = 1
+        for schoolName, qualification, startDate, endDate in zip(schoolNames, qualifications, startDates, endDates):
+            enteredEducationList.append((counter, schoolName, qualification, startDate, endDate))
+            thisRowValid = not (not schoolName or not qualification or not startDate or not endDate)
+            counter += 1
+
+            if not thisRowValid:
+                isValid = False
+
+        if not isValid:
+            self.errors['initialEducationList'] = self.error_class(
+                ['Please enter your education history.']
+            )
+
+        self.initial['initialEducationList'] = enteredEducationList
+        self.cleaned_data['subjects'] = 'E1'
+
+        return self.cleaned_data
+
+    def save(self):
+        schoolNames = self.data.getlist('schoolName')
+        qualifications = self.data.getlist('qualification')
+        startDates = self.data.getlist('startDate')
+        endDates = self.data.getlist('endDate')
+        databaseOperations.createEducationInBulk(self.request, schoolNames, qualifications, startDates, endDates)
+
+        profile, created = TutorProfile.objects.update_or_create(
+            user=self.request.user,
+            defaults={
+                'summary': self.cleaned_data.get('summary'),
+                'about': self.cleaned_data.get('about'),
+                'subjects': ', '.join([i.capitalize() for i in self.request.POST.getlist('subjects')]),
+                'chargeRate': float(self.cleaned_data.get('chargeRate')),
+            }
+        )
+
+        profile.features.clear()
+        profile.teachingLevels.clear()
+
+        profile.features.add(*[int(i) for i in self.data.getlist('tutorFeatures')])
+        profile.teachingLevels.add(*[int(i) for i in self.data.getlist('teachingLevels')])
+
+        Availability.objects.get_or_create(
+            user=self.request.user
+        )
+
+
+class TutorProfileForm2(forms.ModelForm):
     class Meta:
         model = TutorProfile
         fields = "__all__"

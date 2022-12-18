@@ -1,0 +1,877 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/tutoring-index-page.css' %}"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/4.9.95/css/materialdesignicons.css"
+          rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/js/jquery.nice-select.min.js"></script>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/css/nice-select.min.css"/>
+
+    <style>
+        a:link, a:visited {
+            text-decoration: none;
+            color: black;
+            cursor: pointer;
+        }
+    </style>
+
+    <div id="index-view-container">
+    </div>
+    <script type="text/babel">
+
+        function generateId(length) {
+            let result = '';
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            const charactersLength = characters.length;
+            let counter = 0;
+            while (counter < length) {
+                result += characters.charAt(Math.floor(Math.random() * charactersLength));
+                counter += 1;
+            }
+            return result;
+        }
+
+        function getParameterByName(name, url = window.location.href) {
+            name = name.replace(/[\[\]]/g, '\\$&');
+            let regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
+        }
+
+        class DropdownOptions {
+            constructor(internalKey, value, isSelected) {
+                this.id = generateId(3)
+                this.internalKey = internalKey
+                this.value = value
+                this.isSelected = isSelected
+            }
+        }
+
+
+        class BadgeComponent extends React.Component {
+            constructor(props) {
+                super(props);
+            }
+
+            render() {
+                const style1 = {
+                    backgroundColor: this.props.item.colour,
+                }
+                return (
+                    <span>
+                        <span className="badge badge-primary"
+                              style={style1}>{this.props.item.internalKey.toUpperCase()} </span>&nbsp;&nbsp;
+                    </span>
+                )
+            }
+        }
+
+        class CandidateComponent extends React.Component {
+            constructor(props) {
+                super(props);
+            }
+
+            render() {
+                return (
+                    <div className="list-grid-item mt-4 p-2">
+                        <a href={"/tutor-profile/" + this.props.item.url + "/"} className="row">
+                            <div className="col-3">
+                                <img src="https://dummyimage.com/500x500" className="rounded float-left" height="190"
+                                     width="190"/>
+                            </div>
+                            <div className="col-7">
+                                <h3>{this.props.item.user.firstName + " " + this.props.item.user.lastName}</h3>
+                                {this.props.item.features.map((feature) => <BadgeComponent key={feature.id}
+                                                                                           item={feature}/>)}
+                                <hr></hr>
+                                <h6>{this.props.item.summary}</h6>
+                            </div>
+                            <div className="col-2">
+                                <h5>£ {this.props.item.chargeRate} / hr</h5>
+                                <hr></hr>
+                                <ul className="list-unstyled">
+                                    <li>{this.props.item.reviews.average} / 5</li>
+                                    <li>{this.props.item.lessons.points} points</li>
+                                    <li>{this.props.item.reviews.count} reviews</li>
+                                    <li>{this.props.item.lessons.count} lessons</li>
+                                </ul>
+                                <hr></hr>
+                            </div>
+                        </a>
+                    </div>
+                );
+            }
+        }
+
+        class IndexViewComponent extends React.Component {
+            constructor(props) {
+                super(props);
+                let subject = getParameterByName("subject");
+                let orderBy = getParameterByName("orderBy");
+                let tutorFeature = getParameterByName("tutorFeature");
+                let rating = getParameterByName("rating");
+                let minimumRate = getParameterByName("minimumRate");
+                let maximumRate = getParameterByName("maximumRate");
+                let minimumScore = getParameterByName("minimumScore");
+                let maximumScore = getParameterByName("maximumScore");
+                let myEducationLevel = getParameterByName("myEducationLevel");
+                let qualification = getParameterByName("qualification");
+
+
+                tutorFeature = tutorFeature !== null ? tutorFeature.split(",") : [];
+                rating = rating !== null ? parseInt(rating) : -1;
+                minimumRate = minimumRate !== null ? parseFloat(minimumRate) : null;
+                maximumRate = maximumRate !== null ? parseFloat(maximumRate) : null;
+                minimumScore = minimumScore !== null ? parseInt(minimumScore) : null;
+                maximumScore = maximumScore !== null ? parseInt(maximumScore) : null;
+                qualification = qualification !== null ? qualification.split(",") : [];
+
+                this.state = {
+                    subject: subject,
+                    orderBy: orderBy,
+                    tutorFeatures: tutorFeature,
+                    rating: rating,
+                    minimumRate: minimumRate,
+                    maximumRate: maximumRate,
+                    minimumScore: minimumScore,
+                    maximumScore: maximumScore,
+                    myEducationLevel: myEducationLevel,
+                    qualification: qualification,
+                    orderByOptions: this.getOrderByOptions(orderBy),
+                    candidates: [],
+                    pagination: null,
+                    currentUrl: window.location.href,
+                }
+            }
+
+            getOrderByOptions = (orderBy) => {
+                return [
+                    new DropdownOptions("Featured", "featured", orderBy === "featured" || orderBy === "null"),
+                    new DropdownOptions("Price: Low to High", "sortPriceLH", orderBy === "sortPriceLH"),
+                    new DropdownOptions("Price: High to Low", "sortPriceHL", orderBy === "sortPriceHL"),
+                    new DropdownOptions("Score: Low to High", "sortScoreLH", orderBy === "sortScoreLH"),
+                    new DropdownOptions("Score: High to Low", "sortScoreHL", orderBy === "sortScoreHL"),
+                ];
+            }
+
+            updateSubject = (value) => {
+                // not used. when new query is entered -> then clear all the filters.
+                this.setState({
+                    subject: value,
+                })
+            }
+
+            hasCandidateListChanged = (previousCandidateList, newCandidateList) => {
+                // not used
+                if (previousCandidateList.length !== newCandidateList.length)
+                    return true;
+
+                for (const previousCandidate of previousCandidateList) {
+                    let candidateInNewList = newCandidateList.find(x => x.id === previousCandidate.id);
+                    if (candidateInNewList === null) {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            componentDidUpdate = () => {
+                /*this.updateHistory();
+                if (this.state.currentUrl !== window.location.href) {
+                    this.fetchTutorsFromServer();
+                    this.setState({
+                        currentUrl: window.location.href,
+                    })
+                }*/
+            }
+
+            updateOrderByOptions = (event) => {
+                this.setState({
+                    orderByOptions: this.getOrderByOptions(event.target.value),
+                })
+            }
+
+            updateTutorFeatures = (feature) => {
+                let tutorFeatures = this.state.tutorFeatures;
+                if (tutorFeatures.includes(feature)) {
+                    tutorFeatures = tutorFeatures.filter(function (item) {
+                        return item !== feature
+                    })
+                } else {
+                    tutorFeatures.push(feature);
+                }
+                this.setState({
+                    tutorFeatures: tutorFeatures,
+                })
+            }
+
+            updateRating = (rating) => {
+                this.setState({
+                    rating: rating,
+                })
+            }
+
+            componentDidMount = () => {
+                this.fetchTutorsFromServer();
+            }
+
+            fetchTutorsFromServer = () => {
+                const query = window.location.href.split('?')[1];
+                if (query === undefined)
+                    return;
+
+                fetch("{% url 'tutoring:tutorListingApiEventVersion1Component' %}?" + query, {
+                    method: "GET",
+                }).then((response) => response.json())
+                    .then((response) => {
+                        if (!response.success)
+                            return;
+
+                        this.setState({
+                            candidates: response.data.tutors,
+                            pagination: response.data.pagination,
+                        })
+                    });
+            }
+
+            updateMyEducationLevel = (education) => {
+                this.setState({
+                    myEducationLevel: education,
+                })
+            }
+
+            updateQualification = (newQualification) => {
+                let qualification = this.state.qualification;
+                if (qualification.includes(newQualification)) {
+                    qualification = qualification.filter(function (item) {
+                        return item !== newQualification
+                    })
+                } else {
+                    qualification.push(newQualification);
+                }
+                this.setState({
+                    qualification: qualification,
+                })
+            }
+
+            getSearchResultComponent = () => {
+                return (
+                    <div className="container">
+                        {this.getDropdownComponent()}
+                        <div className="row">
+                            {this.getFilterComponent()}
+                            {this.getCandidateListingComponent()}
+                        </div>
+                    </div>
+                )
+            }
+
+            getNoSearchComponent = () => {
+                const DsAWWdZDrs = {
+                    color: "black",
+                }
+                return (
+                    <div className="s01">
+                        <form method="GET" action="{{ request.path }}">
+                            <fieldset>
+                                <legend style={DsAWWdZDrs}>Shall we find a tutor for you?</legend>
+                            </fieldset>
+                            <div className="inner-form">
+                                <div className="input-field first-wrap">
+                                    <input type="text" name="subject" placeholder="Try 'GCES Maths'" id="subject"/>
+                                </div>
+                                <div className="input-field third-wrap">
+                                    <button className="btn-search" type="submit">Search</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                )
+            }
+
+            getYesSearchComponent = () => {
+                const lWaPVdyByD = {
+                    background: "rgba(0, 0, 0, 0.5)",
+                    padding: "40px 43px 43px",
+                }
+                const oPVRcTSKdh = {
+                    borderRadius: "1px",
+                    backgroundColor: "#4272d7",
+                }
+
+                const uHWNZamMys = {
+                    borderRadius: "1px",
+                }
+                return (
+                    <div>
+                        <br></br>
+                        <form method="GET" action="{{ request.path }}">
+                            <div className="form-row" style={lWaPVdyByD}>
+                                <div className="col-11">
+                                    <input type="text" className="form-control" id="subject" name="subject"
+                                           style={uHWNZamMys} placeholder="Try 'GCES Maths'"
+                                           defaultValue={this.state.subject}/>
+                                </div>
+                                <div className="col">
+                                    <input style={oPVRcTSKdh} className="btn btn-primary" type="submit" value="Submit"/>
+                                </div>
+                            </div>
+                        </form>
+                        <hr></hr>
+                        <br></br>
+                        {this.getSearchResultComponent()}
+                    </div>
+                )
+            }
+
+            getDropdownComponent = () => {
+                const OwjVtHhUHq = {
+                    color: "black",
+                }
+                return (
+                    <div className="row align-items-center">
+                        <div className="col-lg-12">
+                            <div className="show-results mt-5">
+                                <div className="float-left">
+                                    <h5 className="text-dark mb-0 pt-2">Showing 1-4 of 4</h5>
+                                </div>
+                                <div className="sort-button float-right" style={OwjVtHhUHq}>
+                                    <ul className="list-inline mb-0">
+                                        <li className="list-inline-item">
+                                            <select id="sort-by-dropdown" className="nice-select"
+                                                    onChange={this.updateOrderByOptions}>
+                                                {this.state.orderByOptions.map((item) => <option key={item.id}
+                                                                                                 value={item.value}
+                                                                                                 selected={item.isSelected}>{item.internalKey}</option>)}
+                                            </select>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+
+            getFilterComponent = () => {
+                const kWwKuMbAed = {
+                    height: "10px",
+                }
+
+                const oYrVnsDqbN = {
+                    color: "black",
+                }
+
+                const mQrCsYgLXj = {
+                    paddingTop: "8px",
+                }
+
+                const RnkIqYtZNh = {
+                    width: "16px",
+                    height: "16px",
+                    marginLeft: "-23px",
+                }
+
+                const ClRcYkSJxg = {
+                    color: "#6c757d",
+                    paddingTop: "1px",
+                    marginLeft: "4px",
+                }
+
+                const ClRcYkSJxg2 = {
+                    color: "#6c757d",
+                    paddingTop: "1px",
+                    marginLeft: "4px",
+                }
+
+                const ClRcYkSJxg3 = {
+                    paddingLeft: "44px",
+                    marginBottom: "5px",
+                }
+
+                const ClRcYkSJxg4 = {
+                    marginTop: "10px"
+                }
+                return (
+                    <div className="col-lg-3">
+                        <div className="left-sidebar" id="filterOptions">
+                            <div className="accordion" id="accordionExample">
+                                <div className="card mt-4">
+                                    <a data-toggle="collapse" href="#collapseOne" className="job-list"
+                                       aria-expanded="true" aria-controls="collapseOne">
+                                        <div className="card-header" id="headingOne">
+                                            <h5 className="mb-0 text-dark f-18">Features</h5>
+                                        </div>
+                                    </a>
+                                    <div id="collapseOne" className="collapse show" aria-labelledby="headingOne">
+                                        <div className="card-body p-0" id="listOfTutorFeaturesFilter">
+                                            <div className="form-check custom-control custom-checkbox">
+                                                <input type="checkbox" className="form-check-input" style={RnkIqYtZNh}
+                                                       onClick={() => this.updateTutorFeatures("inPersonLessons")}
+                                                       defaultChecked={this.state.tutorFeatures.includes("inPersonLessons")}/>
+                                                <label className="form-check-label" style={ClRcYkSJxg}
+                                                       onClick={() => this.updateTutorFeatures("inPersonLessons")}>
+                                                    In Person Lessons</label>
+                                            </div>
+                                            <div className="form-check custom-control custom-checkbox">
+                                                <input type="checkbox" className="form-check-input" style={RnkIqYtZNh}
+                                                       onClick={() => this.updateTutorFeatures("onlineLessons")}
+                                                       defaultChecked={this.state.tutorFeatures.includes("onlineLessons")}/>
+                                                <label className="form-check-label" style={ClRcYkSJxg}
+                                                       onClick={() => this.updateTutorFeatures("onlineLessons")}>
+                                                    Online lessons</label>
+                                            </div>
+                                            <div className="form-check custom-control custom-checkbox">
+                                                <input type="checkbox" className="form-check-input" style={RnkIqYtZNh}
+                                                       onClick={() => this.updateTutorFeatures("pro")}
+                                                       defaultChecked={this.state.tutorFeatures.includes("pro")}/>
+                                                <label className="form-check-label" style={ClRcYkSJxg}
+                                                       onClick={() => this.updateTutorFeatures("pro")}>
+                                                    Pro</label>
+                                            </div>
+                                            <div className="form-check custom-control custom-checkbox">
+                                                <input type="checkbox" className="form-check-input" style={RnkIqYtZNh}
+                                                       onClick={() => this.updateTutorFeatures("dbs")}
+                                                       defaultChecked={this.state.tutorFeatures.includes("dbs")}/>
+                                                <label className="form-check-label" style={ClRcYkSJxg}
+                                                       onClick={() => this.updateTutorFeatures("dbs")}>
+                                                    DBS</label>
+                                            </div>
+                                            <div className="form-check custom-control custom-checkbox">
+                                                <input type="checkbox" className="form-check-input" style={RnkIqYtZNh}
+                                                       onClick={() => this.updateTutorFeatures("sc")}
+                                                       defaultChecked={this.state.tutorFeatures.includes("sc")}/>
+                                                <label className="form-check-label" style={ClRcYkSJxg}
+                                                       onClick={() => this.updateTutorFeatures("sc")}>
+                                                    Security Check</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="card mt-4">
+                                    <a data-toggle="collapse" href="#collapseSix" className="job-list"
+                                       aria-expanded="true" aria-controls="collapseSix">
+                                        <div className="card-header" id="headingSix">
+                                            <h5 className="mb-0 text-dark f-18">Rating</h5>
+                                        </div>
+                                    </a>
+                                    <div id="collapseSix" className="collapse show" aria-labelledby="headingSix">
+                                        <div className="card-body p-0" id="listOfTutorRatingFilter" style={ClRcYkSJxg4}>
+                                            <div className="form-check" style={ClRcYkSJxg3}>
+                                                <input className="form-check-input" type="radio"
+                                                       name="tutorAverageRatingRadioBox" value={-1} style={RnkIqYtZNh}
+                                                       defaultChecked={this.state.rating > 5 || this.state.rating < 1}
+                                                       onClick={() => this.updateRating(-1)}/>
+                                                <label className="form-check-label" style={ClRcYkSJxg2}
+                                                       onClick={() => this.updateRating(-1)}>Show All</label>
+                                            </div>
+                                            <div className="form-check" style={ClRcYkSJxg3}>
+                                                <input className="form-check-input" type="radio"
+                                                       name="tutorAverageRatingRadioBox" value={5} style={RnkIqYtZNh}
+                                                       defaultChecked={this.state.rating === 5}
+                                                       onClick={() => this.updateRating(5)}/>
+                                                <label className="form-check-label" style={ClRcYkSJxg2}
+                                                       onClick={() => this.updateRating(5)}> 5 <i
+                                                    className="fas fa-star"></i> only </label>
+                                            </div>
+                                            <div className="form-check" style={ClRcYkSJxg3}>
+                                                <input className="form-check-input" type="radio"
+                                                       name="tutorAverageRatingRadioBox" value={4} style={RnkIqYtZNh}
+                                                       defaultChecked={this.state.rating === 4}
+                                                       onClick={() => this.updateRating(4)}/>
+                                                <label className="form-check-label" style={ClRcYkSJxg2}
+                                                       onClick={() => this.updateRating(4)}> 4 <i
+                                                    className="fas fa-star"></i> only </label>
+                                            </div>
+                                            <div className="form-check" style={ClRcYkSJxg3}>
+                                                <input className="form-check-input" type="radio"
+                                                       name="tutorAverageRatingRadioBox" value={3} style={RnkIqYtZNh}
+                                                       defaultChecked={this.state.rating === 3}
+                                                       onClick={() => this.updateRating(3)}/>
+                                                <label className="form-check-label" style={ClRcYkSJxg2}
+                                                       onClick={() => this.updateRating(3)}> 3 <i
+                                                    className="fas fa-star"></i> only </label>
+                                            </div>
+                                            <div className="form-check" style={ClRcYkSJxg3}>
+                                                <input className="form-check-input" type="radio"
+                                                       name="tutorAverageRatingRadioBox" value={2} style={RnkIqYtZNh}
+                                                       defaultChecked={this.state.rating === 2}
+                                                       onClick={() => this.updateRating(2)}/>
+                                                <label className="form-check-label" style={ClRcYkSJxg2}
+                                                       onClick={() => this.updateRating(2)}> 2 <i
+                                                    className="fas fa-star"></i> only </label>
+                                            </div>
+                                            <div className="form-check" style={ClRcYkSJxg3}>
+                                                <input className="form-check-input" type="radio"
+                                                       name="tutorAverageRatingRadioBox" value={1} style={RnkIqYtZNh}
+                                                       defaultChecked={this.state.rating === 1}
+                                                       onClick={() => this.updateRating(1)}/>
+                                                <label className="form-check-label" style={ClRcYkSJxg2}
+                                                       onClick={() => this.updateRating(1)}> 1 <i
+                                                    className="fas fa-star"></i> only </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="card mt-4">
+                                    <a data-toggle="collapse" href="#collapseTwo" className="job-list"
+                                       aria-expanded="true" aria-controls="collapseTwo">
+                                        <div className="card-header" id="headingTwo">
+                                            <h5 className="mb-0 text-dark f-18">Price</h5>
+                                        </div>
+                                    </a>
+                                    <div style={kWwKuMbAed}></div>
+                                    <div id="collapseTwo" className="collapse show" aria-labelledby="headingTwo">
+                                        <div className="card-body p-0">
+                                            <div className="container">
+                                                <div className="row" style={oYrVnsDqbN}>
+                                                    <div className="col">
+                                                        <input type="number" step="0.1" min="0"
+                                                               className="form-control"
+                                                               name="minimumRate"
+                                                               onInput={e => {
+                                                                   this.setState({
+                                                                       minimumRate: parseFloat(e.target.value),
+                                                                   });
+                                                               }}
+                                                               defaultValue={this.state.minimumRate}
+                                                               placeholder="Min"/>
+                                                    </div>
+                                                    <div style={mQrCsYgLXj}>to</div>
+                                                    <div className="col">
+                                                        <input type="number" step="0.1" min="0"
+                                                               className="form-control"
+                                                               name="maximumRate"
+                                                               onInput={e => {
+                                                                   this.setState({
+                                                                       maximumRate: parseFloat(e.target.value),
+                                                                   });
+                                                               }}
+                                                               defaultValue={this.state.maximumRate}
+                                                               placeholder="Max"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style={kWwKuMbAed}></div>
+                                </div>
+
+                                <div className="card mt-4">
+                                    <a data-toggle="collapse" href="#collapseThree" className="job-list"
+                                       aria-expanded="true" aria-controls="collapseThree">
+                                        <div className="card-header" id="headingThree">
+                                            <h5 className="mb-0 text-dark f-18">Tutor Score</h5>
+                                        </div>
+                                    </a>
+                                    <div style={kWwKuMbAed}></div>
+                                    <div id="collapseThree" className="collapse show" aria-labelledby="headingThree">
+                                        <div className="card-body p-0">
+                                            <div className="container">
+                                                <div className="row" style={oYrVnsDqbN}>
+                                                    <div className="col">
+                                                        <input type="number" step="1" min="0" className="form-control"
+                                                               name="minimumScore"
+                                                               onInput={e => {
+                                                                   this.setState({
+                                                                       minimumScore: parseInt(e.target.value),
+                                                                   });
+                                                               }}
+                                                               defaultValue={this.state.minimumScore}
+                                                               placeholder="Min"/>
+                                                    </div>
+                                                    <div style={mQrCsYgLXj}>to</div>
+                                                    <div className="col">
+                                                        <input type="number" step="1" min="0" className="form-control"
+                                                               name="maximumScore"
+                                                               onInput={e => {
+                                                                   this.setState({
+                                                                       maximumScore: parseInt(e.target.value),
+                                                                   });
+                                                               }}
+                                                               defaultValue={this.state.maximumScore}
+                                                               placeholder="Max"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style={kWwKuMbAed}></div>
+                                </div>
+
+                                <div className="card mt-4">
+                                    <a data-toggle="collapse" href="#collapseFour" className="job-list"
+                                       aria-expanded="true" aria-controls="collapseFour">
+                                        <div className="card-header" id="headingFour">
+                                            <h5 className="mb-0 text-dark f-18">My Education Level</h5>
+                                        </div>
+                                    </a>
+                                    <div id="collapseFour" className="collapse show" aria-labelledby="headingFour">
+                                        <div className="card-body p-0" id="listOfMyEducationLevelFilter"
+                                             style={ClRcYkSJxg4}>
+                                            <div className="form-check" style={ClRcYkSJxg3}>
+                                                <input className="form-check-input" type="radio"
+                                                       name="myEducationRadioBox" value="SATS" style={RnkIqYtZNh}
+                                                       defaultChecked={this.state.myEducationLevel === "SATS"}
+                                                       onClick={() => this.updateMyEducationLevel("SATS")}/>
+                                                <label className="form-check-label" style={ClRcYkSJxg2}
+                                                       onClick={() => this.updateMyEducationLevel("SATS")}>SATs</label>
+                                            </div>
+                                            <div className="form-check" style={ClRcYkSJxg3}>
+                                                <input className="form-check-input" type="radio"
+                                                       name="myEducationRadioBox" value="GCSE" style={RnkIqYtZNh}
+                                                       defaultChecked={this.state.myEducationLevel === "GCSE"}
+                                                       onClick={() => this.updateMyEducationLevel("GCSE")}/>
+                                                <label className="form-check-label" style={ClRcYkSJxg2}
+                                                       onClick={() => this.updateMyEducationLevel("GCSE")}>GCSE</label>
+                                            </div>
+                                            <div className="form-check" style={ClRcYkSJxg3}>
+                                                <input className="form-check-input" type="radio"
+                                                       name="myEducationRadioBox" value="ASLEVEL" style={RnkIqYtZNh}
+                                                       defaultChecked={this.state.myEducationLevel === "ASLEVEL"}
+                                                       onClick={() => this.updateMyEducationLevel("ASLEVEL")}/>
+                                                <label className="form-check-label" style={ClRcYkSJxg2}
+                                                       onClick={() => this.updateMyEducationLevel("ASLEVEL")}>AS-Level</label>
+                                            </div>
+                                            <div className="form-check" style={ClRcYkSJxg3}>
+                                                <input className="form-check-input" type="radio"
+                                                       name="myEducationRadioBox" value="ALEVEL" style={RnkIqYtZNh}
+                                                       defaultChecked={this.state.myEducationLevel === "ALEVEL"}
+                                                       onClick={() => this.updateMyEducationLevel("ALEVEL")}/>
+                                                <label className="form-check-label" style={ClRcYkSJxg2}
+                                                       onClick={() => this.updateMyEducationLevel("ALEVEL")}>A-Level</label>
+                                            </div>
+                                            <div className="form-check" style={ClRcYkSJxg3}>
+                                                <input className="form-check-input" type="radio"
+                                                       name="myEducationRadioBox" value="UNDERGRADUATE"
+                                                       style={RnkIqYtZNh}
+                                                       defaultChecked={this.state.myEducationLevel === "UNDERGRADUATE"}
+                                                       onClick={() => this.updateMyEducationLevel("UNDERGRADUATE")}/>
+                                                <label className="form-check-label" style={ClRcYkSJxg2}
+                                                       onClick={() => this.updateMyEducationLevel("UNDERGRADUATE")}>Undergraduate</label>
+                                            </div>
+                                            <div className="form-check" style={ClRcYkSJxg3}>
+                                                <input className="form-check-input" type="radio"
+                                                       name="myEducationRadioBox" value="POSTGRADUATE"
+                                                       style={RnkIqYtZNh}
+                                                       defaultChecked={this.state.myEducationLevel === "POSTGRADUATE"}
+                                                       onClick={() => this.updateMyEducationLevel("POSTGRADUATE")}/>
+                                                <label className="form-check-label" style={ClRcYkSJxg2}
+                                                       onClick={() => this.updateMyEducationLevel("POSTGRADUATE")}>Postgraduate</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="card mt-4">
+                                    <a data-toggle="collapse" href="#collapseFive" className="job-list"
+                                       aria-expanded="true" aria-controls="collapseFive">
+                                        <div className="card-header" id="headingFive">
+                                            <h5 className="mb-0 text-dark f-18">Qualification</h5>
+                                        </div>
+                                    </a>
+                                    <div id="collapseFive" className="collapse show" aria-labelledby="headingFive">
+                                        <div className="card-body p-0" id="listOfQualificationFilter">
+
+                                            <div className="form-check custom-control custom-checkbox">
+                                                <input type="checkbox" className="form-check-input" style={RnkIqYtZNh}
+                                                       onClick={() => this.updateQualification("higherSecondary")}
+                                                       defaultChecked={this.state.qualification.includes("higherSecondary")}/>
+                                                <label className="form-check-label" style={ClRcYkSJxg}
+                                                       onClick={() => this.updateQualification("higherSecondary")}>
+                                                    Higher Secondary</label>
+                                            </div>
+                                            <div className="form-check custom-control custom-checkbox">
+                                                <input type="checkbox" className="form-check-input" style={RnkIqYtZNh}
+                                                       onClick={() => this.updateQualification("foundationDegree")}
+                                                       defaultChecked={this.state.qualification.includes("foundationDegree")}/>
+                                                <label className="form-check-label" style={ClRcYkSJxg}
+                                                       onClick={() => this.updateQualification("foundationDegree")}>
+                                                    Foundation Degree</label>
+                                            </div>
+                                            <div className="form-check custom-control custom-checkbox">
+                                                <input type="checkbox" className="form-check-input" style={RnkIqYtZNh}
+                                                       onClick={() => this.updateQualification("bachelorDegree")}
+                                                       defaultChecked={this.state.qualification.includes("bachelorDegree")}/>
+                                                <label className="form-check-label" style={ClRcYkSJxg}
+                                                       onClick={() => this.updateQualification("bachelorDegree")}>
+                                                    Bachelor Degree</label>
+                                            </div>
+                                            <div className="form-check custom-control custom-checkbox">
+                                                <input type="checkbox" className="form-check-input" style={RnkIqYtZNh}
+                                                       onClick={() => this.updateQualification("masterDegree")}
+                                                       defaultChecked={this.state.qualification.includes("masterDegree")}/>
+                                                <label className="form-check-label" style={ClRcYkSJxg}
+                                                       onClick={() => this.updateQualification("masterDegree")}>
+                                                    Master Degree</label>
+                                            </div>
+                                            <div className="form-check custom-control custom-checkbox">
+                                                <input type="checkbox" className="form-check-input" style={RnkIqYtZNh}
+                                                       onClick={() => this.updateQualification("doctorate")}
+                                                       defaultChecked={this.state.qualification.includes("doctorate")}/>
+                                                <label className="form-check-label" style={ClRcYkSJxg}
+                                                       onClick={() => this.updateQualification("doctorate")}>Doctorate</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <br></br>
+                            <button type="button" className="btn btn-outline-secondary btn-block" onClick={e => {
+                                this.updateHistory();
+                                if (this.state.currentUrl !== window.location.href) {
+                                    this.fetchTutorsFromServer();
+                                    this.setState({
+                                        currentUrl: window.location.href,
+                                    })
+                                }
+                            }
+                            }>Update filter
+                            </button>
+                        </div>
+                    </div>
+                )
+            }
+
+
+            handlePaginationClick = (number) => {
+                let pagination = this.state.pagination;
+                if (pagination !== null) {
+                    pagination.currentPage = number;
+                    this.setState({
+                        pagination: pagination,
+                    })
+
+                    this.updateHistory();
+                    if (this.state.currentUrl !== window.location.href) {
+                        this.fetchTutorsFromServer();
+                        this.setState({
+                            currentUrl: window.location.href,
+                        })
+                    }
+                }
+            }
+
+            getPageNumberComponent = (number, isActive) => {
+                let pageButtonClass = "page-item".concat(" ", isActive ? "active" : "");
+                return (
+                    <li key={number} className={pageButtonClass}>
+                        <span className="page-link" onClick={() => this.handlePaginationClick(number)}>{number}</span>
+                    </li>
+                )
+            }
+
+            getPaginationComponent = () => {
+                let previousBtnClass = "page-item".concat(" ", this.state.pagination.hasPrevious ? "" : "disabled");
+                let nextBtnClass = "page-item".concat(" ", this.state.pagination.hasNext ? "" : "disabled");
+                return (
+                    <nav aria-label="Page navigation example">
+                        <ul className="pagination justify-content-center">
+                            <li className={previousBtnClass}>
+                                <span className="page-link"
+                                      onClick={() => this.handlePaginationClick(this.state.pagination.previousPageNumber)}>Previous</span>
+                            </li>
+                            {this.state.pagination.paginator.map((page) => <span
+                                key={page.pageNumber}>{this.getPageNumberComponent(page.pageNumber, page.isActive)}</span>)}
+                            <li className={nextBtnClass}>
+                                <span className="page-link"
+                                      onClick={() => this.handlePaginationClick(this.state.pagination.nextPageNumber)}>Next</span>
+                            </li>
+                        </ul>
+                    </nav>
+                )
+            }
+
+            getCandidateListingComponent = () => {
+                return (
+                    <div className="col-lg-9">
+                        {this.state.candidates.map((item) => <CandidateComponent key={item.id} item={item}/>)}
+                        {
+                            this.state.candidates.length === 0 ?
+                                <div className="alert alert-danger text-center" role="alert"> No tutors found! Search
+                                    for something broad. </div> : null
+                        }
+                        <br></br>
+                        {this.state.pagination !== null && this.state.pagination.hasOtherPages ? this.getPaginationComponent() : null}
+                    </div>
+                )
+            }
+
+            hasSearchParameters = () => {
+                let url = window.location.href;
+                const arr = url.split('?');
+                return arr.length > 1 && arr[1] !== '';
+            }
+
+            updateHistory = () => {
+                // subject : any
+                // orderBy : [featured, sortPriceLH, sortPriceHL, sortScoreLH, sortScoreHL]
+                // tutorFeature : [inPersonLessons, onlineLessons, pro, dbs, sc]
+                // rating : [-1, 5, 4, 3, 2, 1]
+                // minimumRate : double
+                // maximumRate : double
+                // minimumScore : int
+                // maximumScore : int
+                // myEducationLevel : [SATS, GCSE, ASLEVEL, ALEVEL, UNDERGRADUATE]
+                // qualification : [higherSecondary, foundationDegree, bachelorDegree, masterDegree, doctorate]
+
+                let baseUrl = "http://localhost:8000/";
+                baseUrl += `?subject=${this.state.subject}`
+
+                // configure orderBy
+                const orderByOptions = this.state.orderByOptions.find(element => element.isSelected);
+                orderByOptions != null ? baseUrl += "&orderBy=" + orderByOptions.value : null;
+
+                // configure tutorFeature
+                this.state.tutorFeatures.length > 0 ? baseUrl += "&tutorFeature=" + this.state.tutorFeatures.join(",") : null;
+
+                // configure rating
+                this.state.rating != null && (this.state.rating >= 1 && this.state.rating <= 5) ? baseUrl += "&rating=" + this.state.rating : null;
+
+                // configure rate
+                this.state.minimumRate ? baseUrl += "&minimumRate=" + this.state.minimumRate : null;
+                this.state.maximumRate ? baseUrl += "&maximumRate=" + this.state.maximumRate : null;
+
+                // configure score
+                this.state.minimumScore ? baseUrl += "&minimumScore=" + this.state.minimumScore : null;
+                this.state.maximumScore ? baseUrl += "&maximumScore=" + this.state.maximumScore : null;
+
+                // configure myEducationLevel
+                this.state.myEducationLevel != null ? baseUrl += "&myEducationLevel=" + this.state.myEducationLevel : null;
+
+                // configure qualification
+                this.state.qualification.length > 0 ? baseUrl += "&qualification=" + this.state.qualification.join(",") : null;
+
+                // configure page number
+                this.state.pagination !== null ? baseUrl += "&page=" + this.state.pagination.currentPage : null;
+
+                window.history.pushState("", "", baseUrl);
+            }
+
+            render = () => {
+                return (
+                    <div className="container">
+                        {this.hasSearchParameters() ? this.getYesSearchComponent() : this.getNoSearchComponent()}
+                    </div>
+                )
+            }
+        }
+
+        ReactDOM.render(<IndexViewComponent/>, document.getElementById("index-view-container"));
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"
+            integrity="sha512-8Q6Y9XnTbOE+JNvjBQwJ2H8S+UV4uA6hiRykhdtIyDYZ2TprdNmWOUaKdGzOhyr4dCyk287OejbPvwl7lrfqrQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"
+            integrity="sha512-MOCpqoRoisCTwJ8vQQiciZv0qcpROCidek3GTFS6KTk2+y7munJIlKCVkFCYY+p3ErYFXCjmFjnfTTRSC1OHWQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"
+            integrity="sha512-kp7YHLxuJDJcOzStgd6vtpxr4ZU9kjn77e6dBsivSz+pUuAuMlE2UTdKB7jjsWT84qbS8kdCWHPETnP/ctrFsA=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+{% endblock %}

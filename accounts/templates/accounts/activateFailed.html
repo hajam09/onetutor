@@ -1,4 +1,4 @@
-{% extends "accounts/account_base.html" %}
+{% extends "accounts/base.html" %}
 {% load static %}
 {% block content %}
 <style type="text/css">
@@ -16,7 +16,7 @@
 				<div class="or-line"></div>
 			</div>
 			<div class="loginbox-submit">
-				<a href="{% url 'tutoring:mainpage' %}"><button type="submit" class="btn btn-primary btn-block">Home</button></a>
+				<a href="{% url 'tutoring:index-view' %}"><button type="submit" class="btn btn-primary btn-block">Home</button></a>
 			</div>
 		</div>
 	</div>

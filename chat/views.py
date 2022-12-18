@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 
 from chat.models import Thread
-from accounts.models import UserLogin
+# from accounts.models import UserLogin
 
 
 @login_required
@@ -15,9 +15,9 @@ def chatPage(request):
     # select_related = 'firstParticipant__tutorProfile', 'firstParticipant__studentProfile', 'secondParticipant__tutorProfile', 'secondParticipant__studentProfile'
     # prefetch_related = 'threadMessages__user__tutorProfile', 'threadMessages__user__studentProfile'
     threads = Thread.objects.byUser(user=request.user).select_related('firstParticipant__tutorProfile', 'secondParticipant__tutorProfile').prefetch_related('threadMessages__user__tutorProfile').order_by('timestamp')
-    onlineUsers = UserLogin.objects.filter(logoutTime__date=datetime.max.date()).select_related('user')
+    # onlineUsers = UserLogin.objects.filter(logoutTime__date=datetime.max.date()).select_related('user')
 
-    if request.is_ajax():
+    if request.META.get("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest":
         functionality = request.GET.get('functionality', None)
 
         if functionality == 'createThread':
@@ -42,7 +42,7 @@ def chatPage(request):
             'name': getThreadName(request, i),
             'picture': getThreadPicture(request, i),
             'participantId': otherParticipantId(request, i),
-            'isOnline': isUserOnline(onlineUsers, otherParticipantId(request, i)),
+            # 'isOnline': isUserOnline(onlineUsers, otherParticipantId(request, i)),
             'chat': [
                 {
                     'date': uniqueDate,

@@ -1,8 +1,9 @@
 from django.contrib import admin
 
+from accounts.models import ComponentGroup
 from tutoring.models import Availability
 from tutoring.models import Component
-from tutoring.models import ComponentGroup
+# from tutoring.models import ComponentGroup
 from tutoring.models import Lesson
 from tutoring.models import Payment
 from tutoring.models import QuestionAnswer
@@ -28,7 +29,7 @@ class ComponentGroupAdmin(admin.ModelAdmin):
 admin.site.register(Availability)
 admin.site.register(Component)
 admin.site.register(ComponentGroup, ComponentGroupAdmin)
-admin.site.register(Lesson, LessonAdmin)
+admin.site.register(Lesson)
 admin.site.register(Payment)
 admin.site.register(QuestionAnswer)
 admin.site.register(QuestionAnswerComment)
