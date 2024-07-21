@@ -106,7 +106,83 @@ def registrationView(request):
     context = {
         'form': form
     }
-    return render(request, "accounts/registrationView.html", context)
+    return render(request, 'accounts/registrationView.html', context)
+
+
+def rules(request, ruleType):
+    if ruleType.casefold() == "privacy-policy":
+        TEMPLATE = "accounts/privacyPolicy.html"
+    elif ruleType.casefold() == "terms-and-conditions":
+        TEMPLATE = "accounts/termsAndConditions.html"
+    else:
+        raise Http404
+
+    return render(request, TEMPLATE)
+
+
+def activateAccountView(request, base64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(base64))
+        user = User.objects.get(pk=uid)
+    except (DjangoUnicodeDecodeError, ValueError, User.DoesNotExist):
+        user = None
+
+    passwordResetTokenGenerator = PasswordResetTokenGenerator()
+
+    if user is not None and passwordResetTokenGenerator.check_token(user, token):
+        user.is_active = True
+        user.save()
+
+        messages.success(
+            request,
+            'Account activated successfully'
+        )
+        return redirect('accounts:login-view')
+
+    return render(request, 'accounts/activateFailed.html', status=HTTPStatus.UNAUTHORIZED)
+
+
+def passwordResetRequestView(request):
+    if request.method == 'POST':
+        try:
+            user = User.objects.get(username=request.POST['email'])
+        except User.DoesNotExist:
+            user = None
+
+        if user is not None:
+            emailOperations.sendEmailToChangePassword(request, user)
+
+        messages.info(
+            request,
+            'Check your email for a password change link.'
+        )
+
+    return render(request, 'accounts/passwordResetRequestView.html')
+
+
+def passwordResetConfirmView(request, base64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(base64))
+        user = User.objects.get(pk=uid)
+    except (DjangoUnicodeDecodeError, ValueError, User.DoesNotExist):
+        user = None
+
+    passwordResetTokenGenerator = PasswordResetTokenGenerator()
+    verifyToken = passwordResetTokenGenerator.check_token(user, token)
+
+    if request.method == 'POST' and user is not None and verifyToken:
+        form = PasswordChangeForm(request, user, request.POST)
+
+        if form.is_valid():
+            form.updatePassword()
+            return redirect('accounts:login-view')
+
+    context = {
+        'form': PasswordChangeForm(),
+    }
+
+    TEMPLATE = 'passwordResetConfirmView' if user is not None and verifyToken else 'activateFailed'
+    return render(request, 'accounts/{}.html'.format(TEMPLATE), context)
 
 
 class CreateProfileViewApi(TemplateView):
@@ -361,82 +437,6 @@ class SettingsView(View):
 
         context = {"form": form}
         return render(request, self.getTemplate(), context)
-
-
-def rules(request, ruleType):
-    if ruleType.casefold() == "privacy-policy":
-        TEMPLATE = "accounts/privacyPolicy.html"
-    elif ruleType.casefold() == "terms-and-conditions":
-        TEMPLATE = "accounts/termsAndConditions.html"
-    else:
-        raise Http404
-
-    return render(request, TEMPLATE)
-
-
-def activateAccountView(request, base64, token):
-    try:
-        uid = force_str(urlsafe_base64_decode(base64))
-        user = User.objects.get(pk=uid)
-    except (DjangoUnicodeDecodeError, ValueError, User.DoesNotExist):
-        user = None
-
-    passwordResetTokenGenerator = PasswordResetTokenGenerator()
-
-    if user is not None and passwordResetTokenGenerator.check_token(user, token):
-        user.is_active = True
-        user.save()
-
-        messages.success(
-            request,
-            'Account activated successfully'
-        )
-        return redirect('accounts:login-view')
-
-    return render(request, 'accounts/activateFailed.html', status=HTTPStatus.UNAUTHORIZED)
-
-
-def passwordRequest(request):
-    if request.method == 'POST':
-        try:
-            user = User.objects.get(username=request.POST['email'])
-        except User.DoesNotExist:
-            user = None
-
-        if user is not None:
-            emailOperations.sendEmailToChangePassword(request, user)
-
-        messages.info(
-            request,
-            'Check your email for a password change link.'
-        )
-
-    return render(request, "accounts/passwordRequest.html")
-
-
-def passwordChange(request, base64, token):
-    try:
-        uid = force_str(urlsafe_base64_decode(base64))
-        user = User.objects.get(pk=uid)
-    except (DjangoUnicodeDecodeError, ValueError, User.DoesNotExist):
-        user = None
-
-    passwordResetTokenGenerator = PasswordResetTokenGenerator()
-    verifyToken = passwordResetTokenGenerator.check_token(user, token)
-
-    if request.method == "POST" and user is not None and verifyToken:
-        form = PasswordChangeForm(request, user, request.POST)
-
-        if form.is_valid():
-            form.updatePassword()
-            return redirect("accounts:login-view")
-
-    context = {
-        "form": PasswordChangeForm(),
-    }
-
-    TEMPLATE = "passwordResetForm" if user is not None and verifyToken else "activateFailed"
-    return render(request, "accounts/{}.html".format(TEMPLATE), context)
 
 
 # ---------------------------------------------------------------------- #

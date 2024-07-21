@@ -4,19 +4,19 @@ from accounts import views
 from accounts.api import CookieConsentApiEventVersion1Component
 from accounts.api import RequestDeleteCodeApiEventVersion1Component
 
-app_name = "accounts"
+app_name = 'accounts'
 
 urlpatterns = [
     path('login/', views.loginView, name='login-view'),
     path('logout/', views.logoutView, name='logout-view'),
     path('register/', views.registrationView, name='register-view'),
-
     path('activate-account/<base64>/<token>/', views.activateAccountView, name='activate-account-view'),
+    path('password-reset-request/', views.passwordResetRequestView, name='password-reset-request-view'),
+    path('password-reset-confirm/<base64>/<token>', views.passwordResetConfirmView, name='password-reset-confirm-view'),
 
     path("create-profile/", views.CreateProfileViewApi.as_view(), name="create-profile"),
     path("settings/", views.SettingsView.as_view(), name="settings-view"),
-    path("passwordRequest/", views.passwordRequest, name="password-request"),
-    path("passwordChange/<base64>/<token>", views.passwordChange, name="password-change"),
+
     path("rules/<slug:ruleType>/", views.rules, name="rules"),
     path("requestDeleteCode/", views.requestDeleteCode, name="requestDeleteCode"),
     path("requestCopyOfData/", views.requestCopyOfData, name="requestCopyOfData"),

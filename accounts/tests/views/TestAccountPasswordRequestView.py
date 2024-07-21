@@ -13,7 +13,7 @@ class AccountPasswordRequestViewTest(BaseTestViews):
     def testPasswordRequestGet(self):
         response = self.get()
         self.assertEquals(response.status_code, 200)
-        self.assertTemplateUsed(response, 'accounts/passwordRequest.html')
+        self.assertTemplateUsed(response, 'accounts/passwordResetRequestView.html')
 
     @patch('onetutor.operations.emailOperations.sendEmailToChangePassword')
     def testPasswordRequestExistingUser(self, mockSendEmailToChangePassword):

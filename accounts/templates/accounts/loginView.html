@@ -15,9 +15,9 @@
                             {{ form | crispy }}
                             <input type='submit' class='btn btn-primary btn-block' value='Login'>
                             <br>
-                            <p class='text-center font-weight-light' style='font-size: 14px'>
+                            <p class='text-center text-muted' style='font-size: 14px'>
                                 Forgot your password?
-                                <a href='{% url 'accounts:password-request' %}'>Reset Here</a>
+                                <a href='{% url 'accounts:password-reset-request-view' %}'>Reset Here</a>
                             </p>
                         </div>
                     </form>

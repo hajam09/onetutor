@@ -15,12 +15,13 @@
                             {{ form | crispy }}
                             <input type='submit' class='btn btn-primary btn-block' value='Register Now'>
                             <br>
-                            
-                            <p class='small text-center'>By clicking the Register Now button, you agree to our <br>
+
+                            <p class='small text-center text-muted'>
+                                By clicking the Register Now button, you agree to our <br>
                                 <a href='#' target='_blank'>Terms &amp; Conditions</a>, and
                                 <a href='#' target='_blank'>Privacy Policy</a>
                             </p>
-                            <p class='text-center font-weight-light' style='font-size: 14px'>
+                            <p class='text-center text-muted' style='font-size: 14px'>
                                 Already have an account?
                                 <a href='{% url 'accounts:login-view' %}'>Sign in</a>
                             </p>

@@ -54,7 +54,7 @@ def sendEmailToChangePassword(request, user: User):
             You have recently request to change your account password.
             Please click this link below to change your account password.
             \n
-            http://{currentSite.domain + reverse('accounts:password-change', kwargs={'base64': base64, 'token': token})}
+            http://{currentSite.domain + reverse('accounts:password-reset-confirm-view', kwargs={'base64': base64, 'token': token})}
             \n
             Thanks,
             The OneTutor Team
