@@ -3,6 +3,7 @@ from http import HTTPStatus
 
 from django.contrib import auth
 from django.contrib import messages
+from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.messages import get_messages
@@ -37,7 +38,7 @@ from tutoring.models import Availability
 
 def loginView(request):
     if request.user.is_authenticated:
-        return redirect('core:index-view')
+        return redirect('tutoring:index-view')
 
     if not request.session.session_key:
         request.session.save()
@@ -77,34 +78,35 @@ def loginView(request):
     return render(request, 'accounts/loginView.html', context)
 
 
+def logoutView(request):
+    logout(request)
+
+    previousUrl = request.META.get('HTTP_REFERER')
+    if previousUrl:
+        return redirect(previousUrl)
+
+    return redirect('tutoring:index-view')
+
+
 def registrationView(request):
-    if request.method == "POST":
+    if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
             newUser = form.save()
             emailOperations.sendEmailToActivateAccount(request, newUser)
 
             messages.info(
-                request, "We've sent you an activation link. Please check your email."
+                request,
+                'We\'ve sent you an activation link. Please check your email.'
             )
-            return redirect("accounts:login-view")
+            return redirect('accounts:login-view')
     else:
         form = RegistrationForm()
 
     context = {
-        "form": form
+        'form': form
     }
     return render(request, "accounts/registrationView.html", context)
-
-
-def logout(request):
-    auth.logout(request)
-
-    previousUrl = request.META.get("HTTP_REFERER")
-    if previousUrl:
-        return redirect(previousUrl)
-
-    return redirect("accounts:login-view")
 
 
 class CreateProfileViewApi(TemplateView):
@@ -372,7 +374,7 @@ def rules(request, ruleType):
     return render(request, TEMPLATE)
 
 
-def activateAccount(request, base64, token):
+def activateAccountView(request, base64, token):
     try:
         uid = force_str(urlsafe_base64_decode(base64))
         user = User.objects.get(pk=uid)
@@ -387,17 +389,17 @@ def activateAccount(request, base64, token):
 
         messages.success(
             request,
-            "Account activated successfully"
+            'Account activated successfully'
         )
-        return redirect("accounts:login-view")
+        return redirect('accounts:login-view')
 
-    return render(request, "accounts/activateFailed.html", status=HTTPStatus.UNAUTHORIZED)
+    return render(request, 'accounts/activateFailed.html', status=HTTPStatus.UNAUTHORIZED)
 
 
 def passwordRequest(request):
-    if request.method == "POST":
+    if request.method == 'POST':
         try:
-            user = User.objects.get(username=request.POST["email"])
+            user = User.objects.get(username=request.POST['email'])
         except User.DoesNotExist:
             user = None
 
@@ -405,7 +407,8 @@ def passwordRequest(request):
             emailOperations.sendEmailToChangePassword(request, user)
 
         messages.info(
-            request, "Check your email for a password change link."
+            request,
+            'Check your email for a password change link.'
         )
 
     return render(request, "accounts/passwordRequest.html")

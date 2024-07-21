@@ -8,6 +8,7 @@ from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.db import transaction
 
 from accounts.models import GetInTouch
 from accounts.models import TutorProfile
@@ -20,6 +21,7 @@ from tutoring.models import Component, Availability
 class RegistrationForm(UserCreationForm):
     first_name = forms.CharField(
         label='',
+        strip=True,
         widget=forms.TextInput(
             attrs={
                 'placeholder': 'Firstname'
@@ -28,6 +30,7 @@ class RegistrationForm(UserCreationForm):
     )
     last_name = forms.CharField(
         label='',
+        strip=True,
         widget=forms.TextInput(
             attrs={
                 'placeholder': 'Lastname'
@@ -67,6 +70,9 @@ class RegistrationForm(UserCreationForm):
 
     USERNAME_FIELD = 'email'
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
     def clean_email(self):
         email = self.cleaned_data.get('email')
 
@@ -76,28 +82,27 @@ class RegistrationForm(UserCreationForm):
         return email
 
     def clean_password2(self):
-        password1 = self.cleaned_data.get("password1")
-        password2 = self.cleaned_data.get("password2")
+        password1 = self.cleaned_data.get('password1')
+        password2 = self.cleaned_data.get('password2')
 
         if password1 and password2 and password1 != password2:
-            raise ValidationError("Your passwords do not match!")
+            raise ValidationError('Your passwords do not match!')
 
         if not generalOperations.isPasswordStrong(password1):
-            raise ValidationError("Your password is not strong enough.")
+            raise ValidationError('Your password is not strong enough.')
 
         return password1
 
-    def save(self, commit=True):
+    @transaction.atomic
+    def save(self):
         user = User()
-        user.username = self.cleaned_data.get("email")
-        user.email = self.cleaned_data.get("email")
-        user.set_password(self.cleaned_data["password1"])
-        user.first_name = self.cleaned_data.get("first_name")
-        user.last_name = self.cleaned_data.get("last_name")
-        user.is_active = settings.DEBUG
-
-        if commit:
-            user.save()
+        user.username = self.cleaned_data.get('email')
+        user.email = self.cleaned_data.get('email')
+        user.set_password(self.cleaned_data['password1'])
+        user.first_name = self.cleaned_data.get('first_name')
+        user.last_name = self.cleaned_data.get('last_name')
+        user.is_active = False
+        user.save()
         return user
 
 

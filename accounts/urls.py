@@ -1,18 +1,20 @@
 from django.urls import path
 
 from accounts import views
-from accounts.api import RequestDeleteCodeApiEventVersion1Component
 from accounts.api import CookieConsentApiEventVersion1Component
+from accounts.api import RequestDeleteCodeApiEventVersion1Component
 
 app_name = "accounts"
 
 urlpatterns = [
-    path("login/", views.loginView, name="login-view"),
-    path("register/", views.registrationView, name="register-view"),
-    path("logout/", views.logout, name="logout"),
+    path('login/', views.loginView, name='login-view'),
+    path('logout/', views.logoutView, name='logout-view'),
+    path('register/', views.registrationView, name='register-view'),
+
+    path('activate-account/<base64>/<token>/', views.activateAccountView, name='activate-account-view'),
+
     path("create-profile/", views.CreateProfileViewApi.as_view(), name="create-profile"),
     path("settings/", views.SettingsView.as_view(), name="settings-view"),
-    path("activate/<base64>/<token>", views.activateAccount, name="activate"),
     path("passwordRequest/", views.passwordRequest, name="password-request"),
     path("passwordChange/<base64>/<token>", views.passwordChange, name="password-change"),
     path("rules/<slug:ruleType>/", views.rules, name="rules"),

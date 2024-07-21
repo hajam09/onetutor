@@ -35,16 +35,16 @@ def navigationPanel(request):
                     linkItem("My Students", None, Icon("", "fas fa-child", "20")),
                     linkItem("Settings", None, Icon("", "fas fa-cogs", "20")),
                     None,
-                    linkItem("Logout", reverse("accounts:logout"), Icon("", "fas fa-sign-out-alt", "20")),
+                    linkItem('Logout', reverse('accounts:logout-view'), Icon('', 'fas fa-sign-out-alt', '20')),
                 ]),
             ]
         )
     else:
         links.append(
-            linkItem("Login / Register", "", None, [
-                linkItem("Register", reverse("accounts:register-view"), Icon("", "fas fa-user-circle", "20")),
+            linkItem('Login / Register', '', None, [
+                linkItem('Register', reverse('accounts:register-view'), Icon('', 'fas fa-user-circle', '20')),
                 None,
-                linkItem("Login", reverse("accounts:login-view"), Icon("", "fas fa-sign-in-alt", "20")),
+                linkItem('Login', reverse('accounts:login-view'), Icon('', 'fas fa-sign-in-alt', '20')),
             ]),
         )
 

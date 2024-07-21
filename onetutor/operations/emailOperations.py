@@ -5,32 +5,33 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
+from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
 
 def sendEmailToActivateAccount(request, user: User):
-    if settings.DEBUG or user.is_active:
-        return
-
     currentSite = get_current_site(request)
-    emailSubject = "Activate your OneTutor Account"
-    fullName = user.get_full_name()
-    uid = urlsafe_base64_encode(force_bytes(user.pk))
-    passwordResetTokenGenerator = PasswordResetTokenGenerator()
+    emailSubject = 'Activate your OneTutor Account'
 
-    message = """
-        Hi {},
+    fullName = user.get_full_name()
+    base64 = urlsafe_base64_encode(force_bytes(user.pk))
+
+    passwordResetTokenGenerator = PasswordResetTokenGenerator()
+    token = passwordResetTokenGenerator.make_token(user)
+
+    message = f'''
+        Hi {fullName},
         \n
         Welcome to OneTutor, thank you for your joining our service.
         We have created an account for you to unlock more features.
         \n
         please click this link below to verify your account
-        http://{}/accounts/activate/{}/{}
+        http://{currentSite.domain + reverse('accounts:activate-account-view', kwargs={'base64': base64, 'token': token})}
         \n
         Thanks,
         The OneTutor Team
-    """.format(fullName, currentSite.domain, uid, passwordResetTokenGenerator.make_token(user))
+    '''
 
     emailMessage = EmailMessage(emailSubject, message, settings.EMAIL_HOST_USER, [user.email])
     emailMessage.send()
@@ -39,22 +40,25 @@ def sendEmailToActivateAccount(request, user: User):
 
 def sendEmailToChangePassword(request, user: User):
     currentSite = get_current_site(request)
-    emailSubject = "Request to change OneTutor Password"
-    fullName = user.get_full_name()
-    uid = urlsafe_base64_encode(force_bytes(user.pk))
-    passwordResetTokenGenerator = PasswordResetTokenGenerator()
+    emailSubject = 'Request to change OneTutor Password'
 
-    message = """
-            Hi {},
+    fullName = user.get_full_name()
+    base64 = urlsafe_base64_encode(force_bytes(user.pk))
+
+    passwordResetTokenGenerator = PasswordResetTokenGenerator()
+    token = passwordResetTokenGenerator.make_token(user)
+
+    message = f'''
+            Hi {fullName},
             \n
             You have recently request to change your account password.
             Please click this link below to change your account password.
             \n
-            http://{}/accounts/passwordChange/{}/{}
+            http://{currentSite.domain + reverse('accounts:password-change', kwargs={'base64': base64, 'token': token})}
             \n
             Thanks,
             The OneTutor Team
-        """.format(fullName, currentSite.domain, uid, passwordResetTokenGenerator.make_token(user))
+        '''
 
     emailMessage = EmailMessage(emailSubject, message, settings.EMAIL_HOST_USER, [user.email])
     emailMessage.send()
