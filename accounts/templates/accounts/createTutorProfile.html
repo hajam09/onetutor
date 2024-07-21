@@ -1,171 +1,193 @@
-{% extends "accounts/account_base.html" %}
+{% extends "accounts/base.html" %}
+{% load baseTags %}
 {% load static %}
 {% block content %}
 
-<link rel="stylesheet" type="text/css" href="{% static 'css/tutorProfileEditPage.css' %}"/>
-<div class="container-fluid " style="margin: auto;overflow-x: hidden; max-width: 1500px;">
-   <br>
-   {% if messages %}
-      {% for message in messages %}
-         {% if message.tags == "error" %}
-            <div style="color: black; text-align: center;" class="alert alert-danger" role="alert">{{message}}</div>
-         {% else %}
-            <div style="color: black; text-align: center;" class="alert alert-{{ message.tags }}" role="alert">{{message}}</div>
-         {% endif %}
-      {% endfor %}
-   {% endif %}
-   <div class="row gutters-sm">
-      <div class="col-md-12" style="color: black;">
-         <form method="post">
-            {% csrf_token %}
-            <div class="form-group">
-               <h4 for="summary">Summary</h2>
-               <input type="text" class="form-control" id="summary" name="summary" required>
-            </div>
-            <hr>
-            <div class="form-group">
-               <h4 for="about">About</h2>
-               <textarea class="form-control" id="about" name="about" rows="5" required></textarea>
-            </div>
-            <hr>
-            <div class="form-group" id="education">
-               <h4 for="education" style="display:inline;">Education</h4>
-               <div id="listOfEducation">
-                  {% for e in request.user.education.all %}
-                  <div class="row">
-                     <div class="col-md-3 panel-pad-10">
-                        <div class="card">
-                           <input type="text" name="schoolName" class="form-control" placeholder="School Name" value="{{e.schoolName}}"
-                              data-toggle="tooltip" data-placement="top" title="School Name" required>
+    <br>
+    <div class="container">
+        <div class="row form-control" id="form-container">
+        </div>
+    </div>
+
+    <script type="text/babel">
+
+        function generateId(length) {
+            let result = '';
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            const charactersLength = characters.length;
+            let counter = 0;
+            while (counter < length) {
+                result += characters.charAt(Math.floor(Math.random() * charactersLength));
+                counter += 1;
+            }
+            return result;
+        }
+
+        class Education {
+            constructor(schoolName, qualificationAndGrades, startDate, endDate) {
+                this.id = generateId(5);
+                this.schoolName = schoolName;
+                this.qualificationAndGrades = qualificationAndGrades;
+                this.startDate = startDate;
+                this.endDate = endDate;
+            }
+        }
+
+        class EducationComponent extends React.Component {
+            constructor(props) {
+                super(props);
+            }
+
+            render() {
+                return (
+                    <div className="row">
+                        <div className="col-md-3 panel-pad-10">
+                            <div className="card">
+                                <input type="text" name="schoolName" className="form-control" placeholder="School Name"
+                                       defaultValue={this.props.education.schoolName}
+                                       data-toggle="tooltip" data-placement="top" title="School Name" required/>
+                            </div>
                         </div>
-                     </div>
-                     <div class="col-md-3 panel-pad-10">
-                        <div class="card">
-                           <input type="text" name="qualification" class="form-control" placeholder="Qualification &amp; Grade(s)" value="{{e.qualification}}"
-                              data-toggle="tooltip" data-placement="top" title="Qualification &amp; Grade(s)" required>
+                        <div className="col-md-3 panel-pad-10">
+                            <div className="card">
+                                <input type="text" name="qualification" className="form-control"
+                                       placeholder="Qualification &amp; Grade(s)"
+                                       defaultValue={this.props.education.qualificationAndGrades}
+                                       data-toggle="tooltip" data-placement="top" title="Qualification &amp; Grade(s)"
+                                       required/>
+                            </div>
                         </div>
-                     </div>
-                     <div class="col-md-3 panel-pad-10">
-                        <div class="card">
-                           <input type="date" name="startDate" class="form-control" placeholder="Attended From" value="{{e.startDate|date:'Y-m-d'}}"
-                              data-toggle="tooltip" data-placement="top" title="Attenderd from" required>
+                        <div className="col-md-3 panel-pad-10">
+                            <div className="card">
+                                <input type="date" name="startDate" className="form-control" placeholder="Attended From"
+                                       defaultValue={this.props.education.startDate}
+                                       data-toggle="tooltip" data-placement="top" title="Attended from" required/>
+                            </div>
                         </div>
-                     </div>
-                     <div class="col-md-3 panel-pad-10">
-                        <div class="card">
-                           <input type="date" name="endDate" class="form-control" placeholder="Attended To" value="{{e.endDate|date:'Y-m-d'}}"
-                              data-toggle="tooltip" data-placement="top" title="Attenderd To" required>
+                        <div className="col-md-3 panel-pad-10">
+                            <div className="card">
+                                <input type="date" name="endDate" className="form-control" placeholder="Attended To"
+                                       defaultValue={this.props.education.endDate}
+                                       data-toggle="tooltip" data-placement="top" title="Attended To" required/>
+                            </div>
                         </div>
-                     </div>
-                  </div>
-                  {% endfor %}
-               </div>
-               <button type="button" class="btn btn-primary btn-sm" onclick="addEducationRow();">Add another</button>
-            </div>
-            <hr>
-            <div class="form-group">
-               <h4 for="subjects">Subjects</h2>
-               <select class="multiple-subjects form-control" name="subjects" multiple="multiple" required>
-               </select>
-            </div>
-            <hr>
-            <div class="form-group">
-               <h4 for="chargeRate">Charge Rate (£)</h2>
-               <input class="form-control" type="number" required name="chargeRate" min="0" value="0" step=".01">
-            </div>
-            <hr>
-            <div class="form-group">
-               <h4 for="subjects">Features</h2>
-               <select class="multiple-subjects form-control" name="features[]" multiple="multiple">
-                  {% for f in tutorFeatures %} 
-                  <option value="{{f.code}}">{{f}}</option>
-                  {% endfor %} 
-               </select>
-            </div>
-            <hr>
-            <div class="form-group">
-               <h4 for="teachingLevels">Teaching levels</h2>
-               <select class="multiple-subjects form-control" name="teachingLevels[]" multiple="multiple">
-                  {% for f in highestEducations %} 
-                  <option value="{{f.code}}">{{f}}</option>
-                  {% endfor %} 
-               </select>
-            </div>
-            <hr>
-            <div class="form-group">
-               <button type="submit" class="btn btn-success btn-lg btn-block">Create Profile</button>
-            </div>
-            <input type="hidden" name="createTutorProfile">
-         </form>
-      </div>
-   </div>
-</div>
-<script src="/static/plugins/select2/js/select2.full.min.js"></script>
-<script type="text/javascript">
+                        <br></br>
+                        <br></br>
+                    </div>
+                )
+            }
+        }
 
-	$(document).ready(function()
-		{
-			$(".multiple-subjects").select2(
-				{
-					tags: true,
-				}
-			)
-		}
-	);
+        class Feature {
+            constructor(id, value, internalKey) {
+                this.id = id;
+                this.value = value;
+                this.internalKey = internalKey;
+            }
+        }
 
-	addRemoveEducationBtn();
-	
-	function addEducationRow()
-	{
+        class FormComponent extends React.Component {
+            constructor(props) {
+                super(props);
+                let featureOptions = [
+                    new Feature(1, "inPersonLessons", "In Person Lessons"),
+                    new Feature(2, "onlineLessons", "Online lessons"),
+                ];
 
-		var newRow = `
-         <div class="row">
-            <div class="col-md-3 panel-pad-10">
-               <div class="card">
-                  <input type="text" name="schoolName" class="form-control" placeholder="School Name"
-                  data-toggle="tooltip" data-placement="top" title="School Name" required>
-               </div>
-            </div>
-            <div class="col-md-3 panel-pad-10">
-               <div class="card">
-                  <input type="text" name="qualification" class="form-control" placeholder="Qualification &amp; Grade(s)"
-                  data-toggle="tooltip" data-placement="top" title="Qualification &amp; Grade(s)" required>
-               </div>
-            </div>
-            <div class="col-md-3 panel-pad-10">
-               <div class="card">
-                  <input type="date" name="startDate" class="form-control" placeholder="Attended From"
-                  data-toggle="tooltip" data-placement="top" title="Attenderd from" required>
-               </div>
-            </div>
-            <div class="col-md-3 panel-pad-10">
-               <div class="card">
-                  <input type="date" name="endDate" class="form-control" placeholder="Attended To"
-                  data-toggle="tooltip" data-placement="top" title="Attenderd To" required>
-               </div>
-            </div>
-         </div>`;
+                let educations = [
+                    new Education("", "", "", ""),
+                ]
 
-		$('#listOfEducation').append(newRow);
+                this.state = {
+                    educations: educations,
+                    featureOptions: featureOptions,
+                    csrf_token: "{{ csrf_token }}",
+                }
+            }
 
-      addRemoveEducationBtn();
-	}
+            addEducation = () => {
+                let educations = this.state.educations;
+                educations.push(
+                    new Education("", "", "", "")
+                )
+                this.setState({
+                    educations: educations,
+                })
+            }
 
-	function removeEducationRow()
-	{
-		$('#listOfEducation').children().last().remove();
+            removeEducation = () => {
+                let educations = this.state.educations;
+                educations.pop();
+                this.setState({
+                    educations: educations,
+                })
+            }
 
-      addRemoveEducationBtn();
-	}
+            render() {
+                return (
+                    <form method="post">
+                        <input type="hidden" name="csrfmiddlewaretoken" value={this.state.csrf_token}/>
+                        <div className="form-group">
+                            <b>Summary</b>
+                            <input type="text" className="form-control" id="summary" name="summary" maxLength={256}
+                                   required/>
+                        </div>
+                        <div className="form-group">
+                            <b>About</b>
+                            <textarea className="form-control" id="about" name="about" rows="5" required></textarea>
+                        </div>
+                        <div className="form-group">
+                            <b>Rate (£)</b>
+                            <input className="form-control" type="number" name="rate" min="0" defaultValue={0}
+                                   required/>
+                        </div>
+                        <div className="form-group">
+                            <b>Features</b>
+                            <select className="form-control" name="features" multiple={true}>
+                                {this.state.featureOptions.map((item) => <option key={item.id}
+                                                                                 value={item.value}>{item.internalKey}</option>)}
+                            </select>
+                        </div>
+                        <div className="form-group">
+                            <b>Education</b>
+                            {this.state.educations.map((item) => <EducationComponent key={item.id}
+                                                                                     education={item}/>)}
+                            <button type="button" className="btn btn-primary btn-sm float-right"
+                                    onClick={this.addEducation}>Add
+                            </button>
+                            {
+                                this.state.educations.length > 1 ?
+                                    <button type="button" className="btn btn-danger btn-sm float-right"
+                                            onClick={this.removeEducation}>Remove </button> : <span></span>
+                            }
+                        </div>
+                        <br></br>
+                        <hr></hr>
+                        <div className="form-group">
+                            <button type="submit" className="btn btn-success btn-lg btn-block">Create Profile
+                            </button>
+                        </div>
+                    </form>
+                )
+            }
+        }
 
-	function addRemoveEducationBtn()
-   {
-      if ( $('#listOfEducation').children().length == 0 )
-         $('#removeRow').remove();
-      else
-         if ( $('#removeRow').length == 0 )
-            $('#education').append('<button type="button" id="removeRow" class="btn btn-danger btn-sm" onclick="removeEducationRow();">Remove Row</button>'); 
-   }
+        ReactDOM.render(<FormComponent/>, document.getElementById('form-container'));
+    </script>
 
-</script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("[name='features']").select2();
+        });
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"
+            integrity="sha512-8Q6Y9XnTbOE+JNvjBQwJ2H8S+UV4uA6hiRykhdtIyDYZ2TprdNmWOUaKdGzOhyr4dCyk287OejbPvwl7lrfqrQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"
+            integrity="sha512-MOCpqoRoisCTwJ8vQQiciZv0qcpROCidek3GTFS6KTk2+y7munJIlKCVkFCYY+p3ErYFXCjmFjnfTTRSC1OHWQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"
+            integrity="sha512-kp7YHLxuJDJcOzStgd6vtpxr4ZU9kjn77e6dBsivSz+pUuAuMlE2UTdKB7jjsWT84qbS8kdCWHPETnP/ctrFsA=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 {% endblock %}

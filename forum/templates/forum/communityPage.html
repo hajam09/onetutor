@@ -1,4 +1,4 @@
-{% extends "accounts/account_base.html" %}
+{% extends "accounts/base.html" %}
 {% load static %}
 {% block content %}
 <style type="text/css">
@@ -124,7 +124,7 @@
 	function showModal()
 	{
 		{% if not user.is_authenticated %}
-			window.location.href = "{% url 'accounts:login' %}";
+			window.location.href = "{% url 'accounts:login-view' %}";
 		{% else %} 
 			$("#newForumThread").modal('show');
 		{% endif %}
@@ -133,7 +133,7 @@
 	function verifyLogin()
 	{
 		{% if not user.is_authenticated %}
-			window.location.href = "{% url 'accounts:login' %}";
+			window.location.href = "{% url 'accounts:login-view' %}";
 		{% endif %}
 	}
 

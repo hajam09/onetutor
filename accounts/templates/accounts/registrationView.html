@@ -1,0 +1,39 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <link rel="stylesheet" type="text/css" href="{% static "css/base-form.css" %}"/>
+    <div class="container">
+        <br>
+        <div class="form-container">
+            <div class="form-box bg-white">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-box-title">Register</div>
+                    <div class="form-box-social">
+                        <div class="social-title">Create your account. It's free and only takes a minute.</div>
+                    </div>
+                    <div class="form-box-or">
+                        <div class="or-line"></div>
+                    </div>
+                    <div class="form-box-textbox">
+                        {{ form | crispy }}
+                    </div>
+                    <div class="form-box-submit">
+                        <input type="submit" class="btn btn-primary btn-block" value="Register Now">
+                    </div>
+                    <div class="form-box-social">
+                        <div class="social-title ">
+                            <p class="small text-center">By clicking the Register Now button, you agree to our <br>
+                                <a href="#" target="_blank">Terms &amp; Conditions</a>, and
+                                <a href="#" target="_blank">Privacy Policy</a>
+                            </p>
+                        </div>
+                        <div class="social-title ">Already have an account? <a href="{% url "accounts:login-view" %}">Sign
+                            in</a></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

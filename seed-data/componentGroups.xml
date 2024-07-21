@@ -4,17 +4,12 @@
     <ComponentGroup internalKey="Education Level" code="EDUCATION_LEVEL"/>
     <ComponentGroup internalKey="Qualification" code="QUALIFICATION"/>
     <ComponentGroup internalKey="Rating Filter" code="RATING_FILTER"/>
-    <ComponentGroup internalKey="Project Status" code="PROJECT_STATUS"/>
-    <ComponentGroup internalKey="Ticket Issue Type" code="TICKET_ISSUE_TYPE"/>
-    <ComponentGroup internalKey="Ticket Status" code="TICKET_STATUS"/>
-    <ComponentGroup internalKey="Ticket Priority" code="TICKET_PRIORITY"/>
-    <ComponentGroup internalKey="Ticket Security" code="TICKET_SECURITY"/>
-    <ComponentGroup internalKey="Task Frequency" code="TASK_FREQUENCY"/>
 
     <Component componentGroup.internalKey="Tutor Feature" internalKey="In Person Lessons" code="inPersonLessons" colour="#009C2F" orderNo="1"/>
     <Component componentGroup.internalKey="Tutor Feature" internalKey="Online lessons" code="onlineLessons" colour="#6C5CE7" orderNo="2"/>
     <Component componentGroup.internalKey="Tutor Feature" internalKey="Pro" code="pro" colour="#4291DF" orderNo="3"/>
     <Component componentGroup.internalKey="Tutor Feature" internalKey="DBS" code="dbs" colour="#2EB994" orderNo="4"/>
+    <Component componentGroup.internalKey="Tutor Feature" internalKey="Security Check" code="sc" colour="#2EB994" orderNo="5"/>
 
     <Component componentGroup.internalKey="Payment Method" internalKey="American Express" code="AMEX" icon="fa fa-cc-amex"/>
     <Component componentGroup.internalKey="Payment Method" internalKey="JCB" code="JCB" icon="fa fa-cc-jcb"/>
@@ -35,6 +30,17 @@
     <Component componentGroup.internalKey="Qualification" internalKey="Bachelor Degree" code="bachelorDegree" orderNo="3"/>
     <Component componentGroup.internalKey="Qualification" internalKey="Master Degree" code="masterDegree" orderNo="4"/>
     <Component componentGroup.internalKey="Qualification" internalKey="Doctorate" code="doctorate" orderNo="5"/>
+    <Component componentGroup.internalKey="Qualification" internalKey="A-level" code="aLevel" orderNo="6"/>
+    <Component componentGroup.internalKey="Qualification" internalKey="Diploma" code="diploma" orderNo="7"/>
+    <Component componentGroup.internalKey="Qualification" internalKey="other" code="other" orderNo="8"/>
+    <Component componentGroup.internalKey="Qualification" internalKey="International Baccalaureate (IB)" code="internationalBaccalaureate" orderNo="9"/>
+    <Component componentGroup.internalKey="Qualification" internalKey="GCSE" code="gcse" orderNo="10"/>
+    <Component componentGroup.internalKey="Qualification" internalKey="11 Plus" code="11Plus" orderNo="11"/>
+    <Component componentGroup.internalKey="Qualification" internalKey="13 Plus" code="13Plus" orderNo="12"/>
+    <Component componentGroup.internalKey="Qualification" internalKey="KS3" code="ks3" orderNo="13"/>
+    <Component componentGroup.internalKey="Qualification" internalKey="KS2" code="ks2" orderNo="14"/>
+    <Component componentGroup.internalKey="Qualification" internalKey="KS1" code="ks1" orderNo="15"/>
+    <Component componentGroup.internalKey="Qualification" internalKey="Mentoring" code="Mentoring" orderNo="16"/>
 
     <Component componentGroup.internalKey="Rating Filter" internalKey="Show All" reference="-1" code="-1" orderNo="1"/>
     <Component componentGroup.internalKey="Rating Filter" internalKey="5 &#60;i class='fas fa-star'&#62;&#60;/i&#62; only" reference="5" code="5" orderNo="2"/>
@@ -42,54 +48,4 @@
     <Component componentGroup.internalKey="Rating Filter" internalKey="3 &#60;i class='fas fa-star'&#62;&#60;/i&#62; or more" reference="3" code="3" orderNo="4"/>
     <Component componentGroup.internalKey="Rating Filter" internalKey="2 &#60;i class='fas fa-star'&#62;&#60;/i&#62; or more" reference="2" code="2" orderNo="5"/>
     <Component componentGroup.internalKey="Rating Filter" internalKey="1 &#60;i class='fas fa-star'&#62;&#60;/i&#62; or more" reference="1" code="1" orderNo="6"/>
-
-    <Component componentGroup.internalKey="Project Status" internalKey="Done" code="DONE" colour="#28a745" icon="badge badge-success" orderNo="1"/>
-    <Component componentGroup.internalKey="Project Status" internalKey="On hold" code="ON_HOLD" colour="#ffc107" icon="badge badge-warning" orderNo="2"/>
-    <Component componentGroup.internalKey="Project Status" internalKey="On going" code="ON_GOING" colour="#007bff" icon="badge badge-primary" orderNo="4"/>
-    <Component componentGroup.internalKey="Project Status" internalKey="Terminated" code="TERMINATED" colour="#dc3545" icon="badge badge-danger" orderNo="4"/>
-    <Component componentGroup.internalKey="Project Status" internalKey="Archived" code="ARCHIVED" colour="#dc3545" icon="badge badge-secondary" orderNo="5"/>
-
-    <Component componentGroup.internalKey="Ticket Issue Type" internalKey="Bug" code="BUG" icon="img/ticket-issue-type/bug.jpg" orderNo="1"/>
-    <Component componentGroup.internalKey="Ticket Issue Type" internalKey="Epic" code="EPIC" icon="img/ticket-issue-type/epic.jpg" orderNo="2"/>
-    <Component componentGroup.internalKey="Ticket Issue Type" internalKey="Improvement" code="IMPROVEMENT" icon="img/ticket-issue-type/improvement.jpg" orderNo="3"/>
-    <Component componentGroup.internalKey="Ticket Issue Type" internalKey="New Feature" code="NEW_FEATURE" icon="img/ticket-issue-type/newFeature.jpg" orderNo="4"/>
-    <Component componentGroup.internalKey="Ticket Issue Type" internalKey="Story" code="STORY" icon="img/ticket-issue-type/story.jpg" orderNo="5"/>
-    <Component componentGroup.internalKey="Ticket Issue Type" internalKey="Sub Task" code="SUB_TASK" icon="img/ticket-issue-type/subtask.jpg" orderNo="6"/>
-    <Component componentGroup.internalKey="Ticket Issue Type" internalKey="Task" code="TASK" icon="img/ticket-issue-type/task.jpg" orderNo="7"/>
-    <Component componentGroup.internalKey="Ticket Issue Type" internalKey="Test" code="TEST" icon="img/ticket-issue-type/test.jpg" orderNo="8"/>
-    <Component componentGroup.internalKey="Ticket Issue Type" internalKey="Spike" code="SPIKE" icon="img/ticket-issue-type/spike.jpg" orderNo="9"/>
-
-    <Component componentGroup.internalKey="Ticket Status" internalKey="Open" code="OPEN" icon="badge badge-secondary" orderNo="1"/>
-    <Component componentGroup.internalKey="Ticket Status" internalKey="Progress" code="PROGRESS" icon="badge badge-primary" orderNo="2"/>
-    <Component componentGroup.internalKey="Ticket Status" internalKey="Done" code="DONE" icon="badge badge-success" orderNo="3"/>
-    <Component componentGroup.internalKey="Ticket Status" internalKey="Cancelled" code="CANCELLED" icon="badge badge-info" orderNo="4"/>
-    <Component componentGroup.internalKey="Ticket Status" internalKey="Blocked" code="BLOCKED" icon="badge badge-danger" orderNo="5"/>
-    <Component componentGroup.internalKey="Ticket Status" internalKey="Backlog" code="BACKLOG" icon="badge badge-dark" orderNo="6"/>
-
-    <Component componentGroup.internalKey="Ticket Priority" internalKey="Trivial" code="TRIVIAL" icon="img/ticket-priority/trivial.jpg" orderNo="1"/>
-    <Component componentGroup.internalKey="Ticket Priority" internalKey="Minor" code="MINOR" icon="img/ticket-priority/minor.jpg" orderNo="2"/>
-    <Component componentGroup.internalKey="Ticket Priority" internalKey="Lowest" code="LOWEST" icon="img/ticket-priority/lowest.jpg" orderNo="3"/>
-    <Component componentGroup.internalKey="Ticket Priority" internalKey="Low" code="LOW" icon="img/ticket-priority/low.jpg" orderNo="4"/>
-    <Component componentGroup.internalKey="Ticket Priority" internalKey="Medium" code="MEDIUM" icon="img/ticket-priority/medium.jpg" orderNo="5"/>
-    <Component componentGroup.internalKey="Ticket Priority" internalKey="High" code="HIGH" icon="img/ticket-priority/high.jpg" orderNo="6"/>
-    <Component componentGroup.internalKey="Ticket Priority" internalKey="Highest" code="HIGHEST" icon="img/ticket-priority/highest.jpg" orderNo="7"/>
-    <Component componentGroup.internalKey="Ticket Priority" internalKey="Major" code="MAJOR" icon="img/ticket-priority/major.jpg" orderNo="8"/>
-    <Component componentGroup.internalKey="Ticket Priority" internalKey="Critical" code="CRITICAL" icon="img/ticket-priority/critical.jpg" orderNo="9"/>
-    <Component componentGroup.internalKey="Ticket Priority" internalKey="Blocker" code="BLOCKER" icon="img/ticket-priority/blocker.jpg" orderNo="10"/>
-
-    <Component componentGroup.internalKey="Ticket Security" internalKey="Internal" code="INTERNAL" icon="badge badge-danger" orderNo="1"/>
-    <Component componentGroup.internalKey="Ticket Security" internalKey="External" code="EXTERNAL" icon="badge badge-primary" orderNo="2"/>
-
-    <Component componentGroup.internalKey="Task Frequency" internalKey="Every Second" code="EVERY_SECOND"/>
-    <Component componentGroup.internalKey="Task Frequency" internalKey="Every Minute" code="EVERY_MINUTE"/>
-    <Component componentGroup.internalKey="Task Frequency" internalKey="Every Hour" code="EVERY_HOUR"/>
-    <Component componentGroup.internalKey="Task Frequency" internalKey="Every Day" code="EVERY_DAY"/>
-    <Component componentGroup.internalKey="Task Frequency" internalKey="Every Five Days" code="EVERY_FIVE_DAYS"/>
-    <Component componentGroup.internalKey="Task Frequency" internalKey="Every Ten Days" code="EVERY_TEN_DAYS"/>
-    <Component componentGroup.internalKey="Task Frequency" internalKey="Every Fifteen Days" code="EVERY_FIFTEEN_DAYS"/>
-    <Component componentGroup.internalKey="Task Frequency" internalKey="Every Twenty Days" code="EVERY_TWENTY_DAYS"/>
-    <Component componentGroup.internalKey="Task Frequency" internalKey="Every Twenty Five Days" code="EVERY_TWENTY_FIVE_DAYS"/>
-    <Component componentGroup.internalKey="Task Frequency" internalKey="Every Month" code="EVERY_MONTH"/>
-    <Component componentGroup.internalKey="Task Frequency" internalKey="Every Six Months" code="EVERY_SIX_MONTHS"/>
-    <Component componentGroup.internalKey="Task Frequency" internalKey="Every Year" code="EVERY_YEAR"/>
 </SeedData>

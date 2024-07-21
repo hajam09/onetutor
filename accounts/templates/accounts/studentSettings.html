@@ -1,4 +1,4 @@
-{% extends "accounts/account_base.html" %}
+{% extends "accounts/base.html" %}
 {% load static %}
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/tutorSettingsPage.css' %}"/>
@@ -53,8 +53,8 @@
                      <input type="text" name="updateGeneralInformation" hidden>
                      {% csrf_token %}
                      <div class="card-body media align-items-center">
-                        {% if profile.profilePicture %}
-                        <img src="{{ profile.profilePicture.url }}" alt="" class="d-block ui-w-80 rounded-circle">
+                        {% if profile.picture %}
+                        <img src="{{ profile.picture.url }}" alt="" class="d-block ui-w-80 rounded-circle">
                         {% else %}
                         <img src="https://icon-library.com/images/default-user-icon/default-user-icon-13.jpg" alt="" class="d-block ui-w-80 rounded-circle">
                         {% endif %}

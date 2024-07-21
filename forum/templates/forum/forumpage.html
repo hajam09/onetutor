@@ -1,4 +1,4 @@
-{% extends "accounts/account_base.html" %}
+{% extends "accounts/base.html" %}
 {% load static %}
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/forumMainPage.css' %}"/>
@@ -42,8 +42,8 @@
 						{% else %}
 						<div class="alert alert-warning" role="alert"> Log in or sign up to leave a comment
 							<div class="pull-right">
-								<a class="btn btn-primary btn-sm" href="{% url 'accounts:login' %}" role="button">Login</a>
-								<a class="btn btn-secondary btn-sm" href="{% url 'accounts:register' %}" role="button">Signup</a>
+								<a class="btn btn-primary btn-sm" href="{% url 'accounts:login-view' %}" role="button">Login</a>
+								<a class="btn btn-secondary btn-sm" href="{% url 'register-view' %}" role="button">Signup</a>
 							</div>
 						</div>
 						{% endif %}
@@ -96,7 +96,7 @@
     function verifyLogin()
 	{
 		{% if not user.is_authenticated %}
-			window.location.href = "{% url 'accounts:login' %}";
+			window.location.href = "{% url 'accounts:login-view' %}";
 		{% endif %}
 	}
 

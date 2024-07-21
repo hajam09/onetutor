@@ -25,8 +25,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
     path('chat/', include('chat.urls')),
-    path('jira/', include('jira.urls')),
-    path('jira2/', include('jira2.urls')),
     path('forum/', include('forum.urls')),
     path('', include('tutoring.urls')),
 ]
@@ -41,7 +39,6 @@ if settings.DEBUG:
         path('__debug__/', include(debug_toolbar.urls)),
     ]
 
-cache.set('ticketIssueTypeComponents', Component.objects.filter(componentGroup__internalKey="Ticket Issue Type"))
-cache.set('ticketSecurityComponents', Component.objects.filter(componentGroup__internalKey="Ticket Security"))
-cache.set('ticketStatusComponents', Component.objects.filter(componentGroup__internalKey="Ticket Status"))
-cache.set('ticketPriorityComponents', Component.objects.filter(componentGroup__internalKey="Ticket Priority"))
+# cache.set("tutorFeatures", Component.objects.filter(componentGroup__code="TUTOR_FEATURE"))
+# cache.set("educationLevels", Component.objects.filter(componentGroup__code="EDUCATION_LEVEL"))
+# cache.set("qualifications", Component.objects.filter(componentGroup__code="QUALIFICATION"))
