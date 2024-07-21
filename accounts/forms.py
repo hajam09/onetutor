@@ -101,7 +101,6 @@ class RegistrationForm(UserCreationForm):
         return user
 
 
-# TODO: extends AuthenticationForm
 class LoginForm(forms.ModelForm):
     email = forms.EmailField(
         label='',
@@ -136,10 +135,9 @@ class LoginForm(forms.ModelForm):
         user = authenticate(username=email, password=password)
         if user:
             login(self.request, user)
-            # if remember me, then self.request.session.set_expiry(0)
             return self.cleaned_data
 
-        raise ValidationError("Username or Password did not match! ")
+        raise ValidationError('Please enter a correct email and password.')
 
 
 class GetInTouchForm(forms.ModelForm):

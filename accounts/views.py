@@ -36,28 +36,32 @@ from tutoring.models import Availability
 
 
 def loginView(request):
+    if request.user.is_authenticated:
+        return redirect('core:index-view')
+
     if not request.session.session_key:
         request.session.save()
 
-    if request.method == "POST":
+    if request.method == 'POST':
         uniqueVisitorId = request.session.session_key
 
         if cache.get(uniqueVisitorId) is not None and cache.get(uniqueVisitorId) > 3:
             cache.set(uniqueVisitorId, cache.get(uniqueVisitorId), 600)
 
             messages.error(
-                request, "Your account has been temporarily locked out because of too many failed login attempts."
+                request,
+                'Your account has been temporarily locked out because of too many failed login attempts.'
             )
-            return redirect("accounts:login-view")
+            return redirect('accounts:login-view')
 
         form = LoginForm(request, request.POST)
 
         if form.is_valid():
             cache.delete(uniqueVisitorId)
-            redirectUrl = request.GET.get("next")
+            redirectUrl = request.GET.get('next')
             if redirectUrl:
                 return redirect(redirectUrl)
-            return redirect("tutoring:index-view")
+            return redirect('tutoring:index-view')
 
         if cache.get(uniqueVisitorId) is None:
             cache.set(uniqueVisitorId, 1)
@@ -68,9 +72,9 @@ def loginView(request):
         form = LoginForm(request)
 
     context = {
-        "form": form
+        'form': form
     }
-    return render(request, "accounts/loginView.html", context)
+    return render(request, 'accounts/loginView.html', context)
 
 
 def registrationView(request):
