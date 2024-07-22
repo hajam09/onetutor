@@ -138,7 +138,8 @@ def passwordResetConfirmView(request, base64, token):
     passwordResetTokenGenerator = PasswordResetTokenGenerator()
     verifyToken = passwordResetTokenGenerator.check_token(user, token)
 
-    if request.method == 'POST' and user is not None and verifyToken:
+    userAndTokenVerified = user is not None and verifyToken
+    if request.method == 'POST' and userAndTokenVerified:
         form = CustomSetPasswordForm(user, request.POST)
 
         if form.is_valid():
@@ -151,5 +152,5 @@ def passwordResetConfirmView(request, base64, token):
         'form': form,
     }
 
-    TEMPLATE = 'passwordResetConfirmView' if user is not None and verifyToken else 'linkFailedTemplate'
-    return render(request, 'accounts/{}.html'.format(TEMPLATE), context)
+    template = 'passwordResetConfirmView' if userAndTokenVerified else 'linkFailedTemplate'
+    return render(request, 'accounts/{}.html'.format(template), context)
