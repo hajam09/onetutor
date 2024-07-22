@@ -26,8 +26,8 @@ class Thread(BaseModel):
     anonymous = models.BooleanField(default=False)
     likes = models.ManyToManyField(User, related_name='threadLikes')
     dislikes = models.ManyToManyField(User, related_name='threadDislikes')
-    picture = models.ImageField(blank=True, null=True, upload_to='forum-image/')
     watchers = models.ManyToManyField(User, related_name='threadWatchers')
+    picture = models.ImageField(blank=True, null=True, upload_to='forum-image/')
 
     def like(self, request):
         if request.user not in self.likes.all():

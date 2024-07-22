@@ -59,7 +59,7 @@ class RegistrationForm(UserCreationForm):
         user.is_active = False
         if commit:
             user.save()
-            if hasattr(self, "save_m2m"):
+            if hasattr(self, 'save_m2m'):
                 self.save_m2m()
         return user
 
