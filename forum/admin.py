@@ -1,3 +1,11 @@
 from django.contrib import admin
 
-# Register your models here.
+from forum.models import (
+    Category,
+    Forum,
+    ForumComment
+)
+
+admin.site.register(Category)
+admin.site.register(Forum)
+admin.site.register(ForumComment)

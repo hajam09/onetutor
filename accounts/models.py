@@ -87,7 +87,7 @@ class ParentProfile(BaseModel):
         verbose_name_plural = 'ParentProfile'
 
 
-class Education(models.Model):
+class Education(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='education')
     schoolName = models.CharField(max_length=256, blank=True, null=True)
     qualification = models.CharField(max_length=256, blank=True, null=True)
