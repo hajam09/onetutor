@@ -18,16 +18,16 @@ class Category(BaseModel):
         return self.name
 
 
-class Forum(BaseModel):
+class Thread(BaseModel):
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=1024)
     url = models.CharField(max_length=8, default=generateRandomString)
     description = models.TextField(blank=True, null=True)
     anonymous = models.BooleanField(default=False)
-    likes = models.ManyToManyField(User, related_name='forumLikes')
-    dislikes = models.ManyToManyField(User, related_name='forumDislikes')
+    likes = models.ManyToManyField(User, related_name='threadLikes')
+    dislikes = models.ManyToManyField(User, related_name='threadDislikes')
     picture = models.ImageField(blank=True, null=True, upload_to='forum-image/')
-    watchers = models.ManyToManyField(User, related_name='forumWatchers')
+    watchers = models.ManyToManyField(User, related_name='threadWatchers')
 
     def like(self, request):
         if request.user not in self.likes.all():
@@ -49,20 +49,20 @@ class Forum(BaseModel):
 
     class Meta:
         indexes = [
-            models.Index(fields=['creator'], name='forum-idx-creator'),
-            models.Index(fields=['title'], name='forum-idx-title'),
-            models.Index(fields=['description'], name='forum-idx-description'),
+            models.Index(fields=['creator'], name='thread-idx-creator'),
+            models.Index(fields=['title'], name='thread-idx-title'),
+            models.Index(fields=['description'], name='thread-idx-description'),
         ]
-        verbose_name_plural = 'Forum'
+        verbose_name_plural = 'Thread'
 
 
-class ForumComment(BaseModel):
-    forum = models.ForeignKey(Forum, on_delete=models.CASCADE, related_name='forumComments')
+class Comment(BaseModel):
+    thread = models.ForeignKey(Thread, on_delete=models.CASCADE, related_name='threadComments')
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
-    comment = models.TextField()
+    content = models.TextField()
     anonymous = models.BooleanField(default=False)
-    likes = models.ManyToManyField(User, related_name='forumCommentLikes')
-    dislikes = models.ManyToManyField(User, related_name='forumCommentDislikes')
+    likes = models.ManyToManyField(User, related_name='commentLikes')
+    dislikes = models.ManyToManyField(User, related_name='commentDislikes')
 
     def like(self, request):
         if request.user not in self.likes.all():
@@ -84,8 +84,8 @@ class ForumComment(BaseModel):
 
     class Meta:
         indexes = [
-            models.Index(fields=['forum'], name='forum-comment-idx-forum'),
-            models.Index(fields=['creator'], name='forum-comment-idx-creator'),
-            models.Index(fields=['forum', 'creator'], name='forum-comment-idx-book-creator'),
+            models.Index(fields=['thread'], name='comment-idx-thread'),
+            models.Index(fields=['creator'], name='comment-idx-creator'),
+            models.Index(fields=['thread', 'creator'], name='comment-idx-thread-creator'),
         ]
-        verbose_name_plural = 'ForumComment'
+        verbose_name_plural = 'Comment'
