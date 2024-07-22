@@ -43,7 +43,7 @@ class TutorProfile(BaseModel):
     about = models.TextField()
     picture = models.ImageField(blank=True, null=True, upload_to='profile-picture')
     dateOfBirth = models.DateField()
-    features = ArrayField(models.CharField(max_length=8192), blank=True, related_name='features')
+    features = ArrayField(models.CharField(max_length=8192), blank=True)
     verified = models.BooleanField(default=False)
     trustedBySchool = models.BooleanField(default=False)
 
@@ -59,7 +59,7 @@ class StudentProfile(BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='studentProfile')
     url = models.UUIDField(default=generateRandomString, editable=False, unique=True)
     about = models.TextField()
-    subjects = ArrayField(models.CharField(max_length=8192), blank=True, related_name='subjects')
+    subjects = ArrayField(models.CharField(max_length=8192), blank=True)
     picture = models.ImageField(blank=True, null=True, upload_to='profile-picture')
     dateOfBirth = models.DateField()
     parent = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='children')
@@ -109,8 +109,8 @@ class TutorQualification(BaseModel):
 
     class Meta:
         indexes = [
-            models.Index(fields=['user'], name='tutor-qualification-idx-user'),
-            models.Index(fields=['subject'], name='tutor-qualification-idx-subject'),
+            models.Index(fields=['user'], name='qualification-idx-user'),
+            models.Index(fields=['subject'], name='qualification-idx-subject'),
         ]
         verbose_name_plural = 'TutorQualification'
 
