@@ -29,8 +29,4 @@ def navigationPanel(request):
                 linkItem('Login', reverse('accounts:login-view'), Icon('', 'fas fa-sign-in-alt', '20')),
             ]),
         )
-
-    links.append(
-        linkItem('Forum', reverse('forum:index-view'), None)
-    )
     return links
