@@ -61,3 +61,25 @@ def sendEmailToResetPassword(request, user: User):
     emailMessage = EmailMessage(emailSubject, message, settings.EMAIL_HOST_USER, [user.email])
     emailMessage.send()
     return None
+
+
+def sendEmailForAccountDeleteCode(request, user: User):
+    emailSubject = 'Account delete code'
+    fullName = user.get_full_name()
+    deleteCode = request.session.session_key
+
+    message = f'''
+        Hi {fullName},
+        \n
+        Below is the code to delete your account permanently.
+        Copy the code and paste it on our website.
+        \n
+        Your code is: {deleteCode}
+        \n
+        Thanks,
+        The OneTutor Team
+    '''
+
+    emailMessage = EmailMessage(emailSubject, message, settings.EMAIL_HOST_USER, [user.email])
+    emailMessage.send()
+    return
