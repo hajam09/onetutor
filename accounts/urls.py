@@ -1,6 +1,7 @@
 from django.urls import path
 
 from accounts.api import (
+    CookieConsentApiEventVersion1Component,
     RequestDeleteCodeApiEventVersion1Component
 )
 from accounts.views import (
@@ -24,6 +25,11 @@ urlpatterns = [
 ]
 
 urlpatterns += [
+    path(
+        'api/v1/cookieConsentApiEventVersion1Component/',
+        CookieConsentApiEventVersion1Component.as_view(),
+        name='cookieConsentApiEventVersion1Component'
+    ),
     path(
         'api/v1/requestDeleteCodeApiEventVersion1Component/',
         RequestDeleteCodeApiEventVersion1Component.as_view(),

@@ -21,9 +21,6 @@ def loginView(request):
     if request.user.is_authenticated:
         return redirect('core:index-view')
 
-    if not request.session.session_key:
-        request.session.save()
-
     if request.method == 'POST':
         uniqueVisitorId = request.session.session_key
 
