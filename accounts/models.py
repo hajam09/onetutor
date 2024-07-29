@@ -4,7 +4,7 @@ from django.utils import timezone
 
 
 class BaseModel(models.Model):
-    createdDateTime = models.DateTimeField(default=timezone.now)
+    createdDateTime = models.DateTimeField(default=timezone.now, editable=False)
     modifiedDateTime = models.DateTimeField(auto_now=True)
 
     class Meta:

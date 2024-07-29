@@ -1,0 +1,64 @@
+{% extends 'core/base.html' %}
+{% load crispy_forms_filters %}
+{% load static %}
+{% block content %}
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css' rel='stylesheet'/>
+    <div class='container'>
+        <div class='w-100 p-5'></div>
+        <div class='row'>
+            <div class='col-12 d-flex justify-content-center align-items-center'>
+                <div class='card w-50'>
+                    <form method='post'>
+                        {% csrf_token %}
+                        <div class='card-body'>
+                            <h5 class='card-title text-center'>{{ formTitle }}</h5>
+                            <hr>
+                            {{ form | crispy }}
+                            <input type='submit' class='btn btn-primary btn-block' value='Submit'>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $('.selectmultiple').select2({
+                placeholder: 'Features',
+                allowClear: true,
+            });
+
+            $('select').select2({
+                placeholder: 'Subject(s)',
+                tags: true,
+            });
+        });
+
+        function checkAge() {
+            const dobField = document.getElementById('id_dateOfBirth');
+            const parentCodeField = document.getElementById('id_parentCode');
+
+            if (dobField.value) {
+                const dob = new Date(dobField.value);
+                const ageDifMs = Date.now() - dob.getTime();
+                const ageDate = new Date(ageDifMs);
+                const age = Math.abs(ageDate.getUTCFullYear() - 1970);
+
+                if (age < 18) {
+                    parentCodeField.removeAttribute('hidden');
+                    parentCodeField.required = 'required';
+                } else {
+                    parentCodeField.setAttribute('hidden', '');
+                    parentCodeField.removeAttribute('required');
+                }
+            }
+        }
+
+        $('#id_dateOfBirth').on('change paste keyup', function () {
+            checkAge();
+        });
+
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js'></script>
+{% endblock %}

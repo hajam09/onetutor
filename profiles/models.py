@@ -7,6 +7,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from accounts.models import BaseModel
+from core.models import Component
 
 
 def generateRandomString():
@@ -31,14 +32,14 @@ class Qualification(models.TextChoices):
 
 class TutorProfile(BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='tutorProfile')
-    url = models.UUIDField(default=generateRandomString, editable=False, unique=True)
+    url = models.CharField(default=generateRandomString, editable=False, unique=True)
     summary = models.CharField(max_length=256)
     about = models.TextField()
     picture = models.ImageField(blank=True, null=True, upload_to='profile-picture')
     dateOfBirth = models.DateField()
-    features = ArrayField(models.CharField(max_length=8192), blank=True)
+    features = models.ManyToManyField(Component, blank=True, related_name='features')
+    clearanceLevels = models.ManyToManyField(Component, blank=True, related_name='clearanceLevels')
     verified = models.BooleanField(default=False)
-    trustedBySchool = models.BooleanField(default=False)
 
     class Meta:
         indexes = [
@@ -50,9 +51,8 @@ class TutorProfile(BaseModel):
 
 class StudentProfile(BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='studentProfile')
-    url = models.UUIDField(default=generateRandomString, editable=False, unique=True)
+    url = models.CharField(default=generateRandomString, editable=False, unique=True)
     about = models.TextField()
-    subjects = ArrayField(models.CharField(max_length=8192), blank=True)
     picture = models.ImageField(blank=True, null=True, upload_to='profile-picture')
     dateOfBirth = models.DateField()
     parent = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='children')
@@ -67,7 +67,7 @@ class StudentProfile(BaseModel):
 
 class ParentProfile(BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='parentProfile')
-    url = models.UUIDField(default=generateRandomString, editable=False, unique=True)
+    url = models.CharField(default=generateRandomString, editable=False, unique=True)
     code = models.CharField(max_length=8, default=generateRandomString, editable=False, unique=True)
     picture = models.ImageField(blank=True, null=True, upload_to='profile-picture')
     dateOfBirth = models.DateField()

@@ -4,6 +4,45 @@ from django.db import models
 from accounts.models import BaseModel
 
 
+class ComponentGroup(BaseModel):
+    name = models.CharField(max_length=2048, blank=True, null=True)
+    code = models.CharField(max_length=2048, blank=True, null=True)
+    colour = models.CharField(max_length=8, blank=True, null=True)
+    orderNo = models.IntegerField(default=1, blank=True, null=True)
+    adminOnly = models.BooleanField(default=False)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['name'], name='component-group-idx-name'),
+            models.Index(fields=['code'], name='component-group-idx-code'),
+        ]
+        verbose_name_plural = 'ComponentGroup'
+
+    def __str__(self):
+        return self.name
+
+
+class Component(BaseModel):
+    componentGroup = models.ForeignKey(ComponentGroup, on_delete=models.CASCADE, related_name='components')
+    name = models.CharField(max_length=2048, blank=True, null=True)
+    code = models.CharField(max_length=2048, blank=True, null=True)
+    colour = models.CharField(max_length=8, blank=True, null=True)
+    orderNo = models.IntegerField(default=1, blank=True, null=True)
+    adminOnly = models.BooleanField(default=False)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['componentGroup'], name='component-idx-componentGroup'),
+            models.Index(fields=['name'], name='component-idx-name'),
+            models.Index(fields=['code'], name='component-idx-code'),
+        ]
+        ordering = ['componentGroup', 'orderNo']
+        verbose_name_plural = 'Component'
+
+    def __str__(self):
+        return self.name
+
+
 class Availability(BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True, related_name='availability')
     sundayMorning = models.BooleanField(default=False)
