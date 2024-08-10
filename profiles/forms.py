@@ -4,10 +4,11 @@ from datetime import (
 )
 
 from django import forms
+from django.contrib.auth.forms import PasswordChangeForm
 from django.core.exceptions import ValidationError
 
 from core.models import Component
-from onetutor.operations import utilsOperations
+from onetutor.utils import utilsOperations
 from profiles.models import (
     TutorProfile,
     StudentProfile,
@@ -132,3 +133,18 @@ class ParentProfileForm(forms.ModelForm):
             raise ValidationError('Must be above 18 years old.')
 
         return self.cleaned_data.get('dateOfBirth')
+
+
+class CustomPasswordChangeForm(PasswordChangeForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields.get('old_password').label = ''
+        self.fields.get('old_password').widget.attrs['placeholder'] = 'Old password'
+
+        self.fields.get('new_password1').label = ''
+        self.fields.get('new_password1').widget.attrs['placeholder'] = 'New password'
+
+        self.fields.get('new_password2').label = ''
+        self.fields.get('new_password2').widget.attrs['placeholder'] = 'Confirm new password'

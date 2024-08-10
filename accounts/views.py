@@ -14,7 +14,7 @@ from accounts.forms import (
     RegistrationForm,
     CustomSetPasswordForm
 )
-from onetutor.operations import emailOperations
+from onetutor.utils import emailOperations
 
 
 def loginView(request):

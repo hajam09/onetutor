@@ -2,7 +2,7 @@ from django import template
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
-from onetutor.operations.navigationOperations import linkItem, Icon
+from onetutor.utils.navigationOperations import linkItem, Icon
 
 register = template.Library()
 

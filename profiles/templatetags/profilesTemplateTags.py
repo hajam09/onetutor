@@ -2,6 +2,9 @@ from django import template
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
+from onetutor.utils.common import SettingTab, tutorTabs
+from onetutor.utils.exceptions import ProfileNotFound
+
 register = template.Library()
 
 
@@ -71,6 +74,36 @@ def render():
             <div class='row'>
                 {''.join([getProfileSelectComponent(profile) for profile in profiles])}
             </div>
+        </div>
+    '''
+    return mark_safe(itemContent)
+
+
+@register.simple_tag
+def renderTabComponent(request, tab: SettingTab):
+    style = 'style=\'background-color: lightgrey\'' if request.GET.get('tab') == tab.code else ''
+    itemContent = f'''
+        <a href='{reverse('profiles:settings-view') + f'?tab={tab.code}'}' class='list-group-item' {style}>{tab.name}</a>
+    '''
+    return itemContent
+
+
+@register.simple_tag
+def getTabsForProfile(request):
+    if request.user.is_authenticated and hasattr(request.user, 'tutorProfile'):
+        tabList = ''.join([renderTabComponent(request, tab) for tab in tutorTabs])
+    elif request.user.is_authenticated and hasattr(request.user, 'studentProfile'):
+        tabList = ''
+    elif request.user.is_authenticated and hasattr(request.user, 'parentProfile'):
+        tabList = ''
+    else:
+        raise ProfileNotFound
+
+    itemContent = f'''
+        <div class='card' style='width: 18rem;'>
+            <ul class='list-group list-group-flush'>
+                {tabList}
+            </ul>
         </div>
     '''
     return mark_safe(itemContent)

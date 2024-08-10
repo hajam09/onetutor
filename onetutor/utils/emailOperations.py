@@ -1,7 +1,10 @@
+import uuid
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.sites.shortcuts import get_current_site
+from django.core.cache import cache
 from django.core.mail import EmailMessage
 from django.urls import reverse
 from django.utils.encoding import force_bytes
@@ -66,13 +69,14 @@ def sendEmailToResetPassword(request, user: User):
 def sendEmailForAccountDeleteCode(request, user: User):
     emailSubject = 'Account delete code'
     fullName = user.get_full_name()
-    deleteCode = request.session.session_key
+    deleteCode = uuid.uuid4()
+    cache.set(f'account-delete-code-{request.user.id}', uuid.uuid4(), 900)
 
     message = f'''
         Hi {fullName},
         \n
         Below is the code to delete your account permanently.
-        Copy the code and paste it on our website.
+        Copy the code and paste it on our website. It will expire in 15 minutes.
         \n
         Your code is: {deleteCode}
         \n

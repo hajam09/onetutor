@@ -2,7 +2,6 @@ import random
 import string
 
 from django.contrib.auth.models import User
-from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -31,8 +30,8 @@ class Qualification(models.TextChoices):
 
 
 class TutorProfile(BaseModel):
+    id = models.CharField(primary_key=True, default=generateRandomString, unique=True, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='tutorProfile')
-    url = models.CharField(default=generateRandomString, editable=False, unique=True)
     summary = models.CharField(max_length=256)
     about = models.TextField()
     picture = models.ImageField(blank=True, null=True, upload_to='profile-picture')
@@ -44,14 +43,13 @@ class TutorProfile(BaseModel):
     class Meta:
         indexes = [
             models.Index(fields=['user'], name='tutor-profile-idx-user'),
-            models.Index(fields=['url'], name='tutor-profile-idx-url'),
         ]
         verbose_name_plural = 'TutorProfile'
 
 
 class StudentProfile(BaseModel):
+    id = models.CharField(primary_key=True, default=generateRandomString, unique=True, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='studentProfile')
-    url = models.CharField(default=generateRandomString, editable=False, unique=True)
     about = models.TextField()
     picture = models.ImageField(blank=True, null=True, upload_to='profile-picture')
     dateOfBirth = models.DateField()
@@ -60,14 +58,13 @@ class StudentProfile(BaseModel):
     class Meta:
         indexes = [
             models.Index(fields=['user'], name='student-profile-idx-user'),
-            models.Index(fields=['url'], name='student-profile-idx-url'),
         ]
         verbose_name_plural = 'StudentProfile'
 
 
 class ParentProfile(BaseModel):
+    id = models.CharField(primary_key=True, default=generateRandomString, unique=True, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='parentProfile')
-    url = models.CharField(default=generateRandomString, editable=False, unique=True)
     code = models.CharField(max_length=8, default=generateRandomString, editable=False, unique=True)
     picture = models.ImageField(blank=True, null=True, upload_to='profile-picture')
     dateOfBirth = models.DateField()
@@ -75,7 +72,6 @@ class ParentProfile(BaseModel):
     class Meta:
         indexes = [
             models.Index(fields=['user'], name='parent-profile-idx-user'),
-            models.Index(fields=['url'], name='parent-profile-idx-url'),
         ]
         verbose_name_plural = 'ParentProfile'
 
